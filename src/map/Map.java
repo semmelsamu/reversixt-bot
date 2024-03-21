@@ -12,6 +12,10 @@ public class Map {
     private final int initialOverwriteStones;
     private final int initialBombs, bombRadius;
     private final int width, height;
+
+    /**
+     * The "game board". First dimension is the lines, second one is columns/rows.
+     */
     private TileType[][] map;
 
     public Map(int initialPlayers,
@@ -48,7 +52,7 @@ public class Map {
                 ", bombRadius=" + bombRadius +
                 ", width=" + width +
                 ", height=" + height +
-                "}\n");
+                "}\n\u001B[0m");
 
         for(TileType[] row : map) {
             for(TileType column: row) {

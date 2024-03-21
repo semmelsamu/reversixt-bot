@@ -46,16 +46,16 @@ public enum TileType {
     public String toString() {
         return switch (character) {
             case '0' -> ". ";
-            case '-' -> "##";
-            case '1' -> "P1";
-            case '2' -> "P2";
-            case '3' -> "P3";
-            case '4' -> "P4";
+            case '-' -> "\u001B[47m##\u001B[0m";
+            case '1' -> "\u001B[31mP1\u001B[0m";
+            case '2' -> "\u001B[32mP2\u001B[0m";
+            case '3' -> "\u001B[34mP3\u001B[0m";
+            case '4' -> "\u001B[33mP4\u001B[0m";
             case '5' -> "P5";
             case '6' -> "P6";
             case '7' -> "P7";
             case '8' -> "P8";
-            case 'x' -> "x ";
+            case 'x' -> "\u001B[40mx \u001B[0m";
             case 'i' -> "i ";
             case 'c' -> "c ";
             case 'b' -> "b ";
