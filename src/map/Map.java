@@ -52,7 +52,7 @@ public class Map {
 
         for(TileType[] row : map) {
             for(TileType column: row) {
-                result.append(column);
+                result.append(column).append(" ");
             }
             result.append("\n");
         }
@@ -69,7 +69,6 @@ public class Map {
             // Format string
             lines[i] = lines[i].trim().toLowerCase();
         }
-
 
         try {
             Logger.debug(lines[0]);
@@ -90,11 +89,11 @@ public class Map {
 
             char[][] map = new char[height][width];
             for (int y = 0; y < height; y++) {
+                // Lines 0-3 are initialPlayer, initialOverwriteStones..., so we start at line 4
                 Logger.debug(lines[y + 4]);
-                // Lines 0-3 are init variables
                 String[] currentRow = lines[y + 4].split((" "));
                 for (int x = 0; x < width; x++) {
-                    map[x][y] = currentRow[x].charAt(0);
+                    map[y][x] = currentRow[x].charAt(0);
                 }
             }
 
