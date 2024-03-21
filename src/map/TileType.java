@@ -42,8 +42,7 @@ public enum TileType {
         throw new IllegalArgumentException("Unknown character: " + c);
     }
 
-    @Override
-    public String toString() {
+    public String print() {
         return switch (character) {
             case '0' -> ". ";
             case '-' -> "\u001B[47m##\u001B[0m";

@@ -2,66 +2,60 @@ package map;
 
 import util.Logger;
 
-import java.util.Arrays;
-
 import static util.File.readFile;
 
 public class Map {
 
-    private final int initialPlayers;
-    private final int initialOverwriteStones;
-    private final int initialBombs, bombRadius;
-    private final int width, height;
-
     /**
      * The "game board". First dimension is the lines, second one is columns/rows.
      */
-    private TileType[][] map;
+    private MapTile[][] tiles;
 
-    public Map(int initialPlayers,
-               int initialOverwriteStones,
-               int initialBombs, int bombRadius,
-               int width, int height,
-               char[][] charMap
-    ) {
-        this.initialPlayers = initialPlayers;
-        this.initialOverwriteStones = initialOverwriteStones;
-        this.initialBombs = initialBombs;
-        this.bombRadius = bombRadius;
-        this.width = width;
-        this.height = height;
+    public Map(char[][] tiles, int[][] transitions) {
 
-        this.map = new TileType[charMap.length][charMap[0].length];
+        this.tiles = new MapTile[tiles.length][tiles[0].length];
 
-        for (int i = 0; i < charMap.length; i++) {
-            for (int j = 0; j < charMap[i].length; j++) {
-                this.map[i][j] = TileType.fromChar(charMap[i][j]);
+        // Build map
+
+        for (int y = 0; y < tiles.length; y++) {
+            for (int x = 0; x < tiles[y].length; x++) {
+                this.tiles[y][x] = new MapTile(
+                        TileType.fromChar(tiles[y][x]),
+                        new Coordinates(x, y)
+                );
             }
+        }
+
+        // Register transitions
+
+        for (int[] transition : transitions) {
+            // Transitions must be registered in both ways.
+            int x1 = transition[0];
+            int y1 = transition[1];
+            Direction d1 = Direction.fromValue(transition[2]);
+            int x2 = transition[3];
+            int y2 = transition[4];
+            Direction d2 = Direction.fromValue(transition[5]);
+
+            MapTile tile1 = this.tiles[y1][x1];
+            MapTile tile2 = this.tiles[y2][x2];
+
+            tile1.addTransition(new Transition(d1, tile2, d2));
+            tile2.addTransition(new Transition(d2, tile1, d1));
+
         }
 
         Logger.log("Constructed map");
-        Logger.debug(this.toString());
+        this.print();
     }
 
-    @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder("Map\n{" +
-                "initialPlayers=" + initialPlayers +
-                ", initialOverwriteStones=" + initialOverwriteStones +
-                ", initialBombs=" + initialBombs +
-                ", bombRadius=" + bombRadius +
-                ", width=" + width +
-                ", height=" + height +
-                "}\n\u001B[0m");
-
-        for(TileType[] row : map) {
-            for(TileType column: row) {
-                result.append(column).append(" ");
+    public void print() {
+        for (MapTile[] row : tiles) {
+            for (MapTile column : row) {
+                System.out.print(column.getType().print());
             }
-            result.append("\n");
+            System.out.println();
         }
-
-        return result.toString();
     }
 
     public static Map constructFromString(String string) {
@@ -101,13 +95,25 @@ public class Map {
                 }
             }
 
-            return new Map(initialPlayers,
-                    initialOverwriteStones,
-                    initialBombs,
-                    bombRadius,
-                    width,
-                    height,
-                    map);
+            int[][] transitions = new int[lines.length - 4 - height][6];
+            int currentTransition = 0;
+
+            for (int i = 4 + height; i < lines.length; i++) {
+                String transitionString = lines[i];
+                Logger.verbose(transitionString);
+                String[] transitionParts = transitionString.split(" ");
+                transitions[currentTransition] = new int[]{
+                        Integer.parseInt(transitionParts[0]),
+                        Integer.parseInt(transitionParts[1]),
+                        Integer.parseInt(transitionParts[2]),
+                        Integer.parseInt(transitionParts[4]),
+                        Integer.parseInt(transitionParts[5]),
+                        Integer.parseInt(transitionParts[6]),
+                };
+                currentTransition++;
+            }
+
+            return new Map(map, transitions);
 
         } catch (Exception e) {
             Logger.fatal("Error parsing map string: " + e.getMessage());
