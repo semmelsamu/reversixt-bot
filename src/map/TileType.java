@@ -41,4 +41,25 @@ public enum TileType {
         }
         throw new IllegalArgumentException("Unknown character: " + c);
     }
+
+    @Override
+    public String toString() {
+        return switch (character) {
+            case '0' -> ". ";
+            case '-' -> "##";
+            case '1' -> "P1";
+            case '2' -> "P2";
+            case '3' -> "P3";
+            case '4' -> "P4";
+            case '5' -> "P5";
+            case '6' -> "P6";
+            case '7' -> "P7";
+            case '8' -> "P8";
+            case 'x' -> "x ";
+            case 'i' -> "i ";
+            case 'c' -> "c ";
+            case 'b' -> "b ";
+            default -> "??";
+        };
+    }
 }
