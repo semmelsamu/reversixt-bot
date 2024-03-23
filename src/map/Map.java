@@ -82,8 +82,8 @@ public class Map {
 
             Logger.debug(lines[3]);
             String[] line4Split = lines[3].split(" ");
-            int width = Integer.parseInt(line4Split[0]);
-            int height = Integer.parseInt(line4Split[1]);
+            int height = Integer.parseInt(line4Split[0]);
+            int width = Integer.parseInt(line4Split[1]);
 
             char[][] map = new char[height][width];
             for (int y = 0; y < height; y++) {
@@ -122,6 +122,7 @@ public class Map {
     }
 
     public static Map constructFromFile(String filename) {
+        Logger.log("Constructing Map from file " + filename);
         return constructFromString(readFile(filename));
     }
 }
