@@ -1,66 +1,118 @@
 package game;
 
 import map.Board;
+import util.File;
 import util.Logger;
 
-import java.util.Arrays;
-
-import static util.File.readFile;
+import java.util.List;
 
 public class Game {
-    private static int initialPlayers;
-    private static int initialOverwriteStones;
-    private static int initialBombs;
-    private static int bombRadius;
-    private Board map;
 
-    public static Game constructFromFile(String path) {
-        Logger.log("Constructing Map from file " + path);
+    /*
+    |--------------------------------------------------------------------------
+    | Member variables
+    |--------------------------------------------------------------------------
+    */
 
-        String[] lines = readFile(path).split("\\r?\\n"); // Mind lines can be separated by nl or cr+nl
+    /**
+     * The number of players this game usually starts with.
+     */
+    private final int initialPlayers;
 
-        String[] gameLines = new String[]{lines[0], lines[1], lines[2]};
-        String[] boardArray = (String[]) Arrays.stream(lines, 3, lines.length).toArray();
-        Game game = constructGameFromLines(gameLines);
-        game.setBoard(Board.constructBoardFromLines(boardArray));
-        return game;
+    /**
+     * The number of overwrite stones each player has in the beginning.
+     */
+    private final int initialOverwriteStones;
+
+    /**
+     * The number of bombs each player has in the beginning.
+     */
+    private final int initialBombs;
+
+    /**
+     * The amount of steps from the center of the explosion a bomb blows tiles up.
+     */
+    private final int bombRadius;
+
+    /**
+     * The actual game board.
+     */
+    private Board board;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Constructor
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Create a new game.
+     */
+    public Game(int initialPlayers, int initialOverwriteStones, int initialBombs, int bombRadius, Board board) {
+        this.initialPlayers = initialPlayers;
+        this.initialOverwriteStones = initialOverwriteStones;
+        this.initialBombs = initialBombs;
+        this.bombRadius = bombRadius;
+        this.board = board;
     }
 
-    private static Game constructGameFromLines(String[] gameLines) {
-        Logger.debug(gameLines[0]);
-        initialPlayers = Integer.parseInt(gameLines[0]);
+    /*
+    |--------------------------------------------------------------------------
+    | Factories
+    |--------------------------------------------------------------------------
+    */
 
-        Logger.debug(gameLines[1]);
-        initialOverwriteStones = Integer.parseInt(gameLines[1]);
+    /**
+     * Creates a new game from input lines.
+     * @param lines A list of lines, where each line is trimmed and all lowercase (normalized).
+     * @return The new game.
+     */
+    private static Game createFromLines(List<String> lines) {
 
-        Logger.debug(gameLines[2]);
-        String[] line3Split = gameLines[2].split((" "));
-        initialBombs = Integer.parseInt(line3Split[0]);
-        bombRadius = Integer.parseInt(line3Split[1]);
-        return new Game();
+        Logger.log("Creating game from lines");
+
+        // Splitting game and board lines
+        List<String> gameLines = lines.subList(0, 3);
+        List<String> boardLines = lines.subList(3, lines.size());
+
+        // Parsing initial player data
+        int initialPlayers = Integer.parseInt(gameLines.get(0));
+        Logger.debug("Initial players: " + initialPlayers);
+        int initialOverwriteStones = Integer.parseInt(gameLines.get(1));
+        Logger.debug("Initial overwrite stones: " + initialOverwriteStones);
+
+        // Parsing initial bomb data
+        String[] bombs = gameLines.get(2).split((" "));
+        int initialBombs = Integer.parseInt(bombs[0]);
+        Logger.debug("Initial bombs: " + initialBombs);
+        int bombRadius = Integer.parseInt(bombs[1]);
+        Logger.debug("Bomb radius: " + bombRadius);
+
+        // Creating board
+        Board board = Board.createFromLines(boardLines);
+
+        // Creating game
+        return new Game(initialPlayers, initialOverwriteStones, initialBombs, bombRadius, board);
     }
 
-    public int getInitialPlayers() {
-        return initialPlayers;
+    private static Game createFromString(String string) {
+
+        Logger.log("Creating game from string");
+
+        // Mind lines can be separated by nl or cr+nl
+        String[] lines = string.split("\\r?\\n");
+
+        for (int i = 0; i < lines.length; i++) {
+            // Normalise each line
+            lines[i] = lines[i].trim().toLowerCase();
+        }
+
+        return createFromLines(List.of(lines));
     }
 
-    public int getInitialOverwriteStones() {
-        return initialOverwriteStones;
-    }
+    public static Game createFromFile(String filename) {
 
-    public int getInitialBombs() {
-        return initialBombs;
-    }
-
-    public int getBombRadius() {
-        return bombRadius;
-    }
-
-    public Board getMap() {
-        return map;
-    }
-
-    public void setBoard(Board map){
-        this.map = map;
+        Logger.log("Creating game from file " + filename);
+        return createFromString(File.readFile(filename));
     }
 }
