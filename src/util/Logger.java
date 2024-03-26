@@ -1,12 +1,11 @@
 package util;
 
-import java.lang.reflect.Method;
 import java.util.Date;
 
 public class Logger {
 
     /**
-     * The name of the logger. Used
+     * The name of the logger.
      */
     public static String LOGGER_NAME = "Logger";
 
@@ -15,7 +14,26 @@ public class Logger {
      */
     public static boolean DEBUG = true;
 
-    // Color constants
+    /*
+    |--------------------------------------------------------------------------
+    | Static variables
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Stores the last time the logger was active in nanoseconds.
+     */
+    private static long lastTimeActive;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Formatting constants
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Colors
+     */
     private static final String ANSI_RESET = "\u001B[0m";
     private static final String ANSI_BLACK = "\u001B[30m";
     private static final String ANSI_RED = "\u001B[31m";
@@ -26,8 +44,26 @@ public class Logger {
     private static final String ANSI_CYAN = "\u001B[36m";
     private static final String ANSI_WHITE = "\u001B[37m";
 
-    // Formatting constants
+    /**
+     * Weights
+     */
     private static final String ANSI_BOLD = "\u001B[1m";
+
+    /*
+    |--------------------------------------------------------------------------
+    | Static constructor
+    |--------------------------------------------------------------------------
+    */
+
+    static {
+        lastTimeActive = System.nanoTime();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Internal logger
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Generate a logger message.
@@ -46,16 +82,27 @@ public class Logger {
         // Get date
         Date currentDate = new Date();
 
+        long currentTime = System.nanoTime();
+        long timeElapsed = currentTime - lastTimeActive;
+        int timeElapsedMs = (int) (timeElapsed / 1_000_000);
+        lastTimeActive = currentTime;
+
         // Print
-        System.out.println(color + "[" + LOGGER_NAME + "] \t" + ANSI_RESET + currentDate + " \t" + color + type + ANSI_YELLOW + "\t [" + className + "." + methodName + "] " + color + message + ANSI_RESET);
+        System.out.println(color + "[" + LOGGER_NAME + "]  " + ANSI_RESET + currentDate + "  " + color + type + ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color + message + ANSI_RESET + "  " + timeElapsedMs + "ms");
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public logging functions
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Log a message.
      * @param message The message.
      */
     public static void log(String message) {
-        console(ANSI_GREEN, "LOG  ", message);
+        console(ANSI_GREEN, "    LOG", message);
     }
 
     /**
@@ -72,7 +119,7 @@ public class Logger {
      * @param message The error message.
      */
     public static void error(String message) {
-        console(ANSI_RED, "ERROR", message);
+        console(ANSI_RED, "  ERROR", message);
     }
 
 
@@ -81,7 +128,7 @@ public class Logger {
      * @param message The error message.
      */
     public static void fatal(String message) {
-        console(ANSI_BOLD + ANSI_RED, "FATAL", message);
+        console(ANSI_BOLD + ANSI_RED, "  FATAL", message);
         System.exit(1);
     }
 
@@ -101,6 +148,6 @@ public class Logger {
      */
     public static void debug(String message) {
         if(DEBUG)
-            console(ANSI_PURPLE, "DEBUG", message);
+            console(ANSI_PURPLE, "  DEBUG", message);
     }
 }
