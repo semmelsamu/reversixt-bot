@@ -9,10 +9,13 @@ public class Board {
     /**
      * The "game board". First dimension is the lines, second one is columns/rows.
      */
-    private Tile[][] tiles;
+    private final Tile[][] tiles;
 
-    public Board(char[][] tiles, int[][] transitions) {
+    private final String path;
 
+    public Board(char[][] tiles, int[][] transitions, String path) {
+
+        this.path = path;
         this.tiles = new Tile[tiles.length][tiles[0].length];
 
         // Build map
@@ -58,27 +61,18 @@ public class Board {
         }
     }
 
-    public static Board constructFromString(String string) {
+    public static Board constructFromString(String path) {
         Logger.log("Attempting to parse map from string");
 
         // Convert to lines
-        String[] lines = string.split("\\r?\\n"); // Mind lines can be separated by nl or cr+nl
+        String[] lines = path.split("\\r?\\n"); // Mind lines can be separated by nl or cr+nl
         for (int i = 0; i < lines.length; i++) {
             // Format string
             lines[i] = lines[i].trim().toLowerCase();
         }
 
         try {
-            Logger.debug(lines[0]);
-            int initialPlayers = Integer.parseInt(lines[0]);
 
-            Logger.debug(lines[1]);
-            int initialOverwriteStones = Integer.parseInt(lines[1]);
-
-            Logger.debug(lines[2]);
-            String[] line3Split = lines[2].split((" "));
-            int initialBombs = Integer.parseInt(line3Split[0]);
-            int bombRadius = Integer.parseInt(line3Split[1]);
 
             Logger.debug(lines[3]);
             String[] line4Split = lines[3].split(" ");
@@ -113,7 +107,7 @@ public class Board {
                 currentTransition++;
             }
 
-            return new Board(map, transitions);
+            return new Board(map, transitions, path);
 
         } catch (Exception e) {
             Logger.fatal("Error parsing map string: " + e.getMessage());
@@ -124,5 +118,9 @@ public class Board {
     public static Board constructFromFile(String filename) {
         Logger.log("Constructing Map from file " + filename);
         return constructFromString(readFile(filename));
+    }
+
+    public String getPath() {
+        return path;
     }
 }
