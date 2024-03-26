@@ -30,7 +30,7 @@ public class Logger {
     private static final String ANSI_BOLD = "\u001B[1m";
 
     /**
-     * Generate a logger message, consisting of the
+     * Generate a logger message.
      * @param color The color of the log message.
      * @param type The type of the logger message.
      * @param message The actual message.
