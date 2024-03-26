@@ -82,6 +82,7 @@ public class Logger {
         // Get date
         Date currentDate = new Date();
 
+        // Get elapsed time
         long currentTime = System.nanoTime();
         long timeElapsed = currentTime - lastTimeActive;
         int timeElapsedMs = (int) (timeElapsed / 1_000_000);
@@ -113,7 +114,6 @@ public class Logger {
         console(ANSI_YELLOW, "WARNING", message);
     }
 
-
     /**
      * Log an error.
      * @param message The error message.
@@ -121,7 +121,6 @@ public class Logger {
     public static void error(String message) {
         console(ANSI_RED, "  ERROR", message);
     }
-
 
     /**
      * Log a fatal error and terminate the program.
@@ -132,7 +131,6 @@ public class Logger {
         System.exit(1);
     }
 
-
     /**
      * Log a verbose message.
      * @param message The message.
@@ -140,7 +138,6 @@ public class Logger {
     public static void verbose(String message) {
         console(ANSI_CYAN, "VERBOSE", message);
     }
-
 
     /**
      * Log a debug message, unless DEBUG is set to false.
