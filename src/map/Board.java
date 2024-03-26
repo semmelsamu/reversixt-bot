@@ -2,6 +2,9 @@ package map;
 
 import util.Logger;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * This class only stores information about what is currently on the game board, not the state of the game.
  */
@@ -14,16 +17,18 @@ public class Board {
      */
     private Tile[][] tiles;
 
-    public Board(char[][] tiles, int[][] transitions) {
+    public Board(char[][] map, int[][] transitions) {
 
-        this.tiles = new Tile[tiles.length][tiles[0].length];
+        Logger.log("Creating board");
+
+        this.tiles = new Tile[map.length][map[0].length];
 
         // Build map
 
-        for (int y = 0; y < tiles.length; y++) {
-            for (int x = 0; x < tiles[y].length; x++) {
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[y].length; x++) {
                 this.tiles[y][x] = new Tile(
-                        TileType.fromChar(tiles[y][x]),
+                        TileType.fromChar(map[y][x]),
                         new Coordinates(x, y)
                 );
             }
@@ -48,7 +53,6 @@ public class Board {
 
         }
 
-        Logger.log("Constructed map");
         this.print();
     }
 
@@ -61,58 +65,82 @@ public class Board {
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Factories
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Constructs a game board from a string.
-     * @return The game board.
+     * Creates a board lines
+     * @return The board.
      */
-    public static Board constructBoardFromLines(String[] boardLines) {
-        Logger.log("Attempting to parse map from string");
+    public static Board createFromLines(LinkedList<String> lines) {
 
-        for (int i = 0; i < boardLines.length; i++) {
-            // Format string
-            boardLines[i] = boardLines[i].trim().toLowerCase();
-        }
+        Logger.log("Creating board from lines");
 
-        try {;
+        // Parsing dimensions
+        String[] dimensions = lines.remove(0).split(" ");
+        int height = Integer.parseInt(dimensions[0]);
+        int width = Integer.parseInt(dimensions[1]);
+        Logger.debug("Dimensions: Height " + height + "; Width " + width);
 
-            Logger.debug(boardLines[0]);
-            String[] line4Split = boardLines[0].split(" ");
-            int height = Integer.parseInt(line4Split[0]);
-            int width = Integer.parseInt(line4Split[1]);
+        // Parsing map
+        char[][] map = parseMap(lines, height, width);
 
-            char[][] map = new char[height][width];
-            for (int y = 1; y < height; y++) {
-                Logger.debug(boardLines[y]);
-                String[] currentRow = boardLines[y].split((" "));
-                for (int x = 0; x < width; x++) {
-                    map[y][x] = currentRow[x].charAt(0);
-                }
+        // Parsing transitions
+        int[][] transitions = parseTransitions(lines);
+
+        // Creating board
+        return new Board(map, transitions);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Factory utils
+    |--------------------------------------------------------------------------
+    */
+
+    private static char[][] parseMap(List<String> lines, int height, int width) {
+
+        Logger.log("Parsing map");
+
+        char[][] map = new char[height][width];
+
+        for (int y = 0; y < height; y++) {
+            String currentLine = lines.remove(0);
+            Logger.debug(currentLine);
+            String[] currentRows = currentLine.split((" "));
+            for (int x = 0; x < width; x++) {
+                map[y][x] = currentRows[x].charAt(0);
             }
-
-//            int[][] transitions = new int[boardLines.length - height - 1][6];
-//            int currentTransition = 0;
-//
-//            // TODO: ugly
-//            for (int i = 4 + height; i < boardLines.length; i++) {
-//                String transitionString = boardLines[i];
-//                Logger.verbose(transitionString);
-//                String[] transitionParts = transitionString.split(" ");
-//                transitions[currentTransition] = new int[]{
-//                        Integer.parseInt(transitionParts[0]),
-//                        Integer.parseInt(transitionParts[1]),
-//                        Integer.parseInt(transitionParts[2]),
-//                        Integer.parseInt(transitionParts[4]),
-//                        Integer.parseInt(transitionParts[5]),
-//                        Integer.parseInt(transitionParts[6]),
-//                };
-//                currentTransition++;
-//            }
-
-            return null;
-
-        } catch (Exception e) {
-            Logger.fatal("Error parsing map string: " + e.getMessage());
-            return null;
         }
+
+        return map;
+    }
+
+    private static int[][] parseTransitions(LinkedList<String> lines) {
+
+        Logger.log("Parsing transitions");
+
+        int[][] transitions = new int[lines.size()][6];
+
+        for(int i = 0; i < lines.size(); i++) {
+
+            String currentLine = lines.remove(0);
+
+            Logger.debug(currentLine);
+            String[] transitionParts = currentLine.split(" ");
+            transitions[i] = new int[]{
+                    Integer.parseInt(transitionParts[0]),
+                    Integer.parseInt(transitionParts[1]),
+                    Integer.parseInt(transitionParts[2]),
+                    Integer.parseInt(transitionParts[4]),
+                    Integer.parseInt(transitionParts[5]),
+                    Integer.parseInt(transitionParts[6]),
+            };
+        }
+
+        return transitions;
     }
 }
