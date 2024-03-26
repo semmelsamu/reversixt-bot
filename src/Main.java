@@ -1,3 +1,4 @@
+import game.Game;
 import map.Board;
 import util.Logger;
 
@@ -11,5 +12,7 @@ public class Main {
         Logger.log("Starting...");
 
         Board map = Board.constructFromFile("maps/example.map");
+        new Game(map);
+
     }
 }
