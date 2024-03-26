@@ -2,8 +2,6 @@ package map;
 
 import util.Logger;
 
-import static util.File.readFile;
-
 /**
  * This class only stores information about what is currently on the game board, not the state of the game.
  */
@@ -65,80 +63,56 @@ public class Board {
 
     /**
      * Constructs a game board from a string.
-     * @param string The input string.
      * @return The game board.
      */
-    public static Board constructFromString(String string) {
+    public static Board constructBoardFromLines(String[] boardLines) {
         Logger.log("Attempting to parse map from string");
 
-        // Convert to lines
-        String[] lines = string.split("\\r?\\n"); // Mind lines can be separated by nl or cr+nl
-        for (int i = 0; i < lines.length; i++) {
+        for (int i = 0; i < boardLines.length; i++) {
             // Format string
-            lines[i] = lines[i].trim().toLowerCase();
+            boardLines[i] = boardLines[i].trim().toLowerCase();
         }
 
-        try {
-            Logger.debug(lines[0]);
-            int initialPlayers = Integer.parseInt(lines[0]);
+        try {;
 
-            Logger.debug(lines[1]);
-            int initialOverwriteStones = Integer.parseInt(lines[1]);
-
-            Logger.debug(lines[2]);
-            String[] line3Split = lines[2].split((" "));
-            int initialBombs = Integer.parseInt(line3Split[0]);
-            int bombRadius = Integer.parseInt(line3Split[1]);
-
-            Logger.debug(lines[3]);
-            String[] line4Split = lines[3].split(" ");
+            Logger.debug(boardLines[0]);
+            String[] line4Split = boardLines[0].split(" ");
             int height = Integer.parseInt(line4Split[0]);
             int width = Integer.parseInt(line4Split[1]);
 
             char[][] map = new char[height][width];
-            for (int y = 0; y < height; y++) {
-                // Lines 0-3 are initialPlayer, initialOverwriteStones..., so we start at line 4
-                Logger.debug(lines[y + 4]);
-                String[] currentRow = lines[y + 4].split((" "));
+            for (int y = 1; y < height; y++) {
+                Logger.debug(boardLines[y]);
+                String[] currentRow = boardLines[y].split((" "));
                 for (int x = 0; x < width; x++) {
                     map[y][x] = currentRow[x].charAt(0);
                 }
             }
 
-            int[][] transitions = new int[lines.length - 4 - height][6];
-            int currentTransition = 0;
+//            int[][] transitions = new int[boardLines.length - height - 1][6];
+//            int currentTransition = 0;
+//
+//            // TODO: ugly
+//            for (int i = 4 + height; i < boardLines.length; i++) {
+//                String transitionString = boardLines[i];
+//                Logger.verbose(transitionString);
+//                String[] transitionParts = transitionString.split(" ");
+//                transitions[currentTransition] = new int[]{
+//                        Integer.parseInt(transitionParts[0]),
+//                        Integer.parseInt(transitionParts[1]),
+//                        Integer.parseInt(transitionParts[2]),
+//                        Integer.parseInt(transitionParts[4]),
+//                        Integer.parseInt(transitionParts[5]),
+//                        Integer.parseInt(transitionParts[6]),
+//                };
+//                currentTransition++;
+//            }
 
-            // TODO: ugly
-            for (int i = 4 + height; i < lines.length; i++) {
-                String transitionString = lines[i];
-                Logger.verbose(transitionString);
-                String[] transitionParts = transitionString.split(" ");
-                transitions[currentTransition] = new int[]{
-                        Integer.parseInt(transitionParts[0]),
-                        Integer.parseInt(transitionParts[1]),
-                        Integer.parseInt(transitionParts[2]),
-                        Integer.parseInt(transitionParts[4]),
-                        Integer.parseInt(transitionParts[5]),
-                        Integer.parseInt(transitionParts[6]),
-                };
-                currentTransition++;
-            }
-
-            return new Board(map, transitions);
+            return null;
 
         } catch (Exception e) {
             Logger.fatal("Error parsing map string: " + e.getMessage());
             return null;
         }
-    }
-
-    /**
-     * Constructs a game board from a map file.
-     * @param filename The path to the map file.
-     * @return The game board.
-     */
-    public static Board constructFromFile(String filename) {
-        Logger.log("Constructing Map from file " + filename);
-        return constructFromString(readFile(filename));
     }
 }

@@ -11,8 +11,8 @@ public class Main {
         Logger.DEBUG = true;
         Logger.log("Starting...");
 
-        Board map = Board.constructFromFile("maps/example.map");
-        new Game(map);
+        Game game = Game.constructFromFile("maps/example.map");
+
 
     }
 }
