@@ -4,22 +4,22 @@ import util.Logger;
 
 import static util.File.readFile;
 
-public class Map {
+public class Board {
 
     /**
      * The "game board". First dimension is the lines, second one is columns/rows.
      */
-    private MapTile[][] tiles;
+    private Tile[][] tiles;
 
-    public Map(char[][] tiles, int[][] transitions) {
+    public Board(char[][] tiles, int[][] transitions) {
 
-        this.tiles = new MapTile[tiles.length][tiles[0].length];
+        this.tiles = new Tile[tiles.length][tiles[0].length];
 
         // Build map
 
         for (int y = 0; y < tiles.length; y++) {
             for (int x = 0; x < tiles[y].length; x++) {
-                this.tiles[y][x] = new MapTile(
+                this.tiles[y][x] = new Tile(
                         TileType.fromChar(tiles[y][x]),
                         new Coordinates(x, y)
                 );
@@ -37,8 +37,8 @@ public class Map {
             int y2 = transition[4];
             Direction d2 = Direction.fromValue(transition[5]);
 
-            MapTile tile1 = this.tiles[y1][x1];
-            MapTile tile2 = this.tiles[y2][x2];
+            Tile tile1 = this.tiles[y1][x1];
+            Tile tile2 = this.tiles[y2][x2];
 
             tile1.addTransition(new Transition(d1, tile2, d2));
             tile2.addTransition(new Transition(d2, tile1, d1));
@@ -50,15 +50,15 @@ public class Map {
     }
 
     public void print() {
-        for (MapTile[] row : tiles) {
-            for (MapTile column : row) {
+        for (Tile[] row : tiles) {
+            for (Tile column : row) {
                 System.out.print(column.getType().print());
             }
             System.out.println();
         }
     }
 
-    public static Map constructFromString(String string) {
+    public static Board constructFromString(String string) {
         Logger.log("Attempting to parse map from string");
 
         // Convert to lines
@@ -113,7 +113,7 @@ public class Map {
                 currentTransition++;
             }
 
-            return new Map(map, transitions);
+            return new Board(map, transitions);
 
         } catch (Exception e) {
             Logger.fatal("Error parsing map string: " + e.getMessage());
@@ -121,7 +121,7 @@ public class Map {
         }
     }
 
-    public static Map constructFromFile(String filename) {
+    public static Board constructFromFile(String filename) {
         Logger.log("Constructing Map from file " + filename);
         return constructFromString(readFile(filename));
     }

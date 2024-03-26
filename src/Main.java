@@ -1,4 +1,4 @@
-import map.Map;
+import map.Board;
 import util.Logger;
 
 public class Main {
@@ -10,6 +10,6 @@ public class Main {
         Logger.DEBUG = true;
         Logger.log("Starting...");
 
-        Map map = Map.constructFromFile("maps/example.map");
+        Board map = Board.constructFromFile("maps/example.map");
     }
 }

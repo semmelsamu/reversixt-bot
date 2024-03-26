@@ -5,7 +5,7 @@ import util.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapTile {
+public class Tile {
 
     private TileType type;
 
@@ -14,7 +14,7 @@ public class MapTile {
     // TODO: refactor to set
     private List<Transition> transitions;
 
-    public MapTile(TileType type, Coordinates position) {
+    public Tile(TileType type, Coordinates position) {
         this.type = type;
         this.position = position;
         transitions = new ArrayList<>();

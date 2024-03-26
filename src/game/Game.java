@@ -1,9 +1,9 @@
 package game;
 
-import map.Map;
+import map.Board;
 
 public class Game {
-    private Map map;
+    private Board map;
 
 /*
     private final int initialPlayers;
