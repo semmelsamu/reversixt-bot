@@ -1,6 +1,4 @@
-package map;
-
-import java.util.Objects;
+package board;
 
 public class Coordinates {
     private final int x;
@@ -13,7 +11,7 @@ public class Coordinates {
 
     @Override
     public String toString() {
-        return "Coordinates[" +
+        return "[" +
                 "x=" + x + ", " +
                 "y=" + y + ']';
     }

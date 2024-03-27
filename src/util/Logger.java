@@ -110,7 +110,7 @@ public class Logger {
      * Log a warning.
      * @param message The warning message.
      */
-    public static void warning(String message) {
+    public static void warn(String message) {
         console(ANSI_YELLOW, "WARNING", message);
     }
 

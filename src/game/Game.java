@@ -1,12 +1,11 @@
 package game;
 
-import map.Board;
+import board.Board;
 import util.File;
 import util.Logger;
 
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 
 public class Game {
 
@@ -57,6 +56,8 @@ public class Game {
         this.initialBombs = initialBombs;
         this.bombRadius = bombRadius;
         this.board = board;
+
+        board.print();
     }
 
     /*
@@ -78,16 +79,16 @@ public class Game {
 
         // Parsing initial player data
         int initialPlayers = Integer.parseInt(lines.remove(0));
-        Logger.debug("Initial players: " + initialPlayers);
+        Logger.verbose("Initial players: " + initialPlayers);
         int initialOverwriteStones = Integer.parseInt(lines.remove(0));
-        Logger.debug("Initial overwrite stones: " + initialOverwriteStones);
+        Logger.verbose("Initial overwrite stones: " + initialOverwriteStones);
 
         // Parsing initial bomb data
         String[] bombs = lines.remove(0).split((" "));
         int initialBombs = Integer.parseInt(bombs[0]);
-        Logger.debug("Initial bombs: " + initialBombs);
+        Logger.verbose("Initial bombs: " + initialBombs);
         int bombRadius = Integer.parseInt(bombs[1]);
-        Logger.debug("Bomb radius: " + bombRadius);
+        Logger.verbose("Bomb radius: " + bombRadius);
 
         // Create board from remaining lines
         Board board = Board.createFromLines(lines);

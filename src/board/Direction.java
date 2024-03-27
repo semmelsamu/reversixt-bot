@@ -1,4 +1,4 @@
-package map;
+package board;
 
 public enum Direction {
     NORTH(0),
