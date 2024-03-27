@@ -92,6 +92,24 @@ public class Board {
 
     /*
     |--------------------------------------------------------------------------
+    | Getters and setters
+    |--------------------------------------------------------------------------
+    */
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public Tile getTile(Coordinates position) {
+        return this.tiles[position.y][position.x];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Utility
     |--------------------------------------------------------------------------
     */

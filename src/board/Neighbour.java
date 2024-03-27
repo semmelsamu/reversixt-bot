@@ -1,7 +1,7 @@
 package board;
 
 /**
- * A neighbour is a tile that a player can expand to, so basically every tile except a wall (-).
+ * A neighbour is a tile that a player may expand to, so basically every tile except a wall (-).
  * @param tile The actual tile
  * @param directionChange (Optional) the new direction to expand to. See transitions.
  */

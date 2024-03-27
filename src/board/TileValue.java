@@ -10,6 +10,7 @@ public enum TileValue {
     | Values
     |--------------------------------------------------------------------------
     */
+
     EMPTY('0'),
     PLAYER1('1'),
     PLAYER2('2'),
@@ -31,8 +32,14 @@ public enum TileValue {
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * The value of the tile, stored as a character.
+     */
     public final char character;
 
+    /**
+     * Returns the enum from a character.
+     */
     public static TileValue fromChar(char c) {
         for (TileValue type : TileValue.values()) {
             if (type.character == c) {
@@ -42,6 +49,9 @@ public enum TileValue {
         throw new IllegalArgumentException("Unknown character: " + c);
     }
 
+    /**
+     * Creates a new enum from a character.
+     */
     TileValue(char character) {
         this.character = character;
     }
@@ -52,10 +62,16 @@ public enum TileValue {
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * States if the tile is expandable, i.e. a player can expand to it.
+     */
     public boolean isExpandable() {
         return TileValue.fromChar(this.character) != WALL;
     }
 
+    /**
+     * States if the tile is occupied by a player.
+     */
     public boolean isPlayer() {
         TileValue value = TileValue.fromChar(this.character);
         return (value == PLAYER1 || value == PLAYER2 || value == PLAYER3 || value == PLAYER4 || value == PLAYER5 || value == PLAYER6);
@@ -67,6 +83,9 @@ public enum TileValue {
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Prints the tile value in color to the system out.
+     */
     public String print() {
         return switch (character) {
             case '0' -> ". ";
