@@ -68,4 +68,8 @@ public class Tile {
     public String toString() {
         return "MapTile[position=" + position + ", value=" + value + ", neighbours=" + Arrays.toString(neighbours) + "]";
     }
+
+    public Coordinates getPosition() {
+        return position;
+    }
 }

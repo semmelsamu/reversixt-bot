@@ -1,11 +1,13 @@
 package game;
 
-import board.Board;
+import board.*;
 import util.File;
 import util.Logger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 public class Game {
 
@@ -116,5 +118,48 @@ public class Game {
 
         Logger.log("Creating game from file " + filename);
         return createFromString(File.readFile(filename));
+    }
+
+    /**
+    Returns valid moves
+     */
+    public List<Coordinates> getValidMoves(Player player){
+        List<Coordinates> moves = new ArrayList<Coordinates>();
+        for(Stone s : player.getStones()){
+            Tile ownPiece = board.getTile((Coordinates) s);
+            if(ownPiece.getValue() != player.getPlayerValue()){
+                Logger.debug("Wrong Stone in Player.stones");
+            }
+
+        }
+        return moves;
+    }
+    private void checkEveryDirection(Tile ownPiece){
+        List<Coordinates> moves = new ArrayList<>();
+        Tile currentTile = ownPiece;
+        TileValue ownValue = ownPiece.getValue();
+        boolean foundEmptyTile = false;
+        Direction currentDirection;
+        for(Direction d : Direction.values()){
+            currentDirection = d;
+            Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
+            while(!(foundEmptyTile) && currentNeighbour != null && currentNeighbour.tile().getValue() != ownPiece.getValue())
+                currentTile = currentNeighbour.tile();
+                switch(currentTile.getValue()){
+                    case EMPTY:
+                    case CHOICE:
+                    case INVERSION:
+                    case BONUS:
+                        moves.add(ownPiece.getPosition());
+                        break;
+                    default:
+                    currentNeighbour = currentTile.getNeighbour(currentDirection);
+                    if(currentNeighbour.directionChange() != null){
+                        currentDirection = currentNeighbour.directionChange();
+                    }
+                    currentTile = currentNeighbour.tile();
+                }
+
+        }
     }
 }

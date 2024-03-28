@@ -1,3 +1,4 @@
+import board.Direction;
 import game.Game;
 import util.Logger;
 
