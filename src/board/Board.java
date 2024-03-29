@@ -1,5 +1,6 @@
 package board;
 
+import player.Player;
 import util.Logger;
 
 import java.util.LinkedList;
@@ -108,7 +109,7 @@ public class Board {
         return this.tiles[position.y][position.x];
     }
 
-    public List<Tile> getAllOccupiedTilesForPlayer(int player) {
+    public List<Tile> getAllOccupiedTilesForPlayer(Player player) {
         List<Tile> result = new LinkedList<>();
 
         // TODO
