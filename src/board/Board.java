@@ -3,6 +3,7 @@ package board;
 import player.Player;
 import util.Logger;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -109,10 +110,26 @@ public class Board {
         return this.tiles[position.y][position.x];
     }
 
-    public List<Tile> getAllOccupiedTilesForPlayer(Player player) {
+    public List<Tile> getAllTiles() {
         List<Tile> result = new LinkedList<>();
 
-        // TODO
+        for(Tile[] tileRow : tiles) {
+            // Iteration could be replaced with bulk 'Collection.addAll()' call
+            result.addAll(Arrays.asList(tileRow));
+        }
+
+        return result;
+    }
+
+    public List<Tile> getAllOccupiedTilesForPlayer(Player player) {
+
+        List<Tile> allTiles = getAllTiles();
+        List<Tile> result = new LinkedList<>();
+
+        for(Tile tile : allTiles) {
+            if(tile.getValue() == player.getPlayerValue())
+                result.add(tile);
+        }
 
         return result;
     }
