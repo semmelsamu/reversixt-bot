@@ -108,6 +108,14 @@ public class Board {
         return this.tiles[position.y][position.x];
     }
 
+    public List<Tile> getAllOccupiedTilesForPlayer(int player) {
+        List<Tile> result = new LinkedList<>();
+
+        // TODO
+
+        return result;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Utility
