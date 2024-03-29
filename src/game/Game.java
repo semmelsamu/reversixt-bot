@@ -1,6 +1,8 @@
 package game;
 
 import board.*;
+import player.Player;
+import player.Stone;
 import util.File;
 import util.Logger;
 
@@ -130,11 +132,10 @@ public class Game {
         for(Stone s : player.getStones()){
             Tile ownPiece = board.getTile(s);
             if(ownPiece.getValue() != player.getPlayerValue()){
-                Logger.debug("Wrong coordinates in " + player.getPlayerValue() + "'s List stones");
+                Logger.error("Wrong coordinates in " + player.getPlayerValue() + "'s List stones");
+                continue;
             }
-            else{
-                moves.addAll(getValidMovesForPiece(ownPiece));
-            }
+            moves.addAll(getValidMovesForPiece(ownPiece));
         }
         System.out.println("Valid moves for player " + player.getPlayerValue());
         for(Coordinates c : moves){
@@ -194,7 +195,7 @@ public class Game {
             return currentTile.getPosition();
         }
         else{
-            return null; //Would return new Coordinates(-1, -1) be better?
+            return null;
         }
     }
 }
