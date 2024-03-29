@@ -1,5 +1,6 @@
 package player;
 
+import board.Tile;
 import board.TileValue;
 
 import java.util.List;
@@ -9,13 +10,13 @@ public class Player {
     private TileValue playerValue;
     private int overwriteStones;
     private int bombs;
-    private List<Stone> stones;
+    private List<Tile> occupiedTiles;
 
-    public Player(TileValue playerValue, int overwriteStones, int bombs, List<Stone> stones) {
+    public Player(TileValue playerValue, int overwriteStones, int bombs, List<Tile> occupiedTiles) {
         this.playerValue = playerValue;
         this.overwriteStones = overwriteStones;
         this.bombs = bombs;
-        this.stones = stones;
+        this.occupiedTiles = occupiedTiles;
     }
 
     public TileValue getPlayerValue() {
@@ -30,7 +31,7 @@ public class Player {
         return bombs;
     }
 
-    public List<Stone> getStones() {
-        return stones;
+    public List<Tile> getOccupiedTiles() {
+        return occupiedTiles;
     }
 }

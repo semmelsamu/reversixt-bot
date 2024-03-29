@@ -129,13 +129,12 @@ public class Game {
      */
     public List<Coordinates> getValidMovesForPlayer(Player player){
         List<Coordinates> moves = new ArrayList<>();
-        for(Stone s : player.getStones()){
-            Tile ownPiece = board.getTile(s);
-            if(ownPiece.getValue() != player.getPlayerValue()){
+        for(Tile s : player.getOccupiedTiles()){
+            if(s.getValue() != player.getPlayerValue()){
                 Logger.error("Wrong coordinates in " + player.getPlayerValue() + "'s List stones");
                 continue;
             }
-            moves.addAll(getValidMovesForPiece(ownPiece));
+            moves.addAll(getValidMovesForPiece(s));
         }
         System.out.println("Valid moves for player " + player.getPlayerValue());
         for(Coordinates c : moves){
