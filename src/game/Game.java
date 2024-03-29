@@ -121,45 +121,80 @@ public class Game {
     }
 
     /**
-    Returns valid moves
+     *
+     * @param player
+     * @return Valid moves for one player
      */
-    public List<Coordinates> getValidMoves(Player player){
-        List<Coordinates> moves = new ArrayList<Coordinates>();
+    public List<Coordinates> getValidMovesForPlayer(Player player){
+        List<Coordinates> moves = new ArrayList<>();
         for(Stone s : player.getStones()){
-            Tile ownPiece = board.getTile((Coordinates) s);
+            Tile ownPiece = board.getTile(s);
             if(ownPiece.getValue() != player.getPlayerValue()){
-                Logger.debug("Wrong Stone in Player.stones");
+                Logger.debug("Wrong coordinates in " + player.getPlayerValue() + "'s List stones");
             }
+            else{
+                moves.addAll(getValidMovesForPiece(ownPiece));
+            }
+        }
+        System.out.println("Valid moves for player " + player.getPlayerValue());
+        for(Coordinates c : moves){
+            System.out.println(c.x + " " + " " + c.y);
+        }
+        return moves;
+    }
+
+    /**
+     *
+     * @param ownPiece
+     * @return Valid moves for one piece
+     */
+    private List<Coordinates> getValidMovesForPiece(Tile ownPiece){
+        List<Coordinates> moves = new ArrayList<>();
+        for(Direction d : Direction.values()){
+            //currentDirection = d;
+
+            moves.add(getValidMovesForPieceInDirection(ownPiece, d));
 
         }
         return moves;
     }
-    private void checkEveryDirection(Tile ownPiece){
-        List<Coordinates> moves = new ArrayList<>();
-        Tile currentTile = ownPiece;
-        TileValue ownValue = ownPiece.getValue();
+
+    /**
+     *
+     * @param ownPiece
+     * @param direction
+     * @return Valid moves for one piece for one of eight directions
+     */
+    private Coordinates getValidMovesForPieceInDirection(Tile ownPiece, Direction direction){
         boolean foundEmptyTile = false;
-        Direction currentDirection;
-        for(Direction d : Direction.values()){
-            currentDirection = d;
-            Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
-            while(!(foundEmptyTile) && currentNeighbour != null && currentNeighbour.tile().getValue() != ownPiece.getValue())
-                currentTile = currentNeighbour.tile();
-                switch(currentTile.getValue()){
-                    case EMPTY:
-                    case CHOICE:
-                    case INVERSION:
-                    case BONUS:
-                        moves.add(ownPiece.getPosition());
-                        break;
-                    default:
+        Direction currentDirection = direction;
+        Tile currentTile = ownPiece;
+        Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
+        //terminates  if an empty Tile was found or if the neighbour is an own piece or if there is no neighbour
+        while(!(foundEmptyTile) && currentNeighbour != null &&
+                currentNeighbour.tile().getValue() != ownPiece.getValue())
+        {
+            currentTile = currentNeighbour.tile();
+            switch (currentTile.getValue()) {
+                case EMPTY:
+                case CHOICE:
+                case INVERSION:
+                case BONUS:
+                    foundEmptyTile = true;
+                    break;
+                default:
                     currentNeighbour = currentTile.getNeighbour(currentDirection);
-                    if(currentNeighbour.directionChange() != null){
+                    if (currentNeighbour.directionChange() != null) {
                         currentDirection = currentNeighbour.directionChange();
                     }
-                    currentTile = currentNeighbour.tile();
-                }
-
+                    currentNeighbour = currentTile.getNeighbour(currentDirection);
+            }
+        }
+        if(foundEmptyTile){
+            return currentTile.getPosition();
+        }
+        else{
+            return null; //Would return new Coordinates(-1, -1) be better?
         }
     }
 }
