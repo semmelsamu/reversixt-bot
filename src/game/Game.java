@@ -75,7 +75,7 @@ public class Game {
         TileValue[] playerValues = TileValue.getPlayerValues(initialPlayers);
         for (int i = 0; i < initialPlayers; i++) {
             players[i] = new Player(playerValues[i], initialOverwriteStones, initialBombs,
-                                    board.getAllOccupiedTilesForPlayer(playerValues[i]));
+                                    board.getAllTilesWithValue(playerValues[i]));
         }
         currentPlayer = players[0];
 

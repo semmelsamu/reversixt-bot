@@ -1,6 +1,5 @@
 package board;
 
-import player.Player;
 import util.Logger;
 
 import java.util.Arrays;
@@ -121,13 +120,13 @@ public class Board {
         return result;
     }
 
-    public List<Tile> getAllOccupiedTilesForPlayer(TileValue playerValue) {
+    public List<Tile> getAllTilesWithValue(TileValue value) {
 
         List<Tile> allTiles = getAllTiles();
         List<Tile> result = new LinkedList<>();
 
         for(Tile tile : allTiles) {
-            if(tile.getValue() == playerValue)
+            if(tile.getValue() == value)
                 result.add(tile);
         }
 
