@@ -115,6 +115,7 @@ public class Game {
         // Create board from remaining lines
         Board board = Board.createFromLines(lines);
 
+
         // Creating game
         return new Game(initialPlayers, initialOverwriteStones, initialBombs, bombRadius, board);
     }
