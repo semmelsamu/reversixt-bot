@@ -42,11 +42,11 @@ public class MapReadTest {
     public static int testMap(String filename) {
         try {
             Game game = Game.createFromFile(filename);
-            Logger.log("Map " + filename, 5);
+            Logger.log(filename, 5);
             return 0;
         }
         catch(Exception e) {
-            Logger.error("Map " + filename + " failed:" + e.getMessage(), 5);
+            Logger.error(filename + " generated error:" + e.getMessage(), 5);
             return 1;
         }
     }

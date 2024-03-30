@@ -15,6 +15,7 @@ public class Test {
 
         int failedTests = 0;
         failedTests += MapReadTest.testAll();
+        failedTests += CountTilesTest.countTiles();
 
         if(failedTests > 0)
             Logger.fatal("Failed tests: " + failedTests, 5);
