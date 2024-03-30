@@ -11,7 +11,7 @@ public class Main {
         Logger.DEBUG = true;
         Logger.log("Starting");
 
-        Game game = Game.createFromFile("maps/initialMaps/window.map");
+        Game game = Game.createFromFile("maps/ue02-boeseMaps/boeseMap04.map");
         game.getValidMovesFromCurrentPlayer();
     }
 }
