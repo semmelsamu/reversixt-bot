@@ -2,11 +2,9 @@ package game;
 
 import board.*;
 import player.Player;
-import player.Stone;
 import util.File;
 import util.Logger;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,6 +47,12 @@ public class Game {
      */
     private Player[] players;
 
+    /**
+     * The player whose turn it is
+     */
+    private Player currentPlayer;
+    private TileValue[] playerValues;
+
     /*
     |--------------------------------------------------------------------------
     | Constructor
@@ -73,6 +77,7 @@ public class Game {
             players[i] = new Player(playerValues[i], initialOverwriteStones, initialBombs,
                                     board.getAllOccupiedTilesForPlayer(playerValues[i]));
         }
+        currentPlayer = players[0];
 
         board.print();
     }
@@ -135,4 +140,7 @@ public class Game {
         return createFromString(File.readFile(filename));
     }
 
+    public List<Coordinates> getValidMovesFromCurrentPlayer(){
+        return currentPlayer.getValidMoves();
+    }
 }

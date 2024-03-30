@@ -40,7 +40,7 @@ public class Player {
      *
      * Valid moves for one player
      */
-    public List<Coordinates> getValidMovesForPlayer(){
+    public List<Coordinates> getValidMoves(){
         List<Coordinates> moves = new ArrayList<>();
         for(Tile s : occupiedTiles){
             if(s.getValue() != playerValue){
@@ -49,9 +49,9 @@ public class Player {
             }
             moves.addAll(getValidMovesForPiece(s));
         }
-        System.out.println("Valid moves for player " + playerValue);
+        System.out.println("Valid moves for " + playerValue);
         for(Coordinates c : moves){
-            System.out.println(c.x + " " + " " + c.y);
+            System.out.println((c.x + 1) + " " +  (c.y + 1));
         }
         return moves;
     }

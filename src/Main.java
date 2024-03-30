@@ -12,5 +12,6 @@ public class Main {
         Logger.log("Starting");
 
         Game game = Game.createFromFile("maps/initialMaps/window.map");
+        game.getValidMovesFromCurrentPlayer();
     }
 }
