@@ -83,26 +83,23 @@ public enum TileValue {
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Prints the tile value in color to the system out.
-     */
-    public String print() {
+    public String toString() {
         return switch (character) {
-            case '0' -> ". ";
-            case '-' -> "\u001B[47m##\u001B[0m";
-            case '1' -> "\u001B[31mP1\u001B[0m";
-            case '2' -> "\u001B[32mP2\u001B[0m";
-            case '3' -> "\u001B[34mP3\u001B[0m";
-            case '4' -> "\u001B[33mP4\u001B[0m";
-            case '5' -> "P5";
-            case '6' -> "P6";
-            case '7' -> "P7";
-            case '8' -> "P8";
-            case 'x' -> "\u001B[40mx \u001B[0m";
-            case 'i' -> "i ";
-            case 'c' -> "c ";
-            case 'b' -> "b ";
-            default -> "??";
+            case '0' -> " . ";
+            case '-' -> "\u001B[47m   \u001B[0m";
+            case '1' -> "\u001B[31m 1 \u001B[0m";
+            case '2' -> "\u001B[32m 2 \u001B[0m";
+            case '3' -> "\u001B[34m 3 \u001B[0m";
+            case '4' -> "\u001B[33m 4 \u001B[0m";
+            case '5' -> " 5 ";
+            case '6' -> " 6 ";
+            case '7' -> " 7 ";
+            case '8' -> " 8 ";
+            case 'x' -> "\u001B[40m x \u001B[0m";
+            case 'i' -> " i ";
+            case 'c' -> " c ";
+            case 'b' -> " b ";
+            default -> " ? ";
         };
     }
 
