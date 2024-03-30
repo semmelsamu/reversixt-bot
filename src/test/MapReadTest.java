@@ -41,14 +41,13 @@ public class MapReadTest {
 
     public static int testMap(String filename) {
         try {
-            Game game = Game.createFromFile(filename);
             Logger.ON = true;
             Logger.log("Map " + filename);
             Logger.ON = false;
-            game.getBoard().print();
+            Game game = Game.createFromFile(filename);
             return 0;
         }
-        catch(Error e) {
+        catch(Exception e) {
             Logger.ON = true;
             Logger.error("Map " + filename + " failed");
             Logger.ON = false;
