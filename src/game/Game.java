@@ -44,6 +44,11 @@ public class Game {
      */
     private Board board;
 
+    /**
+     * Array containing all players with their information
+     */
+    private Player[] players;
+
     /*
     |--------------------------------------------------------------------------
     | Constructor
@@ -60,6 +65,14 @@ public class Game {
         this.initialBombs = initialBombs;
         this.bombRadius = bombRadius;
         this.board = board;
+
+        //add players
+        players = new Player[initialPlayers];
+        TileValue[] playerValues = TileValue.getPlayerValues(initialPlayers);
+        for (int i = 0; i < initialPlayers; i++) {
+            players[i] = new Player(playerValues[i], initialOverwriteStones, initialBombs,
+                                    board.getAllOccupiedTilesForPlayer(playerValues[i]));
+        }
 
         board.print();
     }
