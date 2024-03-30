@@ -46,7 +46,7 @@ public class MapReadTest {
             return 0;
         }
         catch(Exception e) {
-            Logger.error("Map " + filename + " failed", 5);
+            Logger.error("Map " + filename + " failed:" + e.getMessage(), 5);
             return 1;
         }
     }

@@ -86,7 +86,7 @@ public class Board {
             Tile tile2 = this.tiles[y2][x2];
 
             if(tile1.getValue() == TileValue.WALL || tile2.getValue() == TileValue.WALL) {
-                throw new RuntimeException("Transitions cannot be registered on wall tiles.");
+                throw new RuntimeException("Transitions cannot be registered on wall tiles. Transition" + Arrays.toString(transition));
             }
 
             tile1.setNeighbour(d1Out, new Neighbour(tile2, d2In));
