@@ -5,12 +5,13 @@ import java.util.Date;
 public class Logger {
 
     /**
-     * The name of the logger.
+     * The name of the logger. Displayed in each message which gets sent to the system out.
      */
     public static String NAME = "Logger";
 
     /**
      * The minimum priority a message must have in order to be logged.
+     * DEBUG=0 VERBOSE=1 LOG=2 WARNING=3 ERROR=4 FATAL=5
      */
     public static int PRIORITY = 0;
 
