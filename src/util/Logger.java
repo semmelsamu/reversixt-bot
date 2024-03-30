@@ -105,7 +105,7 @@ public class Logger {
      * @param message The error message.
      */
     public static void fatal(String message) {
-        fatal(message, 0);
+        console(ANSI_BOLD + ANSI_RED, "  FATAL", message, 5);
     }
     public static void fatal(String message, int priorityBonus) {
         console(ANSI_BOLD + ANSI_RED, "  FATAL", message, 5 + priorityBonus);
@@ -117,7 +117,7 @@ public class Logger {
      * @param message The error message.
      */
     public static void error(String message) {
-        error(message, 0);
+        console(ANSI_RED, "  ERROR", message, 4);
     }
     public static void error(String message, int priorityBonus) {
         console(ANSI_RED, "  ERROR", message, 4 + priorityBonus);
@@ -128,7 +128,7 @@ public class Logger {
      * @param message The warning message.
      */
     public static void warn(String message) {
-        warn(message, 0);
+        console(ANSI_YELLOW, "WARNING", message, 3);
     }
     public static void warn(String message, int priorityBonus) {
         console(ANSI_YELLOW, "WARNING", message, 3 + priorityBonus);
@@ -139,7 +139,7 @@ public class Logger {
      * @param message The message.
      */
     public static void log(String message) {
-        log(message, 0);
+        console(ANSI_GREEN, "    LOG", message, 2);
     }
     public static void log(String message, int priorityBonus) {
         console(ANSI_GREEN, "    LOG", message, 2 + priorityBonus);
@@ -150,7 +150,7 @@ public class Logger {
      * @param message The message.
      */
     public static void verbose(String message) {
-        verbose(message, 0);
+        console(ANSI_CYAN, "VERBOSE", message, 1);
     }
     public static void verbose(String message, int priorityBonus) {
         console(ANSI_CYAN, "VERBOSE", message, 1 + priorityBonus);
@@ -161,7 +161,7 @@ public class Logger {
      * @param message The message.
      */
     public static void debug(String message) {
-        debug(message, 0);
+        console(ANSI_PURPLE, "  DEBUG", message, 0);
     }
     public static void debug(String message, int priorityBonus) {
         console(ANSI_PURPLE, "  DEBUG", message, priorityBonus);
