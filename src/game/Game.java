@@ -78,8 +78,6 @@ public class Game {
                                     board.getAllTilesWithValue(playerValues[i]));
         }
         currentPlayer = players[0];
-
-        board.print();
     }
 
     /*

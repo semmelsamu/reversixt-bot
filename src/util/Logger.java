@@ -10,6 +10,11 @@ public class Logger {
     public static String LOGGER_NAME = "Logger";
 
     /**
+     * States if the logger should log.
+     */
+    public static boolean ON = true;
+
+    /**
      * States if the logger should log debug messages.
      */
     public static boolean DEBUG = true;
@@ -72,6 +77,8 @@ public class Logger {
      * @param message The actual message.
      */
     private static void console(String color, String type, String message) {
+
+        if(!ON) return;
 
         // Use StackTraceElement to get caller
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
