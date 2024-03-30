@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Game {
 
@@ -72,7 +73,7 @@ public class Game {
         this.bombRadius = bombRadius;
         this.board = board;
 
-        //add players
+        // Add players
         players = new Player[initialPlayers];
         TileValue[] playerValues = TileValue.getAllPlayerValues();
         for (int i = 0; i < initialPlayers; i++) {
@@ -153,5 +154,37 @@ public class Game {
 
     public Board getBoard() {
         return board;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Util
+    |--------------------------------------------------------------------------
+    */
+
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+
+        result.append("Initial players: ").append(initialPlayers).append("\n");
+        result.append("Initial overwrite stones: ").append(initialOverwriteStones).append("\n");
+        result.append("Initial bombs: ").append(initialBombs).append("\n");
+        result.append("Bomb radius: ").append(bombRadius).append("\n");
+
+        result.append("Players (Overwrite Stones / Bombs)").append("\n");
+        for(Player player: players) {
+            result.append("-").
+                    append(player.getPlayerValue().toString()).
+                    append("(").append(player.getOverwriteStones()).
+                    append(" / ").append(player.getBombs()).
+                    append(")\n");
+        }
+
+        result.append(board.toString());
+
+        // Indent
+        String[] lines = result.toString().split("\n");
+        return "Game\n\u001B[0m" + Arrays.stream(lines)
+                .map(line -> "    " + line)
+                .collect(Collectors.joining("\n"));
     }
 }

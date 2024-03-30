@@ -143,16 +143,16 @@ public class Board {
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Prints the color map to the system out.
-     */
-    public void print() {
-        for (Tile[] row : tiles) {
-            for (Tile column : row) {
-                System.out.print(column.getValue().print());
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for(Tile[] row : tiles) {
+            for(Tile tile : row) {
+                result.append(tile.getValue().toString());
             }
-            System.out.println();
+            result.append("\n");
         }
+        result.append("(Width: ").append(width).append(", height: ").append(height).append(")");
+        return result.toString();
     }
 
     /*
