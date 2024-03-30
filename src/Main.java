@@ -1,4 +1,3 @@
-import board.Direction;
 import game.Game;
 import util.Logger;
 
@@ -12,6 +11,6 @@ public class Main {
         Logger.log("Starting");
 
         Game game = Game.createFromFile("maps/ue02-boeseMaps/boeseMap04.map");
-        game.getValidMovesFromCurrentPlayer();
+        game.getValidMovesForCurrentPlayer();
     }
 }

@@ -107,17 +107,10 @@ public enum TileValue {
     }
 
     /**
-     *
-     * @param initialPlayers Number of players participating in the game
-     * @return Array of all PlayerValues
-     * Especially needed when creating an Array of all players in Game Constructor
+     * Returns all Enum values for Players in ascending order.
+     * Especially used when creating an Array of all players in Game Constructor.
      */
-    public static TileValue[] getPlayerValues(int initialPlayers){
-        TileValue[] tileValues = TileValue.values();
-        TileValue[] playerValues = new TileValue[initialPlayers];
-        for (int i = 0; i < initialPlayers; i++) {
-            playerValues[i] = tileValues[i + 1];
-        }
-        return playerValues;
+    public static TileValue[] getAllPlayerValues(){
+        return new TileValue[] { PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8 };
     }
 }

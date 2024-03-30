@@ -72,7 +72,7 @@ public class Game {
 
         //add players
         players = new Player[initialPlayers];
-        TileValue[] playerValues = TileValue.getPlayerValues(initialPlayers);
+        TileValue[] playerValues = TileValue.getAllPlayerValues();
         for (int i = 0; i < initialPlayers; i++) {
             players[i] = new Player(playerValues[i], initialOverwriteStones, initialBombs,
                                     board.getAllTilesWithValue(playerValues[i]));
@@ -141,7 +141,13 @@ public class Game {
         return createFromString(File.readFile(filename));
     }
 
-    public List<Coordinates> getValidMovesFromCurrentPlayer(){
+    /*
+    |--------------------------------------------------------------------------
+    | Getters
+    |--------------------------------------------------------------------------
+    */
+
+    public List<Coordinates> getValidMovesForCurrentPlayer(){
         return currentPlayer.getValidMoves();
     }
 }

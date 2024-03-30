@@ -8,10 +8,37 @@ import java.util.List;
 
 public class Player {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Member variables
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * The "color" of the player
+     */
     private TileValue playerValue;
+
+    /**
+     * The number of overwrite stones this player has
+     */
     private int overwriteStones;
+
+    /**
+     * The number of bombs this player has
+     */
     private int bombs;
+
+    /**
+     * A list of all tiles the player has occupied
+     */
     private List<Tile> occupiedTiles;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Constructor
+    |--------------------------------------------------------------------------
+    */
 
     public Player(TileValue playerValue, int overwriteStones, int bombs, List<Tile> occupiedTiles) {
         this.playerValue = playerValue;
@@ -19,6 +46,12 @@ public class Player {
         this.bombs = bombs;
         this.occupiedTiles = occupiedTiles;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Getters
+    |--------------------------------------------------------------------------
+    */
 
     public TileValue getPlayerValue() {
         return playerValue;
@@ -36,9 +69,14 @@ public class Player {
         return occupiedTiles;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Functions for calculating valid moves
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     *
-     * Valid moves for one player
+     * Get all valid moves for this player
      */
     public List<Coordinates> getValidMoves(){
         List<Coordinates> moves = new ArrayList<>();
@@ -57,7 +95,6 @@ public class Player {
     }
 
     /**
-     *
      * @param ownPiece one piece of this player
      * @return Valid moves for one piece of this player
      */
@@ -74,7 +111,6 @@ public class Player {
     }
 
     /**
-     *
      * @param ownPiece one piece of this player
      * @param direction one of eight directions
      * @return Valid moves for one piece for one of eight directions

@@ -9,7 +9,7 @@ import player.Player;
 public class ChoiceMove extends Move {
 
     /**
-     * The other player the player will swap places with after he set the stone.
+     * The other player which the player will swap places with after he set the stone.
      */
     private final Player playerToSwapWith;
 
