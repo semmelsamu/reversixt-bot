@@ -105,4 +105,19 @@ public enum TileValue {
             default -> "??";
         };
     }
+
+    /**
+     *
+     * @param initialPlayers Number of players participating in the game
+     * @return Array of all PlayerValues
+     * Especially needed when creating an Array of all players in Game Constructor
+     */
+    public static TileValue[] getPlayerValues(int initialPlayers){
+        TileValue[] tileValues = TileValue.values();
+        TileValue[] playerValues = new TileValue[initialPlayers];
+        for (int i = 0; i < initialPlayers; i++) {
+            playerValues[i] = tileValues[i + 1];
+        }
+        return playerValues;
+    }
 }

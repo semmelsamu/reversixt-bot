@@ -36,6 +36,10 @@ public class Player {
         return occupiedTiles;
     }
 
+    /**
+     *
+     * Valid moves for one player
+     */
     public List<Coordinates> getValidMoves(){
         List<Coordinates> moves = new ArrayList<>();
         for(Tile s : occupiedTiles){
@@ -45,9 +49,9 @@ public class Player {
             }
             moves.addAll(getValidMovesForPiece(s));
         }
-        System.out.println("Valid moves for player " + playerValue);
+        System.out.println("Valid moves for " + playerValue);
         for(Coordinates c : moves){
-            System.out.println(c.x + " " + " " + c.y);
+            System.out.println(c.x + " " +  c.y);
         }
         return moves;
     }
@@ -55,12 +59,16 @@ public class Player {
     /**
      *
      * @param ownPiece one piece of this player
-     * @return Valid moves for one piece
+     * @return Valid moves for one piece of this player
      */
     private List<Coordinates> getValidMovesForPiece(Tile ownPiece){
         List<Coordinates> moves = new ArrayList<>();
         for(Direction d : Direction.values()){
-            moves.add(getValidMovesForPieceInDirection(ownPiece, d));
+            //currentDirection = d;
+            Coordinates move = getValidMoveForPieceInDirection(ownPiece, d);
+            if(move != null){
+                moves.add(move);
+            }
         }
         return moves;
     }
@@ -71,12 +79,13 @@ public class Player {
      * @param direction one of eight directions
      * @return Valid moves for one piece for one of eight directions
      */
-    private Coordinates getValidMovesForPieceInDirection(Tile ownPiece, Direction direction){
+    private Coordinates getValidMoveForPieceInDirection(Tile ownPiece, Direction direction){
+        boolean firstTileOpponent = false;
         boolean foundEmptyTile = false;
         Direction currentDirection = direction;
         Tile currentTile = ownPiece;
         Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
-        //terminates  if an empty Tile was found or if the neighbour is an own piece or if there is no neighbour
+        // terminates  if an empty Tile was found or if the neighbour is an own piece or if there is no neighbour
         while(!(foundEmptyTile) && currentNeighbour != null &&
                 currentNeighbour.tile().getValue() != ownPiece.getValue())
         {
@@ -89,12 +98,16 @@ public class Player {
                     foundEmptyTile = true;
                     break;
                 default:
+                    firstTileOpponent = true;
                     currentNeighbour = currentTile.getNeighbour(currentDirection);
                     if (currentNeighbour.directionChange() != null) {
                         currentDirection = currentNeighbour.directionChange();
                     }
-                    currentNeighbour = currentTile.getNeighbour(currentDirection);
+                    //currentNeighbour = currentTile.getNeighbour(currentDirection);
             }
+        }
+        if(!firstTileOpponent){
+            return null;
         }
         if(foundEmptyTile){
             return currentTile.getPosition();

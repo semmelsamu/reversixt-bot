@@ -121,13 +121,13 @@ public class Board {
         return result;
     }
 
-    public List<Tile> getAllOccupiedTilesForPlayer(Player player) {
+    public List<Tile> getAllOccupiedTilesForPlayer(TileValue playerValue) {
 
         List<Tile> allTiles = getAllTiles();
         List<Tile> result = new LinkedList<>();
 
         for(Tile tile : allTiles) {
-            if(tile.getValue() == player.getPlayerValue())
+            if(tile.getValue() == playerValue)
                 result.add(tile);
         }
 
