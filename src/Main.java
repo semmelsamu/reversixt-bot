@@ -10,7 +10,7 @@ public class Main {
         Logger.DEBUG = true;
         Logger.log("Starting");
 
-        Game game = Game.createFromFile("maps/ue02-boeseMaps/boeseMap04.map");
+        Game game = Game.createFromFile("maps/boeseMaps/boeseMap04.map");
         game.getValidMovesForCurrentPlayer();
     }
 }

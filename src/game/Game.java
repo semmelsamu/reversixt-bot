@@ -148,4 +148,8 @@ public class Game {
     public List<Coordinates> getValidMovesForCurrentPlayer(){
         return currentPlayer.getValidMoves();
     }
+
+    public Board getBoard() {
+        return board;
+    }
 }
