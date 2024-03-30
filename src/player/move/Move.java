@@ -1,12 +1,13 @@
 package player.move;
 
+import board.Coordinates;
 import board.Tile;
 import player.Player;
 
 /**
  * A most basic move where the player only sets a stone.
  */
-public class Move {
+public class Move implements Comparable<Move>{
 
     /**
      * The player this move belongs to.
@@ -35,5 +36,17 @@ public class Move {
 
     public Tile getTile() {
         return tile;
+    }
+
+    @Override
+    public int compareTo(Move o) {
+        Coordinates thisPosition = this.getTile().getPosition();
+        Coordinates otherPosition = o.getTile().getPosition();
+        if(thisPosition.x != otherPosition.x){
+            return Integer.compare(thisPosition.x, otherPosition.x);
+        }
+        else{
+            return Integer.compare(thisPosition.y, otherPosition.y);
+        }
     }
 }

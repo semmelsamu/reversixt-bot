@@ -13,7 +13,7 @@ public class Main {
 
         Logger.log("Starting");
 
-        Game game = Game.createFromFile("maps/boeseMaps/boeseMap04.map");
+        Game game = Game.createFromFile("maps/boeseMaps/boeseMap11.map");
         game.getValidMovesForCurrentPlayer();
     }
 }

@@ -1,10 +1,13 @@
 package player;
 
 import board.*;
+import player.move.Move;
 import util.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Player {
 
@@ -78,8 +81,8 @@ public class Player {
     /**
      * Get all valid moves for this player
      */
-    public List<Coordinates> getValidMoves(){
-        List<Coordinates> moves = new ArrayList<>();
+    public Set<Move> getValidMoves(){
+        Set<Move> moves = new TreeSet<>();
         for(Tile s : occupiedTiles){
             if(s.getValue() != playerValue){
                 Logger.error("Wrong coordinates in " + playerValue + "'s List stones");
@@ -88,8 +91,8 @@ public class Player {
             moves.addAll(getValidMovesForPiece(s));
         }
         System.out.println("Valid moves for " + playerValue);
-        for(Coordinates c : moves){
-            System.out.println(c.x + " " +  c.y);
+        for(Move m : moves){
+            System.out.println(m.getTile().getPosition());
         }
         return moves;
     }
@@ -98,11 +101,11 @@ public class Player {
      * @param ownPiece one piece of this player
      * @return Valid moves for one piece of this player
      */
-    private List<Coordinates> getValidMovesForPiece(Tile ownPiece){
-        List<Coordinates> moves = new ArrayList<>();
+    private Set<Move> getValidMovesForPiece(Tile ownPiece){
+        Set<Move> moves = new TreeSet<>();
         for(Direction d : Direction.values()){
             //currentDirection = d;
-            Coordinates move = getValidMoveForPieceInDirection(ownPiece, d);
+            Move move = getValidMoveForPieceInDirection(ownPiece, d);
             if(move != null){
                 moves.add(move);
             }
@@ -115,7 +118,7 @@ public class Player {
      * @param direction one of eight directions
      * @return Valid moves for one piece for one of eight directions
      */
-    private Coordinates getValidMoveForPieceInDirection(Tile ownPiece, Direction direction){
+    private Move getValidMoveForPieceInDirection(Tile ownPiece, Direction direction){
         boolean firstTileOpponent = false;
         boolean foundEmptyTile = false;
         Direction currentDirection = direction;
@@ -146,7 +149,7 @@ public class Player {
             return null;
         }
         if(foundEmptyTile){
-            return currentTile.getPosition();
+            return new Move(this, currentTile);
         }
         else{
             return null;

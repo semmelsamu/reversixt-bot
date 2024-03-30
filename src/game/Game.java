@@ -2,12 +2,14 @@ package game;
 
 import board.*;
 import player.Player;
+import player.move.Move;
 import util.File;
 import util.Logger;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class Game {
 
@@ -145,7 +147,7 @@ public class Game {
     |--------------------------------------------------------------------------
     */
 
-    public List<Coordinates> getValidMovesForCurrentPlayer(){
+    public Set<Move> getValidMovesForCurrentPlayer(){
         return currentPlayer.getValidMoves();
     }
 
