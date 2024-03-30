@@ -7,17 +7,12 @@ public class Logger {
     /**
      * The name of the logger.
      */
-    public static String LOGGER_NAME = "Logger";
+    public static String NAME = "Logger";
 
     /**
-     * States if the logger should log.
+     * The minimum priority a message must have in order to be logged.
      */
-    public static boolean ON = true;
-
-    /**
-     * States if the logger should log debug messages.
-     */
-    public static boolean DEBUG = true;
+    public static int PRIORITY = 0;
 
     /*
     |--------------------------------------------------------------------------
@@ -76,9 +71,9 @@ public class Logger {
      * @param type The type of the logger message.
      * @param message The actual message.
      */
-    private static void console(String color, String type, String message) {
+    private static void console(String color, String type, String message, int priority) {
 
-        if(!ON) return;
+        if(priority < PRIORITY) return;
 
         // Use StackTraceElement to get caller
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
@@ -96,7 +91,7 @@ public class Logger {
         lastTimeActive = currentTime;
 
         // Print
-        System.out.println(color + "[" + LOGGER_NAME + "]  " + ANSI_RESET + currentDate + "  " + color + type + ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color + message + ANSI_RESET + "  " + timeElapsedMs + "ms");
+        System.out.println(color + "[" + NAME + "]  " + ANSI_RESET + currentDate + "  " + color + type + ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color + message + ANSI_RESET + "  " + timeElapsedMs + "ms");
     }
 
     /*
@@ -106,19 +101,15 @@ public class Logger {
     */
 
     /**
-     * Log a message.
-     * @param message The message.
+     * Log a fatal error and terminate the program.
+     * @param message The error message.
      */
-    public static void log(String message) {
-        console(ANSI_GREEN, "    LOG", message);
+    public static void fatal(String message) {
+        fatal(message, 0);
     }
-
-    /**
-     * Log a warning.
-     * @param message The warning message.
-     */
-    public static void warn(String message) {
-        console(ANSI_YELLOW, "WARNING", message);
+    public static void fatal(String message, int priorityBonus) {
+        console(ANSI_BOLD + ANSI_RED, "  FATAL", message, 5 + priorityBonus);
+        System.exit(1);
     }
 
     /**
@@ -126,16 +117,32 @@ public class Logger {
      * @param message The error message.
      */
     public static void error(String message) {
-        console(ANSI_RED, "  ERROR", message);
+        error(message, 0);
+    }
+    public static void error(String message, int priorityBonus) {
+        console(ANSI_RED, "  ERROR", message, 4 + priorityBonus);
     }
 
     /**
-     * Log a fatal error and terminate the program.
-     * @param message The error message.
+     * Log a warning.
+     * @param message The warning message.
      */
-    public static void fatal(String message) {
-        console(ANSI_BOLD + ANSI_RED, "  FATAL", message);
-        System.exit(1);
+    public static void warn(String message) {
+        warn(message, 0);
+    }
+    public static void warn(String message, int priorityBonus) {
+        console(ANSI_YELLOW, "WARNING", message, 3 + priorityBonus);
+    }
+
+    /**
+     * Log a message.
+     * @param message The message.
+     */
+    public static void log(String message) {
+        log(message, 0);
+    }
+    public static void log(String message, int priorityBonus) {
+        console(ANSI_GREEN, "    LOG", message, 2 + priorityBonus);
     }
 
     /**
@@ -143,7 +150,10 @@ public class Logger {
      * @param message The message.
      */
     public static void verbose(String message) {
-        console(ANSI_CYAN, "VERBOSE", message);
+        verbose(message, 0);
+    }
+    public static void verbose(String message, int priorityBonus) {
+        console(ANSI_CYAN, "VERBOSE", message, 1 + priorityBonus);
     }
 
     /**
@@ -151,7 +161,9 @@ public class Logger {
      * @param message The message.
      */
     public static void debug(String message) {
-        if(DEBUG)
-            console(ANSI_PURPLE, "  DEBUG", message);
+        debug(message, 0);
+    }
+    public static void debug(String message, int priorityBonus) {
+        console(ANSI_PURPLE, "  DEBUG", message, priorityBonus);
     }
 }

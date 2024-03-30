@@ -9,14 +9,15 @@ public class Test {
     }
     public static void testAll() {
 
-        Logger.DEBUG = true;
-        Logger.log("Testing all");
-        Logger.ON = false;
+        Logger.PRIORITY = 5;
+        Logger.NAME = "TEST_ALL";
+        Logger.log("Testing all", 5);
 
         int failedTests = 0;
         failedTests += MapReadTest.testAll();
 
-        Logger.ON = true;
-        Logger.log("Failed tests: " + failedTests);
+        if(failedTests > 0)
+            Logger.fatal("Failed tests: " + failedTests, 5);
+        else Logger.log("All tests passed", 5);
     }
 }
