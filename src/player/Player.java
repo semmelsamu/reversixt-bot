@@ -51,7 +51,7 @@ public class Player {
         }
         System.out.println("Valid moves for " + playerValue);
         for(Coordinates c : moves){
-            System.out.println((c.x + 1) + " " +  (c.y + 1));
+            System.out.println(c.x + " " +  c.y);
         }
         return moves;
     }
@@ -65,9 +65,10 @@ public class Player {
         List<Coordinates> moves = new ArrayList<>();
         for(Direction d : Direction.values()){
             //currentDirection = d;
-
-            moves.add(getValidMovesForPieceInDirection(ownPiece, d));
-
+            Coordinates move = getValidMoveForPieceInDirection(ownPiece, d);
+            if(move != null){
+                moves.add(move);
+            }
         }
         return moves;
     }
@@ -78,7 +79,8 @@ public class Player {
      * @param direction one of eight directions
      * @return Valid moves for one piece for one of eight directions
      */
-    private Coordinates getValidMovesForPieceInDirection(Tile ownPiece, Direction direction){
+    private Coordinates getValidMoveForPieceInDirection(Tile ownPiece, Direction direction){
+        boolean firstTileOpponent = false;
         boolean foundEmptyTile = false;
         Direction currentDirection = direction;
         Tile currentTile = ownPiece;
@@ -96,12 +98,16 @@ public class Player {
                     foundEmptyTile = true;
                     break;
                 default:
+                    firstTileOpponent = true;
                     currentNeighbour = currentTile.getNeighbour(currentDirection);
                     if (currentNeighbour.directionChange() != null) {
                         currentDirection = currentNeighbour.directionChange();
                     }
-                    currentNeighbour = currentTile.getNeighbour(currentDirection);
+                    //currentNeighbour = currentTile.getNeighbour(currentDirection);
             }
+        }
+        if(!firstTileOpponent){
+            return null;
         }
         if(foundEmptyTile){
             return currentTile.getPosition();
