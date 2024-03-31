@@ -82,17 +82,14 @@ public class Player {
      * Get all valid moves for this player
      */
     public Set<Move> getValidMoves(){
+        Logger.log("Searching for all valid moves for Player" + this.playerValue);
         Set<Move> moves = new TreeSet<>();
         for(Tile s : occupiedTiles){
             if(s.getValue() != playerValue){
-                Logger.error("Wrong coordinates in " + playerValue + "'s List stones");
+                Logger.error("Wrong coordinates in Player" + playerValue + "'s List stones");
                 continue;
             }
             moves.addAll(getValidMovesForPiece(s));
-        }
-        System.out.println("Valid moves for " + playerValue);
-        for(Move m : moves){
-            System.out.println(m.getTile().getPosition());
         }
         return moves;
     }
@@ -104,7 +101,6 @@ public class Player {
     private Set<Move> getValidMovesForPiece(Tile ownPiece){
         Set<Move> moves = new TreeSet<>();
         for(Direction d : Direction.values()){
-            //currentDirection = d;
             Move move = getValidMoveForPieceInDirection(ownPiece, d);
             if(move != null){
                 moves.add(move);
@@ -142,13 +138,14 @@ public class Player {
                     if (currentNeighbour.directionChange() != null) {
                         currentDirection = currentNeighbour.directionChange();
                     }
-                    //currentNeighbour = currentTile.getNeighbour(currentDirection);
             }
         }
+        // First neighbour in a direction must be a piece of an opponent in order to do a valid move
         if(!firstTileOpponent){
             return null;
         }
         if(foundEmptyTile){
+            Logger.log("Valid move: " + currentTile.getPosition());
             return new Move(this, currentTile);
         }
         else{
