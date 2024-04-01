@@ -6,10 +6,7 @@ import player.move.Move;
 import util.File;
 import util.Logger;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Game {
@@ -54,7 +51,7 @@ public class Game {
      * The player whose turn it is
      */
     private Player currentPlayer;
-    private TileValue[] playerValues;
+    private int currentPlayerIndex;
 
     /*
     |--------------------------------------------------------------------------
@@ -81,6 +78,7 @@ public class Game {
                                     board.getAllTilesWithValue(playerValues[i]));
         }
         currentPlayer = players[0];
+        currentPlayerIndex = 0;
     }
 
     /*
@@ -148,13 +146,74 @@ public class Game {
     |--------------------------------------------------------------------------
     */
 
+    public Board getBoard() {
+        return board;
+    }
+
+    public Player[] getPlayers() {
+        return players;
+    }
+    /*
+    |--------------------------------------------------------------------------
+    | Moves
+    |--------------------------------------------------------------------------
+    */
+
     public Set<Move> getValidMovesForCurrentPlayer(){
         return currentPlayer.getValidMoves();
     }
 
-    public Board getBoard() {
-        return board;
+    public void executeMove(Move move){
+        Tile newPiece = move.getTile();
+        TileValue playerValue = currentPlayer.getPlayerValue();
+        Set<Tile> tilesToColour = new HashSet<>();
+        for(Direction d : Direction.values()){
+            Tile currentTile = newPiece;
+            Neighbour currentNeighbour = currentTile.getNeighbour(d);
+            Direction currentDirection = d;
+            boolean foundEmptyTile = false;
+            boolean firstTileOpponent = false;
+            Set<Tile> tilesToColourInDirection = new HashSet<>();
+            while(!(foundEmptyTile) && currentNeighbour != null)
+            {
+                currentTile = currentNeighbour.tile();
+                if(currentTile.getValue() == playerValue){
+                    break;
+                }
+                switch (currentTile.getValue()) {
+                    case EMPTY:
+                    case CHOICE:
+                    case INVERSION:
+                    case BONUS:
+                        foundEmptyTile = true;
+                        break;
+                    default:
+                        firstTileOpponent = true;
+                        tilesToColourInDirection.add(currentTile);
+                        if (currentNeighbour.directionChange() != null) {
+                            currentDirection = currentNeighbour.directionChange();
+                        }
+                        currentNeighbour = currentTile.getNeighbour(currentDirection);
+                }
+            }
+            if(currentTile.getValue() == playerValue){
+                tilesToColour.addAll(tilesToColourInDirection);
+            }
+        }
+        if(tilesToColour.isEmpty()){
+            Logger.fatal("Move is not valid!");
+            return;
+        }
+        tilesToColour.add(newPiece);
+        for (Tile tile : tilesToColour){
+            Coordinates coordinates = tile.getPosition();
+            board.setTileValue(coordinates, playerValue);
+        }
+        int newIndex = (currentPlayerIndex + 1) % players.length;
+        currentPlayer = players[newIndex];
+        currentPlayerIndex++;
     }
+
 
     /*
     |--------------------------------------------------------------------------

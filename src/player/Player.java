@@ -91,6 +91,9 @@ public class Player {
             }
             moves.addAll(getValidMovesForPiece(s));
         }
+        for(Move m : moves){
+            Logger.log("Valid move: " + m.getTile().getPosition());
+        }
         return moves;
     }
 
@@ -134,10 +137,10 @@ public class Player {
                     break;
                 default:
                     firstTileOpponent = true;
-                    currentNeighbour = currentTile.getNeighbour(currentDirection);
                     if (currentNeighbour.directionChange() != null) {
                         currentDirection = currentNeighbour.directionChange();
                     }
+                    currentNeighbour = currentTile.getNeighbour(currentDirection);
             }
         }
         // First neighbour in a direction must be a piece of an opponent in order to do a valid move
@@ -145,7 +148,6 @@ public class Player {
             return null;
         }
         if(foundEmptyTile){
-            Logger.log("Valid move: " + currentTile.getPosition());
             return new Move(this, currentTile);
         }
         else{

@@ -137,6 +137,10 @@ public class Board {
         return result;
     }
 
+    public void setTileValue(Coordinates coordinates, TileValue tileValue) {
+        this.tiles[coordinates.y][coordinates.x].setValue(tileValue);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Utility

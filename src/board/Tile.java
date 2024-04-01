@@ -58,6 +58,10 @@ public class Tile {
         neighbours[direction.getValue()] = neighbour;
     }
 
+    public void setValue(TileValue value) {
+        this.value = value;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Magic functions
