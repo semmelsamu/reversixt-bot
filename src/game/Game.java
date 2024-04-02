@@ -168,51 +168,66 @@ public class Game {
         Tile newPiece = move.getTile();
         TileValue playerValue = currentPlayer.getPlayerValue();
         Set<Tile> tilesToColour = new HashSet<>();
+        // check every direction on tiles to colour
         for(Direction d : Direction.values()){
-            Tile currentTile = newPiece;
-            Neighbour currentNeighbour = currentTile.getNeighbour(d);
-            Direction currentDirection = d;
-            boolean foundEmptyTile = false;
-            boolean firstTileOpponent = false;
-            Set<Tile> tilesToColourInDirection = new HashSet<>();
-            while(!(foundEmptyTile) && currentNeighbour != null)
-            {
-                currentTile = currentNeighbour.tile();
-                if(currentTile.getValue() == playerValue){
-                    break;
-                }
-                switch (currentTile.getValue()) {
-                    case EMPTY:
-                    case CHOICE:
-                    case INVERSION:
-                    case BONUS:
-                        foundEmptyTile = true;
-                        break;
-                    default:
-                        firstTileOpponent = true;
-                        tilesToColourInDirection.add(currentTile);
-                        if (currentNeighbour.directionChange() != null) {
-                            currentDirection = currentNeighbour.directionChange();
-                        }
-                        currentNeighbour = currentTile.getNeighbour(currentDirection);
-                }
-            }
-            if(currentTile.getValue() == playerValue){
+            Set<Tile> tilesToColourInDirection = getTilesToColourInDirection(newPiece, playerValue, d);
+            if(tilesToColourInDirection != null){
                 tilesToColour.addAll(tilesToColourInDirection);
             }
         }
+        // no tiles to colour => move is not valid (without overwrite pieces!)
         if(tilesToColour.isEmpty()){
             Logger.fatal("Move is not valid!");
             return;
         }
         tilesToColour.add(newPiece);
+        // colour all pieces
         for (Tile tile : tilesToColour){
             Coordinates coordinates = tile.getPosition();
             board.setTileValue(coordinates, playerValue);
         }
+        // update currentPlayer
         int newIndex = (currentPlayerIndex + 1) % players.length;
         currentPlayer = players[newIndex];
         currentPlayerIndex++;
+
+        Logger.log("Move " + move + " executed");
+    }
+
+    private Set<Tile> getTilesToColourInDirection(Tile newPiece, TileValue playerValue, Direction d){
+        Tile currentTile = newPiece;
+        Neighbour currentNeighbour = currentTile.getNeighbour(d);
+        Direction currentDirection = d;
+        boolean foundEmptyTile = false;
+        Set<Tile> tilesToColourInDirection = new HashSet<>();
+        while(!(foundEmptyTile) && currentNeighbour != null)
+        {
+            currentTile = currentNeighbour.tile();
+            if(currentTile.getValue() == playerValue){
+                break;
+            }
+            switch (currentTile.getValue()) {
+                case EMPTY:
+                case CHOICE:
+                case INVERSION:
+                case BONUS:
+                    foundEmptyTile = true;
+                    break;
+                default:
+                    tilesToColourInDirection.add(currentTile);
+                    if (currentNeighbour.directionChange() != null) {
+                        currentDirection = currentNeighbour.directionChange();
+                    }
+                    currentNeighbour = currentTile.getNeighbour(currentDirection);
+            }
+        }
+        // if the loop ends with a piece of the same colour, the move is valid
+        if(currentTile.getValue() == playerValue){
+            return tilesToColourInDirection;
+        }
+        else{
+            return null;
+        }
     }
 
     private boolean moveIsValid(Move move) {

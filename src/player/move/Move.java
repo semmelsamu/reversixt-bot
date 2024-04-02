@@ -49,4 +49,9 @@ public class Move implements Comparable<Move>{
             return Integer.compare(thisPosition.y, otherPosition.y);
         }
     }
+
+    @Override
+    public String toString() {
+        return tile.getPosition().toString();
+    }
 }
