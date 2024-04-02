@@ -153,6 +153,7 @@ public class Game {
     public Player[] getPlayers() {
         return players;
     }
+
     /*
     |--------------------------------------------------------------------------
     | Moves
@@ -163,7 +164,7 @@ public class Game {
         return currentPlayer.getValidMoves();
     }
 
-    public void executeMove(Move move){
+    public void executeMove(Move move) {
         Tile newPiece = move.getTile();
         TileValue playerValue = currentPlayer.getPlayerValue();
         Set<Tile> tilesToColour = new HashSet<>();
@@ -214,6 +215,10 @@ public class Game {
         currentPlayerIndex++;
     }
 
+    private boolean moveIsValid(Move move) {
+        // TODO
+        return true;
+    }
 
     /*
     |--------------------------------------------------------------------------
