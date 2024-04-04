@@ -15,16 +15,30 @@ public class Main {
 
         Logger.log("Starting");
 
-        // Specify map to read and load map
-        Game game = Game.createFromFile("maps/initialMaps/window.map");
+        /*
+         * ABGABE ÜBUNG 2
+         */
+        Logger.log("Abgabe Übung 2");
 
+        // TODO: User input which map to load
+        String map = "maps/initialMaps/window.map";
+
+        // Load map
+        Game game = Game.createFromFile(map);
+
+        // Print board
+        Logger.log(game.getBoard().toString());
+
+        // TODO: Print all valid moves
         Logger.log(game.getValidMovesForCurrentPlayer().toString());
 
-        // Input
+        // TODO: User inputs move
 
-        // Execute
+        // TODO: Execute move
 
-        // Print error if not valid or calculate and print new game if valid
+        // Print new board
         Logger.log(game.toString());
+
+        // TODO: If move is not valid, print error
     }
 }
