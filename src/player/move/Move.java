@@ -11,6 +11,7 @@ public class Move implements Comparable<Move>{
 
     /**
      * The player this move belongs to.
+     * TODO: Not yet used. Still needed?
      */
     private final Player player;
 
