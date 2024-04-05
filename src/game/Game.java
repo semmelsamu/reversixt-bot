@@ -74,8 +74,7 @@ public class Game {
         players = new Player[initialPlayers];
         TileValue[] playerValues = TileValue.getAllPlayerValues();
         for (int i = 0; i < initialPlayers; i++) {
-            players[i] = new Player(playerValues[i], initialOverwriteStones, initialBombs,
-                                    board.getAllTilesWithValue(playerValues[i]));
+            players[i] = new Player(playerValues[i], initialOverwriteStones, initialBombs, board.getAllTilesWithValue(playerValues[i]));
         }
         currentPlayer = players[0];
         currentPlayerIndex = 0;
@@ -89,6 +88,7 @@ public class Game {
 
     /**
      * Creates a new game from input lines.
+     *
      * @param lines A list of lines, where each line is trimmed and all lowercase (normalized).
      * @return The new game.
      */
@@ -160,31 +160,38 @@ public class Game {
     |--------------------------------------------------------------------------
     */
 
-    public Set<Move> getValidMovesForCurrentPlayer(){
+    public Set<Move> getValidMovesForCurrentPlayer() {
         return currentPlayer.getValidMoves();
     }
 
+
     public void executeMove(Move move) {
-        Tile newPiece = move.getTile();
-        TileValue playerValue = currentPlayer.getPlayerValue();
-        Set<Tile> tilesToColour = new HashSet<>();
-        // check every direction on tiles to colour
-        for(Direction d : Direction.values()){
-            Set<Tile> tilesToColourInDirection = getTilesToColourInDirection(newPiece, playerValue, d);
-            if(tilesToColourInDirection != null){
-                tilesToColour.addAll(tilesToColourInDirection);
-            }
-        }
-        // no tiles to colour => move is not valid (without overwrite pieces!)
-        if(tilesToColour.isEmpty()){
+        if (!getValidMovesForCurrentPlayer().contains(move)) {
             Logger.fatal("Move is not valid!");
             return;
         }
+
+        Tile newPiece = move.getTile();
+        TileValue playerValue = currentPlayer.getPlayerValue();
+        Set<Tile> tilesToColour = new HashSet<>();
+
+        // check every direction on tiles to colour
+        for (Direction d : Direction.values()) {
+            Neighbour neighbour = newPiece.getNeighbour(d);
+            if (neighbour == null) {
+                continue;
+            }
+            TileValue neighbourValue = neighbour.tile().getValue();
+            if (TileValue.getAllFriendlyValues().contains(neighbourValue) || neighbourValue == currentPlayer.getPlayerValue()) {
+                continue;
+            }
+            tilesToColour.addAll(getTilesToColourInDirection(newPiece, d));
+        }
+
         tilesToColour.add(newPiece);
         // colour all pieces
-        for (Tile tile : tilesToColour){
-            Coordinates coordinates = tile.getPosition();
-            board.setTileValue(coordinates, playerValue);
+        for (Tile tile : tilesToColour) {
+            board.setTileValue(tile.getPosition(), playerValue);
         }
         // update currentPlayer
         int newIndex = (currentPlayerIndex + 1) % players.length;
@@ -194,40 +201,24 @@ public class Game {
         Logger.log("Move " + move + " executed");
     }
 
-    private Set<Tile> getTilesToColourInDirection(Tile newPiece, TileValue playerValue, Direction d){
-        Tile currentTile = newPiece;
-        Neighbour currentNeighbour = currentTile.getNeighbour(d);
-        Direction currentDirection = d;
-        boolean foundEmptyTile = false;
+    private Set<Tile> getTilesToColourInDirection(Tile currentTile, Direction currentDirection) {
+        Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
         Set<Tile> tilesToColourInDirection = new HashSet<>();
-        while(!(foundEmptyTile) && currentNeighbour != null)
-        {
+        while (currentNeighbour.tile().getValue() != currentPlayer.getPlayerValue()) {
             currentTile = currentNeighbour.tile();
-            if(currentTile.getValue() == playerValue){
-                break;
+
+            tilesToColourInDirection.add(currentTile);
+            if (currentNeighbour.directionChange() != null) {
+                currentDirection = currentNeighbour.directionChange();
             }
-            switch (currentTile.getValue()) {
-                case EMPTY:
-                case CHOICE:
-                case INVERSION:
-                case BONUS:
-                    foundEmptyTile = true;
-                    break;
-                default:
-                    tilesToColourInDirection.add(currentTile);
-                    if (currentNeighbour.directionChange() != null) {
-                        currentDirection = currentNeighbour.directionChange();
-                    }
-                    currentNeighbour = currentTile.getNeighbour(currentDirection);
+            currentNeighbour = currentTile.getNeighbour(currentDirection);
+
+            if(TileValue.getAllFriendlyValues().contains(currentNeighbour.tile().getValue())){
+                return new HashSet<>();
             }
         }
-        // if the loop ends with a piece of the same colour, the move is valid
-        if(currentTile.getValue() == playerValue){
-            return tilesToColourInDirection;
-        }
-        else{
-            return null;
-        }
+        return tilesToColourInDirection;
+
     }
 
     private boolean moveIsValid(Move move) {
@@ -250,20 +241,18 @@ public class Game {
         result.append("Bomb radius: ").append(bombRadius).append("\n");
 
         result.append("Players (Overwrite Stones / Bombs)").append("\n");
-        for(Player player: players) {
-            result.append("-").
-                    append(player.getPlayerValue().toString()).
-                    append("(").append(player.getOverwriteStones()).
-                    append(" / ").append(player.getBombs()).
-                    append(")\n");
+        for (Player player : players) {
+            result.append("-").append(player.getPlayerValue().toString()).append("(").append(player.getOverwriteStones()).append(" / ").append(player.getBombs()).append(")\n");
         }
 
         result.append(board.toString());
 
         // Indent
         String[] lines = result.toString().split("\n");
-        return "Game\n\u001B[0m" + Arrays.stream(lines)
-                .map(line -> "    " + line)
-                .collect(Collectors.joining("\n"));
+        return "Game\n\u001B[0m" + Arrays.stream(lines).map(line -> "    " + line).collect(Collectors.joining("\n"));
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
     }
 }

@@ -156,7 +156,7 @@ public class Board {
             result.append("\n");
         }
         result.append("(Width: ").append(width).append(", height: ").append(height).append(")");
-        return result.toString();
+        return "Board\n" + result.toString();
     }
 
     /*

@@ -1,5 +1,8 @@
 package board;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Formerly TileType
  */
@@ -107,7 +110,11 @@ public enum TileValue {
      * Returns all Enum values for Players in ascending order.
      * Especially used when creating an Array of all players in Game Constructor.
      */
-    public static TileValue[] getAllPlayerValues(){
-        return new TileValue[] { PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8 };
+    public static TileValue[] getAllPlayerValues() {
+        return new TileValue[]{PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8};
+    }
+
+    public static List<TileValue> getAllFriendlyValues() {
+        return Arrays.asList(EMPTY, BONUS, CHOICE, INVERSION);
     }
 }

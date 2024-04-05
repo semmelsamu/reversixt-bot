@@ -1,6 +1,8 @@
 import game.Game;
+import player.move.Move;
 import test.MapReadTest;
 import test.Test;
+import util.ConsoleInputHandler;
 import util.Logger;
 
 public class Main {
@@ -33,8 +35,10 @@ public class Main {
         Logger.log(game.getValidMovesForCurrentPlayer().toString());
 
         // TODO: User inputs move
+        Move move = ConsoleInputHandler.createMove(game);
 
         // TODO: Execute move
+        game.executeMove(move);
 
         // Print new board
         Logger.log(game.toString());
