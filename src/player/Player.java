@@ -19,7 +19,7 @@ public class Player {
     /**
      * The "color" of the player
      */
-    private TileValue playerValue;
+    private final TileValue playerValue;
 
     /**
      * The number of overwrite stones this player has
@@ -152,5 +152,13 @@ public class Player {
         else{
             return null;
         }
+    }
+
+    public void increaseOverwriteStones(){
+        overwriteStones++;
+    }
+
+    public void increaseBombs(){
+        bombs++;
     }
 }

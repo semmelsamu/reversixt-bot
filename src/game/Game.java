@@ -40,7 +40,7 @@ public class Game {
     /**
      * The actual game board.
      */
-    private Board board;
+    private final Board board;
 
     /**
      * Array containing all players with their information
@@ -51,6 +51,7 @@ public class Game {
      * The player whose turn it is
      */
     private Player currentPlayer;
+
     private int currentPlayerIndex;
 
     /*
@@ -171,64 +172,15 @@ public class Game {
             Logger.fatal("Move is not valid!");
             return;
         }
+        move.execute(board);
 
-        Tile newPiece = move.getTile();
-        TileValue playerValue = currentPlayer.getPlayerValue();
-        Set<Tile> tilesToColour = new HashSet<>();
 
-        // check every direction
-        for (Direction d : Direction.values()) {
-            Neighbour neighbour = newPiece.getNeighbour(d);
-            // check if there is a dead end
-            if (neighbour == null) {
-                continue;
-            }
-            TileValue neighbourValue = neighbour.tile().getValue();
-            // check if tile value is seen as an enemy or if it's the same color
-            if (TileValue.getAllFriendlyValues().contains(neighbourValue) || neighbourValue == currentPlayer.getPlayerValue()) {
-                continue;
-            }
-            tilesToColour.addAll(getTilesToColourInDirection(newPiece, d));
-        }
-
-        tilesToColour.add(newPiece);
-        // colour all pieces
-        for (Tile tile : tilesToColour) {
-            board.setTileValue(tile.getPosition(), playerValue);
-        }
         // update currentPlayer
         int newIndex = (currentPlayerIndex + 1) % players.length;
         currentPlayer = players[newIndex];
         currentPlayerIndex++;
 
         Logger.log("Move " + move + " executed");
-    }
-
-    private Set<Tile> getTilesToColourInDirection(Tile currentTile, Direction currentDirection) {
-        Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
-        Set<Tile> tilesToColourInDirection = new HashSet<>();
-        // as long the neighbour has the same color as itself
-        while (currentNeighbour.tile().getValue() != currentPlayer.getPlayerValue()) {
-            currentTile = currentNeighbour.tile();
-
-            tilesToColourInDirection.add(currentTile);
-            if (currentNeighbour.directionChange() != null) {
-                currentDirection = currentNeighbour.directionChange();
-            }
-            currentNeighbour = currentTile.getNeighbour(currentDirection);
-
-            // check if there is a dead end
-            if(currentNeighbour == null){
-                return new HashSet<>();
-            }
-
-            // check if there are values which are not enemies
-            if(TileValue.getAllFriendlyValues().contains(currentNeighbour.tile().getValue())){
-                return new HashSet<>();
-            }
-        }
-        return tilesToColourInDirection;
-
     }
 
     private boolean moveIsValid(Move move) {
@@ -264,5 +216,13 @@ public class Game {
 
     public Player getCurrentPlayer() {
         return currentPlayer;
+    }
+
+    public void setPlayers(Player[] players) {
+        this.players = players;
+    }
+
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
     }
 }

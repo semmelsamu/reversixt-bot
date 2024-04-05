@@ -1,21 +1,33 @@
 package player.move;
 
+import board.Board;
 import board.Tile;
+import game.Game;
 import player.Player;
+import util.ConsoleInputHandler;
 
 /**
  * A move where after the player set the stone, he will swap places with another player.
  */
 public class ChoiceMove extends Move {
 
-    /**
-     * The other player which the player will swap places with after he set the stone.
-     */
-    private final Player playerToSwapWith;
+    private Game game;
 
-    public ChoiceMove(Player player, Tile tile, Player playerToSwapWith) {
+    public ChoiceMove(Player player, Tile tile, Game game) {
         super(player, tile);
-        this.playerToSwapWith = playerToSwapWith;
+        this.game = game;
+    }
+
+    @Override
+    public void execute(Board board) {
+        super.execute(board);
+        int playerToSwapWithIndex = getPlayerToSwapWithIndex();
+
+        Player[] players = game.getPlayers();
+        Player temp = game.getCurrentPlayer();
+        players[game.getCurrentPlayerIndex()] = players[playerToSwapWithIndex];
+        players[playerToSwapWithIndex] = temp;
+        game.setPlayers(players);
     }
 
     /*
@@ -24,7 +36,7 @@ public class ChoiceMove extends Move {
     |--------------------------------------------------------------------------
     */
 
-    public Player getPlayerToSwapWith() {
-        return playerToSwapWith;
+    public int getPlayerToSwapWithIndex() {
+        return ConsoleInputHandler.handleChoice(game) - 1;
     }
 }

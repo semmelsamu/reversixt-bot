@@ -33,15 +33,17 @@ public class Main {
 
         // TODO: Print all valid moves
         Logger.log(game.getValidMovesForCurrentPlayer().toString());
+        while(true){
+            // User inputs move
+            Move move = ConsoleInputHandler.createMove(game);
 
-        // TODO: User inputs move
-        Move move = ConsoleInputHandler.createMove(game);
+            // Execute move
+            game.executeMove(move);
 
-        // TODO: Execute move
-        game.executeMove(move);
+            // Print new board
+            Logger.log(game.toString());
+        }
 
-        // Print new board
-        Logger.log(game.toString());
 
         // TODO: If move is not valid, print error
     }
