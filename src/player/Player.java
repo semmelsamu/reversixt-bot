@@ -4,7 +4,6 @@ import board.*;
 import player.move.Move;
 import util.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;

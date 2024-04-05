@@ -166,6 +166,7 @@ public class Game {
 
 
     public void executeMove(Move move) {
+        // check if move ist valid
         if (!getValidMovesForCurrentPlayer().contains(move)) {
             Logger.fatal("Move is not valid!");
             return;
@@ -175,13 +176,15 @@ public class Game {
         TileValue playerValue = currentPlayer.getPlayerValue();
         Set<Tile> tilesToColour = new HashSet<>();
 
-        // check every direction on tiles to colour
+        // check every direction
         for (Direction d : Direction.values()) {
             Neighbour neighbour = newPiece.getNeighbour(d);
+            // check if there is a dead end
             if (neighbour == null) {
                 continue;
             }
             TileValue neighbourValue = neighbour.tile().getValue();
+            // check if tile value is seen as an enemy or if it's the same color
             if (TileValue.getAllFriendlyValues().contains(neighbourValue) || neighbourValue == currentPlayer.getPlayerValue()) {
                 continue;
             }
@@ -204,6 +207,7 @@ public class Game {
     private Set<Tile> getTilesToColourInDirection(Tile currentTile, Direction currentDirection) {
         Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
         Set<Tile> tilesToColourInDirection = new HashSet<>();
+        // as long the neighbour has the same color as itself
         while (currentNeighbour.tile().getValue() != currentPlayer.getPlayerValue()) {
             currentTile = currentNeighbour.tile();
 
@@ -213,6 +217,12 @@ public class Game {
             }
             currentNeighbour = currentTile.getNeighbour(currentDirection);
 
+            // check if there is a dead end
+            if(currentNeighbour == null){
+                return new HashSet<>();
+            }
+
+            // check if there are values which are not enemies
             if(TileValue.getAllFriendlyValues().contains(currentNeighbour.tile().getValue())){
                 return new HashSet<>();
             }
