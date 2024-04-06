@@ -1,6 +1,9 @@
 package player;
 
 import board.*;
+import player.move.BonusMove;
+import player.move.ChoiceMove;
+import player.move.InversionMove;
 import player.move.Move;
 import util.Logger;
 
@@ -80,17 +83,17 @@ public class Player {
     /**
      * Get all valid moves for this player
      */
-    public Set<Move> getValidMoves(){
+    public Set<Move> getValidMoves() {
         Logger.log("Searching for all valid moves for Player" + this.playerValue);
         Set<Move> moves = new TreeSet<>();
-        for(Tile s : occupiedTiles){
-            if(s.getValue() != playerValue){
+        for (Tile occupiedTile : occupiedTiles) {
+            if (occupiedTile.getValue() != playerValue) {
                 Logger.error("Wrong coordinates in Player" + playerValue + "'s List stones");
                 continue;
             }
-            moves.addAll(getValidMovesForPiece(s));
+            moves.addAll(getValidMovesForPiece(occupiedTile));
         }
-        for(Move m : moves){
+        for (Move m : moves) {
             Logger.log("Valid move: " + m.getTile().getPosition());
         }
         return moves;
@@ -100,9 +103,19 @@ public class Player {
      * @param ownPiece one piece of this player
      * @return Valid moves for one piece of this player
      */
-    private Set<Move> getValidMovesForPiece(Tile ownPiece){
+    private Set<Move> getValidMovesForPiece(Tile ownPiece) {
         Set<Move> moves = new TreeSet<>();
-        for(Direction d : Direction.values()){
+        for (Direction d : Direction.values()) {
+            Neighbour neighbour = ownPiece.getNeighbour(d);
+            // check if there is a dead end
+            if (neighbour == null) {
+                continue;
+            }
+            TileValue neighbourValue = neighbour.tile().getValue();
+            // check if tile value is seen as an enemy or if it's the same color
+            if (TileValue.getAllFriendlyValues().contains(neighbourValue) || neighbourValue == getPlayerValue()) {
+                continue;
+            }
             Move move = getValidMoveForPieceInDirection(ownPiece, d);
             if(move != null){
                 moves.add(move);
@@ -112,53 +125,38 @@ public class Player {
     }
 
     /**
-     * @param ownPiece one piece of this player
-     * @param direction one of eight directions
+     * @param currentTile      one piece of this player
+     * @param currentDirection one of eight directions
      * @return Valid moves for one piece for one of eight directions
      */
-    private Move getValidMoveForPieceInDirection(Tile ownPiece, Direction direction){
-        boolean firstTileOpponent = false;
-        boolean foundEmptyTile = false;
-        Direction currentDirection = direction;
-        Tile currentTile = ownPiece;
+    private Move getValidMoveForPieceInDirection(Tile currentTile, Direction currentDirection) {
         Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
-        // terminates  if an empty Tile was found or if the neighbour is an own piece or if there is no neighbour
-        while(!(foundEmptyTile) && currentNeighbour != null &&
-                currentNeighbour.tile().getValue() != ownPiece.getValue())
-        {
-            currentTile = currentNeighbour.tile();
-            switch (currentTile.getValue()) {
-                case EMPTY:
-                case CHOICE:
-                case INVERSION:
-                case BONUS:
-                    foundEmptyTile = true;
-                    break;
-                default:
-                    firstTileOpponent = true;
-                    if (currentNeighbour.directionChange() != null) {
-                        currentDirection = currentNeighbour.directionChange();
-                    }
-                    currentNeighbour = currentTile.getNeighbour(currentDirection);
+        while (!TileValue.getAllFriendlyValues().contains(currentTile.getValue())) {
+            if (currentNeighbour.directionChange() != null) {
+                currentDirection = currentNeighbour.directionChange();
             }
+            currentNeighbour = currentTile.getNeighbour(currentDirection);
+
+            if(currentNeighbour == null || currentNeighbour.tile().getValue() == playerValue){
+                return null;
+            }
+            currentTile = currentNeighbour.tile();
+
         }
-        // First neighbour in a direction must be a piece of an opponent in order to do a valid move
-        if(!firstTileOpponent){
-            return null;
-        }
-        if(foundEmptyTile){
-            return new Move(this, currentTile);
-        }
-        else{
-            return null;
-        }
+
+        return switch (currentTile.getValue()) {
+            case CHOICE -> new ChoiceMove(this, currentTile);
+            case INVERSION -> new InversionMove(this, currentTile);
+            case BONUS -> new BonusMove(this, currentTile);
+            default -> new Move(this, currentTile);
+        };
     }
 
-    public void increaseOverwriteStones(){
+    public void increaseOverwriteStones() {
         overwriteStones++;
     }
 
-    public void increaseBombs(){
+    public void increaseBombs() {
         bombs++;
     }
 }

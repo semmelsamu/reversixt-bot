@@ -10,19 +10,14 @@ import util.ConsoleInputHandler;
  */
 public class BonusMove extends Move {
 
-    /**
-     * Either receive a bomb or an overwrite stone.
-     */
-    private final Bonus bonus;
 
-    public BonusMove(Player player, Tile tile, Bonus bonus) {
+    public BonusMove(Player player, Tile tile) {
         super(player, tile);
-        this.bonus = bonus;
     }
 
     @Override
-    public void execute(Board board) {
-        super.execute(board);
+    public Player[] execute(Board board, Player[] players) {
+        Player[] playersAfterColoring = super.execute(board, players);
         Bonus bonus = ConsoleInputHandler.handleBonus(getPlayer());
         Player p = getPlayer();
         if (bonus == Bonus.BOMB) {
@@ -30,15 +25,6 @@ public class BonusMove extends Move {
         } else {
             p.increaseOverwriteStones();
         }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Getters
-    |--------------------------------------------------------------------------
-    */
-
-    public Bonus getBonus() {
-        return bonus;
+        return playersAfterColoring;
     }
 }

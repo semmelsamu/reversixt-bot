@@ -2,7 +2,6 @@ package player.move;
 
 import board.Board;
 import board.Tile;
-import game.Game;
 import player.Player;
 import util.ConsoleInputHandler;
 
@@ -11,23 +10,20 @@ import util.ConsoleInputHandler;
  */
 public class ChoiceMove extends Move {
 
-    private Game game;
-
-    public ChoiceMove(Player player, Tile tile, Game game) {
+    public ChoiceMove(Player player, Tile tile) {
         super(player, tile);
-        this.game = game;
     }
 
     @Override
-    public void execute(Board board) {
-        super.execute(board);
-        int playerToSwapWithIndex = getPlayerToSwapWithIndex();
+    public Player[] execute(Board board, Player[] players) {
+        Player[] playersAfterColoring = super.execute(board, players);
+        int playerToSwapWithIndex = getPlayerToSwapWithIndex(players, getPlayer());
+        int currentPlayerIndex = getCurrentPlayerIndex(players, getPlayer());
 
-        Player[] players = game.getPlayers();
-        Player temp = game.getCurrentPlayer();
-        players[game.getCurrentPlayerIndex()] = players[playerToSwapWithIndex];
-        players[playerToSwapWithIndex] = temp;
-        game.setPlayers(players);
+        Player temp = getPlayer();
+        playersAfterColoring[currentPlayerIndex] = playersAfterColoring[playerToSwapWithIndex];
+        playersAfterColoring[playerToSwapWithIndex] = temp;
+        return playersAfterColoring;
     }
 
     /*
@@ -36,7 +32,16 @@ public class ChoiceMove extends Move {
     |--------------------------------------------------------------------------
     */
 
-    public int getPlayerToSwapWithIndex() {
-        return ConsoleInputHandler.handleChoice(game) - 1;
+    private int getPlayerToSwapWithIndex(Player[] players, Player currentPlayer) {
+        return ConsoleInputHandler.handleChoice(players, currentPlayer);
+    }
+
+    private int getCurrentPlayerIndex(Player[] players, Player currentPlayer) {
+        for (int i = 0; i < players.length; i++) {
+            if (players[i] == currentPlayer) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

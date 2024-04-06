@@ -2,31 +2,31 @@ package player.move;
 
 import board.Board;
 import board.Tile;
-import game.Game;
 import player.Player;
+
+import java.util.Set;
 
 /**
  *  Invert the order of players
  */
 public class InversionMove extends Move{
-    private Game game;
-    public InversionMove(Player player, Tile tile, Game game) {
+
+    public InversionMove(Player player, Tile tile) {
         super(player, tile);
-        this.game = game;
     }
 
     @Override
-    public void execute(Board board) {
-        super.execute(board);
-        Player[] players = game.getPlayers();
+    public Player[] execute(Board board, Player[] players) {
+        Player[] playersAfterColoring = super.execute(board, players);
 
-        Player temp = players[players.length - 1];
+        Player temp = playersAfterColoring[playersAfterColoring.length - 1];
 
         // switch position to the right
-        for (int i = players.length - 1; i > 0; i--) {
-            players[i] = players[i - 1];
+        for (int i = playersAfterColoring.length - 1; i > 0; i--) {
+            playersAfterColoring[i] = playersAfterColoring[i - 1];
         }
         // fill up first one
-        players[0] = temp;
+        playersAfterColoring[0] = temp;
+        return playersAfterColoring;
     }
 }

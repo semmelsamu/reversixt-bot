@@ -172,15 +172,18 @@ public class Game {
             Logger.fatal("Move is not valid!");
             return;
         }
-        move.execute(board);
+        Player[] players = move.execute(board, getPlayers());
+        setPlayers(players);
 
+        nextPlayer();
 
-        // update currentPlayer
+        Logger.log("Move " + move + " executed");
+    }
+
+    public void nextPlayer(){
         int newIndex = (currentPlayerIndex + 1) % players.length;
         currentPlayer = players[newIndex];
         currentPlayerIndex++;
-
-        Logger.log("Move " + move + " executed");
     }
 
     private boolean moveIsValid(Move move) {
@@ -220,9 +223,5 @@ public class Game {
 
     public void setPlayers(Player[] players) {
         this.players = players;
-    }
-
-    public int getCurrentPlayerIndex() {
-        return currentPlayerIndex;
     }
 }

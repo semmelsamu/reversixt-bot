@@ -1,7 +1,5 @@
 package util;
 
-import board.Coordinates;
-import game.Game;
 import player.Player;
 import player.move.Bonus;
 import player.move.Move;
@@ -20,37 +18,34 @@ public class ConsoleInputHandler {
     /**
      * Create a Move out of x and y coordinates from the console
      *
-     * @param game {@link Game}
+     * @param player {@link Player}
      * @return new {@link Move}
      */
-    public static Move createMove(Game game) {
-        Player currentPlayer = game.getCurrentPlayer();
-        System.out.print(currentPlayer.getPlayerValue() + " - Gib eine Aktion an (x): ");
-        int x = s.nextInt();
-        System.out.print(currentPlayer.getPlayerValue() + " -  Gib eine Aktion an (y): ");
-        int y = s.nextInt();
+    public static Move selectMove(Player player) {
+        System.out.print(player.getPlayerValue() + " - Gib eine Aktion an (x): ");
+        int xCor = s.nextInt();
+        System.out.print(player.getPlayerValue() + " -  Gib eine Aktion an (y): ");
+        int yCor = s.nextInt();
 
-        return new Move(currentPlayer, game.getBoard().getTile(new Coordinates(x, y)));
+        return player.getValidMoves().stream().filter(move -> move.getTile().getPosition().x == xCor && move.getTile().getPosition().y == yCor).findFirst().orElse(null);
     }
 
     public static Bonus handleBonus(Player player) {
         char bonus = 'a';
 
-        while(!(bonus == 'b' || bonus == 'u')) {
+        while (!(bonus == 'b' || bonus == 'u')) {
             System.out.print(player.getPlayerValue() + " - Wähle zwischen einer Bombe und einem Ueberschreibstein (b/u): ");
             bonus = s.next().charAt(0);
         }
         return bonus == 'b' ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
     }
 
-    public static int handleChoice(Game game) {
-        Player[] players = game.getPlayers();
+    public static int handleChoice(Player[] players, Player currentPlayer) {
 
-        List<Player> list = Arrays.stream(players).filter(p -> p != players[game.getCurrentPlayerIndex()]).toList();
-        System.out.print(game.getCurrentPlayer().getPlayerValue() + " - Wähle zwischen einen Spieler (");
-        list.forEach(e -> System.out.print(e.getPlayerValue().character + "/"));
-        System.out.print("):");
+        System.out.print(currentPlayer.getPlayerValue() + " - Wähle zwischen einen Spieler (");
+        Arrays.stream(players).forEach(e -> System.out.print(e.getPlayerValue().character + "/"));
+        System.out.print("): ");
 
-        return s.nextInt();
+        return s.nextInt() - 1;
     }
 }

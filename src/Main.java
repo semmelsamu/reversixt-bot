@@ -1,9 +1,11 @@
 import game.Game;
+import player.Player;
 import player.move.Move;
-import test.MapReadTest;
-import test.Test;
 import util.ConsoleInputHandler;
 import util.Logger;
+
+import java.util.Arrays;
+import java.util.Set;
 
 public class Main {
 
@@ -23,7 +25,7 @@ public class Main {
         Logger.log("Abgabe Übung 2");
 
         // TODO: User input which map to load
-        String map = "maps/initialMaps/window.map";
+        String map = "maps/boeseMaps/boeseMap10.map";
 
         // Load map
         Game game = Game.createFromFile(map);
@@ -31,12 +33,19 @@ public class Main {
         // Print board
         Logger.log(game.getBoard().toString());
 
-        // TODO: Print all valid moves
-        Logger.log(game.getValidMovesForCurrentPlayer().toString());
-        while(true){
-            // User inputs move
-            Move move = ConsoleInputHandler.createMove(game);
+        int unableToMovePlayers = 0;
+        while (!(unableToMovePlayers == game.getPlayers().length)) {
 
+            // Print all valid moves
+            Set<Move> validMovesForCurrentPlayer = game.getValidMovesForCurrentPlayer();
+            Logger.log(validMovesForCurrentPlayer.toString());
+            if (validMovesForCurrentPlayer.isEmpty()) {
+                unableToMovePlayers++;
+                game.nextPlayer();
+                continue;
+            }
+            // User inputs move
+            Move move = ConsoleInputHandler.selectMove(game.getCurrentPlayer());
             // Execute move
             game.executeMove(move);
 
@@ -44,7 +53,6 @@ public class Main {
             Logger.log(game.toString());
         }
 
-
-        // TODO: If move is not valid, print error
+        Logger.log("Game finished");
     }
 }

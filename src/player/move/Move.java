@@ -1,9 +1,12 @@
 package player.move;
 
 import board.*;
+import game.Game;
 import player.Player;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -21,12 +24,13 @@ public class Move implements Comparable<Move> {
      */
     private final Tile tile;
 
+
     public Move(Player player, Tile tile) {
         this.player = player;
         this.tile = tile;
     }
 
-    public void execute(Board board){
+    public Player[] execute(Board board, Player[] players) {
         Set<Tile> tilesToColour = new HashSet<>();
         // check every direction
         for (Direction d : Direction.values()) {
@@ -43,10 +47,17 @@ public class Move implements Comparable<Move> {
             tilesToColour.addAll(getTilesToColourInDirection(tile, d));
         }
         tilesToColour.add(tile);
+
         // colour all pieces
         for (Tile tile : tilesToColour) {
+            Optional<Player> otherPlayer = Arrays.stream(players).filter(p -> p.getPlayerValue() == tile.getValue()).findFirst();
+            // expansion tiles are not present
+            otherPlayer.ifPresent(value -> value.getOccupiedTiles().remove(tile));
+            player.getOccupiedTiles().add(tile);
             board.setTileValue(tile.getPosition(), player.getPlayerValue());
+
         }
+        return players;
     }
 
     private Set<Tile> getTilesToColourInDirection(Tile currentTile, Direction currentDirection) {
@@ -63,12 +74,12 @@ public class Move implements Comparable<Move> {
             currentNeighbour = currentTile.getNeighbour(currentDirection);
 
             // check if there is a dead end
-            if(currentNeighbour == null){
+            if (currentNeighbour == null) {
                 return new HashSet<>();
             }
 
             // check if there are values which are not enemies
-            if(TileValue.getAllFriendlyValues().contains(currentNeighbour.tile().getValue())){
+            if (TileValue.getAllFriendlyValues().contains(currentNeighbour.tile().getValue())) {
                 return new HashSet<>();
             }
         }
