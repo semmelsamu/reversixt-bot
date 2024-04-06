@@ -168,7 +168,7 @@ public class Game {
 
     public void executeMove(Move move) {
         // check if move ist valid
-        if (!getValidMovesForCurrentPlayer().contains(move)) {
+        if (move == null || !getValidMovesForCurrentPlayer().contains(move)) {
             Logger.fatal("Move is not valid!");
             return;
         }

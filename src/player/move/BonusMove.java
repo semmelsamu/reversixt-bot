@@ -12,7 +12,7 @@ public class BonusMove extends Move {
 
 
     public BonusMove(Player player, Tile tile) {
-        super(player, tile);
+        super(player, tile, false);
     }
 
     @Override

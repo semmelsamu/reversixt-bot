@@ -19,15 +19,18 @@ public class Move implements Comparable<Move> {
      */
     private final Player player;
 
+    private final boolean overwriteStone;
+
     /**
      * The tile the move targets.
      */
     private final Tile tile;
 
 
-    public Move(Player player, Tile tile) {
+    public Move(Player player, Tile tile, Boolean overwriteStone) {
         this.player = player;
         this.tile = tile;
+        this.overwriteStone = overwriteStone;
     }
 
     public Player[] execute(Board board, Player[] players) {
@@ -56,6 +59,10 @@ public class Move implements Comparable<Move> {
             player.getOccupiedTiles().add(tile);
             board.setTileValue(tile.getPosition(), player.getPlayerValue());
 
+        }
+
+        if(overwriteStone){
+            player.decreaseOverwriteStone();
         }
         return players;
     }
@@ -101,6 +108,10 @@ public class Move implements Comparable<Move> {
         return tile;
     }
 
+    public boolean isOverwriteStone() {
+        return overwriteStone;
+    }
+
     @Override
     public int compareTo(Move o) {
         Coordinates thisPosition = this.getTile().getPosition();
@@ -114,6 +125,6 @@ public class Move implements Comparable<Move> {
 
     @Override
     public String toString() {
-        return tile.getPosition().toString();
+        return tile.getPosition().toString() + " os: " + overwriteStone;
     }
 }

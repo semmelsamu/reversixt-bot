@@ -11,7 +11,7 @@ import util.ConsoleInputHandler;
 public class ChoiceMove extends Move {
 
     public ChoiceMove(Player player, Tile tile) {
-        super(player, tile);
+        super(player, tile, false);
     }
 
     @Override

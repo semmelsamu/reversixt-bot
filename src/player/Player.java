@@ -7,6 +7,7 @@ import player.move.InversionMove;
 import player.move.Move;
 import util.Logger;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -94,7 +95,7 @@ public class Player {
             moves.addAll(getValidMovesForPiece(occupiedTile));
         }
         for (Move m : moves) {
-            Logger.log("Valid move: " + m.getTile().getPosition());
+            Logger.log("Valid move: " + m.getTile().getPosition() + " overwriteStone: " + m.isOverwriteStone());
         }
         return moves;
     }
@@ -116,9 +117,9 @@ public class Player {
             if (TileValue.getAllFriendlyValues().contains(neighbourValue) || neighbourValue == getPlayerValue()) {
                 continue;
             }
-            Move move = getValidMoveForPieceInDirection(ownPiece, d);
+            Set<Move> move = getValidMoveForPieceInDirection(ownPiece, d);
             if(move != null){
-                moves.add(move);
+                moves.addAll(move);
             }
         }
         return moves;
@@ -129,27 +130,43 @@ public class Player {
      * @param currentDirection one of eight directions
      * @return Valid moves for one piece for one of eight directions
      */
-    private Move getValidMoveForPieceInDirection(Tile currentTile, Direction currentDirection) {
-        Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
+    private Set<Move> getValidMoveForPieceInDirection(Tile currentTile, Direction currentDirection) {
+        Tile firstTile = currentTile;
+        HashSet<Move> movesPerDirection = new HashSet<>();
+        int howFarFromFirstTile = 0;
         while (!TileValue.getAllFriendlyValues().contains(currentTile.getValue())) {
+
+            Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
+
+            if(currentNeighbour == null){
+                return movesPerDirection;
+            }
+
+            currentTile = currentNeighbour.tile();
+
             if (currentNeighbour.directionChange() != null) {
                 currentDirection = currentNeighbour.directionChange();
             }
-            currentNeighbour = currentTile.getNeighbour(currentDirection);
+            if(overwriteStones != 0){
+                howFarFromFirstTile++;
+                if(currentTile.getValue().isPlayer() && currentTile.getValue() != playerValue && howFarFromFirstTile > 1){
+                    movesPerDirection.add(new Move(this, currentTile, true));
+                }
 
-            if(currentNeighbour == null || currentNeighbour.tile().getValue() == playerValue){
-                return null;
+                // tile has the same value as another tile, but isn't the same tile and is more fare away than 1
+                if(currentTile.getValue() == playerValue && currentTile != firstTile && howFarFromFirstTile > 1){
+                    movesPerDirection.add(new Move(this, firstTile, true));
+                }
             }
-            currentTile = currentNeighbour.tile();
-
         }
-
-        return switch (currentTile.getValue()) {
-            case CHOICE -> new ChoiceMove(this, currentTile);
-            case INVERSION -> new InversionMove(this, currentTile);
-            case BONUS -> new BonusMove(this, currentTile);
-            default -> new Move(this, currentTile);
+        // decide which move
+        switch (currentTile.getValue()) {
+            case CHOICE -> movesPerDirection.add(new ChoiceMove(this, currentTile));
+            case INVERSION -> movesPerDirection.add(new InversionMove(this, currentTile));
+            case BONUS -> movesPerDirection.add(new BonusMove(this, currentTile));
+            default -> movesPerDirection.add(new Move(this, currentTile, false));
         };
+        return movesPerDirection;
     }
 
     public void increaseOverwriteStones() {
@@ -158,5 +175,9 @@ public class Player {
 
     public void increaseBombs() {
         bombs++;
+    }
+
+    public void decreaseOverwriteStone(){
+        overwriteStones--;
     }
 }

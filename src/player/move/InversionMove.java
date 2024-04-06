@@ -12,7 +12,7 @@ import java.util.Set;
 public class InversionMove extends Move{
 
     public InversionMove(Player player, Tile tile) {
-        super(player, tile);
+        super(player, tile, false);
     }
 
     @Override

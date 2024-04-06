@@ -25,7 +25,7 @@ public class Main {
         Logger.log("Abgabe Übung 2");
 
         // TODO: User input which map to load
-        String map = "maps/boeseMaps/boeseMap10.map";
+        String map = "maps/boeseMaps/boeseMap08.map";
 
         // Load map
         Game game = Game.createFromFile(map);
