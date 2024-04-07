@@ -1,7 +1,6 @@
 package player.move;
 
 import board.*;
-import game.Game;
 import player.Player;
 
 import java.util.Arrays;
@@ -65,7 +64,7 @@ public class Move implements Comparable<Move> {
         }
 
         if (overwriteStone) {
-            player.decreaseOverwriteStone();
+            player.decrementOverwriteStone();
         }
         return players;
     }

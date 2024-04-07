@@ -21,9 +21,9 @@ public class BonusMove extends Move {
         Bonus bonus = ConsoleInputHandler.handleBonus(getPlayer());
         Player p = getPlayer();
         if (bonus == Bonus.BOMB) {
-            p.increaseBomb();
+            p.incrementBombs();
         } else {
-            p.increaseOverwriteStone();
+            p.incrementOverwriteStone();
         }
         return playersAfterColoring;
     }

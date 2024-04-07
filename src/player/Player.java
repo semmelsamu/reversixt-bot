@@ -174,23 +174,23 @@ public class Player {
     }
 
     /**
-     * Increase overwrite stones by 1
+     * Increment overwrite stones by 1
      */
-    public void increaseOverwriteStone() {
+    public void incrementOverwriteStone() {
         overwriteStones++;
     }
 
     /**
-     * Increase bombs by 1
+     * Increment bombs by 1
      */
-    public void increaseBomb() {
+    public void incrementBombs() {
         bombs++;
     }
 
     /**
-     * Decrease overwrite stones by 1
+     * Decrement overwrite stones by 1
      */
-    public void decreaseOverwriteStone() {
+    public void decrementOverwriteStone() {
         overwriteStones--;
     }
 }
