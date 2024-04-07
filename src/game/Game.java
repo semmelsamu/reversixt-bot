@@ -214,7 +214,7 @@ public class Game {
 
         result.append("Players (Overwrite Stones / Bombs)").append("\n");
         for (Player player : players) {
-            result.append("-").append(player.getPlayerValue().toString()).append("(").append(player.getOverwriteStones()).append(" / ").append(player.getBombs()).append(")\n");
+            result.append("- ").append(player.getPlayerValue().toString()).append(" (").append(player.getOverwriteStones()).append(" / ").append(player.getBombs()).append(")\n");
         }
 
         result.append(board.toString());

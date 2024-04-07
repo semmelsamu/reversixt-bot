@@ -151,7 +151,7 @@ public class Board {
         StringBuilder result = new StringBuilder();
         for(Tile[] row : tiles) {
             for(Tile tile : row) {
-                result.append(tile.getValue().toString());
+                result.append(tile.getValue().toString(true));
             }
             result.append("\n");
         }

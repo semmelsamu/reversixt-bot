@@ -85,7 +85,7 @@ public class Player {
      * Get all valid moves for this player
      */
     public Set<Move> getValidMoves() {
-        Logger.log("Searching for all valid moves for Player" + this.playerValue);
+        Logger.log("Searching for all valid moves for Player " + this.playerValue);
         Set<Move> moves = new TreeSet<>();
         for (Tile occupiedTile : occupiedTiles) {
             if (occupiedTile.getValue() != playerValue) {
@@ -93,9 +93,6 @@ public class Player {
                 continue;
             }
             moves.addAll(getValidMovesForPiece(occupiedTile));
-        }
-        for (Move m : moves) {
-            Logger.log("Valid move: " + m.getTile().getPosition() + " overwriteStone: " + m.isOverwriteStone());
         }
         return moves;
     }
@@ -105,6 +102,7 @@ public class Player {
      * @return Valid moves for one piece of this player
      */
     private Set<Move> getValidMovesForPiece(Tile ownPiece) {
+        Logger.verbose("Searching for valid moves originating from piece " + ownPiece);
         Set<Move> moves = new TreeSet<>();
         for (Direction d : Direction.values()) {
             Neighbour neighbour = ownPiece.getNeighbour(d);
@@ -131,6 +129,7 @@ public class Player {
      * @return Valid moves for one piece for one of eight directions
      */
     private Set<Move> getValidMoveForPieceInDirection(Tile currentTile, Direction currentDirection) {
+        Logger.verbose("Searching for valid moves in direction " + currentDirection);
         Tile firstTile = currentTile;
         Set<Move> movesPerDirection = new HashSet<>();
         Set<Tile> alreadyVisited = new HashSet<>();
