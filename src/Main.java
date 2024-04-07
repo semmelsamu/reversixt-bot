@@ -1,10 +1,8 @@
 import game.Game;
-import player.Player;
 import player.move.Move;
 import util.ConsoleInputHandler;
 import util.Logger;
 
-import java.util.Arrays;
 import java.util.Set;
 
 public class Main {
@@ -24,11 +22,10 @@ public class Main {
          */
         Logger.log("Abgabe Übung 2");
 
-        // TODO: User input which map to load
-        String map = "maps/boeseMaps/boeseMap08.map";
+        String boeseMap = ConsoleInputHandler.selectBoeseMap();
 
         // Load map
-        Game game = Game.createFromFile(map);
+        Game game = Game.createFromFile(boeseMap);
 
         // Print board
         Logger.log(game.getBoard().toString());

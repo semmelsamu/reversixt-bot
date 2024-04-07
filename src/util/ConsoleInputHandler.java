@@ -5,7 +5,6 @@ import player.move.Bonus;
 import player.move.Move;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -15,12 +14,26 @@ public class ConsoleInputHandler {
 
     static Scanner s = new Scanner(System.in);
 
+    public static String selectBoeseMap(){
+        System.out.println("Welche böse Map soll geladen werden?");
+        int mapNumber = s.nextInt();
+        while(mapNumber < 1 || mapNumber > 11){
+            System.out.println("Diese Map gibt es nicht. Probier's nochmal");
+            mapNumber = s.nextInt();
+        }
+        if(mapNumber < 10){
+            return "maps/boeseMaps/boeseMap0" + mapNumber + ".map";
+        }
+        return "maps/boeseMaps/boeseMap" + mapNumber + ".map";
+    }
+
     /**
      * Create a Move out of x and y coordinates from the console
      *
      * @param player {@link Player}
      * @return new {@link Move}
      */
+
     public static Move selectMove(Player player) {
         System.out.print(player.getPlayerValue() + " - Gib eine Aktion an (x): ");
         int xCor = s.nextInt();
