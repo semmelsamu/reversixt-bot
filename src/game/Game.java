@@ -141,6 +141,34 @@ public class Game {
         return createFromString(File.readFile(filename));
     }
 
+    /**
+     * Logic for executing of a move, different moves exist
+     *
+     * @param move {@link Move}
+     */
+    public void executeMove(Move move) {
+        // check if move ist valid
+        if (move == null || !getValidMovesForCurrentPlayer().contains(move)) {
+            Logger.fatal("Move is not valid!");
+            return;
+        }
+        Player[] players = move.execute(board, getPlayers());
+        setPlayers(players);
+
+        nextPlayer();
+
+        Logger.log("Move " + move + " executed");
+    }
+
+    /**
+     * Increase player index to the next player
+     */
+    public void nextPlayer(){
+        int newIndex = (currentPlayerIndex + 1) % players.length;
+        currentPlayer = players[newIndex];
+        currentPlayerIndex++;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Getters
@@ -163,27 +191,6 @@ public class Game {
 
     public Set<Move> getValidMovesForCurrentPlayer() {
         return currentPlayer.getValidMoves();
-    }
-
-
-    public void executeMove(Move move) {
-        // check if move ist valid
-        if (move == null || !getValidMovesForCurrentPlayer().contains(move)) {
-            Logger.fatal("Move is not valid!");
-            return;
-        }
-        Player[] players = move.execute(board, getPlayers());
-        setPlayers(players);
-
-        nextPlayer();
-
-        Logger.log("Move " + move + " executed");
-    }
-
-    public void nextPlayer(){
-        int newIndex = (currentPlayerIndex + 1) % players.length;
-        currentPlayer = players[newIndex];
-        currentPlayerIndex++;
     }
 
     private boolean moveIsValid(Move move) {

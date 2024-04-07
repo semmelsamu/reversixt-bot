@@ -19,6 +19,9 @@ public class Move implements Comparable<Move> {
      */
     private final Player player;
 
+    /**
+     * Check if the move is an overwrite stone
+     */
     private final boolean overwriteStone;
 
     /**
@@ -61,7 +64,7 @@ public class Move implements Comparable<Move> {
 
         }
 
-        if(overwriteStone){
+        if (overwriteStone) {
             player.decreaseOverwriteStone();
         }
         return players;

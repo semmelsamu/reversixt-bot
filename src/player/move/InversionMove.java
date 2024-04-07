@@ -7,9 +7,9 @@ import player.Player;
 import java.util.Set;
 
 /**
- *  Invert the order of players
+ * Invert the order of players
  */
-public class InversionMove extends Move{
+public class InversionMove extends Move {
 
     public InversionMove(Player player, Tile tile) {
         super(player, tile, false);

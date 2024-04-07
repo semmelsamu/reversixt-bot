@@ -118,7 +118,7 @@ public class Player {
                 continue;
             }
             Set<Move> move = getValidMoveForPieceInDirection(ownPiece, d);
-            if(move != null){
+            if (move != null) {
                 moves.addAll(move);
             }
         }
@@ -134,11 +134,13 @@ public class Player {
         Tile firstTile = currentTile;
         HashSet<Move> movesPerDirection = new HashSet<>();
         int howFarFromFirstTile = 0;
+        // as long as there is an empty field
         while (!TileValue.getAllFriendlyValues().contains(currentTile.getValue())) {
 
             Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
 
-            if(currentNeighbour == null){
+            // check for a dead end
+            if (currentNeighbour == null) {
                 return movesPerDirection;
             }
 
@@ -147,14 +149,15 @@ public class Player {
             if (currentNeighbour.directionChange() != null) {
                 currentDirection = currentNeighbour.directionChange();
             }
-            if(overwriteStones != 0){
+            if (overwriteStones != 0) {
                 howFarFromFirstTile++;
-                if(currentTile.getValue().isPlayer() && currentTile.getValue() != playerValue && howFarFromFirstTile > 1){
+                // overwrite stone logic
+                if (currentTile.getValue().isPlayer() && currentTile.getValue() != playerValue && howFarFromFirstTile > 1) {
                     movesPerDirection.add(new Move(this, currentTile, true));
                 }
 
-                // tile has the same value as another tile, but isn't the same tile and is more fare away than 1
-                if(currentTile.getValue() == playerValue && currentTile != firstTile && howFarFromFirstTile > 1){
+                // tile has the same value as another tile, but isn't the same tile and is more fare away than 1 -> overwrite stone on the first tile
+                if (currentTile.getValue() == playerValue && currentTile != firstTile && howFarFromFirstTile > 1) {
                     movesPerDirection.add(new Move(this, firstTile, true));
                 }
             }
@@ -165,19 +168,29 @@ public class Player {
             case INVERSION -> movesPerDirection.add(new InversionMove(this, currentTile));
             case BONUS -> movesPerDirection.add(new BonusMove(this, currentTile));
             default -> movesPerDirection.add(new Move(this, currentTile, false));
-        };
+        }
+        ;
         return movesPerDirection;
     }
 
-    public void increaseOverwriteStones() {
+    /**
+     * Increase overwrite stones by 1
+     */
+    public void increaseOverwriteStone() {
         overwriteStones++;
     }
 
-    public void increaseBombs() {
+    /**
+     * Increase bombs by 1
+     */
+    public void increaseBomb() {
         bombs++;
     }
 
-    public void decreaseOverwriteStone(){
+    /**
+     * Decrease overwrite stones by 1
+     */
+    public void decreaseOverwriteStone() {
         overwriteStones--;
     }
 }
