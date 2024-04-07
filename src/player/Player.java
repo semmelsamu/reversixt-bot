@@ -132,11 +132,12 @@ public class Player {
      */
     private Set<Move> getValidMoveForPieceInDirection(Tile currentTile, Direction currentDirection) {
         Tile firstTile = currentTile;
-        HashSet<Move> movesPerDirection = new HashSet<>();
+        Set<Move> movesPerDirection = new HashSet<>();
+        Set<Tile> alreadyVisited = new HashSet<>();
         int howFarFromFirstTile = 0;
         // as long as there is an empty field
         while (!TileValue.getAllFriendlyValues().contains(currentTile.getValue())) {
-
+            alreadyVisited.add(currentTile);
             Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
 
             // check for a dead end
@@ -146,9 +147,18 @@ public class Player {
 
             currentTile = currentNeighbour.tile();
 
+
             if (currentNeighbour.directionChange() != null) {
                 currentDirection = currentNeighbour.directionChange();
             }
+
+            if(alreadyVisited.contains(currentTile)){
+                if(currentTile == firstTile){
+                    return movesPerDirection;
+                }
+                continue;
+            }
+
             if (overwriteStones != 0) {
                 howFarFromFirstTile++;
                 // overwrite stone logic
@@ -156,12 +166,15 @@ public class Player {
                     movesPerDirection.add(new Move(this, currentTile, true));
                 }
 
+
+
                 // tile has the same value as another tile, but isn't the same tile and is more fare away than 1 -> overwrite stone on the first tile
-                if (currentTile.getValue() == playerValue && currentTile != firstTile && howFarFromFirstTile > 1) {
+                if (currentTile.getValue() == playerValue && howFarFromFirstTile > 1) {
                     movesPerDirection.add(new Move(this, firstTile, true));
                     return movesPerDirection;
                 }
             }
+
         }
         // decide which move
         switch (currentTile.getValue()) {
@@ -170,7 +183,7 @@ public class Player {
             case BONUS -> movesPerDirection.add(new BonusMove(this, currentTile));
             default -> movesPerDirection.add(new Move(this, currentTile, false));
         }
-        ;
+
         return movesPerDirection;
     }
 
