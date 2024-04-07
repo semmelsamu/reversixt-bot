@@ -48,11 +48,10 @@ public class Game {
     private Player[] players;
 
     /**
-     * The player whose turn it is
+     * The number of the player whose turn it is.
+     * You are probably looking for {@link #getCurrentPlayer()}
      */
-    private Player currentPlayer;
-
-    private int currentPlayerIndex;
+    private int currentPlayer;
 
     /*
     |--------------------------------------------------------------------------
@@ -64,114 +63,48 @@ public class Game {
      * Create a new game.
      */
     public Game(int initialPlayers, int initialOverwriteStones, int initialBombs, int bombRadius, Board board) {
+
         Logger.log("Creating game");
+
+        // Store initial information
         this.initialPlayers = initialPlayers;
         this.initialOverwriteStones = initialOverwriteStones;
         this.initialBombs = initialBombs;
         this.bombRadius = bombRadius;
+
+        // Set board
         this.board = board;
 
-        // Add players
+        // Initialize players
         players = new Player[initialPlayers];
-        TileValue[] playerValues = TileValue.getAllPlayerValues();
         for (int i = 0; i < initialPlayers; i++) {
-            players[i] = new Player(playerValues[i], initialOverwriteStones, initialBombs, board.getAllTilesWithValue(playerValues[i]));
+            players[i] = new Player(TileValue.getAllPlayerValues()[i], initialOverwriteStones, initialBombs, board.getAllTilesWithValue(TileValue.getAllPlayerValues()[i]));
         }
-        currentPlayer = players[0];
-        currentPlayerIndex = 0;
+
+        // Set first player
+        this.currentPlayer = 0;
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Factories
+    | Moves
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Creates a new game from input lines.
-     *
-     * @param lines A list of lines, where each line is trimmed and all lowercase (normalized).
-     * @return The new game.
-     */
-    private static Game createFromLines(LinkedList<String> lines) {
-
-        Logger.log("Creating game from lines");
-
-        // We unshift line for line and parse it
-
-        // Parsing initial player data
-        int initialPlayers = Integer.parseInt(lines.remove(0));
-        Logger.verbose("Initial players: " + initialPlayers);
-        int initialOverwriteStones = Integer.parseInt(lines.remove(0));
-        Logger.verbose("Initial overwrite stones: " + initialOverwriteStones);
-
-        // Parsing initial bomb data
-        String[] bombs = lines.remove(0).split((" "));
-        int initialBombs = Integer.parseInt(bombs[0]);
-        Logger.verbose("Initial bombs: " + initialBombs);
-        int bombRadius = Integer.parseInt(bombs[1]);
-        Logger.verbose("Bomb radius: " + bombRadius);
-
-        // Create board from remaining lines
-        Board board = Board.createFromLines(lines);
-
-
-        // Creating game
-        return new Game(initialPlayers, initialOverwriteStones, initialBombs, bombRadius, board);
-    }
-
-    private static Game createFromString(String string) {
-
-        Logger.log("Creating game from string");
-
-        // Mind lines can be separated by nl or cr+nl
-        String[] lines = string.split("\\r?\\n");
-
-        for (int i = 0; i < lines.length; i++) {
-            // Normalise each line
-            lines[i] = lines[i].trim().toLowerCase();
-        }
-
-        return createFromLines(new LinkedList<>(Arrays.asList(lines)));
-    }
-
-    public static Game createFromFile(String filename) {
-
-        Logger.log("Creating game from file " + filename);
-        return createFromString(File.readFile(filename));
+    public Set<Move> getValidMovesForCurrentPlayer() {
+        return getCurrentPlayer().getValidMoves();
     }
 
     /**
-     * Logic for executing of a move, different moves exist
-     *
-     * @param move {@link Move}
-     */
-    public void executeMove(Move move) {
-        // check if move ist valid
-        if (move == null || !getValidMovesForCurrentPlayer().contains(move)) {
-            Logger.fatal("Move is not valid!");
-            return;
-        }
-        Player[] players = move.execute(board, getPlayers());
-        setPlayers(players);
-
-        nextPlayer();
-
-        Logger.log("Move " + move + " executed");
-    }
-
-    /**
-     * Increase player index to the next player
+     * Sets the current player to the next player.
      */
     public void nextPlayer(){
-        int newIndex = (currentPlayerIndex + 1) % players.length;
-        currentPlayer = players[newIndex];
-        currentPlayerIndex++;
+        currentPlayer = (currentPlayer + 1) % players.length;
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Getters
+    | Getters and Setters
     |--------------------------------------------------------------------------
     */
 
@@ -183,19 +116,12 @@ public class Game {
         return players;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Moves
-    |--------------------------------------------------------------------------
-    */
-
-    public Set<Move> getValidMovesForCurrentPlayer() {
-        return currentPlayer.getValidMoves();
+    public Player getCurrentPlayer() {
+        return players[currentPlayer];
     }
 
-    private boolean moveIsValid(Move move) {
-        // TODO
-        return true;
+    public void setPlayers(Player[] players) {
+        this.players = players;
     }
 
     /*
@@ -222,13 +148,5 @@ public class Game {
         // Indent
         String[] lines = result.toString().split("\n");
         return "Game\n\u001B[0m" + Arrays.stream(lines).map(line -> "    " + line).collect(Collectors.joining("\n"));
-    }
-
-    public Player getCurrentPlayer() {
-        return currentPlayer;
-    }
-
-    public void setPlayers(Player[] players) {
-        this.players = players;
     }
 }

@@ -1,39 +1,18 @@
 package test;
 
 import game.Game;
+import game.GameFactory;
+import util.File;
 import util.Logger;
 
 public class MapReadTest {
 
-    static String[] maps = new String[] {
-            "initialMaps/checkerboard.map",
-            "initialMaps/crown.map",
-            "initialMaps/diamond.map",
-            "initialMaps/example.map",
-            "initialMaps/heart.map",
-            "initialMaps/infinity.map",
-            "initialMaps/scope.map",
-            "initialMaps/window.map",
-
-            "boeseMaps/boeseMap01.map",
-            "boeseMaps/boeseMap02.map",
-            "boeseMaps/boeseMap03.map",
-            "boeseMaps/boeseMap04.map",
-            "boeseMaps/boeseMap05.map",
-            "boeseMaps/boeseMap06.map",
-            "boeseMaps/boeseMap07.map",
-            "boeseMaps/boeseMap08.map",
-            "boeseMaps/boeseMap09.map",
-            "boeseMaps/boeseMap10.map",
-            "boeseMaps/boeseMap11.map",
-    };
-
-    public static int testAll() {
+    public static int test() {
 
         int failedTests = 0;
 
-        for(String map : maps) {
-            failedTests += testMap("maps/" + map);
+        for(String map : File.getAllMaps()) {
+            failedTests += testMap(map);
         }
 
         return failedTests;
@@ -41,7 +20,7 @@ public class MapReadTest {
 
     public static int testMap(String filename) {
         try {
-            Game game = Game.createFromFile(filename);
+            Game game = GameFactory.createFromFile(filename);
             Logger.log(filename, 5);
             return 0;
         }

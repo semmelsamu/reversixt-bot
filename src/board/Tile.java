@@ -70,7 +70,7 @@ public class Tile {
 
     @Override
     public String toString() {
-        return "MapTile[position=" + position + ", value=" + value + ", neighbours=" + Arrays.toString(neighbours) + "]";
+        return "MapTile{position=" + position + ", value=" + value + ", neighbours=" + Arrays.toString(neighbours) + "}";
     }
 
     public Coordinates getPosition() {

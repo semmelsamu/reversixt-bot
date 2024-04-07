@@ -2,13 +2,14 @@ package test;
 
 import board.TileValue;
 import game.Game;
+import game.GameFactory;
 import util.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class CountTilesTest {
-    public static int countTiles() {
+    public static int test() {
 
         Map<String, Map<TileValue, Integer>> mapsAndTileCounts = new HashMap<>();
 
@@ -32,7 +33,7 @@ public class CountTilesTest {
 
         for(var mapAndTileCounts : mapsAndTileCounts.entrySet()) {
 
-            Game game = Game.createFromFile("maps/" + mapAndTileCounts.getKey());
+            Game game = GameFactory.createFromFile("maps/" + mapAndTileCounts.getKey());
 
             for(var tileAndCount : mapAndTileCounts.getValue().entrySet()) {
                 int calculatedTileCount = game.getBoard().getAllTilesWithValue(tileAndCount.getKey()).size();

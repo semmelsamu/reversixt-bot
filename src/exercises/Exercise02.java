@@ -1,6 +1,8 @@
 package exercises;
 
 import game.Game;
+import game.GameFactory;
+import game.MoveExecutor;
 import player.move.Move;
 import util.ConsoleInputHandler;
 import util.Logger;
@@ -20,7 +22,7 @@ public class Exercise02 {
 
         // Load map
         String boeseMap = ConsoleInputHandler.selectBoeseMap();
-        Game game = Game.createFromFile(boeseMap);
+        Game game = GameFactory.createFromFile(boeseMap);
 
         // Print board
         Logger.log(game.getBoard().toString());
@@ -39,7 +41,7 @@ public class Exercise02 {
             // User inputs move
             Move move = ConsoleInputHandler.selectMove(game.getCurrentPlayer());
             // Execute move
-            game.executeMove(move);
+            MoveExecutor.executeMove(move, game);
 
             // Print new board
             Logger.log(game.toString());

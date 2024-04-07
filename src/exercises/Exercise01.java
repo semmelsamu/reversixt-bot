@@ -1,6 +1,7 @@
 package exercises;
 
 import game.Game;
+import game.GameFactory;
 import util.Logger;
 
 public class Exercise01 {
@@ -10,7 +11,7 @@ public class Exercise01 {
      * wieder auf die Konsole korrekt ausgegeben (inkl. Transitionen und weiterer Informationen zur Map).
      */
     public static void aufgabe3() {
-        Game game = Game.createFromFile("maps/example.map");
+        Game game = GameFactory.createFromFile("maps/example.map");
         Logger.log(game.getBoard().toString());
     }
 

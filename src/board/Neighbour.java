@@ -13,6 +13,6 @@ public record Neighbour(Tile tile, Direction directionChange) {
     @Override
     public String toString() {
         if(directionChange == null) return "Neighbour";
-        return "Transition[directionChange=" + directionChange + "]";
+        return "Transition{directionChange=" + directionChange + "}";
     }
 }

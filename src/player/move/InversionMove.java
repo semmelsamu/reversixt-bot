@@ -12,9 +12,11 @@ import java.util.Set;
 public class InversionMove extends Move {
 
     public InversionMove(Player player, Tile tile) {
-        super(player, tile, false);
+        super(player, tile);
     }
 
+    /**
+     * TODO
     @Override
     public Player[] execute(Board board, Player[] players) {
         Player[] playersAfterColoring = super.execute(board, players);
@@ -29,4 +31,5 @@ public class InversionMove extends Move {
         playersAfterColoring[0] = temp;
         return playersAfterColoring;
     }
+     */
 }

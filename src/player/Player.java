@@ -162,14 +162,14 @@ public class Player {
                 howFarFromFirstTile++;
                 // overwrite stone logic
                 if (currentTile.getValue().isPlayer() && currentTile.getValue() != playerValue && howFarFromFirstTile > 1) {
-                    movesPerDirection.add(new Move(this, currentTile, true));
+                    movesPerDirection.add(new Move(this, currentTile));
                 }
 
 
 
                 // tile has the same value as another tile, but isn't the same tile and is more fare away than 1 -> overwrite stone on the first tile
                 if (currentTile.getValue() == playerValue && howFarFromFirstTile > 1) {
-                    movesPerDirection.add(new Move(this, firstTile, true));
+                    movesPerDirection.add(new Move(this, firstTile));
                     return movesPerDirection;
                 }
             }
@@ -177,10 +177,10 @@ public class Player {
         }
         // decide which move
         switch (currentTile.getValue()) {
-            case CHOICE -> movesPerDirection.add(new ChoiceMove(this, currentTile));
+            // TODO case CHOICE -> movesPerDirection.add(new ChoiceMove(this, currentTile));
             case INVERSION -> movesPerDirection.add(new InversionMove(this, currentTile));
-            case BONUS -> movesPerDirection.add(new BonusMove(this, currentTile));
-            default -> movesPerDirection.add(new Move(this, currentTile, false));
+            // TODO case BONUS -> movesPerDirection.add(new BonusMove(this, currentTile));
+            default -> movesPerDirection.add(new Move(this, currentTile));
         }
 
         return movesPerDirection;

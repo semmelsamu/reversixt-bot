@@ -10,20 +10,14 @@ import util.ConsoleInputHandler;
  */
 public class ChoiceMove extends Move {
 
-    public ChoiceMove(Player player, Tile tile) {
-        super(player, tile, false);
-    }
+    /**
+     * The other player which the player will swap places with after he set the stone.
+     */
+    private final Player playerToSwapWith;
 
-    @Override
-    public Player[] execute(Board board, Player[] players) {
-        Player[] playersAfterColoring = super.execute(board, players);
-        int playerToSwapWithIndex = getPlayerToSwapWithIndex(players, getPlayer());
-        int currentPlayerIndex = getCurrentPlayerIndex(players, getPlayer());
-
-        Player temp = getPlayer();
-        playersAfterColoring[currentPlayerIndex] = playersAfterColoring[playerToSwapWithIndex];
-        playersAfterColoring[playerToSwapWithIndex] = temp;
-        return playersAfterColoring;
+    public ChoiceMove(Player player, Tile tile, Player playerToSwapWith) {
+        super(player, tile);
+        this.playerToSwapWith = playerToSwapWith;
     }
 
     /*
@@ -32,16 +26,7 @@ public class ChoiceMove extends Move {
     |--------------------------------------------------------------------------
     */
 
-    private int getPlayerToSwapWithIndex(Player[] players, Player currentPlayer) {
-        return ConsoleInputHandler.handleChoice(players, currentPlayer);
-    }
-
-    private int getCurrentPlayerIndex(Player[] players, Player currentPlayer) {
-        for (int i = 0; i < players.length; i++) {
-            if (players[i] == currentPlayer) {
-                return i;
-            }
-        }
-        return -1;
+    public Player getPlayerToSwapWith() {
+        return playerToSwapWith;
     }
 }
