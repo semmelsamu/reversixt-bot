@@ -159,6 +159,7 @@ public class Player {
                 // tile has the same value as another tile, but isn't the same tile and is more fare away than 1 -> overwrite stone on the first tile
                 if (currentTile.getValue() == playerValue && currentTile != firstTile && howFarFromFirstTile > 1) {
                     movesPerDirection.add(new Move(this, firstTile, true));
+                    return movesPerDirection;
                 }
             }
         }
