@@ -17,9 +17,6 @@ public class InversionMove extends Move {
 
     @Override
     public String toString() {
-        return "InversionMove{" +
-                "player=" + player +
-                ", tile=" + tile +
-                '}';
+        return "InversionMove{tile=" + tile + ", player=" + player + "}";
     }
 }

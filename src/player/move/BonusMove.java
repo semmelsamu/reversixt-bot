@@ -33,10 +33,6 @@ public class BonusMove extends Move {
 
     @Override
     public String toString() {
-        return "BonusMove{" +
-                "bonus=" + bonus +
-                ", player=" + player +
-                ", tile=" + tile +
-                '}';
+        return "BonusMove{tile=" + tile + ", player=" + player + ", bonus=" + bonus + "}";
     }
 }

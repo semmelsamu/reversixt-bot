@@ -32,10 +32,6 @@ public class ChoiceMove extends Move {
 
     @Override
     public String toString() {
-        return "ChoiceMove{" +
-                "playerToSwapWith=" + playerToSwapWith +
-                ", player=" + player +
-                ", tile=" + tile +
-                '}';
+        return "ChoiceMove{tile=" + tile + ", player=" + player + ", playerToSwapWith=" + playerToSwapWith + "}";
     }
 }
