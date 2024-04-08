@@ -117,14 +117,14 @@ public enum TileValue {
 
     public int toPlayerIndex() {
         return switch (character) {
-            case '1' -> 1;
-            case '2' -> 2;
-            case '3' -> 3;
-            case '4' -> 4;
-            case '5' -> 5;
-            case '6' -> 6;
-            case '7' -> 7;
-            case '8' -> 8;
+            case '1' -> 0;
+            case '2' -> 1;
+            case '3' -> 2;
+            case '4' -> 3;
+            case '5' -> 4;
+            case '6' -> 5;
+            case '7' -> 6;
+            case '8' -> 7;
             default -> -1;
         };
     }

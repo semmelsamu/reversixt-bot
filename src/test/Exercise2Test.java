@@ -1,12 +1,8 @@
 package test;
 
-import board.Coordinates;
 import game.Game;
 import game.GameFactory;
-import game.MoveCalculator;
 import game.MoveExecutor;
-import player.move.InversionMove;
-import player.move.Move;
 import util.File;
 import util.TestLogger;
 import java.util.Arrays;
@@ -14,11 +10,8 @@ import java.util.Arrays;
 public class Exercise2Test {
 
     public static int test() {
-
         int fails = 0;
-
         fails += testExceptions();
-
         return fails;
     }
 

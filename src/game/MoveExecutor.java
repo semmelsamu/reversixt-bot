@@ -41,13 +41,14 @@ public class MoveExecutor {
             tilesToColour.addAll(getTilesToColourInDirection(move.getPlayer(), move.getTile(), d));
         }
 
+        if(!game.getTile(move.getTile().getPosition()).getValue().isEmpty()) {
+            game.getPlayers()[move.getPlayer().getPlayerValue().toPlayerIndex()].decreaseOverwriteStones();
+        }
+
         // Color all tiles
         for (Tile tile : tilesToColour) {
             game.setTile(tile.getPosition(), move.getPlayer().getPlayerValue());
         }
-        if(!game.getTile(move.getTile().getPosition()).getValue().isEmpty())
-            move.getPlayer().decreaseOverwriteStones();
-
         game.setTile(move.getTile().getPosition(), move.getPlayer().getPlayerValue());
 
 
