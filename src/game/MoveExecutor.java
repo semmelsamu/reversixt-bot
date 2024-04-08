@@ -41,19 +41,18 @@ public class MoveExecutor {
             tilesToColour.addAll(getTilesToColourInDirection(move.getPlayer(), move.getTile(), d));
         }
 
-        tilesToColour.add(move.getTile());
-
         // Color all tiles
         for (Tile tile : tilesToColour) {
-            Optional<Player> otherPlayer = Arrays.stream(game.getPlayers()).filter(p -> p.getPlayerValue() == tile.getValue()).findFirst();
 
-            // Remove old stone from opponent player's occupied list
-            otherPlayer.ifPresent(value -> value.getOccupiedTiles().remove(tile));
-            // Add this stone to this player
-            move.getPlayer().getOccupiedTiles().add(tile);
 
-            // Color actual board
-            game.getBoard().setTileValue(tile.getPosition(), move.getPlayer().getPlayerValue());
+            game.setTile(tile.getPosition(), move.getPlayer().getPlayerValue());
+        }
+
+        for(var player : game.getPlayers()) {
+            Logger.get().error("Tiles Player " + player.getPlayerValue());
+            for(var tile : player.getOccupiedTiles()) {
+                Logger.get().debug(tile.toString());
+            }
         }
 
         if(move instanceof BonusMove)
@@ -163,11 +162,10 @@ public class MoveExecutor {
      * Overwriting tiles from fromPlayer to toPlayer. Not updating occupiedTiles!!!
      */
     private void overwritingPiecesFromTo(Player fromPlayer, Player toPlayer){
-        Board board = game.getBoard();
         TileValue toPlayerValue = toPlayer.getPlayerValue();
         List<Tile> tilesToOverwrite = fromPlayer.getOccupiedTiles();
         for(Tile tile : tilesToOverwrite){
-            board.setTileValue(tile.getPosition(), toPlayerValue);
+            game.setTile(tile.getPosition(), toPlayerValue);
         }
     }
 

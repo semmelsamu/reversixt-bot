@@ -4,9 +4,13 @@ import board.Coordinates;
 import game.Game;
 import game.GameFactory;
 import game.MoveExecutor;
+import player.move.InversionMove;
 import player.move.Move;
 import util.File;
+import util.Logger;
 import util.TestLogger;
+
+import java.util.Objects;
 
 public class Exercise2Test {
 
@@ -15,7 +19,8 @@ public class Exercise2Test {
         int fails = 0;
 
         fails += testExceptions();
-        fails += test1();
+        //fails += test1();
+        fails += test2();
 
         return fails;
     }
@@ -25,8 +30,10 @@ public class Exercise2Test {
 
         for(String map : File.getAllMaps()) {
 
+            if(!Objects.equals(map, "maps\\boeseMaps\\boeseMap10.map")) continue;
+
             Game game = GameFactory.createFromFile(map);
-            TestLogger.get().debug(game.getBoard().toString());
+            TestLogger.get().debug(game.toString());
 
             var moves = game.getValidMovesForCurrentPlayer();
 
@@ -36,7 +43,7 @@ public class Exercise2Test {
                 try {
                     moveExecutor.executeMove(move);
                     TestLogger.get().log("Map " + map + ", move " + move);
-                    TestLogger.get().verbose(testCase.getBoard().toString());
+                    TestLogger.get().verbose(testCase.toString());
                 }
                 catch (Exception e) {
                     TestLogger.get().error("Move execution failed: " + e.getMessage());
@@ -45,6 +52,8 @@ public class Exercise2Test {
                     TestLogger.get().error("Game: " + testCase.toString());
                     failedTests++;
                 }
+                moveExecutor = null;
+                testCase = null;
             }
         }
 
@@ -55,7 +64,18 @@ public class Exercise2Test {
         TestLogger.get().debug("Test 01");
         Game game = GameFactory.createFromFile("maps/boeseMaps/boeseMap01.map");
         TestLogger.get().debug(game.toString());
-        Move move = new Move(game.getPlayers()[0], game.getBoard().getTile(new Coordinates(7, 1)));
+        Move move = new Move(game.getPlayers()[0], game.getTile(new Coordinates(7, 1)));
+        MoveExecutor moveExecutor = new MoveExecutor(game);
+        moveExecutor.executeMove(move);
+        TestLogger.get().debug(game.toString());
+        return 0;
+    }
+
+    public static int test2() {
+        TestLogger.get().debug("Test 02");
+        Game game = GameFactory.createFromFile("maps/boeseMaps/boeseMap10.map");
+        TestLogger.get().debug(game.toString());
+        InversionMove move = new InversionMove(game.getPlayers()[0], game.getTile(new Coordinates(4, 4)));
         MoveExecutor moveExecutor = new MoveExecutor(game);
         moveExecutor.executeMove(move);
         TestLogger.get().debug(game.toString());

@@ -25,7 +25,7 @@ public class Exercise02 {
         Game game = GameFactory.createFromFile(boeseMap);
 
         // Print board
-        Logger.get().log(game.getBoard().toString());
+        Logger.get().log(game.toString());
 
         // Get and print all valid moves
         Set<Move> validMoves = game.getValidMovesForCurrentPlayer();

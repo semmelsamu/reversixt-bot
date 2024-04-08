@@ -31,7 +31,7 @@ public class ConsoleInputHandler {
         int x = scanner.nextInt();
         System.out.print(color + "\nEnter the y coordinate.\n> ");
         int y = scanner.nextInt();
-        Tile tile = game.getBoard().getTile(new Coordinates(x, y));
+        Tile tile = game.getTile(new Coordinates(x, y));
 
         enum MoveType { MOVE, BONUS_MOVE, CHOICE_MOVE, INVERSION_MOVE };
         switch (selectOption("Which kind of move should it be?", MoveType.values())) {

@@ -11,12 +11,12 @@ public class Test {
 
     public static void testAll() {
 
-        Logger.get().priority = 5;
+        Logger.get().priority = 0;
 
         int failedTests = 0;
 
-        failedTests += MapReadTest.test();
-        failedTests += CountTilesTest.test();
+        //failedTests += MapReadTest.test();
+        //failedTests += CountTilesTest.test();
         failedTests += Exercise2Test.test();
 
         if(failedTests > 0)

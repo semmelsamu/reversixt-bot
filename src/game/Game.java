@@ -121,12 +121,16 @@ public class Game {
         this.players = players;
     }
 
-    public void getTile() {
-        // TODO
+    public Tile getTile(Coordinates position) {
+        return board.getTile(position);
     }
 
-    public void setTile() {
-        // TODO
+    public void setTile(Coordinates position, TileValue value) {
+        board.setTile(position, value);
+    }
+
+    public List<Tile> getAllTilesWithValue(TileValue value) {
+        return board.getAllTilesWithValue(value);
     }
 
     /*
