@@ -25,9 +25,9 @@ public class Exercise2Test {
 
             for(var move : moves) {
                 Game testCase = GameFactory.createFromFile(map);
-
+                MoveExecutor moveExecutor = new MoveExecutor(testCase);
                 try {
-                    MoveExecutor.executeMove(move, testCase);
+                    moveExecutor.executeMove(move);
                     Logger.log("Successfully executed move", 5);
                     Logger.verbose(testCase.getBoard().toString(), 5);
                 }

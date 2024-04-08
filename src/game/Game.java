@@ -78,7 +78,8 @@ public class Game {
         // Initialize players
         players = new Player[initialPlayers];
         for (int i = 0; i < initialPlayers; i++) {
-            players[i] = new Player(TileValue.getAllPlayerValues()[i], initialOverwriteStones, initialBombs, board.getAllTilesWithValue(TileValue.getAllPlayerValues()[i]));
+            players[i] = new Player(TileValue.getAllPlayerValues()[i], initialOverwriteStones, initialBombs,
+                                    board.getAllTilesWithValue(TileValue.getAllPlayerValues()[i]));
         }
 
         // Set first player
@@ -92,7 +93,7 @@ public class Game {
     */
 
     public Set<Move> getValidMovesForCurrentPlayer() {
-        return getCurrentPlayer().getValidMoves();
+        return new MoveCalculator(this).getValidMoves();
     }
 
     /**
