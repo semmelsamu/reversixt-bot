@@ -29,9 +29,6 @@ public class Exercise2Test {
         int failedTests = 0;
 
         for(String map : File.getAllMaps()) {
-
-            if(!Objects.equals(map, "maps\\boeseMaps\\boeseMap10.map")) continue;
-
             Game game = GameFactory.createFromFile(map);
             TestLogger.get().debug(game.toString());
 
@@ -49,11 +46,9 @@ public class Exercise2Test {
                     TestLogger.get().error("Move execution failed: " + e.getMessage());
                     TestLogger.get().error("Initial map: " + game.toString());
                     TestLogger.get().error("Tried to execute move " + move);
-                    TestLogger.get().error("Game: " + testCase.toString());
+                    TestLogger.get().error("Game after attempting to execute move: " + testCase.toString());
                     failedTests++;
                 }
-                moveExecutor = null;
-                testCase = null;
             }
         }
 
@@ -74,11 +69,9 @@ public class Exercise2Test {
     public static int test2() {
         TestLogger.get().debug("Test 02");
         Game game = GameFactory.createFromFile("maps/boeseMaps/boeseMap10.map");
-        TestLogger.get().debug(game.toString());
         InversionMove move = new InversionMove(game.getPlayers()[0], game.getTile(new Coordinates(4, 4)));
         MoveExecutor moveExecutor = new MoveExecutor(game);
         moveExecutor.executeMove(move);
-        TestLogger.get().debug(game.toString());
         return 0;
     }
 }

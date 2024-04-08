@@ -43,17 +43,10 @@ public class MoveExecutor {
 
         // Color all tiles
         for (Tile tile : tilesToColour) {
-
-
             game.setTile(tile.getPosition(), move.getPlayer().getPlayerValue());
         }
+        game.setTile(move.getTile().getPosition(), move.getPlayer().getPlayerValue());
 
-        for(var player : game.getPlayers()) {
-            Logger.get().error("Tiles Player " + player.getPlayerValue());
-            for(var tile : player.getOccupiedTiles()) {
-                Logger.get().debug(tile.toString());
-            }
-        }
 
         if(move instanceof BonusMove)
             executeBonusLogic((BonusMove) move);
@@ -114,9 +107,11 @@ public class MoveExecutor {
         Player currentPlayer = game.getCurrentPlayer();
         Player playerToSwapWith = choiceMove.getPlayerToSwapWith();
 
-        List<Tile> oldTilesPlayerFromCurrentPlayer = currentPlayer.getOccupiedTiles();
+        // List<Tile> oldTilesPlayerFromCurrentPlayer = currentPlayer.getOccupiedTiles();
+        List<Tile> oldTilesPlayerFromCurrentPlayer = game.getAllTilesWithValue(currentPlayer.getPlayerValue());
 
-        for(Tile tile : playerToSwapWith.getOccupiedTiles()){
+        // for(Tile tile : playerToSwapWith.getOccupiedTiles()){
+        for(Tile tile : game.getAllTilesWithValue(playerToSwapWith.getPlayerValue())) {
             game.setTile(tile.getPosition(), currentPlayer.getPlayerValue());
         }
 
@@ -130,14 +125,16 @@ public class MoveExecutor {
         Player[] players = game.getPlayers();
 
         // Updating OccupiedTiles of all Players
-        List<Tile> oldTilesfromPred = players[players.length - 1].getOccupiedTiles();
+        // List<Tile> oldTilesfromPred = players[players.length - 1].getOccupiedTiles();
+        List<Tile> oldTilesfromPred = game.getAllTilesWithValue(players[players.length - 1].getPlayerValue());
         List<Tile> oldOwnTiles = null;
         TileValue[] playerValues = TileValue.getAllPlayerValues();
         for (int i = 0; i < players.length; i++){
             if(i != 0){
                 oldTilesfromPred = oldOwnTiles;
             }
-            oldOwnTiles = players[i].getOccupiedTiles();
+            // oldOwnTiles = players[i].getOccupiedTiles();
+            oldOwnTiles = game.getAllTilesWithValue(players[i].getPlayerValue());
             for(Tile tile : oldTilesfromPred){
                 game.setTile(tile.getPosition(), playerValues[i]);
             }

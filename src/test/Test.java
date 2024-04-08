@@ -11,7 +11,7 @@ public class Test {
 
     public static void testAll() {
 
-        Logger.get().priority = 0;
+        Logger.get().priority = 5;
 
         int failedTests = 0;
 
