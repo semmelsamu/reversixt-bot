@@ -147,16 +147,28 @@ public class Board {
     |--------------------------------------------------------------------------
     */
 
+    private static String formatIntToFitLength(int number, int length) {
+        return (new StringBuilder()).append(number).append(" ".repeat(length)).substring(0, length);
+    }
+
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        for(Tile[] row : tiles) {
-            for(Tile tile : row) {
+        StringBuilder result = new StringBuilder("    ");
+
+        // Draw x coordinates
+        for(int x = 0; x < tiles.length; x++) {
+            result.append(formatIntToFitLength(x, 3));
+        }
+        result.append("\n");
+
+        for(int y = 0; y < tiles.length; y++) {
+            result.append(formatIntToFitLength(y, 4));
+            for(Tile tile : tiles[y]) {
                 result.append(tile.getValue().toString(true));
             }
             result.append("\n");
         }
         result.append("(Width: ").append(width).append(", height: ").append(height).append(")");
-        return "Board\n" + result.toString();
+        return "Board" + "\n" + "\u001B[0m" + result;
     }
 
     /*
