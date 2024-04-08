@@ -180,8 +180,6 @@ public class Player {
                     movesPerDirection.add(new Move(this, currentTile));
                 }
 
-
-
                 // tile has the same value as another tile, but isn't the same tile and is more fare away than 1 -> overwrite stone on the first tile
                 if (currentTile.getValue() == playerValue && howFarFromFirstTile > 1) {
                     movesPerDirection.add(new Move(this, firstTile));
@@ -220,5 +218,14 @@ public class Player {
      */
     public void decrementOverwriteStone() {
         overwriteStones--;
+    }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "playerValue=" + playerValue +
+                ", overwriteStones=" + overwriteStones +
+                ", bombs=" + bombs +
+                '}';
     }
 }

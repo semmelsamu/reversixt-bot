@@ -50,6 +50,9 @@ public class Move implements Comparable<Move>{
 
     @Override
     public String toString() {
-        return "Move" + tile.getPosition();
+        return "Move{" +
+                "player=" + player +
+                ", tile=" + tile +
+                '}';
     }
 }

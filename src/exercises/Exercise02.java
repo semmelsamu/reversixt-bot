@@ -21,32 +21,30 @@ public class Exercise02 {
     public static void aufgabe3() {
 
         // Load map
-        String boeseMap = ConsoleInputHandler.selectBoeseMap();
+        String boeseMap = ConsoleInputHandler.selectMap();
         Game game = GameFactory.createFromFile(boeseMap);
 
         // Print board
         Logger.log(game.getBoard().toString());
 
-        int unableToMovePlayers = 0;
-        while (!(unableToMovePlayers == game.getPlayers().length)) {
+        // Get and print all valid moves
+        Set<Move> validMoves = game.getValidMovesForCurrentPlayer();
+        Logger.log(validMoves.toString());
 
-            // Print all valid moves
-            Set<Move> validMovesForCurrentPlayer = game.getValidMovesForCurrentPlayer();
-            Logger.log(validMovesForCurrentPlayer.toString());
-            if (validMovesForCurrentPlayer.isEmpty()) {
-                unableToMovePlayers++;
-                game.nextPlayer();
-                continue;
-            }
-            // User inputs move
-            Move move = ConsoleInputHandler.selectMove(game.getCurrentPlayer());
-            // Execute move
-            MoveExecutor.executeMove(move, game);
+        // User inputs move
+        Move move = ConsoleInputHandler.selectMove(game);
 
-            // Print new board
-            Logger.log(game.toString());
+        // Check if move is valid
+        if(!validMoves.contains(move)) {
+            Logger.error("Move is not valid!");
+            return;
         }
 
-        Logger.log("Game finished");
+        // Execute move
+        MoveExecutor.executeMove(move, game);
+
+        // Print new board
+        Logger.log(game.toString());
+
     }
 }
