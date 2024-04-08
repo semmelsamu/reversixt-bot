@@ -3,7 +3,7 @@ package test;
 import game.Game;
 import game.GameFactory;
 import util.File;
-import util.Logger;
+import util.TestLogger;
 
 public class MapReadTest {
 
@@ -21,11 +21,11 @@ public class MapReadTest {
     public static int testMap(String filename) {
         try {
             Game game = GameFactory.createFromFile(filename);
-            Logger.get().log(filename);
+            TestLogger.get().log("Map " + filename);
             return 0;
         }
         catch(Exception e) {
-            Logger.get().error(filename + " generated error:" + e.getMessage());
+            TestLogger.get().error(filename + " generated error:" + e.getMessage());
             return 1;
         }
     }

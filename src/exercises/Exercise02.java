@@ -29,7 +29,9 @@ public class Exercise02 {
 
         // Get and print all valid moves
         Set<Move> validMoves = game.getValidMovesForCurrentPlayer();
-        Logger.get().log(validMoves.toString());
+        Logger.get().debug("All valid moves for current Player:");
+        for(var move : validMoves)
+            Logger.get().debug(move.toString());
 
         // User inputs move
         Move move = ConsoleInputHandler.selectMove(game);

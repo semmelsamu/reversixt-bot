@@ -3,7 +3,7 @@ package test;
 import board.TileValue;
 import game.Game;
 import game.GameFactory;
-import util.Logger;
+import util.TestLogger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class CountTilesTest {
                 int calculatedTileCount = game.getBoard().getAllTilesWithValue(tileAndCount.getKey()).size();
                 int expectedTileCount = tileAndCount.getValue();
 
-                String message = mapAndTileCounts.getKey()
+                String message = "Map" + mapAndTileCounts.getKey()
                         + " calculated "
                         + calculatedTileCount
                         + " tiles for player "
@@ -49,10 +49,10 @@ public class CountTilesTest {
                         + ")";
 
                 if(calculatedTileCount == expectedTileCount) {
-                    Logger.get().log(message);
+                    TestLogger.get().log(message);
                 }
                 else {
-                    Logger.get().error(message);
+                    TestLogger.get().error(message);
                     errors++;
                 }
             }

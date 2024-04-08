@@ -1,6 +1,7 @@
 package test;
 
 import util.Logger;
+import util.TestLogger;
 
 public class Test {
 
@@ -10,9 +11,7 @@ public class Test {
 
     public static void testAll() {
 
-        //Logger.PRIORITY = 5;
-        //Logger.NAME = "TEST_ALL";
-        Logger.get().log("Testing all");
+        Logger.get().priority = 5;
 
         int failedTests = 0;
 
@@ -21,8 +20,8 @@ public class Test {
         failedTests += Exercise2Test.test();
 
         if(failedTests > 0)
-            Logger.get().fatal("Failed tests: " + failedTests);
-        else Logger.get().log("All tests passed");
+            TestLogger.get().fatal("Failed tests: " + failedTests);
+        else TestLogger.get().log("All tests passed");
 
     }
 }

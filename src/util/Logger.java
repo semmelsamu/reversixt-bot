@@ -10,7 +10,7 @@ public class Logger {
     |--------------------------------------------------------------------------
     */
 
-    private static final Logger logger = new Logger("Logger", 0);
+    private static Logger logger = new Logger("Logger", 0);
 
     public static Logger get() {
         return logger;
@@ -49,13 +49,13 @@ public class Logger {
     /**
      * The name of the logger. Displayed in each message which gets sent to the system out.
      */
-    private String name = "Logger";
+    public String name = "Logger";
 
     /**
      * The minimum priority a message must have in order to be logged.
      * DEBUG=0 VERBOSE=1 LOG=2 WARNING=3 ERROR=4 FATAL=5
      */
-    private int priority = 0;
+    public int priority;
 
     /**
      * Stores the last time the logger was active in nanoseconds.

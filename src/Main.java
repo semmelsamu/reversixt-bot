@@ -11,9 +11,8 @@ public class Main {
 
     public static void main(String[] args) {
         // Initialize Logger
-        //Logger.NAME = "revxt-ss24-g04-v" + VERSION;
-        //Logger.PRIORITY = 0; // Set to 1 to prevent debug messages or 0 to allow
-        //Logger.log("Starting");
+        Logger.get().name = "revxt-ss24-g04-v" + VERSION;
+        Logger.get().log("Starting");
 
         // Launch whatever
         Exercise02.aufgabe3();
