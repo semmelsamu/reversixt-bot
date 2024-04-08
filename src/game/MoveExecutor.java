@@ -116,56 +116,31 @@ public class MoveExecutor {
 
         List<Tile> oldTilesPlayerFromCurrentPlayer = currentPlayer.getOccupiedTiles();
 
-        overwritingPiecesFromTo(currentPlayer, playerToSwapWith);
-        overwritingPiecesFromTo(playerToSwapWith, currentPlayer);
-
-
-        currentPlayer.setOccupiedTiles(playerToSwapWith.getOccupiedTiles());
-        playerToSwapWith.setOccupiedTiles(oldTilesPlayerFromCurrentPlayer);
-        /*TileValue playerA = game.getCurrentPlayer().getPlayerValue();
-        TileValue playerB = choiceMove.getPlayerToSwapWith().getPlayerValue();
-
-        ArrayList<Tile> tilesPlayerA = (ArrayList<Tile>) game.getBoard().getAllTilesWithValue(playerA);
-        ArrayList<Tile> tilesPlayerB = (ArrayList<Tile>) game.getBoard().getAllTilesWithValue(playerB);
-
-        for(var tile : tilesPlayerA) {
-            game.getBoard().setTileValue(tile.getPosition(), playerB);
+        for(Tile tile : playerToSwapWith.getOccupiedTiles()){
+            game.setTile(tile.getPosition(), currentPlayer.getPlayerValue());
         }
 
-        for(var tile : tilesPlayerB) {
-            game.getBoard().setTileValue(tile.getPosition(), playerA);
+        for (Tile tile : oldTilesPlayerFromCurrentPlayer){
+            game.setTile(tile.getPosition(), playerToSwapWith.getPlayerValue());
         }
-        */
     }
 
     private void executeInversionLogic() {
         // Overwriting Tiles in Board
         Player[] players = game.getPlayers();
-        for (int i = 0; i < players.length; i++) {
-            overwritingPiecesFromTo(players[i], players[(i+1)% players.length]);
-        }
 
         // Updating OccupiedTiles of all Players
         List<Tile> oldTilesfromPred = players[players.length - 1].getOccupiedTiles();
         List<Tile> oldOwnTiles = null;
+        TileValue[] playerValues = TileValue.getAllPlayerValues();
         for (int i = 0; i < players.length; i++){
             if(i != 0){
                 oldTilesfromPred = oldOwnTiles;
             }
             oldOwnTiles = players[i].getOccupiedTiles();
-            players[i].setOccupiedTiles(oldTilesfromPred);
-        }
-    }
-
-
-    /**
-     * Overwriting tiles from fromPlayer to toPlayer. Not updating occupiedTiles!!!
-     */
-    private void overwritingPiecesFromTo(Player fromPlayer, Player toPlayer){
-        TileValue toPlayerValue = toPlayer.getPlayerValue();
-        List<Tile> tilesToOverwrite = fromPlayer.getOccupiedTiles();
-        for(Tile tile : tilesToOverwrite){
-            game.setTile(tile.getPosition(), toPlayerValue);
+            for(Tile tile : oldTilesfromPred){
+                game.setTile(tile.getPosition(), playerValues[i]);
+            }
         }
     }
 
