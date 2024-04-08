@@ -155,7 +155,7 @@ public class Board {
         StringBuilder result = new StringBuilder("    ");
 
         // Draw x coordinates
-        for(int x = 0; x < tiles.length; x++) {
+        for(int x = 0; x < tiles[0].length; x++) {
             result.append(formatIntToFitLength(x, 3));
         }
         result.append("\n");
