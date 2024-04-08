@@ -7,10 +7,7 @@ import player.move.InversionMove;
 import player.move.Move;
 import util.Logger;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Player {
 
@@ -73,6 +70,24 @@ public class Player {
 
     public List<Tile> getOccupiedTiles() {
         return occupiedTiles;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Setters?
+    |--------------------------------------------------------------------------
+    */
+
+    public void setOccupiedTiles(List<Tile> occupiedTiles) {
+        this.occupiedTiles = occupiedTiles;
+    }
+
+    public void addOccupiedTiles(Collection<Tile> newTiles){
+        occupiedTiles.addAll(newTiles);
+    }
+
+    public void removeOccupiedTiles(Collection<Tile> tilesToRemove){
+        occupiedTiles.removeAll(tilesToRemove);
     }
 
     /*

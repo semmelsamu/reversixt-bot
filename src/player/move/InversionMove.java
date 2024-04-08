@@ -18,10 +18,10 @@ public class InversionMove extends Move {
     /**
      * TODO
     @Override
-    public Player[] execute(Board board, Player[] players) {
-        Player[] playersAfterColoring = super.execute(board, players);
+    public void execute(Board board, Player[] players) {
+        super.execute(board, players);
 
-        Player temp = playersAfterColoring[playersAfterColoring.length - 1];
+        /*Player temp = playersAfterColoring[playersAfterColoring.length - 1];
 
         // switch position to the right
         for (int i = playersAfterColoring.length - 1; i > 0; i--) {
@@ -30,6 +30,5 @@ public class InversionMove extends Move {
         // fill up first one
         playersAfterColoring[0] = temp;
         return playersAfterColoring;
-    }
-     */
+    }*/
 }
