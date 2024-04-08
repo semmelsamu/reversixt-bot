@@ -73,6 +73,13 @@ public enum TileValue {
     }
 
     /**
+     * States if the tile is empty.
+     */
+    public boolean isEmpty() {
+        return TileValue.fromChar(this.character) == EMPTY;
+    }
+
+    /**
      * States if the tile is occupied by a player.
      */
     public boolean isPlayer() {

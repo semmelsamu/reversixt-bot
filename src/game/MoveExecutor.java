@@ -45,6 +45,9 @@ public class MoveExecutor {
         for (Tile tile : tilesToColour) {
             game.setTile(tile.getPosition(), move.getPlayer().getPlayerValue());
         }
+        if(!game.getTile(move.getTile().getPosition()).getValue().isEmpty())
+            move.getPlayer().decreaseOverwriteStones();
+
         game.setTile(move.getTile().getPosition(), move.getPlayer().getPlayerValue());
 
 

@@ -1,8 +1,6 @@
 package player;
 
 import board.*;
-import player.move.BonusMove;
-import player.move.ChoiceMove;
 import player.move.InversionMove;
 import player.move.Move;
 import util.Logger;
@@ -216,7 +214,7 @@ public class Player {
     /**
      * Decrement overwrite stones by 1
      */
-    public void decrementOverwriteStone() {
+    public void decreaseOverwriteStones() {
         overwriteStones--;
     }
 
