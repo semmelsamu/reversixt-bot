@@ -10,7 +10,7 @@ public class Test {
 
     public static void testAll() {
 
-        Logger.PRIORITY = 5;
+        Logger.PRIORITY = 7;
         Logger.NAME = "TEST_ALL";
         Logger.log("Testing all", 5);
 

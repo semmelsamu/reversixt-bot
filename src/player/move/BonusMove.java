@@ -31,20 +31,12 @@ public class BonusMove extends Move {
         return bonus;
     }
 
-    /**
-     * TODO
     @Override
-    public Player[] execute(Board board, Player[] players) {
-        Logger.warn("Selection which bonus to choose should not be asked as a console input here.");
-        Player[] playersAfterColoring = super.execute(board, players);
-        Bonus bonus = ConsoleInputHandler.handleBonus(getPlayer());
-        Player p = getPlayer();
-        if (bonus == Bonus.BOMB) {
-            p.incrementBombs();
-        } else {
-            p.incrementOverwriteStone();
-        }
-        return playersAfterColoring;
+    public String toString() {
+        return "BonusMove{" +
+                "bonus=" + bonus +
+                ", player=" + player +
+                ", tile=" + tile +
+                '}';
     }
-     */
 }

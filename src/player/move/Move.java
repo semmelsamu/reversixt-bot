@@ -11,12 +11,12 @@ public class Move implements Comparable<Move>{
     /**
      * The player this move belongs to.
      */
-    private final Player player;
+    protected final Player player;
 
     /**
      * The tile the move targets.
      */
-    private final Tile tile;
+    protected final Tile tile;
 
     public Move(Player player, Tile tile) {
         this.player = player;

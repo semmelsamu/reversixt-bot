@@ -29,4 +29,13 @@ public class ChoiceMove extends Move {
     public Player getPlayerToSwapWith() {
         return playerToSwapWith;
     }
+
+    @Override
+    public String toString() {
+        return "ChoiceMove{" +
+                "playerToSwapWith=" + playerToSwapWith +
+                ", player=" + player +
+                ", tile=" + tile +
+                '}';
+    }
 }

@@ -32,12 +32,21 @@ public class Exercise2Test {
                     Logger.verbose(testCase.getBoard().toString(), 5);
                 }
                 catch (Exception e) {
-                    Logger.error("Move execution failed", 5);
+                    Logger.error("Move execution failed: " + e.getMessage(), 5);
+                    Logger.error("Initial map: " + game.toString(), 5);
+                    Logger.error("Tried to execute move " + move, 5);
+                    Logger.error("Game: " + testCase.toString(), 5);
                     failedTests++;
                 }
             }
         }
 
         return failedTests;
+    }
+
+    public static int test1() {
+        Game game = GameFactory.createFromFile("maps/boeseMaps/boeseMap10.map");
+        Logger.log(game.toString(), 5);
+        return 0;
     }
 }
