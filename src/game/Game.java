@@ -125,6 +125,7 @@ public class Game {
     }
 
     public void setTile(Coordinates position, TileValue value) {
+        // TODO: From here, update the stats class
         board.setTile(position, value);
     }
 

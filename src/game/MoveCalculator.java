@@ -74,7 +74,7 @@ public class MoveCalculator {
     private Set<Move> getValidMoveForPieceInDirection(Tile currentTile, Direction currentDirection,
                                                       Player currentPlayer) {
 
-        Logger.get().verbose("Searching for valid moves in direction " + currentDirection);
+        Logger.get().verbose("Searching for valid moves in direction ");
         Tile firstTile = currentTile;
         Set<Move> movesPerDirection = new HashSet<>();
         Set<Tile> alreadyVisited = new HashSet<>();
@@ -132,6 +132,7 @@ public class MoveCalculator {
                 movesPerDirection.add(new BonusMove(currentPlayer, currentTile, Bonus.OVERWRITE_STONE));
             }
             default -> movesPerDirection.add(new Move(currentPlayer, currentTile));
+
         }
 
         return movesPerDirection;

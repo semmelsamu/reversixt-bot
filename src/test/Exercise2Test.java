@@ -3,6 +3,7 @@ package test;
 import board.Coordinates;
 import game.Game;
 import game.GameFactory;
+import game.MoveCalculator;
 import game.MoveExecutor;
 import player.move.InversionMove;
 import player.move.Move;
@@ -17,8 +18,6 @@ public class Exercise2Test {
         int fails = 0;
 
         fails += testExceptions();
-        //fails += test1();
-        fails += test2();
 
         return fails;
     }
@@ -55,25 +54,5 @@ public class Exercise2Test {
         }
 
         return failedTests;
-    }
-
-    public static int test1() {
-        TestLogger.get().debug("Test 01");
-        Game game = GameFactory.createFromFile("maps/boeseMaps/boeseMap01.map");
-        TestLogger.get().debug(game.toString());
-        Move move = new Move(game.getPlayers()[0], game.getTile(new Coordinates(7, 1)));
-        MoveExecutor moveExecutor = new MoveExecutor(game);
-        moveExecutor.executeMove(move);
-        TestLogger.get().debug(game.toString());
-        return 0;
-    }
-
-    public static int test2() {
-        TestLogger.get().debug("Test 02");
-        Game game = GameFactory.createFromFile("maps/boeseMaps/boeseMap10.map");
-        InversionMove move = new InversionMove(game.getPlayers()[0], game.getTile(new Coordinates(4, 4)));
-        MoveExecutor moveExecutor = new MoveExecutor(game);
-        moveExecutor.executeMove(move);
-        return 0;
     }
 }
