@@ -23,7 +23,7 @@ public class MoveExecutor {
 
     public void executeMove(Move move) {
 
-        Logger.log("Executing move " + move);
+        Logger.get().log("Executing move " + move);
 
         Set<Tile> tilesToColour = new HashSet<>();
         // Check every direction
@@ -107,7 +107,7 @@ public class MoveExecutor {
             game.getCurrentPlayer().incrementOverwriteStone();
         }
         else {
-            Logger.fatal("Tried to execute bonus move without bonus action");
+            Logger.get().fatal("Tried to execute bonus move without bonus action");
         }
     }
 

@@ -64,7 +64,7 @@ public class Game {
      */
     public Game(int initialPlayers, int initialOverwriteStones, int initialBombs, int bombRadius, Board board) {
 
-        Logger.log("Creating game");
+        Logger.get().log("Creating game");
 
         // Store initial information
         this.initialPlayers = initialPlayers;

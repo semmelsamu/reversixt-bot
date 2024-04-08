@@ -4,27 +4,17 @@ import java.util.Date;
 
 public class Logger {
 
-    /**
-     * The name of the logger. Displayed in each message which gets sent to the system out.
-     */
-    public static String NAME = "Logger";
-
-    /**
-     * The minimum priority a message must have in order to be logged.
-     * DEBUG=0 VERBOSE=1 LOG=2 WARNING=3 ERROR=4 FATAL=5
-     */
-    public static int PRIORITY = 0;
-
     /*
     |--------------------------------------------------------------------------
-    | Static variables
+    | Singleton
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Stores the last time the logger was active in nanoseconds.
-     */
-    private static long lastTimeActive;
+    private static final Logger logger = new Logger("Logger", 0);
+
+    public static Logger get() {
+        return logger;
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -35,29 +25,53 @@ public class Logger {
     /**
      * Colors
      */
-    private static final String ANSI_RESET = "\u001B[0m";
-    private static final String ANSI_BLACK = "\u001B[30m";
-    private static final String ANSI_RED = "\u001B[31m";
-    private static final String ANSI_GREEN = "\u001B[32m";
-    private static final String ANSI_YELLOW = "\u001B[33m";
-    private static final String ANSI_BLUE = "\u001B[34m";
-    private static final String ANSI_PURPLE = "\u001B[35m";
-    private static final String ANSI_CYAN = "\u001B[36m";
-    private static final String ANSI_WHITE = "\u001B[37m";
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
 
     /**
      * Weights
      */
-    private static final String ANSI_BOLD = "\u001B[1m";
+    public static final String ANSI_BOLD = "\u001B[1m";
 
     /*
     |--------------------------------------------------------------------------
-    | Static constructor
+    | Variables
     |--------------------------------------------------------------------------
     */
 
-    static {
-        lastTimeActive = System.nanoTime();
+    /**
+     * The name of the logger. Displayed in each message which gets sent to the system out.
+     */
+    private String name = "Logger";
+
+    /**
+     * The minimum priority a message must have in order to be logged.
+     * DEBUG=0 VERBOSE=1 LOG=2 WARNING=3 ERROR=4 FATAL=5
+     */
+    private int priority = 0;
+
+    /**
+     * Stores the last time the logger was active in nanoseconds.
+     */
+    private long lastTimeActive;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Constructor
+    |--------------------------------------------------------------------------
+    */
+
+    public Logger(String name, int priority) {
+        this.name = name;
+        this.priority = priority;
+        this.lastTimeActive = System.nanoTime();
     }
 
     /*
@@ -67,14 +81,11 @@ public class Logger {
     */
 
     /**
-     * Generate a logger message.
-     * @param color The color of the log message.
-     * @param type The type of the logger message.
-     * @param message The actual message.
+     * Actual printing logic
      */
-    private static void console(String color, String type, String message, int priority) {
+    private void console(String color, String type, String message, int priority) {
 
-        if(priority < PRIORITY) return;
+        if(priority < this.priority) return;
 
         // Use StackTraceElement to get caller
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
@@ -92,7 +103,7 @@ public class Logger {
         lastTimeActive = currentTime;
 
         // Print
-        System.out.println(color + "[" + NAME + "]  " + ANSI_RESET + currentDate + "  " + color + type + ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color + message + ANSI_RESET + "  " + timeElapsedMs + "ms");
+        System.out.println(color + "[" + name + "]  " + ANSI_RESET + currentDate + "  " + color + type + ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color + message + ANSI_RESET + "  " + timeElapsedMs + "ms");
     }
 
     /*
@@ -105,66 +116,47 @@ public class Logger {
      * Log a fatal error and terminate the program.
      * @param message The error message.
      */
-    public static void fatal(String message) {
+    public void fatal(String message) {
         console(ANSI_BOLD + ANSI_RED, "  FATAL", message, 5);
-    }
-    public static void fatal(String message, int priorityBonus) {
-        console(ANSI_BOLD + ANSI_RED, "  FATAL", message, 5 + priorityBonus);
-        System.exit(1);
     }
 
     /**
      * Log an error.
      * @param message The error message.
      */
-    public static void error(String message) {
+    public void error(String message) {
         console(ANSI_RED, "  ERROR", message, 4);
-    }
-    public static void error(String message, int priorityBonus) {
-        console(ANSI_RED, "  ERROR", message, 4 + priorityBonus);
     }
 
     /**
      * Log a warning.
      * @param message The warning message.
      */
-    public static void warn(String message) {
+    public void warn(String message) {
         console(ANSI_YELLOW, "WARNING", message, 3);
-    }
-    public static void warn(String message, int priorityBonus) {
-        console(ANSI_YELLOW, "WARNING", message, 3 + priorityBonus);
     }
 
     /**
      * Log a message.
      * @param message The message.
      */
-    public static void log(String message) {
+    public void log(String message) {
         console(ANSI_GREEN, "    LOG", message, 2);
-    }
-    public static void log(String message, int priorityBonus) {
-        console(ANSI_GREEN, "    LOG", message, 2 + priorityBonus);
     }
 
     /**
      * Log a verbose message.
      * @param message The message.
      */
-    public static void verbose(String message) {
+    public void verbose(String message) {
         console(ANSI_CYAN, "VERBOSE", message, 1);
-    }
-    public static void verbose(String message, int priorityBonus) {
-        console(ANSI_CYAN, "VERBOSE", message, 1 + priorityBonus);
     }
 
     /**
-     * Log a debug message, unless DEBUG is set to false.
+     * Log a debug message.
      * @param message The message.
      */
-    public static void debug(String message) {
+    public void debug(String message) {
         console(ANSI_PURPLE, "  DEBUG", message, 0);
-    }
-    public static void debug(String message, int priorityBonus) {
-        console(ANSI_PURPLE, "  DEBUG", message, priorityBonus);
     }
 }

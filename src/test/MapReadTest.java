@@ -21,11 +21,11 @@ public class MapReadTest {
     public static int testMap(String filename) {
         try {
             Game game = GameFactory.createFromFile(filename);
-            Logger.log(filename, 5);
+            Logger.get().log(filename);
             return 0;
         }
         catch(Exception e) {
-            Logger.error(filename + " generated error:" + e.getMessage(), 5);
+            Logger.get().error(filename + " generated error:" + e.getMessage());
             return 1;
         }
     }

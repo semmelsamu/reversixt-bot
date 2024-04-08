@@ -27,11 +27,11 @@ public class MoveCalculator {
     public Set<Move> getValidMoves() {
         Player currentPlayer = game.getCurrentPlayer();
         TileValue currentPlayerValue = currentPlayer.getPlayerValue();
-        Logger.log("Searching for all valid moves for Player " + currentPlayerValue);
+        Logger.get().log("Searching for all valid moves for Player " + currentPlayerValue);
         Set<Move> moves = new TreeSet<>();
         for (Tile occupiedTile : currentPlayer.getOccupiedTiles()) {
             if (occupiedTile.getValue() != currentPlayerValue) {
-                Logger.error("Wrong coordinates in Player" + currentPlayerValue + "'s List stones");
+                Logger.get().error("Wrong coordinates in Player" + currentPlayerValue + "'s List stones");
                 continue;
             }
             moves.addAll(getValidMovesForPiece(occupiedTile, currentPlayer));
@@ -44,7 +44,7 @@ public class MoveCalculator {
      * @return Valid moves for one piece of this player
      */
     private Set<Move> getValidMovesForPiece(Tile ownPiece, Player currentPlayer) {
-        Logger.verbose("Searching for valid moves originating from piece " + ownPiece);
+        Logger.get().verbose("Searching for valid moves originating from piece " + ownPiece);
         Set<Move> moves = new TreeSet<>();
         for (Direction direction : Direction.values()) {
             Neighbour neighbour = ownPiece.getNeighbour(direction);
@@ -74,7 +74,7 @@ public class MoveCalculator {
     private Set<Move> getValidMoveForPieceInDirection(Tile currentTile, Direction currentDirection,
                                                       Player currentPlayer) {
 
-        Logger.verbose("Searching for valid moves in direction " + currentDirection);
+        Logger.get().verbose("Searching for valid moves in direction " + currentDirection);
         Tile firstTile = currentTile;
         Set<Move> movesPerDirection = new HashSet<>();
         Set<Tile> alreadyVisited = new HashSet<>();

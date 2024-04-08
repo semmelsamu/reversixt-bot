@@ -16,10 +16,10 @@ public class Exercise2Test {
         int failedTests = 0;
 
         for(String map : File.getAllMaps()) {
-            Logger.log("Testing all moves for map " + map, 5);
+            Logger.get().log("Testing all moves for map " + map);
 
             Game game = GameFactory.createFromFile(map);
-            Logger.debug(game.getBoard().toString(), 5);
+            Logger.get().debug(game.getBoard().toString());
 
             var moves = game.getValidMovesForCurrentPlayer();
 
@@ -28,14 +28,14 @@ public class Exercise2Test {
                 MoveExecutor moveExecutor = new MoveExecutor(testCase);
                 try {
                     moveExecutor.executeMove(move);
-                    Logger.log("Successfully executed move", 5);
-                    Logger.verbose(testCase.getBoard().toString(), 5);
+                    Logger.get().log("Successfully executed move");
+                    Logger.get().verbose(testCase.getBoard().toString());
                 }
                 catch (Exception e) {
-                    Logger.error("Move execution failed: " + e.getMessage(), 5);
-                    Logger.error("Initial map: " + game.toString(), 5);
-                    Logger.error("Tried to execute move " + move, 5);
-                    Logger.error("Game: " + testCase.toString(), 5);
+                    Logger.get().error("Move execution failed: " + e.getMessage());
+                    Logger.get().error("Initial map: " + game.toString());
+                    Logger.get().error("Tried to execute move " + move);
+                    Logger.get().error("Game: " + testCase.toString());
                     failedTests++;
                 }
             }
@@ -46,7 +46,7 @@ public class Exercise2Test {
 
     public static int test1() {
         Game game = GameFactory.createFromFile("maps/boeseMaps/boeseMap10.map");
-        Logger.log(game.toString(), 5);
+        Logger.get().log(game.toString());
         return 0;
     }
 }

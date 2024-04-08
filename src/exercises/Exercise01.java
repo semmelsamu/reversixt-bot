@@ -12,7 +12,7 @@ public class Exercise01 {
      */
     public static void aufgabe3() {
         Game game = GameFactory.createFromFile("maps/example.map");
-        Logger.log(game.getBoard().toString());
+        Logger.get().log(game.getBoard().toString());
     }
 
 }

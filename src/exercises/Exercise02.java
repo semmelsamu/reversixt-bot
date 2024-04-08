@@ -25,18 +25,18 @@ public class Exercise02 {
         Game game = GameFactory.createFromFile(boeseMap);
 
         // Print board
-        Logger.log(game.getBoard().toString());
+        Logger.get().log(game.getBoard().toString());
 
         // Get and print all valid moves
         Set<Move> validMoves = game.getValidMovesForCurrentPlayer();
-        Logger.log(validMoves.toString());
+        Logger.get().log(validMoves.toString());
 
         // User inputs move
         Move move = ConsoleInputHandler.selectMove(game);
 
         // Check if move is valid
         if(!validMoves.contains(move)) {
-            Logger.error("Move is not valid!");
+            Logger.get().error("Move is not valid!");
             return;
         }
 
@@ -45,7 +45,7 @@ public class Exercise02 {
         moveExecutor.executeMove(move);
 
         // Print new board
-        Logger.log(game.toString());
+        Logger.get().log(game.toString());
 
     }
 }

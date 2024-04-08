@@ -18,12 +18,12 @@ public class ConsoleInputHandler {
     static Scanner scanner = new Scanner(System.in);
 
     public static String selectMap() {
-        Logger.log("Selecting map");
+        Logger.get().log("Selecting map");
         return (String) selectOption("Which map do you want to load? Enter the number.", File.getAllMaps().toArray());
     }
 
     public static Move selectMove(Game game) {
-        Logger.log("Selecting move");
+        Logger.get().log("Selecting move");
 
         Player player = selectOption("Which player should execute this move?", game.getPlayers());
 
@@ -75,7 +75,7 @@ public class ConsoleInputHandler {
             return result;
         }
         catch (Exception e) {
-            Logger.fatal("Failed to select option");
+            Logger.get().fatal("Failed to select option");
             throw e;
         }
     }

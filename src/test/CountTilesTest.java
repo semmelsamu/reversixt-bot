@@ -49,10 +49,10 @@ public class CountTilesTest {
                         + ")";
 
                 if(calculatedTileCount == expectedTileCount) {
-                    Logger.log(message, 5);
+                    Logger.get().log(message);
                 }
                 else {
-                    Logger.error(message, 5);
+                    Logger.get().error(message);
                     errors++;
                 }
             }

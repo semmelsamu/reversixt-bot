@@ -46,7 +46,7 @@ public class Tile {
 
     public void setNeighbour(Direction direction, Neighbour neighbour) {
         if (neighbours[direction.getValue()] != null) {
-            Logger.warn("Reassigning neighbour is probably unwanted");
+            Logger.get().warn("Reassigning neighbour is probably unwanted");
         }
 
         // Neighbours are only tiles which the player can expand to. See definition of neighbour record.
