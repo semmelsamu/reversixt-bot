@@ -41,7 +41,8 @@ public class Exercise02 {
         }
 
         // Execute move
-        MoveExecutor.executeMove(move, game);
+        MoveExecutor moveExecutor = new MoveExecutor(game);
+        moveExecutor.executeMove(move);
 
         // Print new board
         Logger.log(game.toString());

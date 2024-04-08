@@ -9,13 +9,19 @@ import java.util.*;
 
 public class MoveExecutor {
 
+    Game game;
+
+    public MoveExecutor(Game game){
+        this.game = game;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Main coloring logic
     |--------------------------------------------------------------------------
     */
 
-    public static void executeMove(Move move, Game game) {
+    public void executeMove(Move move) {
 
         Logger.log("Executing move " + move);
 
@@ -51,14 +57,13 @@ public class MoveExecutor {
         }
 
         if(move instanceof BonusMove)
-            executeBonusLogic((BonusMove) move, game);
+            executeBonusLogic((BonusMove) move);
 
         if(move instanceof ChoiceMove)
-            executeChoiceLogic((ChoiceMove) move, game);
+            executeChoiceLogic((ChoiceMove) move);
 
         if(move instanceof InversionMove)
-            executeInversionLogic((InversionMove) move, game);
-
+            executeInversionLogic();
     }
 
     private static Set<Tile> getTilesToColourInDirection(Player player, Tile currentTile, Direction currentDirection) {
@@ -94,7 +99,7 @@ public class MoveExecutor {
     |--------------------------------------------------------------------------
     */
 
-    private static void executeBonusLogic(BonusMove bonusMove, Game game) {
+    private void executeBonusLogic(BonusMove bonusMove) {
         if(bonusMove.getBonus() == Bonus.BOMB) {
             game.getCurrentPlayer().incrementBombs();
         }
@@ -106,14 +111,14 @@ public class MoveExecutor {
         }
     }
 
-    private static void executeChoiceLogic(ChoiceMove choiceMove, Game game) {
+    private void executeChoiceLogic(ChoiceMove choiceMove) {
         Player currentPlayer = game.getCurrentPlayer();
         Player playerToSwapWith = choiceMove.getPlayerToSwapWith();
 
         List<Tile> oldTilesPlayerFromCurrentPlayer = currentPlayer.getOccupiedTiles();
 
-        overwritingPiecesFromTo(currentPlayer, playerToSwapWith, game);
-        overwritingPiecesFromTo(playerToSwapWith, currentPlayer, game);
+        overwritingPiecesFromTo(currentPlayer, playerToSwapWith);
+        overwritingPiecesFromTo(playerToSwapWith, currentPlayer);
 
 
         currentPlayer.setOccupiedTiles(playerToSwapWith.getOccupiedTiles());
@@ -134,11 +139,11 @@ public class MoveExecutor {
         */
     }
 
-    private static void executeInversionLogic(InversionMove inversionMove, Game game) {
+    private void executeInversionLogic() {
         // Overwriting Tiles in Board
         Player[] players = game.getPlayers();
         for (int i = 0; i < players.length; i++) {
-            overwritingPiecesFromTo(players[i], players[(i+1)%i], game);
+            overwritingPiecesFromTo(players[i], players[(i+1)% players.length]);
         }
 
         // Updating OccupiedTiles of all Players
@@ -156,16 +161,13 @@ public class MoveExecutor {
 
     /**
      * Overwriting tiles from fromPlayer to toPlayer. Not updating occupiedTiles!!!
-     * @param fromPlayer
-     * @param toPlayer
-     * @param game
      */
-    private static void overwritingPiecesFromTo(Player fromPlayer, Player toPlayer, Game game){
+    private void overwritingPiecesFromTo(Player fromPlayer, Player toPlayer){
         Board board = game.getBoard();
         TileValue toPlayerValue = toPlayer.getPlayerValue();
         List<Tile> tilesToOverwrite = fromPlayer.getOccupiedTiles();
-        for(Tile t : tilesToOverwrite){
-            board.setTileValue(t.getPosition(), toPlayerValue);
+        for(Tile tile : tilesToOverwrite){
+            board.setTileValue(tile.getPosition(), toPlayerValue);
         }
     }
 
