@@ -3,7 +3,6 @@ package game;
 import board.*;
 import player.Player;
 import player.move.Move;
-import util.File;
 import util.Logger;
 
 import java.util.*;
@@ -132,15 +131,15 @@ public class Game {
         // TODO: Maybe move the Player.occupiedTiles to central point where all the game tiles are sorted
         if(oldValue.isPlayer()) {
             // Old tile belonged to a player, removing it to from occupiedTiles list
-            Optional<Tile> tileToRemove = players[value.toInt()].getOccupiedTiles().stream().filter(t -> t.getPosition().equals(position)).findFirst();
-            tileToRemove.ifPresent(t -> players[oldValue.toInt()].getOccupiedTiles().remove(t));
+            Optional<Tile> tileToRemove = players[value.toPlayerIndex()].getOccupiedTiles().stream().filter(t -> t.getPosition().equals(position)).findFirst();
+            tileToRemove.ifPresent(t -> players[oldValue.toPlayerIndex()].getOccupiedTiles().remove(t));
         }
 
         board.setTile(position, value);
 
         if(value.isPlayer()) {
             // New tile is player tile, adding it to his occupiedTiles list
-            players[value.toInt()].getOccupiedTiles().add(board.getTile(position));
+            players[value.toPlayerIndex()].getOccupiedTiles().add(board.getTile(position));
         }
     }
 

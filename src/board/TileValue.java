@@ -108,9 +108,8 @@ public enum TileValue {
         };
     }
 
-    public int toInt() {
+    public int toPlayerIndex() {
         return switch (character) {
-            case '0' -> 0;
             case '1' -> 1;
             case '2' -> 2;
             case '3' -> 3;
