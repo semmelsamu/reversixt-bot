@@ -109,10 +109,6 @@ public class Game {
     |--------------------------------------------------------------------------
     */
 
-    public Board getBoard() {
-        return board;
-    }
-
     public Player[] getPlayers() {
         return players;
     }
@@ -123,6 +119,14 @@ public class Game {
 
     public void setPlayers(Player[] players) {
         this.players = players;
+    }
+
+    public void getTile() {
+        // TODO
+    }
+
+    public void setTile() {
+        // TODO
     }
 
     /*
