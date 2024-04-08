@@ -127,11 +127,13 @@ public class Game {
 
     public void setTile(Coordinates position, TileValue value) {
 
+        TileValue oldValue = board.getTile(position).getValue();
+
         // TODO: Maybe move the Player.occupiedTiles to central point where all the game tiles are sorted
-        if(Arrays.binarySearch(TileValue.getAllPlayerValues(), value) > 0) {
+        if(oldValue.isPlayer()) {
             // Old tile belonged to a player, removing it to from occupiedTiles list
             Optional<Tile> tileToRemove = players[value.toInt()].getOccupiedTiles().stream().filter(t -> t.getPosition().equals(position)).findFirst();
-            tileToRemove.ifPresent(t -> players[board.getTile(position).getValue().toInt()].getOccupiedTiles().remove(t));
+            tileToRemove.ifPresent(t -> players[oldValue.toInt()].getOccupiedTiles().remove(t));
         }
 
         board.setTile(position, value);
