@@ -136,6 +136,10 @@ public class Game {
         return board.getTile(position);
     }
 
+    public GameStats getGameStats() {
+        return gameStats;
+    }
+
     public void setTile(Coordinates position, TileValue value) {
         gameStats.removeTile(getTile(position));
         board.setTile(position, value);
