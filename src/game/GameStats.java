@@ -22,6 +22,10 @@ public class GameStats {
         Logger.get().debug(tilesWithValueToString());
     }
 
+    public List<Tile> getAllTilesWithValue(TileValue value) {
+        return tilesWithValue.get(value);
+    }
+
     public void removeTile(Tile tile) {
         tilesWithValue.get(tile.getValue()).remove(tile);
     }
