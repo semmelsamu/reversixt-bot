@@ -85,7 +85,7 @@ public enum TileValue {
      */
     public boolean isPlayer() {
         TileValue value = TileValue.fromChar(this.character);
-        return (value == PLAYER1 || value == PLAYER2 || value == PLAYER3 || value == PLAYER4 || value == PLAYER5 || value == PLAYER6);
+        return (value == PLAYER1 || value == PLAYER2 || value == PLAYER3 || value == PLAYER4 || value == PLAYER5 || value == PLAYER6 || value == PLAYER7 || value == PLAYER8);
     }
 
     /*
