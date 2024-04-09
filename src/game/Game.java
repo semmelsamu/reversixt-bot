@@ -57,6 +57,11 @@ public class Game {
      */
     private int currentPlayer;
 
+    /**
+     * The container for all stats about the game and the logic
+     */
+    public GameStats gameStats;
+
     /*
     |--------------------------------------------------------------------------
     | Constructor
@@ -88,6 +93,8 @@ public class Game {
 
         // Set first player
         this.currentPlayer = 0;
+
+        gameStats = new GameStats(this);
     }
 
     /*
@@ -129,9 +136,14 @@ public class Game {
         return board.getTile(position);
     }
 
+    public GameStats getGameStats() {
+        return gameStats;
+    }
+
     public void setTile(Coordinates position, TileValue value) {
-        // TODO: From here, update the stats class
+        gameStats.removeTile(getTile(position));
         board.setTile(position, value);
+        gameStats.addTile(board.getTile(position));
     }
 
     public List<Tile> getAllTilesWithValue(TileValue value) {
@@ -158,7 +170,9 @@ public class Game {
             result.append("- ").append(player.getPlayerValue().toString()).append(" (").append(player.getOverwriteStones()).append(" / ").append(player.getBombs()).append(")\n");
         }
 
-        result.append(board.toString());
+        result.append(board.toString()).append("\n");
+
+        result.append(gameStats.tilesWithValueToString());
 
         // Indent
         String[] lines = result.toString().split("\n");
