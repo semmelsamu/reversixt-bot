@@ -21,6 +21,14 @@ public class GameStats {
         Logger.get().debug(tilesWithValueToString());
     }
 
+    public void removeTile(Tile tile) {
+
+    }
+
+    public void addTile(Tile tile) {
+
+    }
+
     public String tilesWithValueToString() {
         StringBuilder result = new StringBuilder("Tiles\n");
 
