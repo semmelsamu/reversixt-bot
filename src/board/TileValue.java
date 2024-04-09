@@ -73,10 +73,11 @@ public enum TileValue {
     }
 
     /**
-     * States if the tile is empty.
+     * States if the tile is empty. Inversion, bonus and choice fields are also considered empty.
      */
     public boolean isEmpty() {
-        return TileValue.fromChar(this.character) == EMPTY;
+        TileValue value = TileValue.fromChar(this.character);
+        return (value == EMPTY || value == BONUS || value == INVERSION || value == CHOICE);
     }
 
     /**
