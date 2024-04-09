@@ -170,7 +170,9 @@ public class Game {
             result.append("- ").append(player.getPlayerValue().toString()).append(" (").append(player.getOverwriteStones()).append(" / ").append(player.getBombs()).append(")\n");
         }
 
-        result.append(board.toString());
+        result.append(board.toString()).append("\n");
+
+        result.append(gameStats.tilesWithValueToString());
 
         // Indent
         String[] lines = result.toString().split("\n");
