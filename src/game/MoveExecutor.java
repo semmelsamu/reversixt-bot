@@ -63,6 +63,7 @@ public class MoveExecutor {
     }
 
     private static Set<Tile> getTilesToColourInDirection(Player player, Tile currentTile, Direction currentDirection) {
+        Tile firstTile = currentTile;
         Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
         Set<Tile> tilesToColourInDirection = new HashSet<>();
         // As long the neighbour has the same color as itself
@@ -75,8 +76,8 @@ public class MoveExecutor {
             }
             currentNeighbour = currentTile.getNeighbour(currentDirection);
 
-            // Check if there is a dead end
-            if (currentNeighbour == null) {
+            // Check if there is a dead end or if it's the same as the first one
+            if (currentNeighbour == null || firstTile == currentNeighbour.tile()) {
                 return new HashSet<>();
             }
 
