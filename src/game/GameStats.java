@@ -22,12 +22,12 @@ public class GameStats {
         Logger.get().debug(tilesWithValueToString());
     }
 
-    public void removeTile(Coordinates position) {
-
+    public void removeTile(Coordinates position, TileValue value) {
+        tilesWithValue.get(value).remove(new Tile(value, position));
     }
 
     public void addTile(Tile tile) {
-
+        tilesWithValue.get(tile.getValue()).add(tile);
     }
 
     public String tilesWithValueToString() {
