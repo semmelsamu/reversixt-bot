@@ -9,6 +9,7 @@ import player.move.*;
 import util.Logger;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -67,6 +68,14 @@ public class MoveCalculator {
                 moves.addAll(move);
             }
         }
+        if (currentPlayer.getOverwriteStones() != 0) {
+            List<Tile> allExpansionTilesWithoutMoves =
+                    game.getGameStats().getAllTilesWithValue(TileValue.EXPANSION).stream().filter(ex -> moves.stream().noneMatch(move -> ex.getPosition() == move.getTile().getPosition())).toList();
+            for (Tile tile : allExpansionTilesWithoutMoves) {
+                moves.add(new Move(currentPlayer, tile));
+            }
+        }
+
         return moves;
     }
 
