@@ -101,8 +101,8 @@ public enum TileValue {
             case '0' -> " . ";
             case '-' -> "\u001B[47m   \u001B[0m";
             case '1' -> "\u001B[31m 1 \u001B[0m";
-            case '2' -> "\u001B[32m 2 \u001B[0m";
-            case '3' -> "\u001B[34m 3 \u001B[0m";
+            case '2' -> "\u001B[34m 2 \u001B[0m";
+            case '3' -> "\u001B[32m 3 \u001B[0m";
             case '4' -> "\u001B[33m 4 \u001B[0m";
             case '5' -> " 5 ";
             case '6' -> " 6 ";
