@@ -11,7 +11,7 @@ public class Tile {
      */
     private TileValue value;
 
-    private Neighbour[] neighbours;
+    private final Neighbour[] neighbours;
 
     /**
      * The position of the tile on the board. Used for quick access.
