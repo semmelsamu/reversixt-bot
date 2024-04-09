@@ -5,6 +5,7 @@ import board.Tile;
 import game.Game;
 import player.Player;
 import player.move.*;
+
 import java.util.Scanner;
 
 /**
@@ -33,7 +34,8 @@ public class ConsoleInputHandler {
         int y = scanner.nextInt();
         Tile tile = game.getTile(new Coordinates(x, y));
 
-        enum MoveType { MOVE, BONUS_MOVE, CHOICE_MOVE, INVERSION_MOVE };
+        enum MoveType {MOVE, BONUS_MOVE, CHOICE_MOVE, INVERSION_MOVE}
+        ;
         switch (selectOption("Which kind of move should it be?", MoveType.values())) {
             case BONUS_MOVE -> {
                 Bonus bonus = selectOption("Which bonus do you wish?", Bonus.values());
@@ -61,7 +63,7 @@ public class ConsoleInputHandler {
     private static <T> T selectOption(String prompt, T[] options) {
         System.out.println("\n" + color + prompt);
 
-        for(int i = 0; i < options.length; i++) {
+        for (int i = 0; i < options.length; i++) {
             System.out.println(color + i + " - " + options[i]);
         }
 
@@ -73,8 +75,7 @@ public class ConsoleInputHandler {
             System.out.println(color + "Selected option " + option + " (" + result.toString() + ")");
 
             return result;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Logger.get().fatal("Failed to select option");
             throw e;
         }

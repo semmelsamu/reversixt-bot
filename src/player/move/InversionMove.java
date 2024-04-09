@@ -1,10 +1,7 @@
 package player.move;
 
-import board.Board;
 import board.Tile;
 import player.Player;
-
-import java.util.Set;
 
 /**
  * Invert the order of players

@@ -31,11 +31,11 @@ public class CountTilesTest {
 
         int errors = 0;
 
-        for(var mapAndTileCounts : mapsAndTileCounts.entrySet()) {
+        for (var mapAndTileCounts : mapsAndTileCounts.entrySet()) {
 
             Game game = GameFactory.createFromFile("maps/" + mapAndTileCounts.getKey());
 
-            for(var tileAndCount : mapAndTileCounts.getValue().entrySet()) {
+            for (var tileAndCount : mapAndTileCounts.getValue().entrySet()) {
                 int calculatedTileCount = game.getAllTilesWithValue(tileAndCount.getKey()).size();
                 int expectedTileCount = tileAndCount.getValue();
 
@@ -48,10 +48,9 @@ public class CountTilesTest {
                         + expectedTileCount
                         + ")";
 
-                if(calculatedTileCount == expectedTileCount) {
+                if (calculatedTileCount == expectedTileCount) {
                     TestLogger.get().log(message);
-                }
-                else {
+                } else {
                     TestLogger.get().error(message);
                     errors++;
                 }

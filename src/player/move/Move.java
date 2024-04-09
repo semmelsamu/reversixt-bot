@@ -1,12 +1,13 @@
 package player.move;
 
-import board.*;
+import board.Coordinates;
+import board.Tile;
 import player.Player;
 
 /**
  * A most basic move where the player only sets a stone.
  */
-public class Move implements Comparable<Move>{
+public class Move implements Comparable<Move> {
 
     /**
      * The player this move belongs to.

@@ -11,7 +11,7 @@ public class MapReadTest {
 
         int failedTests = 0;
 
-        for(String map : File.getAllMaps()) {
+        for (String map : File.getAllMaps()) {
             failedTests += testMap(map);
         }
 
@@ -23,8 +23,7 @@ public class MapReadTest {
             Game game = GameFactory.createFromFile(filename);
             TestLogger.get().log("Map " + filename);
             return 0;
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             TestLogger.get().error(filename + " generated error:" + e.getMessage());
             return 1;
         }

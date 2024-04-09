@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 public class File {
     /**
      * Reads the contents of a file.
+     *
      * @param filename The path/name of the file.
      * @return The contents of the file.
      */

@@ -53,17 +53,20 @@ public class Board {
         }
 
         // Set neighbours
-        for(int y = 0; y < height; y++) {
-            for(int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 Tile currentTile = tiles[y][x];
-                if(y > 0) currentTile.setNeighbour(Direction.NORTH, new Neighbour(tiles[y-1][x]));
-                if(y > 0 && x < width-1) currentTile.setNeighbour(Direction.NORTHEAST, new Neighbour(tiles[y-1][x+1]));
-                if(x < width-1) currentTile.setNeighbour(Direction.EAST, new Neighbour(tiles[y][x+1]));
-                if(y < height-1 && x < width-1) currentTile.setNeighbour(Direction.SOUTHEAST, new Neighbour(tiles[y+1][x+1]));
-                if(y < height-1) currentTile.setNeighbour(Direction.SOUTH, new Neighbour(tiles[y+1][x]));
-                if(y < height-1 && x > 0) currentTile.setNeighbour(Direction.SOUTHWEST, new Neighbour(tiles[y+1][x-1]));
-                if(x > 0) currentTile.setNeighbour(Direction.WEST, new Neighbour(tiles[y][x-1]));
-                if(y > 0 && x > 0) currentTile.setNeighbour(Direction.NORTHWEST, new Neighbour(tiles[y-1][x-1]));
+                if (y > 0) currentTile.setNeighbour(Direction.NORTH, new Neighbour(tiles[y - 1][x]));
+                if (y > 0 && x < width - 1)
+                    currentTile.setNeighbour(Direction.NORTHEAST, new Neighbour(tiles[y - 1][x + 1]));
+                if (x < width - 1) currentTile.setNeighbour(Direction.EAST, new Neighbour(tiles[y][x + 1]));
+                if (y < height - 1 && x < width - 1)
+                    currentTile.setNeighbour(Direction.SOUTHEAST, new Neighbour(tiles[y + 1][x + 1]));
+                if (y < height - 1) currentTile.setNeighbour(Direction.SOUTH, new Neighbour(tiles[y + 1][x]));
+                if (y < height - 1 && x > 0)
+                    currentTile.setNeighbour(Direction.SOUTHWEST, new Neighbour(tiles[y + 1][x - 1]));
+                if (x > 0) currentTile.setNeighbour(Direction.WEST, new Neighbour(tiles[y][x - 1]));
+                if (y > 0 && x > 0) currentTile.setNeighbour(Direction.NORTHWEST, new Neighbour(tiles[y - 1][x - 1]));
             }
         }
 
@@ -85,7 +88,7 @@ public class Board {
             Tile tile1 = this.tiles[y1][x1];
             Tile tile2 = this.tiles[y2][x2];
 
-            if(tile1.getValue() == TileValue.WALL || tile2.getValue() == TileValue.WALL) {
+            if (tile1.getValue() == TileValue.WALL || tile2.getValue() == TileValue.WALL) {
                 throw new RuntimeException("Transitions cannot be registered on wall tiles. Transition" + Arrays.toString(transition));
             }
 
@@ -116,7 +119,7 @@ public class Board {
     public List<Tile> getAllTiles() {
         List<Tile> result = new LinkedList<>();
 
-        for(Tile[] tileRow : tiles) {
+        for (Tile[] tileRow : tiles) {
             // Iteration could be replaced with bulk 'Collection.addAll()' call
             result.addAll(Arrays.asList(tileRow));
         }
@@ -129,8 +132,8 @@ public class Board {
         List<Tile> allTiles = getAllTiles();
         List<Tile> result = new LinkedList<>();
 
-        for(Tile tile : allTiles) {
-            if(tile.getValue() == value)
+        for (Tile tile : allTiles) {
+            if (tile.getValue() == value)
                 result.add(tile);
         }
 
@@ -155,14 +158,14 @@ public class Board {
         StringBuilder result = new StringBuilder("    ");
 
         // Draw x coordinates
-        for(int x = 0; x < tiles[0].length; x++) {
+        for (int x = 0; x < tiles[0].length; x++) {
             result.append(formatIntToFitLength(x, 3));
         }
         result.append("\n");
 
-        for(int y = 0; y < tiles.length; y++) {
+        for (int y = 0; y < tiles.length; y++) {
             result.append(formatIntToFitLength(y, 4));
-            for(Tile tile : tiles[y]) {
+            for (Tile tile : tiles[y]) {
                 result.append(tile.getValue().toString(true));
             }
             result.append("\n");
@@ -179,6 +182,7 @@ public class Board {
 
     /**
      * Creates a board from lines.
+     *
      * @return The board.
      */
     public static Board createFromLines(LinkedList<String> lines) {
@@ -231,7 +235,7 @@ public class Board {
 
         int[][] transitions = new int[lines.size()][6];
 
-        for(int i = 0; i < lines.size(); i++) {
+        for (int i = 0; i < lines.size(); i++) {
 
             String currentLine = lines.get(i);
 

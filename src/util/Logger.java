@@ -85,7 +85,7 @@ public class Logger {
      */
     private void console(String color, String type, String message, int priority) {
 
-        if(priority < this.priority) return;
+        if (priority < this.priority) return;
 
         // Use StackTraceElement to get caller
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
@@ -114,6 +114,7 @@ public class Logger {
 
     /**
      * Log a fatal error and terminate the program.
+     *
      * @param message The error message.
      */
     public void fatal(String message) {
@@ -122,6 +123,7 @@ public class Logger {
 
     /**
      * Log an error.
+     *
      * @param message The error message.
      */
     public void error(String message) {
@@ -130,6 +132,7 @@ public class Logger {
 
     /**
      * Log a warning.
+     *
      * @param message The warning message.
      */
     public void warn(String message) {
@@ -138,6 +141,7 @@ public class Logger {
 
     /**
      * Log a message.
+     *
      * @param message The message.
      */
     public void log(String message) {
@@ -146,6 +150,7 @@ public class Logger {
 
     /**
      * Log a verbose message.
+     *
      * @param message The message.
      */
     public void verbose(String message) {
@@ -154,6 +159,7 @@ public class Logger {
 
     /**
      * Log a debug message.
+     *
      * @param message The message.
      */
     public void debug(String message) {

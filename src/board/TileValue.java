@@ -94,7 +94,7 @@ public enum TileValue {
     */
 
     public String toString(boolean useColors) {
-        if(!useColors) return String.valueOf(character);
+        if (!useColors) return String.valueOf(character);
 
         return switch (character) {
             case '0' -> " . ";

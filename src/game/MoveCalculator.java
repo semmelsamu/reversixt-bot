@@ -1,6 +1,9 @@
 package game;
 
-import board.*;
+import board.Direction;
+import board.Neighbour;
+import board.Tile;
+import board.TileValue;
 import player.Player;
 import player.move.*;
 import util.Logger;
@@ -11,6 +14,7 @@ import java.util.TreeSet;
 
 public class MoveCalculator {
     private Game game;
+
     public MoveCalculator(Game game) {
         this.game = game;
     }
@@ -55,7 +59,7 @@ public class MoveCalculator {
             TileValue neighbourValue = neighbour.tile().getValue();
             // check if tile value is seen as an enemy or if it's the same color
             if (TileValue.getAllFriendlyValues().contains(neighbourValue)
-                || neighbourValue == currentPlayer.getPlayerValue()) {
+                    || neighbourValue == currentPlayer.getPlayerValue()) {
                 continue;
             }
             Set<Move> move = getValidMoveForPieceInDirection(ownPiece, direction, currentPlayer);
@@ -95,8 +99,8 @@ public class MoveCalculator {
                 currentDirection = currentNeighbour.directionChange();
             }
 
-            if(alreadyVisited.contains(currentTile)){
-                if(currentTile == firstTile){
+            if (alreadyVisited.contains(currentTile)) {
+                if (currentTile == firstTile) {
                     return movesPerDirection;
                 }
                 continue;
@@ -106,13 +110,13 @@ public class MoveCalculator {
                 howFarFromFirstTile++;
                 // overwrite stone logic
                 if (currentTile.getValue().isPlayer() && currentTile.getValue() != currentPlayer.getPlayerValue()
-                    && howFarFromFirstTile > 1) {
+                        && howFarFromFirstTile > 1) {
                     movesPerDirection.add(new Move(currentPlayer, currentTile));
                 }
 
                 // tile has the same value as another tile, but isn't the same tile and is more fare away than 1 -> overwrite stone on the first tile
                 if (currentTile.getValue() == currentPlayer.getPlayerValue() && howFarFromFirstTile > 1) {
-                    movesPerDirection.add(new Move( currentPlayer, firstTile));
+                    movesPerDirection.add(new Move(currentPlayer, firstTile));
                     return movesPerDirection;
                 }
             }
@@ -121,7 +125,7 @@ public class MoveCalculator {
         switch (currentTile.getValue()) {
             case CHOICE -> {
                 for (Player player : game.getPlayers()) {
-                    if(player != currentPlayer){
+                    if (player != currentPlayer) {
                         movesPerDirection.add(new ChoiceMove(currentPlayer, currentTile, player));
                     }
                 }

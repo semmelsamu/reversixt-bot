@@ -1,10 +1,7 @@
 package player.move;
 
-import board.Board;
 import board.Tile;
 import player.Player;
-import util.ConsoleInputHandler;
-import util.Logger;
 
 /**
  * A move where after the player sets a stone, he will receive a bonus.

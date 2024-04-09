@@ -1,12 +1,10 @@
 package player;
 
-import board.*;
-import game.MoveCalculator;
-import player.move.InversionMove;
-import player.move.Move;
-import util.Logger;
+import board.Tile;
+import board.TileValue;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 
 public class Player {
 
@@ -81,11 +79,11 @@ public class Player {
         this.occupiedTiles = occupiedTiles;
     }
 
-    public void addOccupiedTiles(Collection<Tile> newTiles){
+    public void addOccupiedTiles(Collection<Tile> newTiles) {
         occupiedTiles.addAll(newTiles);
     }
 
-    public void removeOccupiedTiles(Collection<Tile> tilesToRemove){
+    public void removeOccupiedTiles(Collection<Tile> tilesToRemove) {
         occupiedTiles.removeAll(tilesToRemove);
     }
 

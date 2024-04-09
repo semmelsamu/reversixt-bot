@@ -1,11 +1,16 @@
 package game;
 
-import board.*;
+import board.Board;
+import board.Coordinates;
+import board.Tile;
+import board.TileValue;
 import player.Player;
 import player.move.Move;
 import util.Logger;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Game {
@@ -78,7 +83,7 @@ public class Game {
         players = new Player[initialPlayers];
         for (int i = 0; i < initialPlayers; i++) {
             players[i] = new Player(TileValue.getAllPlayerValues()[i], initialOverwriteStones, initialBombs,
-                                    board.getAllTilesWithValue(TileValue.getAllPlayerValues()[i]));
+                    board.getAllTilesWithValue(TileValue.getAllPlayerValues()[i]));
         }
 
         // Set first player
@@ -98,7 +103,7 @@ public class Game {
     /**
      * Sets the current player to the next player.
      */
-    public void nextPlayer(){
+    public void nextPlayer() {
         currentPlayer = (currentPlayer + 1) % players.length;
     }
 

@@ -1,8 +1,4 @@
 import exercises.Exercise02;
-import game.Game;
-import game.GameFactory;
-import game.MoveExecutor;
-import player.move.Move;
 import util.Logger;
 
 public class Main {
