@@ -137,7 +137,7 @@ public class Game {
     }
 
     public void setTile(Coordinates position, TileValue value) {
-        gameStats.removeTile(position, value);
+        gameStats.removeTile(getTile(position));
         board.setTile(position, value);
         gameStats.addTile(board.getTile(position));
     }
