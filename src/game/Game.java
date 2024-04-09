@@ -60,7 +60,7 @@ public class Game {
     /**
      * The container for all stats about the game and the logic
      */
-    private GameStats gameStats;
+    public GameStats gameStats;
 
     /*
     |--------------------------------------------------------------------------
@@ -137,8 +137,9 @@ public class Game {
     }
 
     public void setTile(Coordinates position, TileValue value) {
-        // TODO: From here, update the stats class
+        gameStats.removeTile(position, value);
         board.setTile(position, value);
+        gameStats.addTile(board.getTile(position));
     }
 
     public List<Tile> getAllTilesWithValue(TileValue value) {
