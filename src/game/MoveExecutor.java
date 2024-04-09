@@ -116,10 +116,10 @@ public class MoveExecutor {
         Player playerToSwapWith = choiceMove.getPlayerToSwapWith();
 
         // List<Tile> oldTilesPlayerFromCurrentPlayer = currentPlayer.getOccupiedTiles();
-        List<Tile> oldTilesPlayerFromCurrentPlayer = game.getAllTilesWithValue(currentPlayer.getPlayerValue());
+        List<Tile> oldTilesPlayerFromCurrentPlayer = game.getGameStats().getAllTilesWithValue(currentPlayer.getPlayerValue());
 
         // for(Tile tile : playerToSwapWith.getOccupiedTiles()){
-        for (Tile tile : game.getAllTilesWithValue(playerToSwapWith.getPlayerValue())) {
+        for (Tile tile : game.getGameStats().getAllTilesWithValue(playerToSwapWith.getPlayerValue())) {
             game.setTile(tile.getPosition(), currentPlayer.getPlayerValue());
         }
 
@@ -134,7 +134,7 @@ public class MoveExecutor {
 
         // Updating OccupiedTiles of all Players
         // List<Tile> oldTilesfromPred = players[players.length - 1].getOccupiedTiles();
-        List<Tile> oldTilesfromPred = game.getAllTilesWithValue(players[players.length - 1].getPlayerValue());
+        List<Tile> oldTilesfromPred = game.getGameStats().getAllTilesWithValue(players[players.length - 1].getPlayerValue());
         List<Tile> oldOwnTiles = null;
         TileValue[] playerValues = TileValue.getAllPlayerValues();
         for (int i = 0; i < players.length; i++) {
@@ -142,7 +142,7 @@ public class MoveExecutor {
                 oldTilesfromPred = oldOwnTiles;
             }
             // oldOwnTiles = players[i].getOccupiedTiles();
-            oldOwnTiles = game.getAllTilesWithValue(players[i].getPlayerValue());
+            oldOwnTiles = game.getGameStats().getAllTilesWithValue(players[i].getPlayerValue());
             for (Tile tile : oldTilesfromPred) {
                 game.setTile(tile.getPosition(), playerValues[i]);
             }
