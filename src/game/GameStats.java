@@ -1,5 +1,6 @@
 package game;
 
+import board.Coordinates;
 import board.Tile;
 import board.TileValue;
 import util.Logger;
@@ -21,7 +22,7 @@ public class GameStats {
         Logger.get().debug(tilesWithValueToString());
     }
 
-    public void removeTile(Tile tile) {
+    public void removeTile(Coordinates position) {
 
     }
 
