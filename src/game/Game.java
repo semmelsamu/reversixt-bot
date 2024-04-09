@@ -57,6 +57,11 @@ public class Game {
      */
     private int currentPlayer;
 
+    /**
+     * The container for all stats about the game and the logic
+     */
+    private GameStats gameStats;
+
     /*
     |--------------------------------------------------------------------------
     | Constructor
@@ -88,6 +93,8 @@ public class Game {
 
         // Set first player
         this.currentPlayer = 0;
+
+        gameStats = new GameStats(this);
     }
 
     /*
