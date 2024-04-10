@@ -56,9 +56,15 @@ public class TileReader {
         return game.getTile(coordinates);
     }
 
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
+
     /**
      * Return if the reader has a neighbour in the current direction.
      */
+
+
     public boolean hasNext() {
 
         if (game.getTile(coordinates.inDirection(direction)) != null &&
