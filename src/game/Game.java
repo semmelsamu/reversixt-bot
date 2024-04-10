@@ -145,9 +145,8 @@ public class Game {
     }
 
     public void setTile(Coordinates position, Tile value) {
-        // gameStats.removeTile(getTile(position));
+        gameStats.replaceTileAtCoordinates(position, value);
         board.setTile(position, value);
-        // gameStats.addTile(board.getTile(position));
     }
 
     public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
