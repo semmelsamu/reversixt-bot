@@ -34,8 +34,8 @@ public class Board {
     /**
      * Every transition is stored twice, for every direction once.
      * Key: The coordinates from the outgoing field and the direction we leave the field.
-     * Value: The coordinates from the field we land on when leaving the outgoing field and the new
-     * direction we look at.
+     * Value: The coordinates from the field we land on when leaving the outgoing field and the
+     * new direction we look at.
      */
     private Map<TransitionPart, TransitionPart> transitions;
 
@@ -90,7 +90,7 @@ public class Board {
     /*
     |-----------------------------------------------------------------------------------------------
     |
-    |   To string
+    |   To String
     |
     |-----------------------------------------------------------------------------------------------
     */
