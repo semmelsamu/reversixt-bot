@@ -13,14 +13,39 @@ import java.util.Scanner;
  */
 public class ConsoleInputHandler {
 
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Constants
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     static String color = "\u001B[34m"; // Blue
     static String neutral = "\u001B[0m"; // Neutral
 
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Attributes
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     static Scanner scanner = new Scanner(System.in);
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Methods
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
 
     public static String selectMap() {
         Logger.get().log("Selecting map");
-        return (String) selectOption("Which map do you want to load? Enter the number.", File.getAllMaps().toArray());
+        return (String) selectOption("Which map do you want to load? Enter the number.",
+                File.getAllMaps().toArray());
     }
 
     public static Move selectMove(Game game) {
@@ -34,7 +59,12 @@ public class ConsoleInputHandler {
         int y = scanner.nextInt();
         Tile tile = game.getTile(new Coordinates(x, y));
 
-        enum MoveType {MOVE, BONUS_MOVE, CHOICE_MOVE, INVERSION_MOVE}
+        enum MoveType {
+            MOVE,
+            BONUS_MOVE,
+            CHOICE_MOVE,
+            INVERSION_MOVE
+        }
         ;
         switch (selectOption("Which kind of move should it be?", MoveType.values())) {
             case BONUS_MOVE -> {
@@ -42,7 +72,9 @@ public class ConsoleInputHandler {
                 return new BonusMove(player, tile, bonus);
             }
             case CHOICE_MOVE -> {
-                Player playerToSwapWith = selectOption("Which player do you wish to swap stones with?", game.getPlayers());
+                Player playerToSwapWith =
+                        selectOption("Which player do you wish to swap stones with?",
+                                game.getPlayers());
                 return new ChoiceMove(player, tile, playerToSwapWith);
             }
             case INVERSION_MOVE -> {
@@ -55,9 +87,11 @@ public class ConsoleInputHandler {
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Util
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Utility Methods
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     private static <T> T selectOption(String prompt, T[] options) {
@@ -72,7 +106,8 @@ public class ConsoleInputHandler {
             int option = scanner.nextInt();
 
             T result = options[option];
-            System.out.println(color + "Selected option " + option + " (" + result.toString() + ")");
+            System.out.println(
+                    color + "Selected option " + option + " (" + result.toString() + ")");
 
             return result;
         } catch (Exception e) {
