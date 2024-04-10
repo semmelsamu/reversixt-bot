@@ -45,10 +45,7 @@ public class Board {
         // Build map
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                this.tiles[y][x] = new Tile(
-                        TileValue.fromChar(map[y][x]),
-                        new Coordinates(x, y)
-                );
+                this.tiles[y][x] = Tile.fromChar(map[y][x]);
             }
         }
 
@@ -102,21 +99,21 @@ public class Board {
         return result;
     }
 
-    public List<Tile> getAllTilesWithValue(TileValue value) {
+    public List<Tile> getAllTilesWithValue(Tile value) {
 
         List<Tile> allTiles = getAllTiles();
         List<Tile> result = new LinkedList<>();
 
         for (Tile tile : allTiles) {
-            if (tile.getValue() == value)
+            if (tile == value)
                 result.add(tile);
         }
 
         return result;
     }
 
-    public void setTile(Coordinates coordinates, TileValue tileValue) {
-        this.tiles[coordinates.y][coordinates.x].setValue(tileValue);
+    public void setTile(Coordinates coordinates, Tile tile) {
+        this.tiles[coordinates.y][coordinates.x] = tile;
     }
 
     /*
@@ -141,7 +138,7 @@ public class Board {
         for (int y = 0; y < tiles.length; y++) {
             result.append(formatIntToFitLength(y, 4));
             for (Tile tile : tiles[y]) {
-                result.append(tile.getValue().toString(true));
+                result.append(tile.toString(true));
             }
             result.append("\n");
         }
