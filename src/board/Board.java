@@ -84,10 +84,6 @@ public class Board {
         return height;
     }
 
-    public Tile getTile(Coordinates position) {
-        return this.tiles[position.y][position.x];
-    }
-
     public List<Tile> getAllTiles() {
         List<Tile> result = new LinkedList<>();
 
@@ -110,6 +106,10 @@ public class Board {
         }
 
         return result;
+    }
+
+    public Tile getTile(Coordinates position) {
+        return this.tiles[position.y][position.x];
     }
 
     public void setTile(Coordinates coordinates, Tile tile) {
