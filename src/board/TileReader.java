@@ -53,7 +53,7 @@ public class TileReader {
      * Return the tile which the reader currently points at.
      */
     public Tile getTile() {
-        return Tile.EMPTY; // TODO
+        return game.getTile(coordinates);
     }
 
     /**
