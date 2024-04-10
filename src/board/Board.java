@@ -2,7 +2,6 @@ package board;
 
 import util.Logger;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,7 +12,7 @@ public class Board {
 
     /**
      * The game board.
-     * First dimension is the lines (y-direction), second one is columns/rows (x-direction).
+     * First dimension is the lines (y-direction), second one is columns (x-direction).
      * Starts at the top left with (0/0).
      */
     private Tile[][] tiles;
@@ -75,14 +74,6 @@ public class Board {
     | Getters and setters
     |--------------------------------------------------------------------------
     */
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
 
     public Tile getTile(Coordinates position) {
         return this.tiles[position.y][position.x];
