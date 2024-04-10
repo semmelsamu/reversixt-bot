@@ -1,7 +1,6 @@
 package util;
 
 import board.Coordinates;
-import board.Tile;
 import game.Game;
 import player.Player;
 import player.move.*;
@@ -57,7 +56,7 @@ public class ConsoleInputHandler {
         int x = scanner.nextInt();
         System.out.print(color + "\nEnter the y coordinate.\n> ");
         int y = scanner.nextInt();
-        Tile tile = game.getTile(new Coordinates(x, y));
+        Coordinates coordinates = new Coordinates(x, y);
 
         enum MoveType {
             MOVE,
@@ -69,19 +68,20 @@ public class ConsoleInputHandler {
         switch (selectOption("Which kind of move should it be?", MoveType.values())) {
             case BONUS_MOVE -> {
                 Bonus bonus = selectOption("Which bonus do you wish?", Bonus.values());
-                return new BonusMove(player, tile, bonus);
+                return new BonusMove(player.getPlayerValue(), coordinates, bonus);
             }
             case CHOICE_MOVE -> {
                 Player playerToSwapWith =
                         selectOption("Which player do you wish to swap stones with?",
                                 game.getPlayers());
-                return new ChoiceMove(player, tile, playerToSwapWith);
+                return new ChoiceMove(player.getPlayerValue(), coordinates,
+                        playerToSwapWith.getPlayerValue());
             }
             case INVERSION_MOVE -> {
-                return new InversionMove(player, tile);
+                return new InversionMove(player.getPlayerValue(), coordinates);
             }
             default -> {
-                return new Move(player, tile);
+                return new Move(player.getPlayerValue(), coordinates);
             }
         }
     }
