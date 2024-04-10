@@ -17,7 +17,7 @@ public class Player {
     /**
      * The "color" of the player
      */
-    private final TileValue playerValue;
+    private final Tile playerValue;
 
     /**
      * The number of overwrite stones this player has
@@ -40,7 +40,7 @@ public class Player {
     |--------------------------------------------------------------------------
     */
 
-    public Player(TileValue playerValue, int overwriteStones, int bombs, List<Tile> occupiedTiles) {
+    public Player(Tile playerValue, int overwriteStones, int bombs, List<Tile> occupiedTiles) {
         this.playerValue = playerValue;
         this.overwriteStones = overwriteStones;
         this.bombs = bombs;
@@ -53,7 +53,7 @@ public class Player {
     |--------------------------------------------------------------------------
     */
 
-    public TileValue getPlayerValue() {
+    public Tile getPlayerValue() {
         return playerValue;
     }
 

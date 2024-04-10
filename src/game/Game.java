@@ -3,7 +3,6 @@ package game;
 import board.Board;
 import board.Coordinates;
 import board.Tile;
-import board.TileValue;
 import player.Player;
 import player.move.Move;
 import util.Logger;
@@ -87,8 +86,8 @@ public class Game {
         // Initialize players
         players = new Player[initialPlayers];
         for (int i = 0; i < initialPlayers; i++) {
-            players[i] = new Player(TileValue.getAllPlayerValues()[i], initialOverwriteStones, initialBombs,
-                    board.getAllTilesWithValue(TileValue.getAllPlayerValues()[i]));
+            players[i] = new Player(Tile.getAllPlayerValues()[i], initialOverwriteStones, initialBombs,
+                    board.getAllTilesWithValue(Tile.getAllPlayerValues()[i]));
         }
 
         // Set first player
@@ -140,13 +139,13 @@ public class Game {
         return gameStats;
     }
 
-    public void setTile(Coordinates position, TileValue value) {
+    public void setTile(Coordinates position, Tile value) {
         gameStats.removeTile(getTile(position));
         board.setTile(position, value);
         gameStats.addTile(board.getTile(position));
     }
 
-    public List<Tile> getAllTilesWithValue(TileValue value) {
+    public List<Tile> getAllTilesWithValue(Tile value) {
         return board.getAllTilesWithValue(value);
     }
 
