@@ -1,5 +1,6 @@
 package player.move;
 
+import board.Coordinates;
 import board.Tile;
 import player.Player;
 
@@ -8,12 +9,12 @@ import player.Player;
  */
 public class InversionMove extends Move {
 
-    public InversionMove(Player player, Tile tile) {
-        super(player, tile);
+    public InversionMove(Tile player, Coordinates coordinates) {
+        super(player, coordinates);
     }
 
     @Override
     public String toString() {
-        return "InversionMove{tile=" + tile + ", player=" + player + "}";
+        return "InversionMove{player=" + player + ", coordinates=" + coordinates + "}";
     }
 }
