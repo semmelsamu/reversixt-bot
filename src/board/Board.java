@@ -52,24 +52,6 @@ public class Board {
             }
         }
 
-        // Set neighbours
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                Tile currentTile = tiles[y][x];
-                if (y > 0) currentTile.setNeighbour(Direction.NORTH, new Neighbour(tiles[y - 1][x]));
-                if (y > 0 && x < width - 1)
-                    currentTile.setNeighbour(Direction.NORTHEAST, new Neighbour(tiles[y - 1][x + 1]));
-                if (x < width - 1) currentTile.setNeighbour(Direction.EAST, new Neighbour(tiles[y][x + 1]));
-                if (y < height - 1 && x < width - 1)
-                    currentTile.setNeighbour(Direction.SOUTHEAST, new Neighbour(tiles[y + 1][x + 1]));
-                if (y < height - 1) currentTile.setNeighbour(Direction.SOUTH, new Neighbour(tiles[y + 1][x]));
-                if (y < height - 1 && x > 0)
-                    currentTile.setNeighbour(Direction.SOUTHWEST, new Neighbour(tiles[y + 1][x - 1]));
-                if (x > 0) currentTile.setNeighbour(Direction.WEST, new Neighbour(tiles[y][x - 1]));
-                if (y > 0 && x > 0) currentTile.setNeighbour(Direction.NORTHWEST, new Neighbour(tiles[y - 1][x - 1]));
-            }
-        }
-
         // Register transitions
         for (int[] transition : transitions) {
 
