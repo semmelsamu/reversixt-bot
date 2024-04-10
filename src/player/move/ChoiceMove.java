@@ -1,5 +1,6 @@
 package player.move;
 
+import board.Coordinates;
 import board.Tile;
 import player.Player;
 
@@ -11,10 +12,10 @@ public class ChoiceMove extends Move {
     /**
      * The other player which the player will swap places with after he set the stone.
      */
-    private final Player playerToSwapWith;
+    private final Tile playerToSwapWith;
 
-    public ChoiceMove(Player player, Tile tile, Player playerToSwapWith) {
-        super(player, tile);
+    public ChoiceMove(Tile player, Coordinates coordinates, Tile playerToSwapWith) {
+        super(player, coordinates);
         this.playerToSwapWith = playerToSwapWith;
     }
 
@@ -24,12 +25,12 @@ public class ChoiceMove extends Move {
     |--------------------------------------------------------------------------
     */
 
-    public Player getPlayerToSwapWith() {
+    public Tile getPlayerToSwapWith() {
         return playerToSwapWith;
     }
 
     @Override
     public String toString() {
-        return "ChoiceMove{tile=" + tile + ", player=" + player + ", playerToSwapWith=" + playerToSwapWith + "}";
+        return "ChoiceMove{player=" + player + ", coordinates=" + coordinates + ", playerToSwapWith=" + playerToSwapWith + "}";
     }
 }
