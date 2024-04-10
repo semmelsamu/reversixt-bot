@@ -84,36 +84,28 @@ public class Board {
         return height;
     }
 
-    public List<Tile> getAllTiles() {
-        List<Tile> result = new LinkedList<>();
-
-        for (Tile[] tileRow : tiles) {
-            // Iteration could be replaced with bulk 'Collection.addAll()' call
-            result.addAll(Arrays.asList(tileRow));
-        }
-
-        return result;
-    }
-
-    public List<Tile> getAllTilesWithValue(Tile value) {
-
-        List<Tile> allTiles = getAllTiles();
-        List<Tile> result = new LinkedList<>();
-
-        for (Tile tile : allTiles) {
-            if (tile == value)
-                result.add(tile);
-        }
-
-        return result;
-    }
-
     public Tile getTile(Coordinates position) {
         return this.tiles[position.y][position.x];
     }
 
     public void setTile(Coordinates coordinates, Tile tile) {
         this.tiles[coordinates.y][coordinates.x] = tile;
+    }
+
+    public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
+        List<Coordinates> result = new LinkedList<>();
+
+        for(int y = 0; y < tiles.length; y++) {
+            Tile[] currentRow = tiles[y];
+            for(int x = 0; x < currentRow.length; x++) {
+                Tile currentTile = currentRow[x];
+                if(currentTile == tile) {
+                    result.add(new Coordinates(x, y));
+                }
+            }
+        }
+
+        return result;
     }
 
     /*
