@@ -2,7 +2,6 @@ package player.move;
 
 import board.Coordinates;
 import board.Tile;
-import player.Player;
 
 /**
  * A most basic move where the player only sets a stone.
@@ -12,16 +11,16 @@ public class Move implements Comparable<Move> {
     /**
      * The player this move belongs to.
      */
-    protected final Player player;
+    protected final Tile player;
 
     /**
      * The tile the move targets.
      */
-    protected final Tile tile;
+    protected final Coordinates coordinates;
 
-    public Move(Player player, Tile tile) {
+    public Move(Tile player, Coordinates coordinates) {
         this.player = player;
-        this.tile = tile;
+        this.coordinates = coordinates;
     }
 
     /*
@@ -30,27 +29,25 @@ public class Move implements Comparable<Move> {
     |--------------------------------------------------------------------------
     */
 
-    public Player getPlayer() {
+    public Tile getPlayer() {
         return player;
     }
 
-    public Tile getTile() {
-        return tile;
+    public Coordinates getCoordinates() {
+        return coordinates;
     }
 
     @Override
-    public int compareTo(Move o) {
-        Coordinates thisPosition = this.getTile().getPosition();
-        Coordinates otherPosition = o.getTile().getPosition();
-        if (thisPosition.x != otherPosition.x) {
-            return Integer.compare(thisPosition.x, otherPosition.x);
+    public int compareTo(Move that) {
+        if (this.coordinates.x != that.coordinates.x) {
+            return Integer.compare(this.coordinates.x, that.coordinates.x);
         } else {
-            return Integer.compare(thisPosition.y, otherPosition.y);
+            return Integer.compare(this.coordinates.y, that.coordinates.y);
         }
     }
 
     @Override
     public String toString() {
-        return "Move{tile=" + tile + ", player=" + player + "}";
+        return "Move{player=" + player + ", coordinates=" + coordinates + "}";
     }
 }
