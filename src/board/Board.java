@@ -1,7 +1,5 @@
 package board;
 
-import util.Logger;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -41,53 +39,12 @@ public class Board {
     |--------------------------------------------------------------------------------
     */
 
-    /**
-     * Creates a game board from a map array and a transition array.
-     */
-    public Board(char[][] map, int[][] transitions) {
+    public Board(Tile[][] tiles, Map<TransitionPart, TransitionPart> transitions) {
+        this.tiles = tiles;
+        this.transitions = transitions;
 
-        Logger.get().log("Creating board");
-
-        // Get dimensions
-        height = map.length;
-        width = map[0].length;
-        this.tiles = new Tile[height][width];
-
-        // Build map
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                this.tiles[y][x] = Tile.fromChar(map[y][x]);
-            }
-        }
-
-        // Register transitions
-        for (int[] transition : transitions) {
-
-            int x1 = transition[0];
-            int y1 = transition[1];
-            Coordinates coordinates1 = new Coordinates(x1, y1);
-            Direction d1Out = Direction.fromValue(transition[2]);
-            Direction d1In = Direction.fromValue((d1Out.getValue() + 4) % 8);
-
-            int x2 = transition[3];
-            int y2 = transition[4];
-            Coordinates coordinates2 = new Coordinates(x2, y2);
-            Direction d2Out = Direction.fromValue(transition[5]);
-            Direction d2In = Direction.fromValue((d2Out.getValue() + 4) % 8);
-
-            // Transitions must be registered in both ways
-
-            this.transitions.put(
-                    new TransitionPart(coordinates1, d1Out),
-                    new TransitionPart(coordinates2, d2In)
-            );
-
-            this.transitions.put(
-                    new TransitionPart(coordinates2, d2Out),
-                    new TransitionPart(coordinates1, d1In)
-            );
-        }
-
+        this.height = tiles.length;
+        this.width = tiles[0].length;
     }
 
     /*
@@ -109,9 +66,9 @@ public class Board {
     public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
         List<Coordinates> result = new LinkedList<>();
 
-        for (int y = 0; y < tiles.length; y++) {
+        for (int y = 0; y < height; y++) {
             Tile[] currentRow = tiles[y];
-            for (int x = 0; x < currentRow.length; x++) {
+            for (int x = 0; x < width; x++) {
                 Tile currentTile = currentRow[x];
                 if (currentTile == tile) {
                     result.add(new Coordinates(x, y));
