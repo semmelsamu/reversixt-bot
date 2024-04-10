@@ -1,5 +1,6 @@
 package player.move;
 
+import board.Coordinates;
 import board.Tile;
 import player.Player;
 
@@ -13,8 +14,8 @@ public class BonusMove extends Move {
      */
     private final Bonus bonus;
 
-    public BonusMove(Player player, Tile tile, Bonus bonus) {
-        super(player, tile);
+    public BonusMove(Tile player, Coordinates coordinates, Bonus bonus) {
+        super(player, coordinates);
         this.bonus = bonus;
     }
 
@@ -30,6 +31,6 @@ public class BonusMove extends Move {
 
     @Override
     public String toString() {
-        return "BonusMove{tile=" + tile + ", player=" + player + ", bonus=" + bonus + "}";
+        return "BonusMove{player=" + player + ", coordinates=" + coordinates + ", bonus=" + bonus + "}";
     }
 }
