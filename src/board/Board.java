@@ -63,20 +63,29 @@ public class Board {
         // Register transitions
         for (int[] transition : transitions) {
 
-            // Transitions must be registered in both ways
-
             int x1 = transition[0];
             int y1 = transition[1];
+            Coordinates coordinates1 = new Coordinates(x1, y1);
             Direction d1Out = Direction.fromValue(transition[2]);
             Direction d1In = Direction.fromValue((d1Out.getValue() + 4) % 8);
 
             int x2 = transition[3];
             int y2 = transition[4];
+            Coordinates coordinates2 = new Coordinates(x2, y2);
             Direction d2Out = Direction.fromValue(transition[5]);
             Direction d2In = Direction.fromValue((d2Out.getValue() + 4) % 8);
 
-            Tile tile1 = this.tiles[y1][x1];
-            Tile tile2 = this.tiles[y2][x2];
+            // Transitions must be registered in both ways
+
+            this.transitions.put(
+                    new TransitionPart(coordinates1, d1Out),
+                    new TransitionPart(coordinates2, d2In)
+            );
+
+            this.transitions.put(
+                    new TransitionPart(coordinates2, d2Out),
+                    new TransitionPart(coordinates1, d1In)
+            );
         }
 
     }
