@@ -10,11 +10,11 @@ import java.util.Map;
 public class BoardFactory {
 
     /*
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     |
     |   Factories
     |
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     */
 
     /**
@@ -45,11 +45,11 @@ public class BoardFactory {
     }
 
     /*
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     |
     |   Util lines to array
     |
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     */
 
     private static char[][] parseMap(List<String> lines, int height, int width) {
@@ -83,12 +83,9 @@ public class BoardFactory {
             Logger.get().verbose(currentLine);
             String[] transitionParts = currentLine.split(" ");
             transitions[i] = new int[]{
-                    Integer.parseInt(transitionParts[0]),
-                    Integer.parseInt(transitionParts[1]),
-                    Integer.parseInt(transitionParts[2]),
-                    Integer.parseInt(transitionParts[4]),
-                    Integer.parseInt(transitionParts[5]),
-                    Integer.parseInt(transitionParts[6]),
+                    Integer.parseInt(transitionParts[0]), Integer.parseInt(transitionParts[1]),
+                    Integer.parseInt(transitionParts[2]), Integer.parseInt(transitionParts[4]),
+                    Integer.parseInt(transitionParts[5]), Integer.parseInt(transitionParts[6]),
             };
         }
 
@@ -96,11 +93,11 @@ public class BoardFactory {
     }
 
     /*
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     |
     |   Util array to data structure
     |
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     */
 
     private static Tile[][] arrayToTiles(char[][] array) {
@@ -143,15 +140,11 @@ public class BoardFactory {
 
             // Transitions must be registered in both ways
 
-            result.put(
-                    new TransitionPart(coordinates1, d1Out),
-                    new TransitionPart(coordinates2, d2In)
-            );
+            result.put(new TransitionPart(coordinates1, d1Out),
+                    new TransitionPart(coordinates2, d2In));
 
-            result.put(
-                    new TransitionPart(coordinates2, d2Out),
-                    new TransitionPart(coordinates1, d1In)
-            );
+            result.put(new TransitionPart(coordinates2, d2Out),
+                    new TransitionPart(coordinates1, d1In));
         }
 
         return result;
