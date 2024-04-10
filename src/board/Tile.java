@@ -97,9 +97,8 @@ public enum Tile {
      * States if the tile is occupied by a player.
      */
     public boolean isPlayer() {
-        Tile value = Tile.fromChar(this.character);
-        return (value == PLAYER1 || value == PLAYER2 || value == PLAYER3 || value == PLAYER4 ||
-                value == PLAYER5 || value == PLAYER6 || value == PLAYER7 || value == PLAYER8);
+        return (this == PLAYER1 || this == PLAYER2 || this == PLAYER3 || this == PLAYER4 ||
+                this == PLAYER5 || this == PLAYER6 || this == PLAYER7 || this == PLAYER8);
     }
 
     /*
