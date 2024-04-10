@@ -1,6 +1,7 @@
 package game;
 
 import board.Board;
+import board.BoardFactory;
 import util.File;
 import util.Logger;
 
@@ -38,7 +39,7 @@ public class GameFactory {
         Logger.get().verbose("Bomb radius: " + bombRadius);
 
         // Create board from remaining lines
-        Board board = Board.createFromLines(lines);
+        Board board = BoardFactory.createFromLines(lines);
 
         // Creating game
         return new Game(initialPlayers, initialOverwriteStones, initialBombs, bombRadius, board);
