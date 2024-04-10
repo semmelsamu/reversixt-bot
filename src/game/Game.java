@@ -74,7 +74,8 @@ public class Game {
     /**
      * Create a new game.
      */
-    public Game(int initialPlayers, int initialOverwriteStones, int initialBombs, int bombRadius, Board board) {
+    public Game(int initialPlayers, int initialOverwriteStones, int initialBombs, int bombRadius,
+                Board board) {
 
         Logger.get().log("Creating game");
 
@@ -90,7 +91,8 @@ public class Game {
         // Initialize players
         players = new Player[initialPlayers];
         for (int i = 0; i < initialPlayers; i++) {
-            players[i] = new Player(Tile.getAllPlayerValues()[i], initialOverwriteStones, initialBombs);
+            players[i] =
+                    new Player(Tile.getAllPlayerValues()[i], initialOverwriteStones, initialBombs);
         }
 
         // Set first player
@@ -175,15 +177,17 @@ public class Game {
 
         result.append("Players (Overwrite Stones / Bombs)").append("\n");
         for (Player player : players) {
-            result.append("- ").append(player.getPlayerValue().toString()).append(" (").append(player.getOverwriteStones()).append(" / ").append(player.getBombs()).append(")\n");
+            result.append("- ").append(player.getPlayerValue().toString()).append(" (")
+                    .append(player.getOverwriteStones()).append(" / ").append(player.getBombs())
+                    .append(")\n");
         }
 
         result.append(board.toString()).append("\n");
-
         result.append(gameStats);
 
         // Indent
         String[] lines = result.toString().split("\n");
-        return "Game\n\u001B[0m" + Arrays.stream(lines).map(line -> "    " + line).collect(Collectors.joining("\n"));
+        return "Game\n\u001B[0m" +
+                Arrays.stream(lines).map(line -> "    " + line).collect(Collectors.joining("\n"));
     }
 }
