@@ -4,6 +4,14 @@ import game.Game;
 
 public class TileReader {
 
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Attributes
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     /**
      * The game object this tile reader operates on.
      */
@@ -19,11 +27,27 @@ public class TileReader {
      */
     private Direction direction;
 
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Constructor
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     public TileReader(Game game, Coordinates coordinates, Direction direction) {
         this.game = game;
         this.coordinates = coordinates;
         this.direction = direction;
     }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Methods
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
 
     /**
      * Return the tile which the reader currently points at.
