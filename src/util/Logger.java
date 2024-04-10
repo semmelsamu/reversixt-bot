@@ -5,9 +5,11 @@ import java.util.Date;
 public class Logger {
 
     /*
-    |--------------------------------------------------------------------------
-    | Singleton
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Singleton
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     private static Logger logger = new Logger("Logger", 0);
@@ -17,9 +19,11 @@ public class Logger {
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Formatting constants
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Constants
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     /**
@@ -40,10 +44,13 @@ public class Logger {
      */
     public static final String ANSI_BOLD = "\u001B[1m";
 
+
     /*
-    |--------------------------------------------------------------------------
-    | Variables
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Attributes
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     /**
@@ -62,10 +69,13 @@ public class Logger {
      */
     private long lastTimeActive;
 
+
     /*
-    |--------------------------------------------------------------------------
-    | Constructor
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Constructor
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     public Logger(String name, int priority) {
@@ -74,10 +84,13 @@ public class Logger {
         this.lastTimeActive = System.nanoTime();
     }
 
+
     /*
-    |--------------------------------------------------------------------------
-    | Internal logger
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Internal Logic
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     /**
@@ -85,11 +98,14 @@ public class Logger {
      */
     private void console(String color, String type, String message, int priority) {
 
-        if (priority < this.priority) return;
+        if (priority < this.priority) {
+            return;
+        }
 
         // Use StackTraceElement to get caller
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-        StackTraceElement caller = stackTraceElements[3]; // 0: getStackTrace, 1: log, 2: log, 3: caller
+        StackTraceElement caller =
+                stackTraceElements[3]; // 0: getStackTrace, 1: log, 2: log, 3: caller
         String className = caller.getClassName();
         String methodName = caller.getMethodName();
 
@@ -103,13 +119,19 @@ public class Logger {
         lastTimeActive = currentTime;
 
         // Print
-        System.out.println(color + "[" + name + "]  " + ANSI_RESET + currentDate + "  " + color + type + ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color + message + ANSI_RESET + "  " + timeElapsedMs + "ms");
+        System.out.println(
+                color + "[" + name + "]  " + ANSI_RESET + currentDate + "  " + color + type +
+                        ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color +
+                        message + ANSI_RESET + "  " + timeElapsedMs + "ms");
     }
 
+
     /*
-    |--------------------------------------------------------------------------
-    | Public logging functions
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Methods
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     /**
