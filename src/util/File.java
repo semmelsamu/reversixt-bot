@@ -5,13 +5,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class File {
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Methods
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     /**
      * Reads the contents of a file.
      *
@@ -32,10 +40,8 @@ public class File {
     public static List<String> getAllMaps() {
         List<String> mapFiles = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(Paths.get("maps"))) {
-            mapFiles = paths
-                    .filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith(".map"))
-                    .map(Path::toString)
+            mapFiles = paths.filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".map")).map(Path::toString)
                     .collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();
