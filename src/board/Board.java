@@ -1,5 +1,7 @@
 package board;
 
+import util.Logger;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -64,10 +66,22 @@ public class Board {
     */
 
     public Tile getTile(Coordinates position) {
+
+        if (!coordinatesLayInBoard(position)) {
+            Logger.get().warn("Tried to get a tile from coordinates the board doesn't have");
+            return null;
+        }
+
         return this.tiles[position.y][position.x];
     }
 
     public void setTile(Coordinates coordinates, Tile tile) {
+
+        if (!coordinatesLayInBoard(coordinates)) {
+            Logger.get().error("Tried to set a tile on coordinates the board doesn't have");
+            return;
+        }
+
         this.tiles[coordinates.y][coordinates.x] = tile;
     }
 
@@ -85,6 +99,18 @@ public class Board {
         }
 
         return result;
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Utility
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    public boolean coordinatesLayInBoard(Coordinates position) {
+        return (position.x < 0 || position.y < 0 || position.x > width || position.y > height);
     }
 
     /*
