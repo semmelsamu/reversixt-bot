@@ -145,6 +145,10 @@ public class Game {
         // gameStats.addTile(board.getTile(position));
     }
 
+    public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
+        return board.getAllCoordinatesWhereTileIs(tile);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Util
