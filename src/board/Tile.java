@@ -1,79 +1,151 @@
 package board;
 
-import util.Logger;
-
 import java.util.Arrays;
+import java.util.List;
 
-public class Tile {
+/**
+ * Formerly TileValue formerly TileType
+ */
+public enum Tile {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Values
+    |--------------------------------------------------------------------------
+    */
+
+    EMPTY('0'),
+    PLAYER1('1'),
+    PLAYER2('2'),
+    PLAYER3('3'),
+    PLAYER4('4'),
+    PLAYER5('5'),
+    PLAYER6('6'),
+    PLAYER7('7'),
+    PLAYER8('8'),
+    WALL('-'),
+    CHOICE('c'),
+    INVERSION('i'),
+    BONUS('b'),
+    EXPANSION('x');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Char conversion logic
+    |--------------------------------------------------------------------------
+    */
 
     /**
-     * The contents/value (old: type) of the tile, e.g. empty, player, wall, ...
+     * The value of the tile, stored as a character.
      */
-    private TileValue value;
-
-    private final Neighbour[] neighbours;
+    public final char character;
 
     /**
-     * The position of the tile on the board. Used for quick access.
+     * Returns the enum from a character.
      */
-    private final Coordinates position;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Constructor
-    |--------------------------------------------------------------------------
-    */
-
-    public Tile(TileValue type, Coordinates position) {
-        this.value = type;
-        this.position = position;
-        this.neighbours = new Neighbour[8];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Getters & Setters
-    |--------------------------------------------------------------------------
-    */
-
-    public TileValue getValue() {
-        return value;
-    }
-
-    public Neighbour getNeighbour(Direction direction) {
-        return neighbours[direction.getValue()];
-    }
-
-    public void setNeighbour(Direction direction, Neighbour neighbour) {
-        if (neighbours[direction.getValue()] != null) {
-            Logger.get().warn("Reassigning neighbour is probably unwanted");
+    public static Tile fromChar(char c) {
+        for (Tile type : Tile.values()) {
+            if (type.character == c) {
+                return type;
+            }
         }
-
-        // Neighbours are only tiles which the player can expand to. See definition of neighbour record.
-        if (!neighbour.tile().value.isExpandable()) {
-            // Logger.verbose("Skipping not expandable neighbour");
-            return;
-        }
-
-        neighbours[direction.getValue()] = neighbour;
+        throw new IllegalArgumentException("Unknown character: " + c);
     }
 
-    public void setValue(TileValue value) {
-        this.value = value;
+    /**
+     * Creates a new enum from a character.
+     */
+    Tile(char character) {
+        this.character = character;
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Magic functions
+    | Information functions
     |--------------------------------------------------------------------------
     */
 
-    @Override
+    /**
+     * States if the tile is expandable, i.e. a player can expand to it.
+     */
+    public boolean isExpandable() {
+        return Tile.fromChar(this.character) != WALL;
+    }
+
+    /**
+     * States if the tile is empty. Inversion, bonus and choice fields are also considered empty.
+     */
+    public boolean isEmpty() {
+        Tile value = Tile.fromChar(this.character);
+        return (value == EMPTY || value == BONUS || value == INVERSION || value == CHOICE);
+    }
+
+    /**
+     * States if the tile is occupied by a player.
+     */
+    public boolean isPlayer() {
+        Tile value = Tile.fromChar(this.character);
+        return (value == PLAYER1 || value == PLAYER2 || value == PLAYER3 || value == PLAYER4 || value == PLAYER5 || value == PLAYER6 || value == PLAYER7 || value == PLAYER8);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Utility
+    |--------------------------------------------------------------------------
+    */
+
+    public String toString(boolean useColors) {
+        if (!useColors) return String.valueOf(character);
+
+        return switch (character) {
+            case '0' -> " . ";
+            case '-' -> "\u001B[47m   \u001B[0m";
+            case '1' -> "\u001B[31m 1 \u001B[0m";
+            case '2' -> "\u001B[34m 2 \u001B[0m";
+            case '3' -> "\u001B[32m 3 \u001B[0m";
+            case '4' -> "\u001B[33m 4 \u001B[0m";
+            case '5' -> " 5 ";
+            case '6' -> " 6 ";
+            case '7' -> " 7 ";
+            case '8' -> " 8 ";
+            case 'x' -> "\u001B[40m x \u001B[0m";
+            case 'i' -> " i ";
+            case 'c' -> " c ";
+            case 'b' -> " b ";
+            default -> " ? ";
+        };
+    }
+
+    public int toPlayerIndex() {
+        return switch (character) {
+            case '1' -> 0;
+            case '2' -> 1;
+            case '3' -> 2;
+            case '4' -> 3;
+            case '5' -> 4;
+            case '6' -> 5;
+            case '7' -> 6;
+            case '8' -> 7;
+            default -> -1;
+        };
+    }
+
     public String toString() {
-        return "MapTile{position=" + position + ", value=" + value + ", neighbours=" + Arrays.toString(neighbours) + "}";
+        return toString(false);
     }
 
-    public Coordinates getPosition() {
-        return position;
+    /**
+     * Returns all values for Players in ascending order.
+     */
+    public static Tile[] getAllPlayerValues() {
+        return new Tile[]{PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8};
+    }
+
+    /**
+     * Returns all values a player is allowed to expand to.
+     * TODO: Performance?
+     */
+    public static List<Tile> getAllFriendlyValues() {
+        return Arrays.asList(EMPTY, BONUS, CHOICE, INVERSION);
     }
 }
