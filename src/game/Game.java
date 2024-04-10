@@ -181,7 +181,7 @@ public class Game {
 
         result.append(board.toString()).append("\n");
 
-        result.append(gameStats.tilesWithValueToString());
+        result.append(gameStats);
 
         // Indent
         String[] lines = result.toString().split("\n");
