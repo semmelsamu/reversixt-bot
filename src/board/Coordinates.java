@@ -34,6 +34,27 @@ public class Coordinates {
     /*
     |-----------------------------------------------------------------------------------------------
     |
+    |   Methods
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    public Coordinates inDirection(Direction direction) {
+        return switch (direction) {
+            case NORTH -> new Coordinates(x, y - 1);
+            case NORTHEAST -> new Coordinates(x + 1, y - 1);
+            case EAST -> new Coordinates(x + 1, y);
+            case SOUTHEAST -> new Coordinates(x + 1, y + 1);
+            case SOUTH -> new Coordinates(x, y + 1);
+            case SOUTHWEST -> new Coordinates(x - 1, y + 1);
+            case WEST -> new Coordinates(x - 1, y);
+            case NORTHWEST -> new Coordinates(x - 1, y - 1);
+        };
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
     |   To String
     |
     |-----------------------------------------------------------------------------------------------
