@@ -28,22 +28,16 @@ public class Player {
      */
     private int bombs;
 
-    /**
-     * A list of all tiles the player has occupied
-     */
-    private List<Tile> occupiedTiles;
-
     /*
     |--------------------------------------------------------------------------
     | Constructor
     |--------------------------------------------------------------------------
     */
 
-    public Player(Tile playerValue, int overwriteStones, int bombs, List<Tile> occupiedTiles) {
+    public Player(Tile playerValue, int overwriteStones, int bombs) {
         this.playerValue = playerValue;
         this.overwriteStones = overwriteStones;
         this.bombs = bombs;
-        this.occupiedTiles = occupiedTiles;
     }
 
     /*
@@ -64,27 +58,11 @@ public class Player {
         return bombs;
     }
 
-    public List<Tile> getOccupiedTiles() {
-        return occupiedTiles;
-    }
-
     /*
     |--------------------------------------------------------------------------
     | Setters?
     |--------------------------------------------------------------------------
     */
-
-    public void setOccupiedTiles(List<Tile> occupiedTiles) {
-        this.occupiedTiles = occupiedTiles;
-    }
-
-    public void addOccupiedTiles(Collection<Tile> newTiles) {
-        occupiedTiles.addAll(newTiles);
-    }
-
-    public void removeOccupiedTiles(Collection<Tile> tilesToRemove) {
-        occupiedTiles.removeAll(tilesToRemove);
-    }
 
     /**
      * Increment overwrite stones by 1
