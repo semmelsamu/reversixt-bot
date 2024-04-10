@@ -4,6 +4,7 @@ import util.Logger;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class only stores information about what is currently on the game board, not the state of the game.
@@ -22,6 +23,15 @@ public class Board {
      * Starts at the top left with (0/0).
      */
     private Tile[][] tiles;
+
+    /**
+     * Every transition is stored twice, for every direction once.
+     * Key: The coordinates from the outgoing field and the direction we leave the
+     * field.
+     * Value: The coordinates from the field we land on when leaving the outgoing
+     * field and the new direction we look at.
+     */
+    private Map<TransitionPart, TransitionPart> transitions;
 
     /*
     |--------------------------------------------------------------------------------
@@ -90,11 +100,11 @@ public class Board {
     public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
         List<Coordinates> result = new LinkedList<>();
 
-        for(int y = 0; y < tiles.length; y++) {
+        for (int y = 0; y < tiles.length; y++) {
             Tile[] currentRow = tiles[y];
-            for(int x = 0; x < currentRow.length; x++) {
+            for (int x = 0; x < currentRow.length; x++) {
                 Tile currentTile = currentRow[x];
-                if(currentTile == tile) {
+                if (currentTile == tile) {
                     result.add(new Coordinates(x, y));
                 }
             }
