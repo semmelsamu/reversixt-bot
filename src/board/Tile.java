@@ -1,8 +1,5 @@
 package board;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Formerly TileValue formerly TileType
  */
@@ -115,12 +112,8 @@ public enum Tile {
     /**
      * Returns all values for Players in ascending order.
      */
-    public static Tile[] getAllPlayerTiles() {
+    public static Tile[] getAllPlayerValues() {
         return new Tile[]{PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8};
-    }
-
-    public static List<Tile> getAllNeutralTiles() {
-        return new ArrayList<>(List.of(EMPTY, WALL, CHOICE, INVERSION));
     }
 
     /*
