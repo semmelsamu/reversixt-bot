@@ -1,8 +1,5 @@
 package board;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Formerly TileValue formerly TileType
  */
@@ -90,18 +87,10 @@ public enum Tile {
     */
 
     /**
-     * States if the tile is expandable, i.e. a player can expand to it.
+     * States if the tile is occubyable, i.e. a player
      */
-    public boolean isExpandable() {
-        return Tile.fromChar(this.character) != WALL;
-    }
-
-    /**
-     * States if the tile is empty. Inversion, bonus and choice fields are also considered empty.
-     */
-    public boolean isEmpty() {
-        Tile value = Tile.fromChar(this.character);
-        return (value == EMPTY || value == BONUS || value == INVERSION || value == CHOICE);
+    public boolean isOccupyable() {
+        return this != WALL;
     }
 
     /**
@@ -126,14 +115,6 @@ public enum Tile {
      */
     public static Tile[] getAllPlayerValues() {
         return new Tile[]{PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8};
-    }
-
-    /**
-     * Returns all values a player is allowed to expand to.
-     * TODO: Performance?
-     */
-    public static List<Tile> getAllFriendlyValues() {
-        return Arrays.asList(EMPTY, BONUS, CHOICE, INVERSION);
     }
 
     /*
