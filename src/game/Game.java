@@ -145,10 +145,6 @@ public class Game {
         // gameStats.addTile(board.getTile(position));
     }
 
-    public List<Tile> getAllTilesWithValue(Tile value) {
-        return board.getAllTilesWithValue(value);
-    }
-
     /*
     |--------------------------------------------------------------------------
     | Util
