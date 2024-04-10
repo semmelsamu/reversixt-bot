@@ -60,7 +60,16 @@ public class TileReader {
      * Return if the reader has a neighbour in the current direction.
      */
     public boolean hasNext() {
-        return true; // TODO
+
+        if (game.getTile(coordinates.inDirection(direction)) != null &&
+                game.getTile(coordinates.inDirection(direction)) != Tile.WALL) {
+            // Neighbour
+            return true;
+        } else {
+            // Check transition
+            return game.getTransitions().containsKey(new TransitionPart(coordinates, direction));
+        }
+
     }
 
     /**
@@ -81,6 +90,9 @@ public class TileReader {
                 TransitionPart incomingTransition = game.getTransitions().get(outgoingTransition);
                 coordinates = incomingTransition.coordinates();
                 direction = incomingTransition.direction();
+            } else {
+                throw new RuntimeException(
+                        "Called next() on TileReader, but there is no next Tile");
             }
         }
 
