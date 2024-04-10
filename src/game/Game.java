@@ -94,7 +94,7 @@ public class Game {
         players = new Player[initialPlayers];
         for (int i = 0; i < initialPlayers; i++) {
             players[i] =
-                    new Player(Tile.getAllPlayerValues()[i], initialOverwriteStones, initialBombs);
+                    new Player(Tile.getAllPlayerTiles()[i], initialOverwriteStones, initialBombs);
         }
 
         // Set first player

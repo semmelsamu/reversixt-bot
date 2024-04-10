@@ -1,9 +1,9 @@
 package game;
 
+import board.Coordinates;
 import board.Direction;
-import board.Neighbour;
 import board.Tile;
-import board.TileValue;
+import board.TileReader;
 import player.Player;
 import player.move.*;
 import util.Logger;
@@ -29,21 +29,27 @@ public class MoveExecutor {
     public void executeMove(Move move) {
 
         Logger.get().log("Executing move " + move);
-
+        Tile playerValue = move.getPlayer();
         Set<Tile> tilesToColour = new HashSet<>();
         // Check every direction
-        for (Direction d : Direction.values()) {
-            Neighbour neighbour = move.getTile().getNeighbour(d);
+        for (Direction direction : Direction.values()) {
+            TileReader tileReader = new TileReader(game, move.getCoordinates(), direction);
+
             // Check if there is a dead end
-            if (neighbour == null) {
+            if(!(tileReader.hasNext())){
                 continue;
             }
-            TileValue neighbourValue = neighbour.tile().getValue();
-            // Check if tile value is seen as an enemy or if it's the same color
-            if (TileValue.getAllFriendlyValues().contains(neighbourValue) || neighbourValue == move.getPlayer().getPlayerValue()) {
+            tileReader.next();
+            Tile firstNeighnbourTile = tileReader.getTile();
+            // Check if first neighbour tile is neutral
+            if(Tile.getAllNeutralTiles().contains(firstNeighnbourTile)){
                 continue;
             }
-            tilesToColour.addAll(getTilesToColourInDirection(move.getPlayer(), move.getTile(), d));
+            //Check if first neighbour tile is an own tile
+            if (firstNeighnbourTile == playerValue) {
+                continue;
+            }
+            tilesToColour.addAll(getTilesToColourInDirection(move.getPlayer(), move.getTile(), direction));
         }
 
         if (!game.getTile(move.getTile().getPosition()).getValue().isEmpty()) {
@@ -67,31 +73,34 @@ public class MoveExecutor {
             executeInversionLogic();
     }
 
-    private static Set<Tile> getTilesToColourInDirection(Player player, Tile currentTile, Direction currentDirection) {
-        Tile firstTile = currentTile;
-        Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
-        Set<Tile> tilesToColourInDirection = new HashSet<>();
-        // As long the neighbour has the same color as itself
-        while (currentNeighbour.tile().getValue() != player.getPlayerValue()) {
-            currentTile = currentNeighbour.tile();
+    private static Set<Coordinates> getTilesToColourInDirection(TileReader tileReader,
+                                                         Direction currentDirection, Move move) {
+        Tile currentTile = tileReader.getTile();
+        Tile playerValue = move.getPlayer();
+        Set<Coordinates> positionsToColourInDirection = new HashSet<>();
+        // As long as the current tile is not an own piece
+        while (currentTile != playerValue) {
 
-            tilesToColourInDirection.add(currentTile);
-            if (currentNeighbour.directionChange() != null) {
-                currentDirection = currentNeighbour.directionChange();
+            positionsToColourInDirection.add(tileReader.getCoordinates());
+
+            // Check if there is a dead end
+            if (!(tileReader.hasNext())) {
+                return new HashSet<>();
             }
-            currentNeighbour = currentTile.getNeighbour(currentDirection);
+            tileReader.next();
+            currentTile = tileReader.getTile();
 
-            // Check if there is a dead end or if it's the same as the first one
-            if (currentNeighbour == null || firstTile == currentNeighbour.tile()) {
+            // Check if the coordinates are the same as of the new Tile
+            if (move.getCoordinates() == tileReader.getCoordinates()){
+                return new HashSet<>();
+            }
+            // Check if there is a neutral tile
+            if (Tile.getAllNeutralTiles().contains(currentTile)) {
                 return new HashSet<>();
             }
 
-            // Check if there are values which are not enemies
-            if (TileValue.getAllFriendlyValues().contains(currentNeighbour.tile().getValue())) {
-                return new HashSet<>();
-            }
         }
-        return tilesToColourInDirection;
+        return positionsToColourInDirection;
 
     }
 
