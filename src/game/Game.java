@@ -3,12 +3,14 @@ package game;
 import board.Board;
 import board.Coordinates;
 import board.Tile;
+import board.TransitionPart;
 import player.Player;
 import player.move.Move;
 import util.Logger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -138,6 +140,10 @@ public class Game {
 
     public Tile getTile(Coordinates position) {
         return board.getTile(position);
+    }
+
+    public Map<TransitionPart, TransitionPart> getTransitions() {
+        return board.getTransitions();
     }
 
     public GameStats getGameStats() {
