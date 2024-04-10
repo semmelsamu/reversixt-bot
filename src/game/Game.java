@@ -136,10 +136,6 @@ public class Game {
         return players[currentPlayer];
     }
 
-    public void setPlayers(Player[] players) {
-        this.players = players;
-    }
-
     public Tile getTile(Coordinates position) {
         return board.getTile(position);
     }
