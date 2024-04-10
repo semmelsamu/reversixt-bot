@@ -85,6 +85,10 @@ public class Board {
         this.tiles[coordinates.y][coordinates.x] = tile;
     }
 
+    public Map<TransitionPart, TransitionPart> getTransitions() {
+        return transitions;
+    }
+
     public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
         List<Coordinates> result = new LinkedList<>();
 
