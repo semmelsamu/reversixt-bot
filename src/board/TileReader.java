@@ -67,7 +67,22 @@ public class TileReader {
      * Move the reader one in the current direction.
      */
     public void next() {
-        // TODO
-    }
 
+        Coordinates newCoordinates = coordinates.inDirection(direction);
+
+        if (game.getTile(newCoordinates) != null && game.getTile(newCoordinates) != Tile.WALL) {
+            // Regular neighbour
+            coordinates = newCoordinates;
+        } else {
+            // Could be a transition
+            TransitionPart outgoingTransition = new TransitionPart(coordinates, direction);
+            if (game.getTransitions().containsKey(outgoingTransition)) {
+                // It's a transition
+                TransitionPart incomingTransition = game.getTransitions().get(outgoingTransition);
+                coordinates = incomingTransition.coordinates();
+                direction = incomingTransition.direction();
+            }
+        }
+
+    }
 }
