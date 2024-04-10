@@ -8,23 +8,21 @@ import java.util.*;
 
 public class GameStats {
 
-    /*
-    TODO
-    Map<TileValue, List<Tile>> tilesWithValue;
+    Map<Tile, List<Coordinates>> tilesWithValue;
 
     public GameStats(Game game) {
 
         tilesWithValue = new HashMap<>();
 
-        for(TileValue value : TileValue.values()) {
-            tilesWithValue.put(value, new LinkedList<>(game.getAllTilesWithValue(value)));
+        for(Tile tile : Tile.values()) {
+            tilesWithValue.put(tile, new LinkedList<>(game.getAllCoordinatesWhereTileIs(tile)));
         }
 
         Logger.get().debug(tilesWithValueToString());
     }
 
-    public List<Tile> getAllTilesWithValue(TileValue value) {
-        return tilesWithValue.get(value);
+    public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
+        return tilesWithValue.get(tile);
     }
 
     public void removeTile(Tile tile) {
@@ -48,5 +46,5 @@ public class GameStats {
 
         return result.toString();
     }
-     */
+
 }
