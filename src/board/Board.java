@@ -5,9 +5,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class only stores information about what is currently on the game board, not the state of the game.
+ * This class only stores information about what is currently on the game board, not the state of
+ * the game.
  */
 public class Board {
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Attributes
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
 
     /**
      * The dimensions of the game board. Used for quick access.
@@ -24,19 +33,18 @@ public class Board {
 
     /**
      * Every transition is stored twice, for every direction once.
-     * Key: The coordinates from the outgoing field and the direction we leave the
-     * field.
-     * Value: The coordinates from the field we land on when leaving the outgoing
-     * field and the new direction we look at.
+     * Key: The coordinates from the outgoing field and the direction we leave the field.
+     * Value: The coordinates from the field we land on when leaving the outgoing field and the new
+     * direction we look at.
      */
     private Map<TransitionPart, TransitionPart> transitions;
 
     /*
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     |
     |   Constructor
     |
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     */
 
     public Board(Tile[][] tiles, Map<TransitionPart, TransitionPart> transitions) {
@@ -48,11 +56,11 @@ public class Board {
     }
 
     /*
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     |
     |   Getters and Setters
     |
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     */
 
     public Tile getTile(Coordinates position) {
@@ -80,11 +88,11 @@ public class Board {
     }
 
     /*
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     |
-    |   Utility functions
+    |   To string
     |
-    |--------------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
     */
 
     private static String formatIntToFitLength(int number, int length) {
