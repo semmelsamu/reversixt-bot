@@ -2,13 +2,14 @@ package game;
 
 import board.Coordinates;
 import board.Tile;
-import board.TileValue;
 import util.Logger;
 
 import java.util.*;
 
 public class GameStats {
 
+    /*
+    TODO
     Map<TileValue, List<Tile>> tilesWithValue;
 
     public GameStats(Game game) {
@@ -47,5 +48,5 @@ public class GameStats {
 
         return result.toString();
     }
-
+     */
 }
