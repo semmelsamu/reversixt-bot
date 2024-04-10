@@ -20,9 +20,11 @@ public class Test {
         failedTests += CountTilesTest.test();
         failedTests += Exercise2Test.test();
 
-        if (failedTests > 0)
+        if (failedTests > 0) {
             TestLogger.get().fatal("Failed tests: " + failedTests);
-        else TestLogger.get().log("All tests passed");
+        } else {
+            TestLogger.get().log("All tests passed");
+        }
 
     }
 }

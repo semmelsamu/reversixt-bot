@@ -59,8 +59,7 @@ public class MoveCalculator {
             }
             TileValue neighbourValue = neighbour.tile().getValue();
             // check if tile value is seen as an enemy or if it's the same color
-            if (TileValue.getAllFriendlyValues().contains(neighbourValue)
-                    || neighbourValue == currentPlayer.getPlayerValue()) {
+            if (TileValue.getAllFriendlyValues().contains(neighbourValue) || neighbourValue == currentPlayer.getPlayerValue()) {
                 continue;
             }
             Set<Move> move = getValidMoveForPieceInDirection(ownPiece, direction, currentPlayer);
@@ -69,8 +68,11 @@ public class MoveCalculator {
             }
         }
         if (currentPlayer.getOverwriteStones() != 0) {
-            List<Tile> allExpansionTilesWithoutMoves =
-                    game.getGameStats().getAllTilesWithValue(TileValue.EXPANSION).stream().filter(ex -> moves.stream().noneMatch(move -> ex.getPosition() == move.getTile().getPosition())).toList();
+            List<Tile> allExpansionTilesWithoutMoves = game.getGameStats()
+                    .getAllTilesWithValue(TileValue.EXPANSION)
+                    .stream()
+                    .filter(ex -> moves.stream().noneMatch(move -> ex.getPosition() == move.getTile().getPosition()))
+                    .toList();
             for (Tile tile : allExpansionTilesWithoutMoves) {
                 moves.add(new Move(currentPlayer, tile));
             }
@@ -84,8 +86,7 @@ public class MoveCalculator {
      * @param currentDirection one of eight directions
      * @return Valid moves for one piece for one of eight directions
      */
-    private Set<Move> getValidMoveForPieceInDirection(Tile currentTile, Direction currentDirection,
-                                                      Player currentPlayer) {
+    private Set<Move> getValidMoveForPieceInDirection(Tile currentTile, Direction currentDirection, Player currentPlayer) {
 
         Logger.get().verbose("Searching for valid moves in direction ");
         Tile firstTile = currentTile;
@@ -118,8 +119,7 @@ public class MoveCalculator {
             if (currentPlayer.getOverwriteStones() != 0) {
                 howFarFromFirstTile++;
                 // overwrite stone logic
-                if (currentTile.getValue().isPlayer() && currentTile.getValue() != currentPlayer.getPlayerValue()
-                        && howFarFromFirstTile > 1) {
+                if (currentTile.getValue().isPlayer() && currentTile.getValue() != currentPlayer.getPlayerValue() && howFarFromFirstTile > 1) {
                     movesPerDirection.add(new Move(currentPlayer, currentTile));
                 }
 

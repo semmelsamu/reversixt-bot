@@ -85,7 +85,9 @@ public class Logger {
      */
     private void console(String color, String type, String message, int priority) {
 
-        if (priority < this.priority) return;
+        if (priority < this.priority) {
+            return;
+        }
 
         // Use StackTraceElement to get caller
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
@@ -103,7 +105,9 @@ public class Logger {
         lastTimeActive = currentTime;
 
         // Print
-        System.out.println(color + "[" + name + "]  " + ANSI_RESET + currentDate + "  " + color + type + ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color + message + ANSI_RESET + "  " + timeElapsedMs + "ms");
+        System.out.println(
+                color + "[" + name + "]  " + ANSI_RESET + currentDate + "  " + color + type + ANSI_YELLOW + "  [" + className + "." + methodName +
+                        "]  " + color + message + ANSI_RESET + "  " + timeElapsedMs + "ms");
     }
 
     /*

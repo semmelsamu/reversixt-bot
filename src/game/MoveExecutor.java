@@ -57,14 +57,17 @@ public class MoveExecutor {
         game.setTile(move.getTile().getPosition(), move.getPlayer().getPlayerValue());
 
 
-        if (move instanceof BonusMove)
+        if (move instanceof BonusMove) {
             executeBonusLogic((BonusMove) move);
+        }
 
-        if (move instanceof ChoiceMove)
+        if (move instanceof ChoiceMove) {
             executeChoiceLogic((ChoiceMove) move);
+        }
 
-        if (move instanceof InversionMove)
+        if (move instanceof InversionMove) {
             executeInversionLogic();
+        }
     }
 
     private static Set<Tile> getTilesToColourInDirection(Player player, Tile currentTile, Direction currentDirection) {

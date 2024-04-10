@@ -85,7 +85,8 @@ public enum TileValue {
      */
     public boolean isPlayer() {
         TileValue value = TileValue.fromChar(this.character);
-        return (value == PLAYER1 || value == PLAYER2 || value == PLAYER3 || value == PLAYER4 || value == PLAYER5 || value == PLAYER6 || value == PLAYER7 || value == PLAYER8);
+        return (value == PLAYER1 || value == PLAYER2 || value == PLAYER3 || value == PLAYER4 || value == PLAYER5 || value == PLAYER6 ||
+                value == PLAYER7 || value == PLAYER8);
     }
 
     /*
@@ -95,7 +96,9 @@ public enum TileValue {
     */
 
     public String toString(boolean useColors) {
-        if (!useColors) return String.valueOf(character);
+        if (!useColors) {
+            return String.valueOf(character);
+        }
 
         return switch (character) {
             case '0' -> " . ";
@@ -138,7 +141,9 @@ public enum TileValue {
      * Returns all values for Players in ascending order.
      */
     public static TileValue[] getAllPlayerValues() {
-        return new TileValue[]{PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8};
+        return new TileValue[]{
+                PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8
+        };
     }
 
     /**
