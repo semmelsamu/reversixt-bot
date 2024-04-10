@@ -11,17 +11,17 @@ import java.util.List;
 public class Board {
 
     /**
+     * The dimensions of the game board. Used for quick access.
+     */
+    public final int width;
+    public final int height;
+
+    /**
      * The game board.
      * First dimension is the lines (y-direction), second one is columns (x-direction).
      * Starts at the top left with (0/0).
      */
     private Tile[][] tiles;
-
-    /**
-     * The dimensions of the game board. Used for quick access.
-     */
-    public final int width;
-    public final int height;
 
     /*
     |--------------------------------------------------------------------------
