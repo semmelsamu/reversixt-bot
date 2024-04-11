@@ -123,19 +123,20 @@ public class MoveExecutor {
     }
 
     private void executeChoiceLogic(ChoiceMove choiceMove) {
-        Player currentPlayer = game.getCurrentPlayer();
-        Player playerToSwapWith = choiceMove.getPlayerToSwapWith();
+        Tile currentPlayer = game.getTile(choiceMove.getCoordinates());
+        Tile playerToSwapWith = choiceMove.getPlayerToSwapWith();
 
-        // List<Tile> oldTilesPlayerFromCurrentPlayer = currentPlayer.getOccupiedTiles();
-        List<Tile> oldTilesPlayerFromCurrentPlayer = game.getGameStats().getAllTilesWithValue(currentPlayer.getPlayerValue());
+        // Collect all occupied tiles of current player
+        List<Coordinates> oldTilesPlayerFromCurrentPlayer = game.getGameStats().getAllCoordinatesWhereTileIs(currentPlayer);
 
-        // for(Tile tile : playerToSwapWith.getOccupiedTiles()){
-        for (Tile tile : game.getGameStats().getAllTilesWithValue(playerToSwapWith.getPlayerValue())) {
-            game.setTile(tile.getPosition(), currentPlayer.getPlayerValue());
+        // Iterate through all old tiles of player to swap with
+        for (Coordinates coordinates : game.getGameStats().getAllCoordinatesWhereTileIs(playerToSwapWith)) {
+            game.setTile(coordinates, currentPlayer);
         }
 
-        for (Tile tile : oldTilesPlayerFromCurrentPlayer) {
-            game.setTile(tile.getPosition(), playerToSwapWith.getPlayerValue());
+        // Iterate through all old tiles of current player
+        for (Coordinates coordinates : oldTilesPlayerFromCurrentPlayer) {
+            game.setTile(coordinates, playerToSwapWith);
         }
     }
 
