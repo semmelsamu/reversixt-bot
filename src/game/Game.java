@@ -4,9 +4,7 @@ import board.Board;
 import board.Coordinates;
 import board.Tile;
 import board.TransitionPart;
-import game.evaluation.AbstractRating;
 import game.evaluation.GameEvaluator;
-import game.evaluation.PositionOnMapRating;
 import player.Player;
 import player.move.Move;
 import util.Logger;
@@ -153,12 +151,15 @@ public class Game {
         return gameStats;
     }
 
-    public Board getBoard(){
+    public Board getBoard() {
         return board;
     }
 
-    public void evaluateMap(){
-        gameEvaluator.evaluateMap();
+    public void evaluateMap() {
+        gameEvaluator.evaluate();
+        Logger.get()
+                .log("Player rating for " + currentPlayer + ": " + gameEvaluator.getPlayerRating());
+        System.out.println(Arrays.toString(gameEvaluator.getMapRating()));
     }
 
     public void setTile(Coordinates position, Tile value) {

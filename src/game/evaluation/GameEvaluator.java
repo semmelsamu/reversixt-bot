@@ -20,14 +20,14 @@ public class GameEvaluator {
         this.playerRating = 0;
     }
 
-    public void evaluateMap() {
+    public void evaluate() {
         Set<AbstractRating> ratings = new HashSet<>();
         ratings.add(new PositionOnMapRating(game));
-
 
         for (AbstractRating rating : ratings) {
             rating.evaluate();
             parseToBoard(rating.getTileRatings());
+            this.playerRating += rating.getPartialPlayerRating();
         }
     }
 
