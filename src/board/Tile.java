@@ -86,9 +86,9 @@ public enum Tile {
     */
 
     /**
-     * States if the tile is occubyable, i.e. a player
+     * States that this tile has not been occupied by any player
      */
-    public boolean isOccupyable() {
+    public boolean isUnoccupied() {
         return (this == EMPTY || this == INVERSION || this == BONUS || this == CHOICE);
     }
 
@@ -111,7 +111,7 @@ public enum Tile {
     /**
      * Returns all values for Players in ascending order.
      */
-    public static Tile[] getAllPlayerValues() {
+    public static Tile[] getAllPlayerTiles() {
         return new Tile[]{PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8};
     }
 

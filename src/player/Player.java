@@ -2,9 +2,6 @@ package player;
 
 import board.Tile;
 
-import java.util.Collection;
-import java.util.List;
-
 public class Player {
 
     /*
@@ -81,7 +78,7 @@ public class Player {
     /**
      * Decrement overwrite stones by 1
      */
-    public void decreaseOverwriteStones() {
+    public void decrementOverwriteStones() {
         overwriteStones--;
     }
 

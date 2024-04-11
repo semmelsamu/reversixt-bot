@@ -30,7 +30,7 @@ public class MoveExecutor {
 
         Logger.get().log("Executing move " + move);
         Tile playerValue = move.getPlayer();
-        Set<Tile> tilesToColour = new HashSet<>();
+        Set<Coordinates> tilesToColour = new HashSet<>();
         // Check every direction
         for (Direction direction : Direction.values()) {
             TileReader tileReader = new TileReader(game, move.getCoordinates(), direction);
@@ -42,25 +42,27 @@ public class MoveExecutor {
             tileReader.next();
             Tile firstNeighnbourTile = tileReader.getTile();
             // Check if first neighbour tile is neutral
-            if(Tile.getAllNeutralTiles().contains(firstNeighnbourTile)){
+            if(firstNeighnbourTile.isUnoccupied()){
                 continue;
             }
             //Check if first neighbour tile is an own tile
-            if (firstNeighnbourTile == playerValue) {
+            if(firstNeighnbourTile == playerValue) {
                 continue;
             }
-            tilesToColour.addAll(getTilesToColourInDirection(move.getPlayer(), move.getTile(), direction));
+            //Check if first neighbour has the same Coordinates
+            if(tileReader.getCoordinates() == move.getCoordinates())
+            tilesToColour.addAll(getTilesToColourInDirection(tileReader, direction, move));
         }
 
-        if (!game.getTile(move.getTile().getPosition()).getValue().isEmpty()) {
-            game.getPlayers()[move.getPlayer().getPlayerValue().toPlayerIndex()].decreaseOverwriteStones();
+        if (!(game.getTile(move.getCoordinates()).isUnoccupied())) {
+            game.getPlayers()[move.getPlayer().toPlayerIndex()].decrementOverwriteStones();
         }
 
         // Color all tiles
-        for (Tile tile : tilesToColour) {
-            game.setTile(tile.getPosition(), move.getPlayer().getPlayerValue());
+        for (Coordinates coordinates : tilesToColour) {
+            game.setTile(coordinates, playerValue);
         }
-        game.setTile(move.getTile().getPosition(), move.getPlayer().getPlayerValue());
+        game.setTile(move.getCoordinates(), playerValue);
 
 
         if (move instanceof BonusMove)
@@ -95,7 +97,7 @@ public class MoveExecutor {
                 return new HashSet<>();
             }
             // Check if there is a neutral tile
-            if (Tile.getAllNeutralTiles().contains(currentTile)) {
+            if(currentTile.isUnoccupied()) {
                 return new HashSet<>();
             }
 

@@ -1,9 +1,7 @@
 package game;
 
 import board.Direction;
-import board.Neighbour;
 import board.Tile;
-import board.TileValue;
 import player.Player;
 import player.move.*;
 import util.Logger;
