@@ -5,7 +5,6 @@ package board;
  */
 public enum Tile {
 
-
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -90,7 +89,7 @@ public enum Tile {
      * States if the tile is occubyable, i.e. a player
      */
     public boolean isOccupyable() {
-        return this != WALL;
+        return (this == EMPTY || this == INVERSION || this == BONUS || this == CHOICE);
     }
 
     /**
