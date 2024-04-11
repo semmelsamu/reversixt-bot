@@ -4,14 +4,14 @@ import board.Board;
 import board.Coordinates;
 import board.Tile;
 import board.TransitionPart;
+import game.evaluation.AbstractRating;
+import game.evaluation.GameEvaluator;
+import game.evaluation.PositionOnMapRating;
 import player.Player;
 import player.move.Move;
 import util.Logger;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Game {
@@ -65,6 +65,8 @@ public class Game {
      */
     public GameStats gameStats;
 
+    public GameEvaluator gameEvaluator;
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -101,6 +103,7 @@ public class Game {
         this.currentPlayer = 0;
 
         gameStats = new GameStats(this);
+        gameEvaluator = new GameEvaluator(this);
     }
 
     /*
@@ -148,6 +151,14 @@ public class Game {
 
     public GameStats getGameStats() {
         return gameStats;
+    }
+
+    public Board getBoard(){
+        return board;
+    }
+
+    public void evaluateMap(){
+        gameEvaluator.evaluateMap();
     }
 
     public void setTile(Coordinates position, Tile value) {
