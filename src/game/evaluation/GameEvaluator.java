@@ -14,14 +14,16 @@ public class GameEvaluator {
 
     private Game game;
 
+    private Set<AbstractRating> ratings;
+
     public GameEvaluator(Game game) {
         this.game = game;
         this.mapRating = new int[game.getBoard().height][game.getBoard().width];
         this.playerRating = 0;
+        ratings = new HashSet<>();
     }
 
     public void evaluate() {
-        Set<AbstractRating> ratings = new HashSet<>();
         ratings.add(new PositionOnMapRating(game));
 
         for (AbstractRating rating : ratings) {
@@ -37,6 +39,15 @@ public class GameEvaluator {
             int y = tileRating.coordinates().y;
             mapRating[x][y] += tileRating.value();
         }
+    }
+
+    public List<TileRating> getTileRatingsByRatingType(RatingType ratingType) {
+        for (AbstractRating rating : ratings) {
+            if(rating.getRatingType() == ratingType) {
+                return rating.getTileRatings();
+            }
+        }
+        return null;
     }
 
     public int getPlayerRating() {

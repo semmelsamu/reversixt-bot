@@ -1,6 +1,7 @@
 package game.evaluation;
 
 import board.Coordinates;
+import board.Tile;
 import game.Game;
 
 import java.util.ArrayList;
