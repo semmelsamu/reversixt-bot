@@ -143,7 +143,7 @@ public class BoardFactory {
             result.put(new TransitionPart(coordinates1, d1Out),
                     new TransitionPart(coordinates2, d2In));
 
-            result.put(new TransitionPart(coordinates2, d2Out),
+            result.putIfAbsent(new TransitionPart(coordinates2, d2Out),
                     new TransitionPart(coordinates1, d1In));
         }
 
