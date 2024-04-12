@@ -134,6 +134,10 @@ public class Game {
         return players;
     }
 
+    public Tile[] getAllParticipatingPlayers(){
+        return Arrays.copyOfRange(Tile.getAllPlayerTiles(),0, initialPlayers - 1);
+    }
+
     public Player getCurrentPlayer() {
         return players[currentPlayer];
     }
