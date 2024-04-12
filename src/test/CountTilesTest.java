@@ -36,7 +36,7 @@ public class CountTilesTest {
             Game game = GameFactory.createFromFile("maps/" + mapAndTileCounts.getKey());
 
             for (var tileAndCount : mapAndTileCounts.getValue().entrySet()) {
-                int calculatedTileCount = game.getAllTilesWithValue(tileAndCount.getKey()).size();
+                int calculatedTileCount = game.getAllCoordinatesWhereTileIs(tileAndCount.getKey()).size();
                 int expectedTileCount = tileAndCount.getValue();
 
                 String message = "Map" + mapAndTileCounts.getKey()
