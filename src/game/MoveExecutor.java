@@ -142,21 +142,22 @@ public class MoveExecutor {
 
     private void executeInversionLogic() {
         // Overwriting Tiles in Board
-        Player[] players = game.getPlayers();
-
+        Tile[] participatingPlayerTiles = game.getAllParticipatingPlayers();
         // Updating OccupiedTiles of all Players
         // List<Tile> oldTilesfromPred = players[players.length - 1].getOccupiedTiles();
-        List<Tile> oldTilesfromPred = game.getGameStats().getAllTilesWithValue(players[players.length - 1].getPlayerValue());
-        List<Tile> oldOwnTiles = null;
-        TileValue[] playerValues = TileValue.getAllPlayerValues();
-        for (int i = 0; i < players.length; i++) {
+        List<Coordinates> oldTilesfromPred =
+                game.getGameStats()
+                .getAllCoordinatesWhereTileIs
+                (participatingPlayerTiles[participatingPlayerTiles.length - 1]);
+        List<Coordinates> oldOwnTiles = null;
+        for (int i = 0; i < participatingPlayerTiles.length; i++) {
             if (i != 0) {
                 oldTilesfromPred = oldOwnTiles;
             }
-            // oldOwnTiles = players[i].getOccupiedTiles();
-            oldOwnTiles = game.getGameStats().getAllTilesWithValue(players[i].getPlayerValue());
-            for (Tile tile : oldTilesfromPred) {
-                game.setTile(tile.getPosition(), playerValues[i]);
+            oldOwnTiles = game.getGameStats()
+                    .getAllCoordinatesWhereTileIs(participatingPlayerTiles[i]);
+            for (Coordinates coordinates : oldTilesfromPred) {
+                game.setTile(coordinates, participatingPlayerTiles[i]);
             }
         }
     }
