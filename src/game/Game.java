@@ -135,8 +135,8 @@ public class Game {
         return players;
     }
 
-    public Tile[] getAllParticipatingPlayers(){
-        return Arrays.copyOfRange(Tile.getAllPlayerTiles(),0, initialPlayers - 1);
+    public Tile[] getAllParticipatingPlayers() {
+        return Arrays.copyOfRange(Tile.getAllPlayerTiles(), 0, initialPlayers - 1);
     }
 
     public Player getCurrentPlayer() {
@@ -175,7 +175,7 @@ public class Game {
         return board.getAllCoordinatesWhereTileIs(tile);
     }
 
-    public boolean hasPlayerOverwriteStones(Tile playerTile){
+    public boolean hasPlayerOverwriteStones(Tile playerTile) {
         Player player = players[playerTile.toPlayerIndex()];
         return player.getOverwriteStones() > 0;
     }

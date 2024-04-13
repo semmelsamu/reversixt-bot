@@ -2,7 +2,6 @@ package player.move;
 
 import board.Coordinates;
 import board.Tile;
-import player.Player;
 
 /**
  * A move where after the player sets a stone, he will receive a bonus.
@@ -31,6 +30,7 @@ public class BonusMove extends Move {
 
     @Override
     public String toString() {
-        return "BonusMove{player=" + player + ", coordinates=" + coordinates + ", bonus=" + bonus + "}";
+        return "BonusMove{player=" + player + ", coordinates=" + coordinates + ", bonus=" + bonus +
+                "}";
     }
 }

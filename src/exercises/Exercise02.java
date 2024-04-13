@@ -12,11 +12,11 @@ import java.util.Set;
 public class Exercise02 {
 
     /**
-     * Abnahme: Alle 11 bereitgestellten Maps (boeseMap01-11) müssen korrekt behandelt werden. Ihr Pro-
-     * gramm muss zunächst die Karte und alle möglichen Züge für Spieler 1 ausgegeben. Anschließend wird
-     * über die Konsole ein Zug eingegeben (z. B. per x- und y-Koordinate und ggf. notwendiger
-     * Zusatzinformationen). Ihr Programm soll dann entweder das umgefärbte Spielfeld ausgeben oder anzeigen,
-     * dass der Zug nicht gültig ist.
+     * Abnahme: Alle 11 bereitgestellten Maps (boeseMap01-11) müssen korrekt behandelt werden.
+     * Ihr Programm muss zunächst die Karte und alle möglichen Züge für Spieler 1 ausgegeben.
+     * Anschließend wird über die Konsole ein Zug eingegeben (z. B. per x- und y-Koordinate und
+     * ggf. notwendiger Zusatzinformationen). Ihr Programm soll dann entweder das umgefärbte
+     * Spielfeld ausgeben oder anzeigen, dass der Zug nicht gültig ist.
      */
     public static void aufgabe3() {
 
@@ -30,8 +30,9 @@ public class Exercise02 {
         // Get and print all valid moves
         Set<Move> validMoves = game.getValidMovesForCurrentPlayer();
         Logger.get().debug("All valid moves for current Player:");
-        for (var move : validMoves)
+        for (var move : validMoves) {
             Logger.get().debug(move.toString());
+        }
 
         // User inputs move
         Move move = ConsoleInputHandler.selectMove(game);

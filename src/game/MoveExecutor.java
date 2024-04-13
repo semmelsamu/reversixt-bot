@@ -35,21 +35,21 @@ public class MoveExecutor {
             TileReader tileReader = new TileReader(game, move.getCoordinates(), direction);
 
             // Check if tile has a neighbour in this direction
-            if(!(tileReader.hasNext())){
+            if (!(tileReader.hasNext())) {
                 continue;
             }
             tileReader.next();
             Tile firstNeighnbourTile = tileReader.getTile();
             // Check if first neighbour tile is unoccupied
-            if(firstNeighnbourTile.isUnoccupied()){
+            if (firstNeighnbourTile.isUnoccupied()) {
                 continue;
             }
             // Check if first neighbour tile is an own tile
-            if(firstNeighnbourTile == playerValue) {
+            if (firstNeighnbourTile == playerValue) {
                 continue;
             }
             // Check if first neighbour tile has the same coordinates
-            if(tileReader.getCoordinates() == move.getCoordinates()){
+            if (tileReader.getCoordinates() == move.getCoordinates()) {
                 continue;
             }
             tilesToColor.addAll(getTilesToColorInDirection(tileReader, move));
@@ -65,14 +65,17 @@ public class MoveExecutor {
         }
         game.setTile(move.getCoordinates(), playerValue);
 
-        if (move instanceof BonusMove)
+        if (move instanceof BonusMove) {
             executeBonusLogic((BonusMove) move);
+        }
 
-        if (move instanceof ChoiceMove)
+        if (move instanceof ChoiceMove) {
             executeChoiceLogic((ChoiceMove) move);
+        }
 
-        if (move instanceof InversionMove)
+        if (move instanceof InversionMove) {
             executeInversionLogic();
+        }
     }
 
     private static Set<Coordinates> getTilesToColorInDirection(TileReader tileReader, Move move) {
@@ -93,11 +96,11 @@ public class MoveExecutor {
             currentTile = tileReader.getTile();
 
             // Check if the coordinates are the same as of the new Tile
-            if (move.getCoordinates() == tileReader.getCoordinates()){
+            if (move.getCoordinates() == tileReader.getCoordinates()) {
                 return new HashSet<>();
             }
             // Check if there is an unoccupied tile
-            if(currentTile.isUnoccupied()) {
+            if (currentTile.isUnoccupied()) {
                 return new HashSet<>();
             }
         }
@@ -126,10 +129,12 @@ public class MoveExecutor {
         Tile playerToSwapWith = choiceMove.getPlayerToSwapWith();
 
         // Collect all occupied tiles of current player
-        List<Coordinates> oldTilesPlayerFromCurrentPlayer = game.getGameStats().getAllCoordinatesWhereTileIs(currentPlayer);
+        List<Coordinates> oldTilesPlayerFromCurrentPlayer =
+                game.getGameStats().getAllCoordinatesWhereTileIs(currentPlayer);
 
         // Iterate through all old tiles of player to swap with
-        for (Coordinates coordinates : game.getGameStats().getAllCoordinatesWhereTileIs(playerToSwapWith)) {
+        for (Coordinates coordinates : game.getGameStats()
+                .getAllCoordinatesWhereTileIs(playerToSwapWith)) {
             game.setTile(coordinates, currentPlayer);
         }
 
@@ -144,17 +149,15 @@ public class MoveExecutor {
         Tile[] participatingPlayerTiles = game.getAllParticipatingPlayers();
         // Updating OccupiedTiles of all Players
         // List<Tile> oldTilesfromPred = players[players.length - 1].getOccupiedTiles();
-        List<Coordinates> oldTilesfromPred =
-                game.getGameStats()
-                .getAllCoordinatesWhereTileIs
-                (participatingPlayerTiles[participatingPlayerTiles.length - 1]);
+        List<Coordinates> oldTilesfromPred = game.getGameStats().getAllCoordinatesWhereTileIs(
+                participatingPlayerTiles[participatingPlayerTiles.length - 1]);
         List<Coordinates> oldOwnTiles = null;
         for (int i = 0; i < participatingPlayerTiles.length; i++) {
             if (i != 0) {
                 oldTilesfromPred = oldOwnTiles;
             }
-            oldOwnTiles = game.getGameStats()
-                    .getAllCoordinatesWhereTileIs(participatingPlayerTiles[i]);
+            oldOwnTiles =
+                    game.getGameStats().getAllCoordinatesWhereTileIs(participatingPlayerTiles[i]);
             for (Coordinates coordinates : oldTilesfromPred) {
                 game.setTile(coordinates, participatingPlayerTiles[i]);
             }
