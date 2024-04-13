@@ -9,7 +9,7 @@ public class PositionOnMapRating extends AbstractRating{
     }
 
     @Override
-    public void evaluate() {
+    public void evaluateByCriterion() {
 
     }
 }

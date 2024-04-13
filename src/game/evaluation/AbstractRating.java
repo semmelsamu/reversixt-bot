@@ -1,7 +1,5 @@
 package game.evaluation;
 
-import board.Coordinates;
-import board.Tile;
 import game.Game;
 
 import java.util.ArrayList;
@@ -13,29 +11,29 @@ public abstract class AbstractRating {
 
     private final Game game;
 
-    private final int weight;
-
-    private List<TileRating> tileRatings;
+    private List<MapTileRating> mapTileRatings;
 
     private int partialPlayerRating;
 
-    public AbstractRating(RatingType ratingType, int weight, Game game) {
-        this.tileRatings = new ArrayList<>();
+    public AbstractRating(RatingType ratingType, Game game) {
+        this.mapTileRatings = new ArrayList<>();
         this.ratingType = ratingType;
-        this.weight = weight;
         this.game = game;
         this.partialPlayerRating = 0;
     }
 
-    public abstract void evaluate();
+    public abstract void evaluateByCriterion();
+    
 
-
-    public void addValue(Coordinates coordinates, int value) {
-        tileRatings.add(new TileRating(coordinates, value * weight));
+    public void addPlayerRatingByCriterion(int partialPlayerRating) {
+        this.partialPlayerRating += partialPlayerRating;
     }
 
-    public void addPartialPlayerRating(int partialPlayerRating) {
-        this.partialPlayerRating += partialPlayerRating;
+    public void addPlayerRatingByCriterion(List<MapTileRating> mapTileRatings) {
+        for (MapTileRating mapTileRating : mapTileRatings) {
+            partialPlayerRating += mapTileRating.value();
+            this.mapTileRatings.addAll(mapTileRatings);
+        }
     }
 
     public int getPartialPlayerRating() {
@@ -50,7 +48,7 @@ public abstract class AbstractRating {
         return game;
     }
 
-    public List<TileRating> getTileRatings() {
-        return tileRatings;
+    public List<MapTileRating> getMapTileRatings() {
+        return mapTileRatings;
     }
 }

@@ -8,8 +8,6 @@ import java.util.Set;
 
 public class GameEvaluator {
 
-    private int[][] mapRating;
-
     private int playerRating;
 
     private Game game;
@@ -18,7 +16,6 @@ public class GameEvaluator {
 
     public GameEvaluator(Game game) {
         this.game = game;
-        this.mapRating = new int[game.getBoard().height][game.getBoard().width];
         this.playerRating = 0;
         ratings = new HashSet<>();
     }
@@ -27,24 +24,15 @@ public class GameEvaluator {
         ratings.add(new PositionOnMapRating(game));
 
         for (AbstractRating rating : ratings) {
-            rating.evaluate();
-            parseToBoard(rating.getTileRatings());
+            rating.evaluateByCriterion();
             this.playerRating += rating.getPartialPlayerRating();
         }
     }
 
-    private void parseToBoard(List<TileRating> tileRatings) {
-        for (TileRating tileRating : tileRatings) {
-            int x = tileRating.coordinates().x;
-            int y = tileRating.coordinates().y;
-            mapRating[x][y] += tileRating.value();
-        }
-    }
-
-    public List<TileRating> getTileRatingsByRatingType(RatingType ratingType) {
+    public List<MapTileRating> getTileRatingsByRatingType(RatingType ratingType) {
         for (AbstractRating rating : ratings) {
             if(rating.getRatingType() == ratingType) {
-                return rating.getTileRatings();
+                return rating.getMapTileRatings();
             }
         }
         return null;
@@ -52,9 +40,5 @@ public class GameEvaluator {
 
     public int getPlayerRating() {
         return playerRating;
-    }
-
-    public int[][] getMapRating() {
-        return mapRating;
     }
 }

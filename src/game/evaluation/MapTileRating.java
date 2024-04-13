@@ -2,7 +2,7 @@ package game.evaluation;
 
 import board.Coordinates;
 
-public record TileRating(
+public record MapTileRating(
         Coordinates coordinates,
         int value
 ) {
