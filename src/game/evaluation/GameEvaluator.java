@@ -1,7 +1,7 @@
 package game.evaluation;
 
 import game.Game;
-import game.evaluation.criteria.PositionOnMapRating;
+import game.evaluation.criteria.CornerValuesCriterion;
 import util.Logger;
 
 import java.util.HashSet;
@@ -25,13 +25,21 @@ public class GameEvaluator {
         ratings = new HashSet<>();
     }
 
+    /**
+     * Registers all criteria and adds it value to the player rating
+     */
     public void evaluate() {
-        ratings.add(new PositionOnMapRating(game));
+        registerCriteria();
 
         for (AbstractRating rating : ratings) {
             rating.evaluateByCriterion();
             this.playerRating += rating.getPlayerRatingByCriterion();
         }
+    }
+
+    private void registerCriteria(){
+        ratings.add(new CornerValuesCriterion(game));
+
     }
 
     /**
