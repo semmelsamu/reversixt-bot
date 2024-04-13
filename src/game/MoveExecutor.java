@@ -4,7 +4,6 @@ import board.Coordinates;
 import board.Direction;
 import board.Tile;
 import board.TileReader;
-import player.Player;
 import player.move.*;
 import util.Logger;
 
@@ -30,28 +29,30 @@ public class MoveExecutor {
 
         Logger.get().log("Executing move " + move);
         Tile playerValue = move.getPlayer();
-        Set<Coordinates> tilesToColour = new HashSet<>();
+        Set<Coordinates> tilesToColor = new HashSet<>();
         // Check every direction
         for (Direction direction : Direction.values()) {
             TileReader tileReader = new TileReader(game, move.getCoordinates(), direction);
 
-            // Check if there is a dead end
+            // Check if tile has a neighbour in this direction
             if(!(tileReader.hasNext())){
                 continue;
             }
             tileReader.next();
             Tile firstNeighnbourTile = tileReader.getTile();
-            // Check if first neighbour tile is neutral
+            // Check if first neighbour tile is unoccupied
             if(firstNeighnbourTile.isUnoccupied()){
                 continue;
             }
-            //Check if first neighbour tile is an own tile
+            // Check if first neighbour tile is an own tile
             if(firstNeighnbourTile == playerValue) {
                 continue;
             }
-            //Check if first neighbour has the same Coordinates
-            if(tileReader.getCoordinates() == move.getCoordinates())
-            tilesToColour.addAll(getTilesToColourInDirection(tileReader, direction, move));
+            // Check if first neighbour tile has the same coordinates
+            if(tileReader.getCoordinates() == move.getCoordinates()){
+                continue;
+            }
+            tilesToColor.addAll(getTilesToColorInDirection(tileReader, move));
         }
 
         if (!(game.getTile(move.getCoordinates()).isUnoccupied())) {
@@ -59,11 +60,10 @@ public class MoveExecutor {
         }
 
         // Color all tiles
-        for (Coordinates coordinates : tilesToColour) {
+        for (Coordinates coordinates : tilesToColor) {
             game.setTile(coordinates, playerValue);
         }
         game.setTile(move.getCoordinates(), playerValue);
-
 
         if (move instanceof BonusMove)
             executeBonusLogic((BonusMove) move);
@@ -75,20 +75,20 @@ public class MoveExecutor {
             executeInversionLogic();
     }
 
-    private static Set<Coordinates> getTilesToColourInDirection(TileReader tileReader,
-                                                         Direction currentDirection, Move move) {
+    private static Set<Coordinates> getTilesToColorInDirection(TileReader tileReader, Move move) {
         Tile currentTile = tileReader.getTile();
         Tile playerValue = move.getPlayer();
-        Set<Coordinates> positionsToColourInDirection = new HashSet<>();
+        Set<Coordinates> tilesToColorInDirection = new HashSet<>();
         // As long as the current tile is not an own piece
         while (currentTile != playerValue) {
 
-            positionsToColourInDirection.add(tileReader.getCoordinates());
+            tilesToColorInDirection.add(tileReader.getCoordinates());
 
             // Check if there is a dead end
             if (!(tileReader.hasNext())) {
                 return new HashSet<>();
             }
+
             tileReader.next();
             currentTile = tileReader.getTile();
 
@@ -96,13 +96,12 @@ public class MoveExecutor {
             if (move.getCoordinates() == tileReader.getCoordinates()){
                 return new HashSet<>();
             }
-            // Check if there is a neutral tile
+            // Check if there is an unoccupied tile
             if(currentTile.isUnoccupied()) {
                 return new HashSet<>();
             }
-
         }
-        return positionsToColourInDirection;
+        return tilesToColorInDirection;
 
     }
 
