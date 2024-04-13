@@ -13,31 +13,30 @@ public abstract class AbstractRating {
 
     private List<MapTileRating> mapTileRatings;
 
-    private int partialPlayerRating;
+    private int playerRatingByCriterion;
 
     public AbstractRating(RatingType ratingType, Game game) {
         this.mapTileRatings = new ArrayList<>();
         this.ratingType = ratingType;
         this.game = game;
-        this.partialPlayerRating = 0;
+        this.playerRatingByCriterion = 0;
     }
 
     public abstract void evaluateByCriterion();
-    
 
-    public void addPlayerRatingByCriterion(int partialPlayerRating) {
-        this.partialPlayerRating += partialPlayerRating;
+    public void addPlayerRatingByCriterion(int playerRatingByCriterion) {
+        this.playerRatingByCriterion += playerRatingByCriterion;
     }
 
     public void addPlayerRatingByCriterion(List<MapTileRating> mapTileRatings) {
         for (MapTileRating mapTileRating : mapTileRatings) {
-            partialPlayerRating += mapTileRating.value();
+            playerRatingByCriterion += mapTileRating.value();
             this.mapTileRatings.addAll(mapTileRatings);
         }
     }
 
-    public int getPartialPlayerRating() {
-        return partialPlayerRating;
+    public int getPlayerRatingByCriterion() {
+        return playerRatingByCriterion;
     }
 
     public RatingType getRatingType() {

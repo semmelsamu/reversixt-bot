@@ -1,6 +1,7 @@
 package game.evaluation;
 
 import game.Game;
+import game.evaluation.criteria.PositionOnMapRating;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,13 +26,13 @@ public class GameEvaluator {
 
         for (AbstractRating rating : ratings) {
             rating.evaluateByCriterion();
-            this.playerRating += rating.getPartialPlayerRating();
+            this.playerRating += rating.getPlayerRatingByCriterion();
         }
     }
 
     public List<MapTileRating> getTileRatingsByRatingType(RatingType ratingType) {
         for (AbstractRating rating : ratings) {
-            if(rating.getRatingType() == ratingType) {
+            if (rating.getRatingType() == ratingType) {
                 return rating.getMapTileRatings();
             }
         }
