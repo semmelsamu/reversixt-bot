@@ -36,7 +36,8 @@ public class Exercise2Test {
                     TestLogger.get().log("Move " + move);
                     TestLogger.get().verbose(testCase.toString());
                 } catch (Exception e) {
-                    TestLogger.get().error("Move execution failed: " + e.getMessage() + " at " + Arrays.toString(e.getStackTrace()));
+                    TestLogger.get().error("Move execution failed: " + e.getMessage() + " at " +
+                            Arrays.toString(e.getStackTrace()));
                     TestLogger.get().error("Initial map: " + game);
                     TestLogger.get().error("Tried to execute move " + move);
                     TestLogger.get().error("Game after attempting to execute move: " + testCase);

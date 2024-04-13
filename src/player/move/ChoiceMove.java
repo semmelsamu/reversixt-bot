@@ -2,7 +2,6 @@ package player.move;
 
 import board.Coordinates;
 import board.Tile;
-import player.Player;
 
 /**
  * A move where after the player set the stone, he will swap places with another player.
@@ -31,6 +30,7 @@ public class ChoiceMove extends Move {
 
     @Override
     public String toString() {
-        return "ChoiceMove{player=" + player + ", coordinates=" + coordinates + ", playerToSwapWith=" + playerToSwapWith + "}";
+        return "ChoiceMove{player=" + player + ", coordinates=" + coordinates +
+                ", playerToSwapWith=" + playerToSwapWith + "}";
     }
 }

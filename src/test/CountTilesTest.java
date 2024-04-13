@@ -36,17 +36,14 @@ public class CountTilesTest {
             Game game = GameFactory.createFromFile("maps/" + mapAndTileCounts.getKey());
 
             for (var tileAndCount : mapAndTileCounts.getValue().entrySet()) {
-                int calculatedTileCount = game.getAllCoordinatesWhereTileIs(tileAndCount.getKey()).size();
+                int calculatedTileCount =
+                        game.getAllCoordinatesWhereTileIs(tileAndCount.getKey()).size();
                 int expectedTileCount = tileAndCount.getValue();
 
-                String message = "Map" + mapAndTileCounts.getKey()
-                        + " calculated "
-                        + calculatedTileCount
-                        + " tiles for player "
-                        + tileAndCount.getKey().character
-                        + " (expected "
-                        + expectedTileCount
-                        + ")";
+                String message =
+                        "Map" + mapAndTileCounts.getKey() + " calculated " + calculatedTileCount +
+                                " tiles for player " + tileAndCount.getKey().character +
+                                " (expected " + expectedTileCount + ")";
 
                 if (calculatedTileCount == expectedTileCount) {
                     TestLogger.get().log(message);
