@@ -1,7 +1,9 @@
 package game;
 
+import board.Coordinates;
 import board.Direction;
 import board.Tile;
+import board.TileReader;
 import player.Player;
 import player.move.*;
 import util.Logger;
@@ -28,112 +30,118 @@ public class MoveCalculator {
      */
     public Set<Move> getValidMoves() {
         Player currentPlayer = game.getCurrentPlayer();
-        TileValue currentPlayerValue = currentPlayer.getPlayerValue();
+        Tile currentPlayerValue = currentPlayer.getPlayerValue();
         Logger.get().log("Searching for all valid moves for Player " + currentPlayerValue);
-        Set<Move> moves = new TreeSet<>();
-        for (Tile occupiedTile : currentPlayer.getOccupiedTiles()) {
-            if (occupiedTile.getValue() != currentPlayerValue) {
+        Set<Move> moves = new HashSet<>();
+        for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(currentPlayerValue)) {
+            if (game.getTile(occupiedTile) != currentPlayerValue) {
                 Logger.get().error("Wrong coordinates in Player" + currentPlayerValue + "'s List stones");
                 continue;
             }
-            moves.addAll(getValidMovesForPiece(occupiedTile, currentPlayer));
+            moves.addAll(getValidMovesForPiece(occupiedTile, currentPlayerValue
+            ));
         }
         return moves;
     }
 
     /**
-     * @param ownPiece one piece of this player
+     * @param ownTileCoordinates one piece of this player
      * @return Valid moves for one piece of this player
      */
-    private Set<Move> getValidMovesForPiece(Tile ownPiece, Player currentPlayer) {
-        Logger.get().verbose("Searching for valid moves originating from piece " + ownPiece);
+    private Set<Move> getValidMovesForPiece(Coordinates ownTileCoordinates, Tile currentPlayerValue) {
+        Logger.get().verbose("Searching for valid moves originating from piece " + ownTileCoordinates);
         Set<Move> moves = new TreeSet<>();
         for (Direction direction : Direction.values()) {
-            Neighbour neighbour = ownPiece.getNeighbour(direction);
-            // check if there is a dead end
-            if (neighbour == null) {
+            TileReader tileReader = new TileReader(game, ownTileCoordinates, direction);
+            // Check if tile has a neighbour in this direction
+            if (!tileReader.hasNext()) {
                 continue;
             }
-            TileValue neighbourValue = neighbour.tile().getValue();
-            // check if tile value is seen as an enemy or if it's the same color
-            if (TileValue.getAllFriendlyValues().contains(neighbourValue)
-                    || neighbourValue == currentPlayer.getPlayerValue()) {
+            tileReader.next();
+            Tile firstNeighbourTile = tileReader.getTile();
+            // Check if first neighbour tile is unoccupied
+            if (firstNeighbourTile.isUnoccupied()) {
                 continue;
             }
-            Set<Move> move = getValidMoveForPieceInDirection(ownPiece, direction, currentPlayer);
-            if (move != null) {
-                moves.addAll(move);
+
+            // Check if first neighbour tile is an own tile
+            if (firstNeighbourTile == currentPlayerValue){
+                continue;
+            }
+
+            // Check if first neighbour tile has the same coordinates as the own piece
+            if (tileReader.getCoordinates() == ownTileCoordinates){
+                continue;
+            }
+
+            Set<Move> movesInDirection = getValidMoveForPieceInDirection(tileReader, currentPlayerValue);
+            if (movesInDirection != null) {
+                moves.addAll(movesInDirection);
             }
         }
         return moves;
     }
 
     /**
-     * @param currentTile      one piece of this player
-     * @param currentDirection one of eight directions
+     * @param tileReader
      * @return Valid moves for one piece for one of eight directions
      */
-    private Set<Move> getValidMoveForPieceInDirection(Tile currentTile, Direction currentDirection,
-                                                      Player currentPlayer) {
-
+    private Set<Move> getValidMoveForPieceInDirection(TileReader tileReader,
+                                                      Tile playerValue) {
         Logger.get().verbose("Searching for valid moves in direction ");
-        Tile firstTile = currentTile;
-        Set<Move> movesPerDirection = new HashSet<>();
-        Set<Tile> alreadyVisited = new HashSet<>();
-        int howFarFromFirstTile = 0;
-        // as long as there is an empty field
-        while (!TileValue.getAllFriendlyValues().contains(currentTile.getValue())) {
-            alreadyVisited.add(currentTile);
-            Neighbour currentNeighbour = currentTile.getNeighbour(currentDirection);
 
-            // check for a dead end
-            if (currentNeighbour == null) {
+        Set<Move> movesPerDirection = new HashSet<>();
+        Tile currentTile = tileReader.getTile();
+        Coordinates currentCoordinates = tileReader.getCoordinates();
+        boolean tilesBetweenExistingAndNewPiece = false;
+        boolean hasOverwriteStones = false;
+        if(game.hasPlayerOverwriteStones(playerValue)){
+            hasOverwriteStones = true;
+        }
+        // As long as there is an ococcupied tile
+        while (!currentTile.isUnoccupied()) {
+
+            // Check if there is a dead end
+            if (!tileReader.hasNext()) {
                 return movesPerDirection;
             }
 
-            currentTile = currentNeighbour.tile();
-
-            if (currentNeighbour.directionChange() != null) {
-                currentDirection = currentNeighbour.directionChange();
-            }
-
-            if (alreadyVisited.contains(currentTile)) {
-                if (currentTile == firstTile) {
-                    return movesPerDirection;
-                }
-                continue;
-            }
-
-            if (currentPlayer.getOverwriteStones() != 0) {
-                howFarFromFirstTile++;
-                // overwrite stone logic
-                if (currentTile.getValue().isPlayer() && currentTile.getValue() != currentPlayer.getPlayerValue()
-                        && howFarFromFirstTile > 1) {
-                    movesPerDirection.add(new Move(currentPlayer, currentTile));
-                }
-
-                // tile has the same value as another tile, but isn't the same tile and is more fare away than 1 -> overwrite stone on the first tile
-                if (currentTile.getValue() == currentPlayer.getPlayerValue() && howFarFromFirstTile > 1) {
-                    movesPerDirection.add(new Move(currentPlayer, firstTile));
-                    return movesPerDirection;
+            tileReader.next();
+            // If there are no tiles between existing and new piece
+            if(!tilesBetweenExistingAndNewPiece){
+                if(currentCoordinates != tileReader.getCoordinates()){
+                    tilesBetweenExistingAndNewPiece = true;
                 }
             }
-        }
-        // decide which move
-        switch (currentTile.getValue()) {
-            case CHOICE -> {
-                for (Player player : game.getPlayers()) {
-                    if (player != currentPlayer) {
-                        movesPerDirection.add(new ChoiceMove(currentPlayer, currentTile, player));
+            currentTile = tileReader.getTile();
+            currentCoordinates = tileReader.getCoordinates();
+
+            if (hasOverwriteStones) {
+                // Overwrite stone logic
+                if (currentTile.isPlayer() && tilesBetweenExistingAndNewPiece) {
+                    movesPerDirection.add(new Move(currentTile, currentCoordinates));
+                    // If an own tile is overwritten, return because this tile is handled separately
+                    if (currentTile == playerValue) {
+                        return movesPerDirection;
                     }
                 }
             }
-            case INVERSION -> movesPerDirection.add(new InversionMove(currentPlayer, currentTile));
-            case BONUS -> {
-                movesPerDirection.add(new BonusMove(currentPlayer, currentTile, Bonus.BOMB));
-                movesPerDirection.add(new BonusMove(currentPlayer, currentTile, Bonus.OVERWRITE_STONE));
+        }
+        // If necessary create special move
+        switch (currentTile) {
+            case CHOICE -> {
+                for (Tile playerTile : Tile.getAllPlayerTiles()) {
+                    if (playerTile != currentTile) {
+                        movesPerDirection.add(new ChoiceMove(currentTile, currentCoordinates, playerTile));
+                    }
+                }
             }
-            default -> movesPerDirection.add(new Move(currentPlayer, currentTile));
+            case INVERSION -> movesPerDirection.add(new InversionMove(currentTile, currentCoordinates));
+            case BONUS -> {
+                movesPerDirection.add(new BonusMove(currentTile, currentCoordinates, Bonus.BOMB));
+                movesPerDirection.add(new BonusMove(currentTile, currentCoordinates, Bonus.OVERWRITE_STONE));
+            }
+            default -> movesPerDirection.add(new Move(currentTile, currentCoordinates));
 
         }
 
