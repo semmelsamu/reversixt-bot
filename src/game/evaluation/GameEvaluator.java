@@ -1,6 +1,7 @@
 package game.evaluation;
 
 import game.Game;
+import game.evaluation.criteria.AmountOverwriteStonesCriterion;
 import game.evaluation.criteria.CornerValuesCriterion;
 import util.Logger;
 
@@ -37,9 +38,9 @@ public class GameEvaluator {
         }
     }
 
-    private void registerCriteria(){
+    private void registerCriteria() {
         ratings.add(new CornerValuesCriterion(game));
-
+        ratings.add(new AmountOverwriteStonesCriterion(game));
     }
 
     /**
@@ -65,9 +66,15 @@ public class GameEvaluator {
     /**
      * Prints the player ratings by type
      */
-    public void printRatings(){
+    public void printRatings() {
         for (AbstractRating rating : ratings) {
-            Logger.get().log(rating.getRatingType().name() + ": " + rating.getPlayerRatingByCriterion());
+            if (rating.getMapTileRatings().isEmpty()) {
+                Logger.get().log(rating.getRatingType().name() + ": " +
+                        rating.getPlayerRatingByCriterion());
+            } else {
+                Logger.get().log(rating.getRatingType().name() + ": " + rating.getMapTileRatings() +
+                        " = " + rating.getPlayerRatingByCriterion());
+            }
         }
     }
 }
