@@ -5,6 +5,9 @@ import game.Game;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represent an abstract rating type. Values are added to the player rating
+ */
 public abstract class AbstractRating {
 
     private final RatingType ratingType;
@@ -24,15 +27,24 @@ public abstract class AbstractRating {
 
     public abstract void evaluateByCriterion();
 
-    public void addPlayerRatingByCriterion(int playerRatingByCriterion) {
+    /**
+     * Can be used in every abstract method to add simple int values to the player rating
+     *
+     * @param playerRatingByCriterion can be added in any implementation
+     */
+    protected void addPlayerRatingByCriterion(int playerRatingByCriterion) {
         this.playerRatingByCriterion += playerRatingByCriterion;
     }
 
-    public void addPlayerRatingByCriterion(List<MapTileRating> mapTileRatings) {
-        for (MapTileRating mapTileRating : mapTileRatings) {
-            playerRatingByCriterion += mapTileRating.value();
-            this.mapTileRatings.addAll(mapTileRatings);
-        }
+    /**
+     * Can be used in every abstract method to add simple int values to the player rating
+     *
+     * @param mapTileRating {@link MapTileRating} because we maybe need coordinates later
+     */
+    protected void addPlayerRatingByCriterion(MapTileRating mapTileRating) {
+        playerRatingByCriterion += mapTileRating.value();
+        this.mapTileRatings.add(mapTileRating);
+
     }
 
     public int getPlayerRatingByCriterion() {

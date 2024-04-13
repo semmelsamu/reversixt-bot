@@ -159,7 +159,7 @@ public class Game {
         gameEvaluator.evaluate();
         Logger.get()
                 .log("Player rating for " + currentPlayer + ": " + gameEvaluator.getPlayerRating());
-        System.out.println(Arrays.toString(gameEvaluator.getMapRating()));
+        gameEvaluator.printRatings();
     }
 
     public void setTile(Coordinates position, Tile value) {
