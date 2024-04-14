@@ -1,10 +1,9 @@
 package player;
 
 import board.Tile;
-import player.move.Move;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Player {
 
@@ -29,7 +28,7 @@ public class Player {
      */
     private int bombs;
 
-    private Set<Move> moves;
+    private List<Integer> validMovesHistory;
 
     /*
     |--------------------------------------------------------------------------
@@ -41,7 +40,7 @@ public class Player {
         this.playerValue = playerValue;
         this.overwriteStones = overwriteStones;
         this.bombs = bombs;
-        this.moves = new HashSet<>();
+        this.validMovesHistory = new ArrayList<>();
     }
 
     /*
@@ -62,8 +61,8 @@ public class Player {
         return bombs;
     }
 
-    public Set<Move> getMoves() {
-        return moves;
+    public List<Integer> getValidMovesHistory() {
+        return validMovesHistory;
     }
 
     /*
@@ -86,15 +85,15 @@ public class Player {
         bombs++;
     }
 
+    public void addValidMovesHistory(int value){
+        validMovesHistory.add(value);
+    }
+
     /**
      * Decrement overwrite stones by 1
      */
     public void decrementOverwriteStones() {
         overwriteStones--;
-    }
-
-    public void setMoves(Set<Move> moves) {
-        this.moves = moves;
     }
 
     @Override
