@@ -135,6 +135,10 @@ public class Game {
         return players;
     }
 
+    public int getBombRadius() {
+        return bombRadius;
+    }
+
     public Tile[] getAllParticipatingPlayers() {
         return Arrays.copyOfRange(Tile.getAllPlayerTiles(), 0, initialPlayers - 1);
     }

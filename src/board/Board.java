@@ -23,8 +23,8 @@ public class Board {
     /**
      * The dimensions of the game board. Used for quick access.
      */
-    public final int width;
-    public final int height;
+    private final int width;
+    private final int height;
 
     /**
      * The game board.
@@ -87,6 +87,14 @@ public class Board {
 
     public Map<TransitionPart, TransitionPart> getTransitions() {
         return transitions;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getWidth() {
+        return width;
     }
 
     public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {

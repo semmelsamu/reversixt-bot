@@ -11,7 +11,7 @@ import player.Player;
 public class AmountBombsCriterion extends AbstractRating {
 
     public AmountBombsCriterion(Game game) {
-        super(RatingType.AMOUNT_BOMBS, game);
+        super(RatingType.BOMBS, game);
     }
 
     @Override
@@ -23,6 +23,13 @@ public class AmountBombsCriterion extends AbstractRating {
         bombsAverage /= getGame().getPlayers().length;
         int currentPlayerBombs = getGame().getCurrentPlayer().getBombs();
 
-        addPlayerRatingByCriterion(currentPlayerBombs - bombsAverage);
+        int rating = currentPlayerBombs - bombsAverage;
+        addPlayerRatingByCriterion(rating + getBombRadiusRating());
+    }
+
+    private int getBombRadiusRating() {
+        int maxBoardlLength = Math.max(getGame().getBoard().getHeight(), getGame().getBoard().getWidth());
+        maxBoardlLength /= 2;
+        return getGame().getBombRadius() - maxBoardlLength;
     }
 }

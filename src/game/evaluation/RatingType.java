@@ -7,6 +7,7 @@ public enum RatingType {
 
     CORNER_VALUES,
     AMOUNT_OVERWRITE_STONES,
-    AMOUNT_BOMBS
+    BOMBS,
+    AMOUNT_VALID_MOVES
 
 }
