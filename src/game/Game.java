@@ -63,7 +63,7 @@ public class Game {
      */
     public GameStats gameStats;
 
-    public GameEvaluator gameEvaluator;
+    public int[] playerRatings;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ public class Game {
         this.currentPlayer = 0;
 
         gameStats = new GameStats(this);
-        gameEvaluator = new GameEvaluator(this);
+        playerRatings = new int[initialPlayers];
     }
 
     /*
@@ -161,16 +161,21 @@ public class Game {
         return gameStats;
     }
 
-    public GameEvaluator getGameEvaluator() {
-        return gameEvaluator;
-    }
-
     public Board getBoard() {
         return board;
     }
 
+    public int[] getPlayerRatings() {
+        return playerRatings;
+    }
+
+    public int getCurrentPlayerIndex(){
+        return currentPlayer;
+    }
+
     public void evaluateCurrentPlayer() {
-        gameEvaluator.evaluate();
+        GameEvaluator gameEvaluator = new GameEvaluator(this);
+        playerRatings[currentPlayer] = gameEvaluator.evaluate();
         Logger.get()
                 .log("Player rating for " + currentPlayer + ": " + gameEvaluator.getPlayerRating());
         gameEvaluator.printRatings();

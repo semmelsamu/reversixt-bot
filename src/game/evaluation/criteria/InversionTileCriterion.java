@@ -40,11 +40,11 @@ public class InversionTileCriterion extends AbstractRating {
             return;
         }
 
-        int ourPlayerRating = getGame().getGameEvaluator().getPlayerRating();
+        int ourPlayerRating = getGame().getPlayerRatings()[getGame().getCurrentPlayerIndex()];
         for (int i = 1; i < getGame().getPlayers().length; i++) {
             getGame().nextPlayer();
         }
-        int beforeUsPlayerRating = getGame().getGameEvaluator().getPlayerRating();
+        int beforeUsPlayerRating = getGame().getPlayerRatings()[getGame().getCurrentPlayerIndex()];
         if (ourPlayerRating >= beforeUsPlayerRating) {
             for (Coordinates inversionTilesValidMove : inversionTilesValidMoves) {
                 addPlayerRatingByCriterion(new MapTileRating(inversionTilesValidMove, -1));

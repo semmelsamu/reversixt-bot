@@ -28,13 +28,14 @@ public class GameEvaluator {
     /**
      * Registers all criteria and adds it value to the player rating
      */
-    public void evaluate() {
+    public int evaluate() {
         registerCriteria();
 
         for (AbstractRating rating : ratings) {
             rating.evaluateByCriterion();
             this.playerRating += rating.getPlayerRatingByCriterion();
         }
+        return this.playerRating;
     }
 
     private void registerCriteria() {

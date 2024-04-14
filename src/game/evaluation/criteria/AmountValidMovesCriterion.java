@@ -21,6 +21,9 @@ public class AmountValidMovesCriterion extends AbstractRating {
     public void evaluateByCriterion() {
         List<Integer> movesAverages = new ArrayList<>();
         for (Player player : getGame().getPlayers()) {
+            if (player.getSizeOfValidMovesHistory().isEmpty()) {
+                return;
+            }
             movesAverages.add(
                     player.getSizeOfValidMovesHistory().stream().mapToInt(Integer::intValue).sum() /
                             player.getSizeOfValidMovesHistory().size());
