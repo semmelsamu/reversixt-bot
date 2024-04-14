@@ -11,6 +11,9 @@ import player.move.Move;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Handles inversion tile criterion
+ */
 public class InversionTileCriterion extends AbstractRating {
 
     public InversionTileCriterion(Game game) {
