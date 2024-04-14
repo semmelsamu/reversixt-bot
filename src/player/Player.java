@@ -1,6 +1,10 @@
 package player;
 
 import board.Tile;
+import player.move.Move;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class Player {
 
@@ -25,6 +29,8 @@ public class Player {
      */
     private int bombs;
 
+    private Set<Move> moves;
+
     /*
     |--------------------------------------------------------------------------
     | Constructor
@@ -35,6 +41,7 @@ public class Player {
         this.playerValue = playerValue;
         this.overwriteStones = overwriteStones;
         this.bombs = bombs;
+        this.moves = new HashSet<>();
     }
 
     /*
@@ -53,6 +60,10 @@ public class Player {
 
     public int getBombs() {
         return bombs;
+    }
+
+    public Set<Move> getMoves() {
+        return moves;
     }
 
     /*
@@ -80,6 +91,10 @@ public class Player {
      */
     public void decrementOverwriteStones() {
         overwriteStones--;
+    }
+
+    public void setMoves(Set<Move> moves) {
+        this.moves = moves;
     }
 
     @Override

@@ -3,6 +3,7 @@ package game.evaluation;
 import game.Game;
 import game.evaluation.criteria.AmountBombsCriterion;
 import game.evaluation.criteria.AmountOverwriteStonesCriterion;
+import game.evaluation.criteria.AmountValidMovesCriterion;
 import game.evaluation.criteria.CornerValuesCriterion;
 import util.Logger;
 
@@ -43,6 +44,7 @@ public class GameEvaluator {
         ratings.add(new CornerValuesCriterion(game));
         ratings.add(new AmountOverwriteStonesCriterion(game));
         ratings.add(new AmountBombsCriterion(game));
+        ratings.add(new AmountValidMovesCriterion(game));
     }
 
     /**

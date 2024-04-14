@@ -113,7 +113,9 @@ public class Game {
     */
 
     public Set<Move> getValidMovesForCurrentPlayer() {
-        return new MoveCalculator(this).getValidMoves();
+        Set<Move> validMoves = new MoveCalculator(this).getValidMoves();
+        getCurrentPlayer().setMoves(validMoves);
+        return validMoves;
     }
 
     /**
