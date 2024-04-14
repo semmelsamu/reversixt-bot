@@ -54,7 +54,7 @@ public class MoveExecutor {
             }
             tilesToColor.addAll(getTilesToColorInDirection(tileReader, move));
         }
-
+        // Check if an overwrite stone has to be used
         if (!(game.getTile(move.getCoordinates()).isUnoccupied())) {
             game.getPlayers()[move.getPlayer().toPlayerIndex()].decrementOverwriteStones();
         }
