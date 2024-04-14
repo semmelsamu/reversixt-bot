@@ -161,11 +161,15 @@ public class Game {
         return gameStats;
     }
 
+    public GameEvaluator getGameEvaluator() {
+        return gameEvaluator;
+    }
+
     public Board getBoard() {
         return board;
     }
 
-    public void evaluateMap() {
+    public void evaluateCurrentPlayer() {
         gameEvaluator.evaluate();
         Logger.get()
                 .log("Player rating for " + currentPlayer + ": " + gameEvaluator.getPlayerRating());
