@@ -43,6 +43,7 @@ public class GameEvaluator {
         ratings.add(new AmountBombsCriterion(game));
         ratings.add(new AmountValidMovesCriterion(game));
         ratings.add(new PrioritiseChoiceBonusMoveCriterion(game));
+        ratings.add(new ExpansionTileCriterion(game));
     }
 
     /**
