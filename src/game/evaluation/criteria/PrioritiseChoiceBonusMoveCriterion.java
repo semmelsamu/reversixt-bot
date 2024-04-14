@@ -20,10 +20,19 @@ public class PrioritiseChoiceBonusMoveCriterion extends AbstractRating {
     @Override
     public void evaluateByCriterion() {
         Set<Move> validMoves = getGame().getValidMovesForCurrentPlayer();
+
+        if(validMoves.isEmpty()) {
+            return;
+        }
+
         List<Coordinates> bonusTiles =
                 getGame().getGameStats().getAllCoordinatesWhereTileIs(Tile.BONUS);
         List<Coordinates> choiceTiles =
                 getGame().getGameStats().getAllCoordinatesWhereTileIs(Tile.CHOICE);
+
+        if(bonusTiles.isEmpty() && choiceTiles.isEmpty()){
+            return;
+        }
 
         List<Coordinates> choiceTilesValidMoves = validMoves.stream().map(Move::getCoordinates)
                 .filter(movCor -> choiceTiles.stream().allMatch(
