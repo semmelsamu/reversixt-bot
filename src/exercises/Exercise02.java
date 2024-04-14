@@ -38,7 +38,7 @@ public class Exercise02 {
         Move move = ConsoleInputHandler.selectMove(game);
 
         // Check if move is valid
-        if (!validMoves.contains(move)) {
+        if (!isMoveValid(move, validMoves)){
             Logger.get().error("Move is not valid!");
             return;
         }
@@ -50,5 +50,16 @@ public class Exercise02 {
         // Print new board
         Logger.get().log(game.toString());
 
+    }
+
+    private static boolean isMoveValid(Move move, Set<Move> validMoves){
+        boolean isValid = false;
+        for(Move validMove : validMoves){
+            if(validMove.getCoordinates().x == move.getCoordinates().x
+                    && validMove.getCoordinates().y == move.getCoordinates().y) {
+                isValid = true;
+            }
+        }
+        return isValid;
     }
 }
