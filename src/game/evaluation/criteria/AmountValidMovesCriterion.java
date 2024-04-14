@@ -9,6 +9,9 @@ import player.move.Move;
 
 import java.util.Set;
 
+/**
+ * Compares the valid moves of each player
+ */
 public class AmountValidMovesCriterion extends AbstractRating {
 
     public AmountValidMovesCriterion(Game game) {
