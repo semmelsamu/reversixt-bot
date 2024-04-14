@@ -1,6 +1,7 @@
 package game.evaluation;
 
 import game.Game;
+import game.evaluation.criteria.AmountBombsCriterion;
 import game.evaluation.criteria.AmountOverwriteStonesCriterion;
 import game.evaluation.criteria.CornerValuesCriterion;
 import util.Logger;
@@ -41,6 +42,7 @@ public class GameEvaluator {
     private void registerCriteria() {
         ratings.add(new CornerValuesCriterion(game));
         ratings.add(new AmountOverwriteStonesCriterion(game));
+        ratings.add(new AmountBombsCriterion(game));
     }
 
     /**

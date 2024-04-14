@@ -6,6 +6,7 @@ package game.evaluation;
 public enum RatingType {
 
     CORNER_VALUES,
-    AMOUNT_OVERWRITE_STONES
+    AMOUNT_OVERWRITE_STONES,
+    AMOUNT_BOMBS
 
 }
