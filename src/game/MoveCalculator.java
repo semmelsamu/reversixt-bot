@@ -77,7 +77,7 @@ public class MoveCalculator {
             }
 
             Set<Move> movesInDirection =
-                    getValidMoveForPieceInDirection(tileReader, currentPlayerValue);
+                    getValidMovesForPieceInDirection(tileReader, currentPlayerValue);
             if (movesInDirection != null) {
                 moves.addAll(movesInDirection);
             }
@@ -89,7 +89,7 @@ public class MoveCalculator {
      * @param tileReader
      * @return Valid moves for one piece for one of eight directions
      */
-    private Set<Move> getValidMoveForPieceInDirection(TileReader tileReader, Tile playerValue) {
+    private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Tile playerValue) {
         Logger.get().verbose("Searching for valid moves in direction ");
 
         Set<Move> movesPerDirection = new HashSet<>();
@@ -121,7 +121,7 @@ public class MoveCalculator {
             if (hasOverwriteStones) {
                 // Overwrite stone logic
                 if (currentTile.isPlayer() && tilesBetweenExistingAndNewPiece) {
-                    movesPerDirection.add(new Move(currentTile, currentCoordinates));
+                    movesPerDirection.add(new Move(playerValue, currentCoordinates));
                     // If an own tile is overwritten, return because this tile is handled separately
                     if (currentTile == playerValue) {
                         return movesPerDirection;
@@ -135,18 +135,18 @@ public class MoveCalculator {
                 for (Tile playerTile : Tile.getAllPlayerTiles()) {
                     if (playerTile != currentTile) {
                         movesPerDirection.add(
-                                new ChoiceMove(currentTile, currentCoordinates, playerTile));
+                                new ChoiceMove(playerTile, currentCoordinates, playerTile));
                     }
                 }
             }
             case INVERSION ->
-                    movesPerDirection.add(new InversionMove(currentTile, currentCoordinates));
+                    movesPerDirection.add(new InversionMove(playerValue, currentCoordinates));
             case BONUS -> {
-                movesPerDirection.add(new BonusMove(currentTile, currentCoordinates, Bonus.BOMB));
+                movesPerDirection.add(new BonusMove(playerValue, currentCoordinates, Bonus.BOMB));
                 movesPerDirection.add(
-                        new BonusMove(currentTile, currentCoordinates, Bonus.OVERWRITE_STONE));
+                        new BonusMove(playerValue, currentCoordinates, Bonus.OVERWRITE_STONE));
             }
-            default -> movesPerDirection.add(new Move(currentTile, currentCoordinates));
+            default -> movesPerDirection.add(new Move(playerValue, currentCoordinates));
 
         }
 
