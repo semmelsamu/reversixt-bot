@@ -9,6 +9,9 @@ import game.evaluation.RatingType;
 
 import java.util.List;
 
+/**
+ * Determines the value of Expansion Tiles
+ */
 public class ExpansionTileCriterion extends AbstractRating {
 
     public ExpansionTileCriterion(Game game) {
@@ -19,6 +22,9 @@ public class ExpansionTileCriterion extends AbstractRating {
     public void evaluateByCriterion() {
         List<Coordinates> expansionTiles =
                 getGame().getGameStats().getAllCoordinatesWhereTileIs(Tile.EXPANSION);
+        if (expansionTiles.isEmpty()) {
+            return;
+        }
         if (getGame().getCurrentPlayer().getOverwriteStones() != 0) {
             if (getGame().getGameStats()
                     .getAllCoordinatesWhereTileIs(getGame().getCurrentPlayer().getPlayerValue())
