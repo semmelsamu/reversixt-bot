@@ -114,7 +114,7 @@ public class Game {
 
     public Set<Move> getValidMovesForCurrentPlayer() {
         Set<Move> validMoves = new MoveCalculator(this).getValidMoves();
-        getCurrentPlayer().addValidMovesHistory(validMoves.size());
+        getCurrentPlayer().addSizeOfValidMovesHistory(validMoves.size());
         return validMoves;
     }
 

@@ -1,9 +1,11 @@
 package player;
 
 import board.Tile;
+import player.move.Move;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Player {
 
@@ -28,7 +30,7 @@ public class Player {
      */
     private int bombs;
 
-    private List<Integer> validMovesHistory;
+    private List<Integer> sizeOfvalidMovesHistory;
 
     /*
     |--------------------------------------------------------------------------
@@ -40,7 +42,7 @@ public class Player {
         this.playerValue = playerValue;
         this.overwriteStones = overwriteStones;
         this.bombs = bombs;
-        this.validMovesHistory = new ArrayList<>();
+        this.sizeOfvalidMovesHistory = new ArrayList<>();
     }
 
     /*
@@ -61,8 +63,8 @@ public class Player {
         return bombs;
     }
 
-    public List<Integer> getValidMovesHistory() {
-        return validMovesHistory;
+    public List<Integer> getSizeOfValidMovesHistory() {
+        return sizeOfvalidMovesHistory;
     }
 
     /*
@@ -85,8 +87,8 @@ public class Player {
         bombs++;
     }
 
-    public void addValidMovesHistory(int value){
-        validMovesHistory.add(value);
+    public void addSizeOfValidMovesHistory(int value){
+        sizeOfvalidMovesHistory.add(value);
     }
 
     /**

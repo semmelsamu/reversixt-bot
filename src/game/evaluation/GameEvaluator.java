@@ -1,10 +1,7 @@
 package game.evaluation;
 
 import game.Game;
-import game.evaluation.criteria.AmountBombsCriterion;
-import game.evaluation.criteria.AmountOverwriteStonesCriterion;
-import game.evaluation.criteria.AmountValidMovesCriterion;
-import game.evaluation.criteria.CornerValuesCriterion;
+import game.evaluation.criteria.*;
 import util.Logger;
 
 import java.util.HashSet;
@@ -45,6 +42,7 @@ public class GameEvaluator {
         ratings.add(new AmountOverwriteStonesCriterion(game));
         ratings.add(new AmountBombsCriterion(game));
         ratings.add(new AmountValidMovesCriterion(game));
+        ratings.add(new PrioritiseChoiceBonusMoveCriterion(game));
     }
 
     /**
