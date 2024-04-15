@@ -43,8 +43,7 @@ public class GameEvaluator {
         ratings.add(new AmountValidMovesCriterion(game));
         ratings.add(new PrioritiseChoiceBonusMoveCriterion(game));
         ratings.add(new AmountTileCriterion(game));
-
-        //spielsteine vergleichen -> 80 % bis 90 %
+        ratings.add(new TileFillLevelCriterion(game));
 
         // needs to be last one
         ratings.add(new InversionTileCriterion(game));
