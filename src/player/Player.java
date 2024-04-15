@@ -1,11 +1,9 @@
 package player;
 
 import board.Tile;
-import player.move.Move;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class Player {
 
@@ -87,7 +85,11 @@ public class Player {
         bombs++;
     }
 
-    public void addSizeOfValidMovesHistory(int value){
+    public void decrementBombs(){
+        bombs--;
+    }
+
+    public void addSizeOfValidMovesHistory(int value) {
         sizeOfvalidMovesHistory.add(value);
     }
 
