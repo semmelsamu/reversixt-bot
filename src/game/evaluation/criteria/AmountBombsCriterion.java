@@ -29,7 +29,7 @@ public class AmountBombsCriterion extends AbstractRating {
 
     private int getBombRadiusRating() {
         int maxBoardlLength = Math.max(getGame().getBoard().getHeight(), getGame().getBoard().getWidth());
-        maxBoardlLength /= 2;
-        return getGame().getBombRadius() - maxBoardlLength;
+        maxBoardlLength /= 3;
+        return maxBoardlLength - getGame().getBombRadius();
     }
 }
