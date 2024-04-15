@@ -4,6 +4,7 @@ import board.Coordinates;
 import board.Tile;
 import game.Game;
 import game.evaluation.AbstractRating;
+import game.evaluation.GameEvaluator;
 import game.evaluation.MapTileRating;
 import game.evaluation.RatingType;
 import player.move.Move;
@@ -32,7 +33,7 @@ public class InversionTileCriterion extends AbstractRating {
                 getGame().getGameStats().getAllCoordinatesWhereTileIs(Tile.INVERSION);
 
         List<Coordinates> inversionTilesValidMoves = validMoves.stream().map(Move::getCoordinates)
-                .filter(movCor -> allInversionTiles.stream().allMatch(
+                .filter(movCor -> allInversionTiles.stream().anyMatch(
                         choiceTile -> choiceTile.x == movCor.x && choiceTile.y == movCor.y))
                 .toList();
 
@@ -40,11 +41,15 @@ public class InversionTileCriterion extends AbstractRating {
             return;
         }
 
-        int ourPlayerRating = getGame().getPlayerRatings()[getGame().getCurrentPlayerIndex()];
+        int ourPlayerRating = getGame().getGameEvaluator().getPlayerRating();
         for (int i = 1; i < getGame().getPlayers().length; i++) {
             getGame().nextPlayer();
         }
-        int beforeUsPlayerRating = getGame().getPlayerRatings()[getGame().getCurrentPlayerIndex()];
+        GameEvaluator g = new GameEvaluator(getGame());
+        g.removeInversionTileCriterion();
+        g.evaluate();
+        int beforeUsPlayerRating = g.getPlayerRating();
+        getGame().nextPlayer();
         if (ourPlayerRating >= beforeUsPlayerRating) {
             for (Coordinates inversionTilesValidMove : inversionTilesValidMoves) {
                 addPlayerRatingByCriterion(new MapTileRating(inversionTilesValidMove, -1));

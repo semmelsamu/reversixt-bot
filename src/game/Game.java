@@ -61,9 +61,9 @@ public class Game {
     /**
      * The container for all stats about the game and the logic
      */
-    public GameStats gameStats;
+    private GameStats gameStats;
 
-    public int[] playerRatings;
+    private GameEvaluator gameEvaluator;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -101,7 +101,6 @@ public class Game {
         this.currentPlayer = 0;
 
         gameStats = new GameStats(this);
-        playerRatings = new int[initialPlayers];
     }
 
     /*
@@ -163,8 +162,8 @@ public class Game {
         return board;
     }
 
-    public int[] getPlayerRatings() {
-        return playerRatings;
+    public GameEvaluator getGameEvaluator() {
+        return gameEvaluator;
     }
 
     public int getCurrentPlayerIndex(){
@@ -172,8 +171,8 @@ public class Game {
     }
 
     public void evaluateCurrentPlayer() {
-        GameEvaluator gameEvaluator = new GameEvaluator(this);
-        playerRatings[currentPlayer] = gameEvaluator.evaluate();
+        gameEvaluator = new GameEvaluator(this);
+        gameEvaluator.evaluate();
         Logger.get()
                 .log("Player rating for " + currentPlayer + ": " + gameEvaluator.getPlayerRating());
         gameEvaluator.printRatings();

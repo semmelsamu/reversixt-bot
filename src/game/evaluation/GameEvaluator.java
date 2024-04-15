@@ -4,6 +4,7 @@ import game.Game;
 import game.evaluation.criteria.*;
 import util.Logger;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,25 +18,24 @@ public class GameEvaluator {
 
     private Game game;
 
-    private Set<AbstractRating> ratings;
+    // needs to be list for sorting reason
+    private List<AbstractRating> ratings;
 
     public GameEvaluator(Game game) {
         this.game = game;
         this.playerRating = 0;
-        ratings = new HashSet<>();
+        ratings = new ArrayList<>();
+        registerCriteria();
     }
 
     /**
      * Registers all criteria and adds it value to the player rating
      */
-    public int evaluate() {
-        registerCriteria();
-
+    public void evaluate() {
         for (AbstractRating rating : ratings) {
             rating.evaluateByCriterion();
             this.playerRating += rating.getPlayerRatingByCriterion();
         }
-        return this.playerRating;
     }
 
     private void registerCriteria() {
@@ -45,6 +45,8 @@ public class GameEvaluator {
         ratings.add(new AmountValidMovesCriterion(game));
         ratings.add(new PrioritiseChoiceBonusMoveCriterion(game));
         ratings.add(new ExpansionTileCriterion(game));
+
+        // needs to be last one
         ratings.add(new InversionTileCriterion(game));
     }
 
@@ -66,6 +68,10 @@ public class GameEvaluator {
 
     public int getPlayerRating() {
         return playerRating;
+    }
+
+    public void removeInversionTileCriterion(){
+        ratings.removeIf(abstractRating -> abstractRating instanceof InversionTileCriterion);
     }
 
     /**
