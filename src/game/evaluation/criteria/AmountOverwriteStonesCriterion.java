@@ -11,7 +11,7 @@ import player.Player;
 public class AmountOverwriteStonesCriterion extends AbstractRating {
 
     public AmountOverwriteStonesCriterion(Game game) {
-        super(RatingType.AMOUNT_OVERWRITE_STONES, game);
+        super(RatingType.AMOUNT_OVERWRITE_STONES, game, 3);
     }
 
     @Override

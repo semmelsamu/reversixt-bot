@@ -18,11 +18,18 @@ public abstract class AbstractRating {
 
     private int playerRatingByCriterion;
 
-    public AbstractRating(RatingType ratingType, Game game) {
+    private int weight;
+
+    public AbstractRating(RatingType ratingType, Game game, int weight) {
         this.mapTileRatings = new ArrayList<>();
         this.ratingType = ratingType;
         this.game = game;
+        this.weight = weight;
         this.playerRatingByCriterion = 0;
+    }
+
+    public AbstractRating(RatingType ratingType, Game game) {
+        this(ratingType, game, 1);
     }
 
     public abstract void evaluateByCriterion();
@@ -33,7 +40,7 @@ public abstract class AbstractRating {
      * @param playerRatingByCriterion can be added in any implementation
      */
     protected void addPlayerRatingByCriterion(int playerRatingByCriterion) {
-        this.playerRatingByCriterion += playerRatingByCriterion;
+        this.playerRatingByCriterion += playerRatingByCriterion * weight;
     }
 
     /**
@@ -42,7 +49,7 @@ public abstract class AbstractRating {
      * @param mapTileRating {@link MapTileRating} because we maybe need coordinates later
      */
     protected void addPlayerRatingByCriterion(MapTileRating mapTileRating) {
-        playerRatingByCriterion += mapTileRating.value();
+        playerRatingByCriterion += mapTileRating.value() * weight;
         this.mapTileRatings.add(mapTileRating);
 
     }

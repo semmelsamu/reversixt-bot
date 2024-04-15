@@ -10,7 +10,7 @@ public enum RatingType {
     BOMBS,
     AMOUNT_VALID_MOVES,
     PRIORITISE_CHOICE_BONUS,
-    EXPANSION_TILE,
+    AMOUNT_TILE,
     INVERSION_TILE
 
 }

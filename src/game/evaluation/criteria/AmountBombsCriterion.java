@@ -24,12 +24,6 @@ public class AmountBombsCriterion extends AbstractRating {
         int currentPlayerBombs = getGame().getCurrentPlayer().getBombs();
 
         int rating = currentPlayerBombs - bombsAverage;
-        addPlayerRatingByCriterion(rating + getBombRadiusRating());
-    }
-
-    private int getBombRadiusRating() {
-        int maxBoardlLength = Math.max(getGame().getBoard().getHeight(), getGame().getBoard().getWidth());
-        maxBoardlLength /= 3;
-        return maxBoardlLength - getGame().getBombRadius();
+        addPlayerRatingByCriterion(rating * getGame().getBombRadius() * getGame().getBombRadius());
     }
 }

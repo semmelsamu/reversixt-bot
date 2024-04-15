@@ -44,10 +44,10 @@ public class PrioritiseChoiceBonusMoveCriterion extends AbstractRating {
                 .toList();
 
         for (Coordinates choiceTilesValidMove : choiceTilesValidMoves) {
-            addPlayerRatingByCriterion(new MapTileRating(choiceTilesValidMove, 2));
+            addPlayerRatingByCriterion(new MapTileRating(choiceTilesValidMove, 3));
         }
         for (Coordinates bonusTilesValidMove : bonusTilesValidMoves) {
-            addPlayerRatingByCriterion(new MapTileRating(bonusTilesValidMove, 2));
+            addPlayerRatingByCriterion(new MapTileRating(bonusTilesValidMove, 3));
 
         }
     }

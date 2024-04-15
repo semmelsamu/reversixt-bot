@@ -5,9 +5,7 @@ import game.evaluation.criteria.*;
 import util.Logger;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Represents the evaluation logic
@@ -44,7 +42,9 @@ public class GameEvaluator {
         ratings.add(new AmountBombsCriterion(game));
         ratings.add(new AmountValidMovesCriterion(game));
         ratings.add(new PrioritiseChoiceBonusMoveCriterion(game));
-        ratings.add(new ExpansionTileCriterion(game));
+        ratings.add(new AmountTileCriterion(game));
+
+        //spielsteine vergleichen -> 80 % bis 90 %
 
         // needs to be last one
         ratings.add(new InversionTileCriterion(game));
