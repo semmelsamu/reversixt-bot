@@ -27,9 +27,6 @@ public class Player {
      * The number of bombs this player has
      */
     private int bombs;
-
-    private List<Integer> sizeOfvalidMovesHistory;
-
     /*
     |--------------------------------------------------------------------------
     | Constructor
@@ -40,7 +37,6 @@ public class Player {
         this.playerValue = playerValue;
         this.overwriteStones = overwriteStones;
         this.bombs = bombs;
-        this.sizeOfvalidMovesHistory = new ArrayList<>();
     }
 
     /*
@@ -59,10 +55,6 @@ public class Player {
 
     public int getBombs() {
         return bombs;
-    }
-
-    public List<Integer> getSizeOfValidMovesHistory() {
-        return sizeOfvalidMovesHistory;
     }
 
     /*
@@ -87,10 +79,6 @@ public class Player {
 
     public void decrementBombs(){
         bombs--;
-    }
-
-    public void addSizeOfValidMovesHistory(int value) {
-        sizeOfvalidMovesHistory.add(value);
     }
 
     /**

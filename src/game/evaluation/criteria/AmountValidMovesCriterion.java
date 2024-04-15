@@ -2,8 +2,10 @@ package game.evaluation.criteria;
 
 import game.Game;
 import game.evaluation.AbstractRating;
+import game.evaluation.MapTileRating;
 import game.evaluation.RatingType;
 import player.Player;
+import player.move.Move;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,24 +21,8 @@ public class AmountValidMovesCriterion extends AbstractRating {
 
     @Override
     public void evaluateByCriterion() {
-        List<Integer> movesAverages = new ArrayList<>();
-        for (Player player : getGame().getPlayers()) {
-            if (player.getSizeOfValidMovesHistory().isEmpty()) {
-                return;
-            }
-            movesAverages.add(
-                    player.getSizeOfValidMovesHistory().stream().mapToInt(Integer::intValue).sum() /
-                            player.getSizeOfValidMovesHistory().size());
-
+        for (Move move : getGame().getValidMovesForCurrentPlayer()) {
+            addPlayerRatingByCriterion(new MapTileRating(move.getCoordinates(), 1));
         }
-        int movesAverage = movesAverages.stream().mapToInt(Integer::intValue).sum() /
-                getGame().getPlayers().length;
-
-        int moveCurrentPlayerAverage =
-                getGame().getCurrentPlayer().getSizeOfValidMovesHistory().stream()
-                        .mapToInt(Integer::intValue).sum() /
-                        getGame().getCurrentPlayer().getSizeOfValidMovesHistory().size();
-
-        addPlayerRatingByCriterion(moveCurrentPlayerAverage - movesAverage);
     }
 }
