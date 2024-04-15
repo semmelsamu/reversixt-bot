@@ -2,6 +2,8 @@ package board;
 
 import game.Game;
 
+import java.util.Optional;
+
 public class TileReader {
 
     /*
@@ -74,7 +76,9 @@ public class TileReader {
             return true;
         } else {
             // Check transition
-            return game.getTransitions().containsKey(new TransitionPart(coordinates, direction));
+            return game.getTransitions().keySet().stream().anyMatch(
+                    transitionPart -> transitionPart.coordinates().equals(coordinates) &&
+                            transitionPart.direction().equals(direction));
         }
 
     }
@@ -93,10 +97,12 @@ public class TileReader {
             coordinates = newCoordinates;
         } else {
             // Could be a transition
-            TransitionPart outgoingTransition = new TransitionPart(coordinates, direction);
-            if (game.getTransitions().containsKey(outgoingTransition)) {
+            Optional<TransitionPart> transition = game.getTransitions().keySet().stream()
+                    .filter(transitionPart -> transitionPart.coordinates().equals(coordinates) &&
+                            transitionPart.direction().equals(direction)).findAny();
+            if (transition.isPresent()) {
                 // It's a transition
-                TransitionPart incomingTransition = game.getTransitions().get(outgoingTransition);
+                TransitionPart incomingTransition = game.getTransitions().get(transition.get());
                 coordinates = incomingTransition.coordinates();
                 direction = incomingTransition.direction();
             } else {

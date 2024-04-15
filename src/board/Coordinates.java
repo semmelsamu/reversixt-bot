@@ -52,6 +52,18 @@ public class Coordinates {
         };
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Coordinates other = (Coordinates) obj;
+        return x == other.x && y == other.y;
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
