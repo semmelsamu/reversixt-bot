@@ -10,7 +10,6 @@ import util.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class MoveCalculator {
     private Game game;
@@ -52,7 +51,7 @@ public class MoveCalculator {
                                             Tile currentPlayerValue) {
         Logger.get()
                 .verbose("Searching for valid moves originating from piece " + ownTileCoordinates);
-        Set<Move> moves = new TreeSet<>();
+        Set<Move> moves = new HashSet<>();
         for (Direction direction : Direction.values()) {
             TileReader tileReader = new TileReader(game, ownTileCoordinates, direction);
             // Check if tile has a neighbour in this direction
