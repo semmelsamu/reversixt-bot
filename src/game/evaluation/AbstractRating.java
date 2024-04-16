@@ -69,4 +69,8 @@ public abstract class AbstractRating {
     public List<MapTileRating> getMapTileRatings() {
         return mapTileRatings;
     }
+
+    public int getWeight() {
+        return weight;
+    }
 }

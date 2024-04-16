@@ -30,7 +30,7 @@ public class MoveCalculator {
     public Set<Move> getValidMoves() {
         Player currentPlayer = game.getCurrentPlayer();
         Tile currentPlayerValue = currentPlayer.getPlayerValue();
-        Logger.get().log("Searching for all valid moves for Player " + currentPlayerValue);
+        Logger.get().debug("Searching for all valid moves for Player " + currentPlayerValue);
         Set<Move> moves = new HashSet<>();
         for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(currentPlayerValue)) {
             if (game.getTile(occupiedTile) != currentPlayerValue) {

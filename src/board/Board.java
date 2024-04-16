@@ -68,7 +68,7 @@ public class Board {
     public Tile getTile(Coordinates position) {
 
         if (!coordinatesLayInBoard(position)) {
-            Logger.get().warn("Tried to get a tile from coordinates the board doesn't have");
+            Logger.get().debug("Not tile is found, check for transitions.");
             return null;
         }
 

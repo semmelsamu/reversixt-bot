@@ -14,7 +14,7 @@ import java.util.Set;
 public class AmountValidMovesCriterion extends AbstractRating {
 
     public AmountValidMovesCriterion(Game game) {
-        super(RatingType.AMOUNT_VALID_MOVES, game, 2);
+        super(RatingType.AMOUNT_VALID_MOVES, game);
     }
 
     @Override

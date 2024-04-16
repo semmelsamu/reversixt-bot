@@ -69,7 +69,7 @@ public class GameEvaluator {
         return playerRating;
     }
 
-    public void removeInversionTileCriterion(){
+    public void removeInversionTileCriterion() {
         ratings.removeIf(abstractRating -> abstractRating instanceof InversionTileCriterion);
     }
 
@@ -80,10 +80,12 @@ public class GameEvaluator {
         for (AbstractRating rating : ratings) {
             if (rating.getMapTileRatings().isEmpty()) {
                 Logger.get().log(rating.getRatingType().name() + ": " +
-                        rating.getPlayerRatingByCriterion());
+                        rating.getPlayerRatingByCriterion() + " with a weight of " +
+                        rating.getWeight());
             } else {
                 Logger.get().log(rating.getRatingType().name() + ": " + rating.getMapTileRatings() +
-                        " = " + rating.getPlayerRatingByCriterion());
+                        " = " + rating.getPlayerRatingByCriterion() + " with a weight of " +
+                        rating.getWeight());
             }
         }
     }

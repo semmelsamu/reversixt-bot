@@ -21,6 +21,8 @@ public class CornerValuesCriterion extends AbstractRating {
 
     @Override
     public void evaluateByCriterion() {
+        // 8 neutral
+        // durchgehende ecken
         List<Coordinates> playerTiles = getGame().getAllCoordinatesWhereTileIs(
                 getGame().getCurrentPlayer().getPlayerValue());
         for(Coordinates tile : playerTiles) {
