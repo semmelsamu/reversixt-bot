@@ -1,5 +1,7 @@
 package board;
 
+import java.util.Objects;
+
 /**
  * y is the vertical axis, x the horizontal axis.
  * Coordinates start at 0.
@@ -64,7 +66,11 @@ public class Coordinates {
         return x == other.x && y == other.y;
     }
 
-    /*
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+/*
     |-----------------------------------------------------------------------------------------------
     |
     |   To String
