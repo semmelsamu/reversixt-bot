@@ -1,7 +1,6 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
     <option name="RIGHT_MARGIN" value="100" />
-    <option name="ENABLE_SECOND_REFORMAT" value="true" />
     <JavaCodeStyleSettings>
       <option name="ANNOTATION_PARAMETER_WRAP" value="1" />
       <option name="RECORD_COMPONENTS_WRAP" value="2" />

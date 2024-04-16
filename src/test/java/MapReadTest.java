@@ -1,24 +1,26 @@
-package test;
-
 import game.Game;
 import game.GameFactory;
+import org.junit.jupiter.api.Test;
 import util.File;
 import util.TestLogger;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 public class MapReadTest {
 
-    public static int test() {
-
+    @Test
+    public void testAllMaps() {
         int failedTests = 0;
 
         for (String map : File.getAllMaps()) {
             failedTests += testMap(map);
         }
 
-        return failedTests;
+        assertEquals(0, failedTests, "Number of failed map reads: " + failedTests);
     }
 
-    public static int testMap(String filename) {
+    public int testMap(String filename) {
         try {
             Game game = GameFactory.createFromFile(filename);
             TestLogger.get().log("Map " + filename);

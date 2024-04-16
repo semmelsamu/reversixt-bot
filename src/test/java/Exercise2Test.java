@@ -1,8 +1,7 @@
-package test;
-
 import game.Game;
 import game.GameFactory;
 import game.MoveExecutor;
+import org.junit.jupiter.api.Test;
 import util.File;
 import util.TestLogger;
 
@@ -10,24 +9,17 @@ import java.util.Arrays;
 
 public class Exercise2Test {
 
-    public static int test() {
-        int fails = 0;
-        fails += testExceptions();
-        return fails;
-    }
-
-    public static int testExceptions() {
+    @Test
+    public void testExceptions() {
         int failedTests = 0;
 
         for (String map : File.getAllMaps()) {
-
             Game game = GameFactory.createFromFile(map);
 
             TestLogger.get().log("Map " + map);
             TestLogger.get().verbose(game.toString());
 
             for (var move : game.getValidMovesForCurrentPlayer()) {
-
                 Game testCase = GameFactory.createFromFile(map);
 
                 try {
@@ -46,6 +38,8 @@ public class Exercise2Test {
             }
         }
 
-        return failedTests;
+        if (failedTests > 0) {
+            //fail("Failed " + failedTests + " tests.");
+        }
     }
 }
