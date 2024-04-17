@@ -144,22 +144,35 @@ public class MoveExecutor {
     }
 
     private void executeInversionLogic() {
+
         // Overwriting Tiles in Board
         Tile[] participatingPlayerTiles = game.getAllParticipatingPlayers();
+
         // Updating OccupiedTiles of all Players
-        // List<Tile> oldTilesfromPred = players[players.length - 1].getOccupiedTiles();
-        var oldTilesfromPred = game.getGameStats().getAllCoordinatesWhereTileIs(
-                participatingPlayerTiles[participatingPlayerTiles.length - 1]);
+
+        var previousPlayer = participatingPlayerTiles[participatingPlayerTiles.length - 1];
+
+        // We need to create a copy of the coordinate set as we are altering it in the loop
+        // Else we get a ConcurrentModificationException.
+        Set<Coordinates> oldTilesFromPred =
+                new HashSet<>(game.getGameStats().getAllCoordinatesWhereTileIs(previousPlayer));
+
         Set<Coordinates> oldOwnTiles = null;
+
         for (int i = 0; i < participatingPlayerTiles.length; i++) {
+
             if (i != 0) {
-                oldTilesfromPred = oldOwnTiles;
+                oldTilesFromPred = oldOwnTiles;
             }
-            oldOwnTiles =
-                    game.getGameStats().getAllCoordinatesWhereTileIs(participatingPlayerTiles[i]);
-            for (Coordinates coordinates : oldTilesfromPred) {
+
+            oldOwnTiles = new HashSet<>(
+                    game.getGameStats().getAllCoordinatesWhereTileIs(participatingPlayerTiles[i]));
+            Logger.get().debug(oldTilesFromPred.toString());
+
+            for (Coordinates coordinates : oldTilesFromPred) {
                 game.setTile(coordinates, participatingPlayerTiles[i]);
             }
+
         }
     }
 
