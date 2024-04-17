@@ -5,13 +5,11 @@ import board.Coordinates;
 import board.Tile;
 import board.TransitionPart;
 import player.Player;
-import player.move.Move;
 import util.Logger;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Game {
@@ -110,10 +108,6 @@ public class Game {
     |
     |-----------------------------------------------------------------------------------------------
     */
-
-    public Set<Move> getValidMovesForCurrentPlayer() {
-        return new MoveCalculator(this).getValidMoves();
-    }
 
     /**
      * Sets the current player to the next player.

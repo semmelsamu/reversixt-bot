@@ -1,7 +1,9 @@
 package exercises;
 
+import board.Tile;
 import game.Game;
 import game.GameFactory;
+import game.MoveCalculator;
 import game.MoveExecutor;
 import player.move.Move;
 import util.ConsoleInputHandler;
@@ -28,7 +30,8 @@ public class Exercise02 {
         Logger.get().log(game.toString());
 
         // Get and print all valid moves
-        Set<Move> validMoves = game.getValidMovesForCurrentPlayer();
+        Set<Move> validMoves = (new MoveCalculator(game)).getValidMovesForPlayer(Tile.PLAYER1);
+
         Logger.get().debug("All valid moves for current Player:");
         for (var move : validMoves) {
             Logger.get().debug(move.toString());
@@ -38,7 +41,7 @@ public class Exercise02 {
         Move move = ConsoleInputHandler.selectMove(game);
 
         // Check if move is valid
-        if (!validMoves.contains(move)){
+        if (!validMoves.contains(move)) {
             Logger.get().error("Move is not valid!");
             return;
         }

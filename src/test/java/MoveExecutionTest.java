@@ -1,5 +1,7 @@
+import board.Tile;
 import game.Game;
 import game.GameFactory;
+import game.MoveCalculator;
 import game.MoveExecutor;
 import org.junit.jupiter.api.Test;
 import util.File;
@@ -20,7 +22,7 @@ public class MoveExecutionTest {
             TestLogger.get().log("Map " + map);
             TestLogger.get().verbose(game.toString());
 
-            for (var move : game.getValidMovesForCurrentPlayer()) {
+            for (var move : (new MoveCalculator(game).getValidMovesForPlayer(Tile.PLAYER1))) {
                 Game testCase = GameFactory.createFromFile(map);
 
                 try {

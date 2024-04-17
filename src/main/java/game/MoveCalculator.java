@@ -4,7 +4,6 @@ import board.Coordinates;
 import board.Direction;
 import board.Tile;
 import board.TileReader;
-import player.Player;
 import player.move.*;
 import util.Logger;
 
@@ -27,18 +26,15 @@ public class MoveCalculator {
     /**
      * Get all valid moves for this player
      */
-    public Set<Move> getValidMoves() {
-        Player currentPlayer = game.getCurrentPlayer();
-        Tile currentPlayerValue = currentPlayer.getPlayerValue();
-        Logger.get().debug("Searching for all valid moves for Player " + currentPlayerValue);
+    public Set<Move> getValidMovesForPlayer(Tile player) {
+        Logger.get().debug("Searching for all valid moves for Player " + player);
         Set<Move> moves = new HashSet<>();
-        for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(currentPlayerValue)) {
-            if (game.getTile(occupiedTile) != currentPlayerValue) {
-                Logger.get().error("Wrong coordinates in Player" + currentPlayerValue +
-                        "'s List stones");
+        for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(player)) {
+            if (game.getTile(occupiedTile) != player) {
+                Logger.get().error("Wrong coordinates in Player" + player + "'s List stones");
                 continue;
             }
-            moves.addAll(getValidMovesForPiece(occupiedTile, currentPlayerValue));
+            moves.addAll(getValidMovesForPiece(occupiedTile, player));
         }
         return moves;
     }
