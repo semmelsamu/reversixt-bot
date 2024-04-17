@@ -1,9 +1,7 @@
 plugins {
     id 'java'
 }
-
-group 'org.reverti'
-version '1.0-SNAPSHOT'
+project.buildDir('bin')
 
 repositories {
     mavenCentral()
@@ -17,15 +15,6 @@ test {
     useJUnitPlatform()
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDirs = ['src/main/resources', 'src/main/maps']
-        }
-    }
-    test {
-        resources {
-            srcDirs = ['src/test/resources', 'src/main/maps']
-        }
-    }
+jar {
+    archiveBaseName = 'client04'
 }

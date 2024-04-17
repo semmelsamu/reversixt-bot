@@ -2,6 +2,7 @@ out
 TestLudwig.java
 .DS_Store
 editor.jar
+bin
 build
 .gradle
 gradle
