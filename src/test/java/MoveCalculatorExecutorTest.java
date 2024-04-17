@@ -6,14 +6,16 @@ import game.MoveExecutor;
 import org.junit.jupiter.api.Test;
 import player.move.Move;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MoveCalculatorExecutorTest {
 
-    // This makes sense! See constructor.
+    // I know this is heavy to digest, but it makes sense!! See constructor.
     Map<String, Map<Move, Map<Coordinates, Tile>>> testExpectations;
 
     public MoveCalculatorExecutorTest() {
@@ -43,9 +45,15 @@ public class MoveCalculatorExecutorTest {
 
         for (var testExpectation : testExpectations.entrySet()) {
 
-            Game game = GameFactory.createFromFile(testExpectation.getKey());
+            try {
+                GameFactory.createFromFile(testExpectation.getKey());
+            } catch (Exception e) {
+                fail("Error creating game from file: " + Arrays.toString(e.getStackTrace()));
+            }
 
             for (var validMove : testExpectation.getValue().entrySet()) {
+
+                Game game = GameFactory.createFromFile(testExpectation.getKey());
 
                 MoveExecutor moveExecutor = new MoveExecutor(game);
                 moveExecutor.executeMove(validMove.getKey());
