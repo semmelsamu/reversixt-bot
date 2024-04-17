@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class MoveExecutionTest {
+public class MoveExecutionExceptionTest {
 
     @Test
     public void testEveryMove() {
