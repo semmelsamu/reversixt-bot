@@ -1,5 +1,3 @@
-package tests;
-
 import game.Game;
 import game.GameFactory;
 import org.junit.jupiter.api.Test;

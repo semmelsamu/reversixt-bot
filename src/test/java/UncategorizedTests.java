@@ -1,5 +1,3 @@
-package tests;
-
 import board.Coordinates;
 import board.Tile;
 import game.Game;

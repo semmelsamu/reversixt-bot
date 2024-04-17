@@ -1,5 +1,3 @@
-package tests;
-
 import board.Tile;
 import game.Game;
 import game.GameFactory;
