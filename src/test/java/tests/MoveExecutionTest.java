@@ -9,7 +9,7 @@ import util.TestLogger;
 
 import java.util.Arrays;
 
-public class MoveExecution {
+public class MoveExecutionTest {
 
     @Test
     public void testExceptions() {

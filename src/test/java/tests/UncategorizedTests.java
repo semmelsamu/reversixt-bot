@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import player.move.InversionMove;
 import util.Logger;
 
-public class Uncategorized {
+public class UncategorizedTests {
 
     @Test
     public void test1() {

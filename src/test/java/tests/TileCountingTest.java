@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TileCounting {
+public class TileCountingTest {
 
     @Test
     public void testTileCount() {

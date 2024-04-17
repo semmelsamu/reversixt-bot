@@ -9,7 +9,7 @@ import util.TestLogger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class MapReading {
+public class MapReadingTest {
 
     @Test
     public void testAllMaps() {
