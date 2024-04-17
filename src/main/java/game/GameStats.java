@@ -5,9 +5,9 @@ import board.Tile;
 import util.FindKeyByValue;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class GameStats {
 
@@ -19,12 +19,13 @@ public class GameStats {
     |-----------------------------------------------------------------------------------------------
     */
 
-    Map<Tile, List<Coordinates>> tilesWithValue;
+    Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
     public GameStats(Game game) {
-        tilesWithValue = new HashMap<>();
+        coordinatesGroupedByTile = new HashMap<>();
         for (Tile tile : Tile.values()) {
-            tilesWithValue.put(tile, new LinkedList<>(game.getAllCoordinatesWhereTileIs(tile)));
+            coordinatesGroupedByTile.put(tile,
+                    new HashSet<>(game.getAllCoordinatesWhereTileIs(tile)));
         }
     }
 
@@ -36,8 +37,8 @@ public class GameStats {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
-        return tilesWithValue.get(tile);
+    public Set<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
+        return coordinatesGroupedByTile.get(tile);
     }
 
     /*
@@ -49,20 +50,10 @@ public class GameStats {
     */
 
     public void replaceTileAtCoordinates(Coordinates coordinates, Tile tile) {
-        tilesWithValue.get(
-                // TODO: Performance. FindKeyByValue is slow.
-                FindKeyByValue.findKeyByValue(tilesWithValue, coordinates)).remove(coordinates);
-
-        tilesWithValue.get(tile).add(coordinates);
+        coordinatesGroupedByTile.get(
+                        FindKeyByValue.findKeyByValue(coordinatesGroupedByTile, coordinates))
+                .remove(coordinates);
+        coordinatesGroupedByTile.get(tile).add(coordinates);
     }
-
-    /*
-    |-----------------------------------------------------------------------------------------------
-    |
-    |   Helper Methods
-    |
-    |-----------------------------------------------------------------------------------------------
-    */
-
 
 }

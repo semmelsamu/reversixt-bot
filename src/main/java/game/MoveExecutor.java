@@ -8,7 +8,6 @@ import player.move.*;
 import util.Logger;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class MoveExecutor {
@@ -129,7 +128,7 @@ public class MoveExecutor {
         Tile playerToSwapWith = choiceMove.getPlayerToSwapWith();
 
         // Collect all occupied tiles of current player
-        List<Coordinates> oldTilesPlayerFromCurrentPlayer =
+        var oldTilesPlayerFromCurrentPlayer =
                 game.getGameStats().getAllCoordinatesWhereTileIs(currentPlayer);
 
         // Iterate through all old tiles of player to swap with
@@ -149,9 +148,9 @@ public class MoveExecutor {
         Tile[] participatingPlayerTiles = game.getAllParticipatingPlayers();
         // Updating OccupiedTiles of all Players
         // List<Tile> oldTilesfromPred = players[players.length - 1].getOccupiedTiles();
-        List<Coordinates> oldTilesfromPred = game.getGameStats().getAllCoordinatesWhereTileIs(
+        var oldTilesfromPred = game.getGameStats().getAllCoordinatesWhereTileIs(
                 participatingPlayerTiles[participatingPlayerTiles.length - 1]);
-        List<Coordinates> oldOwnTiles = null;
+        Set<Coordinates> oldOwnTiles = null;
         for (int i = 0; i < participatingPlayerTiles.length; i++) {
             if (i != 0) {
                 oldTilesfromPred = oldOwnTiles;
