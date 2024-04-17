@@ -4,7 +4,6 @@ import game.GameFactory;
 import org.junit.jupiter.api.Test;
 import util.TestLogger;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,21 +15,16 @@ public class TileCountingTest {
     public void testTileCount() {
         Map<String, Map<Tile, Integer>> mapsAndTileCounts = new HashMap<>();
 
-        // Lade die Testressource mit dem ClassLoader
-        URL resourceUrl = getClass().getClassLoader().getResource("maps/initialMaps/window.map");
-        String windowMapPath = resourceUrl != null ? resourceUrl.getPath() : null;
-
-        resourceUrl = getClass().getClassLoader().getResource("maps/initialMaps/checkerboard.map");
-        String checkerboardMapPath = resourceUrl != null ? resourceUrl.getPath() : null;
-
-        mapsAndTileCounts.put("maps/initialMaps/window.map", createTileCountMap(4));
-        mapsAndTileCounts.put("maps/initialMaps/checkerboard.map", createTileCountMap(8));
+        String windowMap = "maps/initialMaps/window.map";
+        mapsAndTileCounts.put(windowMap, createTileCountMap(4));
+        String checkerboardMap = "maps/initialMaps/checkerboard.map";
+        mapsAndTileCounts.put(checkerboardMap, createTileCountMap(8));
 
         int errors = 0;
 
         for (var mapAndTileCounts : mapsAndTileCounts.entrySet()) {
-            String mapPath = mapAndTileCounts.getKey().equals("maps/initialMaps/window.map") ?
-                    windowMapPath : checkerboardMapPath;
+            String mapPath =
+                    mapAndTileCounts.getKey().equals(windowMap) ? windowMap : checkerboardMap;
             Game game = GameFactory.createFromFile(mapPath);
 
             for (var tileAndCount : mapAndTileCounts.getValue().entrySet()) {
