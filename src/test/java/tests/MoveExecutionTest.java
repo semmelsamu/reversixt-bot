@@ -9,11 +9,12 @@ import util.TestLogger;
 
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class MoveExecutionTest {
 
     @Test
-    public void testExceptions() {
-        int failedTests = 0;
+    public void testEveryMove() {
 
         for (String map : File.getAllMaps()) {
             Game game = GameFactory.createFromFile(map);
@@ -35,13 +36,9 @@ public class MoveExecutionTest {
                     TestLogger.get().error("Initial map: " + game);
                     TestLogger.get().error("Tried to execute move " + move);
                     TestLogger.get().error("Game after attempting to execute move: " + testCase);
-                    failedTests++;
+                    fail("Test failed");
                 }
             }
-        }
-
-        if (failedTests > 0) {
-            //fail("Failed " + failedTests + " tests.");
         }
     }
 }
