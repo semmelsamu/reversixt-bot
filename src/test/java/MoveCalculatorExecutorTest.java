@@ -2,16 +2,16 @@ import board.Coordinates;
 import board.Tile;
 import game.Game;
 import game.GameFactory;
+import game.MoveCalculator;
 import game.MoveExecutor;
 import org.junit.jupiter.api.Test;
 import player.move.Move;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MoveCalculatorExecutorTest {
 
@@ -45,15 +45,15 @@ public class MoveCalculatorExecutorTest {
 
         for (var testExpectation : testExpectations.entrySet()) {
 
-            try {
-                GameFactory.createFromFile(testExpectation.getKey());
-            } catch (Exception e) {
-                fail("Error creating game from file: " + Arrays.toString(e.getStackTrace()));
-            }
-
             for (var validMove : testExpectation.getValue().entrySet()) {
 
                 Game game = GameFactory.createFromFile(testExpectation.getKey());
+
+                MoveCalculator moveCalculator = new MoveCalculator(game);
+                var calculatedMoves =
+                        moveCalculator.getValidMovesForPlayer(validMove.getKey().getPlayer());
+
+                assertTrue(calculatedMoves.contains(validMove.getKey()));
 
                 MoveExecutor moveExecutor = new MoveExecutor(game);
                 moveExecutor.executeMove(validMove.getKey());
