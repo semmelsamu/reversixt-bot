@@ -1,7 +1,15 @@
 plugins {
-    id 'java'
+    id 'application'
 }
 project.buildDir('bin')
+
+application {
+    mainClass = 'Main'
+}
+
+run {
+    standardInput = System.in
+}
 
 repositories {
     mavenCentral()
@@ -18,3 +26,8 @@ test {
 jar {
     archiveBaseName = 'client04'
 }
+
+tasks.named('run') {
+    dependsOn test
+}
+
