@@ -32,7 +32,7 @@ public class MoveCalculatorExecutorTest {
                         // After executing the move above,
                         // On this position there should now be this tile:
                         new Coordinates(6, 1), Tile.PLAYER1,
-                        new Coordinates(8, 1), Tile.PLAYER1
+                        new Coordinates(7, 1), Tile.PLAYER1
                 )
         ));
 
