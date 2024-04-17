@@ -163,7 +163,7 @@ public class Game {
         return board.getAllCoordinatesWhereTileIs(tile);
     }
 
-    public boolean hasPlayerOverwriteStones(Tile playerTile) {
+    public boolean playerHasOverwriteStones(Tile playerTile) {
         Player player = players[playerTile.toPlayerIndex()];
         return player.getOverwriteStones() > 0;
     }

@@ -96,7 +96,7 @@ public class MoveCalculator {
         Coordinates currentCoordinates = tileReader.getCoordinates();
         boolean tilesBetweenExistingAndNewPiece = false;
         boolean hasOverwriteStones = false;
-        if (game.hasPlayerOverwriteStones(playerValue)) {
+        if (game.playerHasOverwriteStones(playerValue)) {
             hasOverwriteStones = true;
         }
         // As long as there is an ococcupied tile
