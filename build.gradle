@@ -26,8 +26,3 @@ test {
 jar {
     archiveBaseName = 'client04'
 }
-
-tasks.named('run') {
-    dependsOn test
-}
-
