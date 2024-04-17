@@ -1,3 +1,5 @@
+package tests;
+
 import board.Tile;
 import game.Game;
 import game.GameFactory;
@@ -10,7 +12,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CountTilesTest {
+public class TileCounting {
 
     @Test
     public void testTileCount() {
@@ -29,11 +31,13 @@ public class CountTilesTest {
         int errors = 0;
 
         for (var mapAndTileCounts : mapsAndTileCounts.entrySet()) {
-            String mapPath = mapAndTileCounts.getKey().equals("maps/initialMaps/window.map") ? windowMapPath : checkerboardMapPath;
+            String mapPath = mapAndTileCounts.getKey().equals("maps/initialMaps/window.map") ?
+                    windowMapPath : checkerboardMapPath;
             Game game = GameFactory.createFromFile(mapPath);
 
             for (var tileAndCount : mapAndTileCounts.getValue().entrySet()) {
-                int calculatedTileCount = game.getAllCoordinatesWhereTileIs(tileAndCount.getKey()).size();
+                int calculatedTileCount =
+                        game.getAllCoordinatesWhereTileIs(tileAndCount.getKey()).size();
                 int expectedTileCount = tileAndCount.getValue();
 
                 String message =

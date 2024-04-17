@@ -1,3 +1,5 @@
+package tests;
+
 import game.Game;
 import game.GameFactory;
 import org.junit.jupiter.api.Test;
@@ -7,17 +9,13 @@ import util.TestLogger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class MapReadTest {
+public class MapReading {
 
     @Test
     public void testAllMaps() {
-        int failedTests = 0;
-
         for (String map : File.getAllMaps()) {
-            failedTests += testMap(map);
+            assertEquals(testMap(map), 0);
         }
-
-        assertEquals(0, failedTests, "Number of failed map reads: " + failedTests);
     }
 
     public int testMap(String filename) {

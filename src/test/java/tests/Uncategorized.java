@@ -1,3 +1,5 @@
+package tests;
+
 import board.Coordinates;
 import board.Tile;
 import game.Game;
@@ -7,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import player.move.InversionMove;
 import util.Logger;
 
-public class UncategorizedTests {
+public class Uncategorized {
 
     @Test
     public void test1() {

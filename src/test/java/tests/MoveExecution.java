@@ -1,3 +1,5 @@
+package tests;
+
 import game.Game;
 import game.GameFactory;
 import game.MoveExecutor;
@@ -7,7 +9,7 @@ import util.TestLogger;
 
 import java.util.Arrays;
 
-public class Exercise2Test {
+public class MoveExecution {
 
     @Test
     public void testExceptions() {
