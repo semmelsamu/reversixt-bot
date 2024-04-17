@@ -140,17 +140,17 @@ public class Game {
         return board.getTile(position);
     }
 
+    public void setTile(Coordinates position, Tile value) {
+        gameStats.replaceTileAtCoordinates(position, value);
+        board.setTile(position, value);
+    }
+
     public Map<TransitionPart, TransitionPart> getTransitions() {
         return board.getTransitions();
     }
 
     public GameStats getGameStats() {
         return gameStats;
-    }
-
-    public void setTile(Coordinates position, Tile value) {
-        gameStats.replaceTileAtCoordinates(position, value);
-        board.setTile(position, value);
     }
 
     public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
