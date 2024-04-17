@@ -70,7 +70,7 @@ public class TileReader {
      */
     public boolean hasNext() {
 
-        if (game.getTile(coordinates.inDirection(direction)) != null &&
+        if (game.coordinatesLayInBoard(coordinates.inDirection(direction)) &&
                 game.getTile(coordinates.inDirection(direction)) != Tile.WALL) {
             // Neighbour
             return true;

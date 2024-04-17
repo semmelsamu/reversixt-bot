@@ -168,6 +168,10 @@ public class Game {
         return player.getOverwriteStones() > 0;
     }
 
+    public boolean coordinatesLayInBoard(Coordinates position) {
+        return board.coordinatesLayInBoard(position);
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
