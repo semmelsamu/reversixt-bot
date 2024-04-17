@@ -92,7 +92,8 @@ public class TileReader {
 
         Coordinates newCoordinates = coordinates.inDirection(direction);
 
-        if (game.getTile(newCoordinates) != null && game.getTile(newCoordinates) != Tile.WALL) {
+        if (game.coordinatesLayInBoard(newCoordinates) &&
+                game.getTile(newCoordinates) != Tile.WALL) {
             // Regular neighbour
             coordinates = newCoordinates;
         } else {
