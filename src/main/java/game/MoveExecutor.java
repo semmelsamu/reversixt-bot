@@ -129,11 +129,11 @@ public class MoveExecutor {
 
         // Collect all occupied tiles of current player
         var oldTilesPlayerFromCurrentPlayer =
-                game.getGameStats().getAllCoordinatesWhereTileIs(currentPlayer);
+                new HashSet<>(game.getGameStats().getAllCoordinatesWhereTileIs(currentPlayer));
 
         // Iterate through all old tiles of player to swap with
-        for (Coordinates coordinates : game.getGameStats()
-                .getAllCoordinatesWhereTileIs(playerToSwapWith)) {
+        for (Coordinates coordinates : new HashSet<>(
+                game.getGameStats().getAllCoordinatesWhereTileIs(playerToSwapWith))) {
             game.setTile(coordinates, currentPlayer);
         }
 
