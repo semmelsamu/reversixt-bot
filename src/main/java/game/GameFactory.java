@@ -53,7 +53,7 @@ public class GameFactory {
         return new Game(initialPlayers, initialOverwriteStones, initialBombs, bombRadius, board);
     }
 
-    private static Game createFromString(String string) {
+    public static Game createFromString(String string) {
 
         Logger.get().log("Creating game from string");
 
