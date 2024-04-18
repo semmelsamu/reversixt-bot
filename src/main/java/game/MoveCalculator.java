@@ -127,7 +127,7 @@ public class MoveCalculator {
         // If necessary create special move
         switch (currentTile) {
             case CHOICE -> {
-                for (Tile playerTile : Tile.getAllPlayerTiles()) {
+                for (Tile playerTile : game.getAllParticipatingPlayers()) {
                     if (playerTile != currentTile) {
                         movesPerDirection.add(
                                 new ChoiceMove(playerValue, currentCoordinates, playerTile));
