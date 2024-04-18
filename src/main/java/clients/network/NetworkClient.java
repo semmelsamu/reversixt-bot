@@ -2,20 +2,20 @@ package clients.network;
 
 public interface NetworkClient {
 
-    public int sendGroupNumber();
+    int sendGroupNumber();
 
-    public void receiveMap(String map);
+    void receiveMap(String map);
 
-    public void receivePlayerNumber(byte player);
+    void receivePlayerNumber(byte player);
 
-    public MoveAnswer sendMoveAnswer();
+    MoveAnswer sendMoveAnswer();
 
-    public void receiveMove(short x, short y, byte type, byte player);
+    void receiveMove(short x, short y, byte type, byte player);
 
-    public void receiveDisqualification(byte player);
+    void receiveDisqualification(byte player);
 
-    public void receiveEndingPhase1();
+    void receiveEndingPhase1();
 
-    public void receiveEndingPhase2();
+    void receiveEndingPhase2();
 
 }
