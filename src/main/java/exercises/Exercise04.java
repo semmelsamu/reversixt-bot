@@ -2,7 +2,7 @@ package exercises;
 
 import clients.RandomMoveClient;
 import clients.local.LocalClientToNetworkClientAdapter;
-import clients.network.NetworkClientManager;
+import clients.network.NetworkEventHandler;
 
 import java.io.IOException;
 
@@ -30,6 +30,6 @@ public class Exercise04 {
      * ist. Aufgaben 2 und 3 werden in diesem Zusammenhang auch überprüft.
      */
     public static void abnahme() throws IOException {
-        new NetworkClientManager("127.0.0.1", 7777, new LocalClientToNetworkClientAdapter(new RandomMoveClient()));
+        new NetworkEventHandler("127.0.0.1", 7777, new LocalClientToNetworkClientAdapter(new RandomMoveClient()));
     }
 }

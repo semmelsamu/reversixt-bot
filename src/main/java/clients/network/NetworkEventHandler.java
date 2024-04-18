@@ -5,7 +5,10 @@ import util.Logger;
 import java.io.*;
 import java.net.*;
 
-public class NetworkClientManager {
+/**
+ * Manages the communication between a client and a server via a network socket.
+ */
+public class NetworkEventHandler {
 
     private final Socket socket;
     private final DataOutputStream out;
@@ -13,7 +16,16 @@ public class NetworkClientManager {
 
     private final NetworkClient networkClient;
 
-    public NetworkClientManager(String ip, int port, NetworkClient networkClient)
+    /**
+     * Connect a networkClient to a server.
+     *
+     * @param ip            The IP address of the server to which the client will connect.
+     * @param port          The port number on the server to which the client will connect.
+     * @param networkClient The client object that handles the actual "client" work. Must
+     *                      implement the {@link NetworkClient} interface.
+     * @throws IOException If at some point the connection to the server fails.
+     */
+    public NetworkEventHandler(String ip, int port, NetworkClient networkClient)
             throws IOException {
 
         // Store client
