@@ -2,7 +2,6 @@ package player.move;
 
 import board.Coordinates;
 import board.Tile;
-import player.Player;
 
 /**
  * Invert the order of players
