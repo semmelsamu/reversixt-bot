@@ -24,27 +24,29 @@ public class MoveCalculator {
     */
 
     /**
-     * Get all valid moves for this player
+     * @param playerValue Tile of player that moves are calculated for
+     * @return All valid moves for this player
      */
-    public Set<Move> getValidMovesForPlayer(Tile player) {
-        Logger.get().debug("Searching for all valid moves for Player " + player);
+    public Set<Move> getValidMovesForPlayer(Tile playerValue) {
+        Logger.get().debug("Searching for all valid moves for Player " + playerValue);
         Set<Move> moves = new HashSet<>();
-        for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(player)) {
-            if (game.getTile(occupiedTile) != player) {
-                Logger.get().error("Wrong coordinates in Player" + player + "'s List stones");
+        for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(playerValue)) {
+            if (game.getTile(occupiedTile) != playerValue) {
+                Logger.get().error("Wrong coordinates in Player" + playerValue + "'s List stones");
                 continue;
             }
-            moves.addAll(getValidMovesForPiece(occupiedTile, player));
+            moves.addAll(getValidMovesForPiece(occupiedTile, playerValue));
         }
         return moves;
     }
 
     /**
      * @param ownTileCoordinates one piece of this player
+     * @param playerValue Tile of player that moves are calculated for
      * @return Valid moves for one piece of this player
      */
     private Set<Move> getValidMovesForPiece(Coordinates ownTileCoordinates,
-                                            Tile currentPlayerValue) {
+                                            Tile playerValue) {
         Logger.get()
                 .verbose("Searching for valid moves originating from piece " + ownTileCoordinates);
         Set<Move> moves = new HashSet<>();
@@ -62,7 +64,7 @@ public class MoveCalculator {
             }
 
             // Check if first neighbour tile is an own tile
-            if (firstNeighbourTile == currentPlayerValue) {
+            if (firstNeighbourTile == playerValue) {
                 continue;
             }
 
@@ -72,7 +74,7 @@ public class MoveCalculator {
             }
 
             Set<Move> movesInDirection =
-                    getValidMovesForPieceInDirection(tileReader, currentPlayerValue);
+                    getValidMovesForPieceInDirection(tileReader, playerValue);
             if (movesInDirection != null) {
                 moves.addAll(movesInDirection);
             }
@@ -81,7 +83,8 @@ public class MoveCalculator {
     }
 
     /**
-     * @param tileReader
+     * @param tileReader tileReader with coordinates and direction of first neighbour of own tile
+     * @param playerValue Tile of player that moves are calculated for
      * @return Valid moves for one piece for one of eight directions
      */
     private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Tile playerValue) {
