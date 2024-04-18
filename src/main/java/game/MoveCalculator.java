@@ -38,7 +38,7 @@ public class MoveCalculator {
             moves.addAll(getValidMovesForPiece(occupiedTile, playerValue));
         }
 
-        if(game.playerHasOverwriteStones(player)) {
+        if(game.playerHasOverwriteStones(playerValue)) {
             // Add overwrite moves.
 
             Set<Coordinates> coordinates = new HashSet<>();
@@ -50,7 +50,7 @@ public class MoveCalculator {
             coordinates.addAll(game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION));
 
             for(var coordinate : coordinates) {
-                moves.add(new OverwriteMove(player, coordinate));
+                moves.add(new OverwriteMove(playerValue, coordinate));
             }
 
         }
