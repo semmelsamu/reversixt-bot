@@ -1,4 +1,5 @@
 import exercises.Exercise02;
+import exercises.Exercise04;
 import util.Logger;
 
 public class Main {
@@ -11,6 +12,6 @@ public class Main {
         Logger.get().log("Starting");
 
         // Launch whatever
-        Exercise02.aufgabe3();
+        Exercise04.abnahme();
     }
 }
