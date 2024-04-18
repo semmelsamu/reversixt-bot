@@ -1,10 +1,17 @@
 plugins {
     id 'application'
 }
-project.buildDir('bin')
 
 application {
     mainClass = 'Main'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+    }
 }
 
 run {
@@ -24,5 +31,17 @@ test {
 }
 
 jar {
+    manifest {
+        attributes 'Main-Class': 'Main'
+    }
     archiveBaseName = 'client04'
 }
+
+tasks.register('copyToBin', Copy) {
+    dependsOn jar
+    from 'build/libs'
+    into 'bin'
+    include '*.jar'
+}
+
+jar.finalizedBy('copyToBin')
