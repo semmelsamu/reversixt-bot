@@ -1,6 +1,6 @@
-package client;
+package clients;
 
-public interface Client {
+public interface NetworkClient {
 
     public int sendGroupNumber();
 
