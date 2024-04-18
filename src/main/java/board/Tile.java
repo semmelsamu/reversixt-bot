@@ -1,17 +1,16 @@
 package board;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
- * Formerly TileType
+ * Formerly TileValue formerly TileType
  */
-public enum TileValue {
+public enum Tile {
 
     /*
-    |--------------------------------------------------------------------------
-    | Values
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Values
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     EMPTY('0'),
@@ -29,10 +28,13 @@ public enum TileValue {
     BONUS('b'),
     EXPANSION('x');
 
+
     /*
-    |--------------------------------------------------------------------------
-    | Char conversion logic
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Attributes
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     /**
@@ -40,11 +42,19 @@ public enum TileValue {
      */
     public final char character;
 
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Factory
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     /**
      * Returns the enum from a character.
      */
-    public static TileValue fromChar(char c) {
-        for (TileValue type : TileValue.values()) {
+    public static Tile fromChar(char c) {
+        for (Tile type : Tile.values()) {
             if (type.character == c) {
                 return type;
             }
@@ -52,48 +62,92 @@ public enum TileValue {
         throw new IllegalArgumentException("Unknown character: " + c);
     }
 
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Constructor
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     /**
      * Creates a new enum from a character.
      */
-    TileValue(char character) {
+    Tile(char character) {
         this.character = character;
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Information functions
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Information Functions
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     /**
-     * States if the tile is expandable, i.e. a player can expand to it.
+     * States that this tile has not been occupied by any player
      */
-    public boolean isExpandable() {
-        return TileValue.fromChar(this.character) != WALL;
-    }
-
-    /**
-     * States if the tile is empty. Inversion, bonus and choice fields are also considered empty.
-     */
-    public boolean isEmpty() {
-        TileValue value = TileValue.fromChar(this.character);
-        return (value == EMPTY || value == BONUS || value == INVERSION || value == CHOICE);
+    public boolean isUnoccupied() {
+        return (this == EMPTY || this == INVERSION || this == BONUS || this == CHOICE);
     }
 
     /**
      * States if the tile is occupied by a player.
      */
     public boolean isPlayer() {
-        TileValue value = TileValue.fromChar(this.character);
-        return (value == PLAYER1 || value == PLAYER2 || value == PLAYER3 || value == PLAYER4 || value == PLAYER5 || value == PLAYER6 ||
-                value == PLAYER7 || value == PLAYER8);
+        return (this == PLAYER1 || this == PLAYER2 || this == PLAYER3 || this == PLAYER4 ||
+                this == PLAYER5 || this == PLAYER6 || this == PLAYER7 || this == PLAYER8);
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Utility
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Value Functions
+    |
+    |-----------------------------------------------------------------------------------------------
     */
+
+    /**
+     * Returns all values for Players in ascending order.
+     */
+    public static Tile[] getAllPlayerTiles() {
+        return new Tile[]{PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8};
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Utility Functions
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    public int toPlayerIndex() {
+        return switch (character) {
+            case '1' -> 0;
+            case '2' -> 1;
+            case '3' -> 2;
+            case '4' -> 3;
+            case '5' -> 4;
+            case '6' -> 5;
+            case '7' -> 6;
+            case '8' -> 7;
+            default -> -1;
+        };
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   To String
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    public String toString() {
+        return toString(false);
+    }
 
     public String toString(boolean useColors) {
         if (!useColors) {
@@ -117,40 +171,5 @@ public enum TileValue {
             case 'b' -> " b ";
             default -> " ? ";
         };
-    }
-
-    public int toPlayerIndex() {
-        return switch (character) {
-            case '1' -> 0;
-            case '2' -> 1;
-            case '3' -> 2;
-            case '4' -> 3;
-            case '5' -> 4;
-            case '6' -> 5;
-            case '7' -> 6;
-            case '8' -> 7;
-            default -> -1;
-        };
-    }
-
-    public String toString() {
-        return toString(false);
-    }
-
-    /**
-     * Returns all values for Players in ascending order.
-     */
-    public static TileValue[] getAllPlayerValues() {
-        return new TileValue[]{
-                PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8
-        };
-    }
-
-    /**
-     * Returns all values a player is allowed to expand to.
-     * TODO: Performance?
-     */
-    public static List<TileValue> getAllFriendlyValues() {
-        return Arrays.asList(EMPTY, BONUS, CHOICE, INVERSION);
     }
 }
