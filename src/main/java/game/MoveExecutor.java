@@ -147,6 +147,8 @@ public class MoveExecutor {
 
         // Overwriting Tiles in Board
         Tile[] participatingPlayerTiles = game.getAllParticipatingPlayers();
+        // TODO: Tile[] participatingPlayerTiles = (Tile[]) Arrays.stream(game.getPlayers()).map
+        //  (Player::getPlayerValue).toArray();
 
         // Updating OccupiedTiles of all Players
 
