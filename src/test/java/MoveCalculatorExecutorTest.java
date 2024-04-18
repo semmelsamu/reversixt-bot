@@ -5,6 +5,8 @@ import game.GameFactory;
 import game.MoveCalculator;
 import game.MoveExecutor;
 import org.junit.jupiter.api.Test;
+import player.move.ChoiceMove;
+import player.move.InversionMove;
 import player.move.Move;
 
 import java.util.HashMap;
@@ -33,6 +35,39 @@ public class MoveCalculatorExecutorTest {
                         // On this position there should now be this tile:
                         new Coordinates(6, 1), Tile.PLAYER1,
                         new Coordinates(7, 1), Tile.PLAYER1
+                )
+        ));
+
+        testExpectations.put("maps/boeseMaps/boeseMap09.map", Map.of(
+                new ChoiceMove(Tile.PLAYER1, new Coordinates(4, 4), Tile.PLAYER1),
+                Map.of(
+                        new Coordinates(1, 1), Tile.PLAYER1,
+                        new Coordinates(2, 2), Tile.PLAYER1,
+                        new Coordinates(3, 3), Tile.PLAYER1,
+                        new Coordinates(4, 4), Tile.PLAYER1
+                ),
+                new ChoiceMove(Tile.PLAYER1, new Coordinates(4, 4), Tile.PLAYER2),
+                Map.of(
+                        new Coordinates(1, 1), Tile.PLAYER2,
+                        new Coordinates(2, 2), Tile.PLAYER2,
+                        new Coordinates(3, 3), Tile.PLAYER2,
+                        new Coordinates(4, 4), Tile.PLAYER2
+                )
+        ));
+
+        testExpectations.put("maps/boeseMaps/boeseMap10.map", Map.of(
+                new InversionMove(Tile.PLAYER1, new Coordinates(4, 4)),
+                Map.of(
+                        new Coordinates(1, 1), Tile.PLAYER2,
+                        new Coordinates(2, 2), Tile.PLAYER2,
+                        new Coordinates(3, 3), Tile.PLAYER2,
+                        new Coordinates(4, 4), Tile.PLAYER2
+                ),
+                new InversionMove(Tile.PLAYER2, new Coordinates(4, 4)),
+                Map.of(
+                        new Coordinates(2, 2), Tile.PLAYER3,
+                        new Coordinates(3, 3), Tile.PLAYER3,
+                        new Coordinates(4, 4), Tile.PLAYER3
                 )
         ));
 
