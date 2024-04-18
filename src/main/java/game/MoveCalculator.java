@@ -37,6 +37,24 @@ public class MoveCalculator {
             }
             moves.addAll(getValidMovesForPiece(occupiedTile, playerValue));
         }
+
+        if(game.playerHasOverwriteStones(player)) {
+            // Add overwrite moves.
+
+            Set<Coordinates> coordinates = new HashSet<>();
+
+            // Those are on basically any tile which is occupied by a player or an expansion field.
+            for(Tile playerTile : game.getAllParticipatingPlayers()) {
+                coordinates.addAll(game.gameStats.getAllCoordinatesWhereTileIs(playerTile));
+            }
+            coordinates.addAll(game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION));
+
+            for(var coordinate : coordinates) {
+                moves.add(new OverwriteMove(player, coordinate));
+            }
+
+        }
+
         return moves;
     }
 
@@ -79,6 +97,7 @@ public class MoveCalculator {
                 moves.addAll(movesInDirection);
             }
         }
+
         return moves;
     }
 
