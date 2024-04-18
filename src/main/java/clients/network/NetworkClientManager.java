@@ -5,18 +5,16 @@ import util.Logger;
 import java.io.*;
 import java.net.*;
 
-/**
- * The client connects to the server. It waits for the server's messages, and reacts accordingly.
- */
 public class NetworkClientManager {
 
-    private Socket socket;
-    private DataOutputStream out;
-    private DataInputStream in;
+    private final Socket socket;
+    private final DataOutputStream out;
+    private final DataInputStream in;
 
-    private NetworkClient networkClient;
+    private final NetworkClient networkClient;
 
-    public NetworkClientManager(String ip, int port, NetworkClient networkClient) throws IOException {
+    public NetworkClientManager(String ip, int port, NetworkClient networkClient)
+            throws IOException {
         socket = new Socket(ip, port);
         out = new DataOutputStream(socket.getOutputStream());
         in = new DataInputStream(socket.getInputStream());
@@ -39,30 +37,74 @@ public class NetworkClientManager {
             in.readFully(message);
 
             switch (messageType) {
+
+
                 //   1: // Client sends group name
+
+
                 case 2: // Server sends map
                     networkClient.receiveMap(new String(message));
                     break;
+
+
                 case 3: // Server assigns player number
                     networkClient.receivePlayerNumber(message[0]);
                     break;
+
+
                 case 4: // Server requests move
-                    networkClient.getMoveAnswer()
+
+                    // Get move answer
+                    MoveAnswer answer = networkClient.sendMoveAnswer();
+
+                    // Write
+                    out.writeByte(5); // Message type
+                    out.writeInt(5); // Message length
+                    out.writeShort(answer.x());
+                    out.writeShort(answer.y());
+                    out.writeByte(answer.type());
+
                     break;
+
+
                 //   5: // Client sends move
+
+
                 case 6: // Server sends move from other player
-                    processMoveNotification(message);
+
+                    // Extract message byte stream to primitives
+                    short x = (short) ((message[0] << 8) & 0xFF00);
+                    x |= (message[1] & 0xFF);
+                    short y = (short) ((message[2] << 8) & 0xFF00);
+                    y |= (message[3] & 0xFF);
+                    byte type = message[4];
+                    byte player = message[5];
+
+                    // Pass to client
+                    networkClient.receiveMove(x, y, type, player);
+
                     break;
+
+
                 case 7: // Server disqualifies
-                    processDisqualification(message[0]);
+                    networkClient.receiveDisqualification(message[0]);
                     break;
+
+
                 case 8: // End of phase 1
+                    networkClient.receiveEndingPhase1();
                     break;
+
+
                 case 9: // End of phase 2 - the end.
-                    processGameEnd();
+                    networkClient.receiveEndingPhase2();
                     break;
+
+
                 default:
                     Logger.get().warn("Unknown message type: " + messageType);
+
+
             }
         }
     }
