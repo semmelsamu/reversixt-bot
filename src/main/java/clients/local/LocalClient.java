@@ -1,15 +1,16 @@
 package clients.local;
 
+import board.Tile;
 import player.move.Move;
 
 public interface LocalClient {
 
-    public void receiveMap(String map);
+    void receiveMap(String map);
 
-    public void receivePlayerNumber(byte player);
+    void receivePlayerNumber(Tile player);
 
-    public Move sendMove();
+    Move sendMove();
 
-    public void receiveMove(Move move);
+    void receiveMove(Move move);
 
 }
