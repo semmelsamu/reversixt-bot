@@ -8,6 +8,10 @@ import player.move.BonusMove;
 import player.move.ChoiceMove;
 import player.move.Move;
 
+/**
+ * Adapts a Client to work with the NetworkClient ergo the NetworkEventHandler, which communicates
+ * with the Server.
+ */
 public class NetworkClientAdapter implements NetworkClient {
 
     private final Client client;
@@ -59,12 +63,10 @@ public class NetworkClientAdapter implements NetworkClient {
 
         if (type == 0) {
             client.receiveMove(new Move(playerTile, coordinates));
-        }
-        else if (type == 20 || type == 21) {
+        } else if (type == 20 || type == 21) {
             Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
             client.receiveMove(new BonusMove(playerTile, coordinates, bonus));
-        }
-        else {
+        } else {
             Tile playerToSwapWith = Tile.fromChar((char) ((int) type));
             client.receiveMove(new ChoiceMove(playerTile, coordinates, playerToSwapWith));
         }
