@@ -3,6 +3,8 @@ package player.move;
 import board.Coordinates;
 import board.Tile;
 
+import java.util.Objects;
+
 /**
  * A move where after the player sets a stone, he will receive a bonus.
  */
@@ -26,6 +28,11 @@ public class BonusMove extends Move {
 
     public Bonus getBonus() {
         return bonus;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(player, coordinates, bonus);
     }
 
     @Override
