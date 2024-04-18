@@ -1,5 +1,11 @@
 package exercises;
 
+import clients.RandomMoveClient;
+import clients.local.LocalClientToNetworkClientAdapter;
+import clients.network.NetworkClientManager;
+
+import java.io.IOException;
+
 /**
  * Implementieren Sie das Netzwerkprotokoll clientseitig, sodass eine fehlerfreie Kommunikation
  * mit dem von uns bereitgestellten Spieleserver möglich ist. Halten Sie sich dabei an die
@@ -23,7 +29,7 @@ public class Exercise04 {
      * mit zufälligen aber validen Zügen gegeneinander spielen, bis das Ende des Spiels erreicht
      * ist. Aufgaben 2 und 3 werden in diesem Zusammenhang auch überprüft.
      */
-    public static void abnahme() {
-
+    public static void abnahme() throws IOException {
+        new NetworkClientManager("127.0.0.1", 7777, new LocalClientToNetworkClientAdapter(new RandomMoveClient()));
     }
 }
