@@ -130,7 +130,7 @@ public class MoveCalculator {
                 for (Tile playerTile : Tile.getAllPlayerTiles()) {
                     if (playerTile != currentTile) {
                         movesPerDirection.add(
-                                new ChoiceMove(playerTile, currentCoordinates, playerTile));
+                                new ChoiceMove(playerValue, currentCoordinates, playerTile));
                     }
                 }
             }
