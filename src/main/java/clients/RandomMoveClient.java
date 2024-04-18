@@ -1,7 +1,47 @@
 package clients;
 
+import board.Tile;
+import clients.local.LocalClient;
+import game.Game;
+import game.GameFactory;
+import game.MoveCalculator;
+import game.MoveExecutor;
+import player.move.Move;
+import util.SetUtils;
+
 /**
  * This client always picks a random move.
  */
-public class RandomMoveClient {
+public class RandomMoveClient implements LocalClient {
+
+    private Game game = null;
+    private Tile player = null;
+
+    private MoveCalculator moveCalculator;
+    private MoveExecutor moveExecutor;
+
+    @Override
+    public void receiveMap(String map) {
+        this.game = GameFactory.createFromString(map);
+        moveCalculator = new MoveCalculator(game);
+        moveExecutor = new MoveExecutor(game);
+    }
+
+    @Override
+    public void receivePlayerNumber(Tile player) {
+        this.player = player;
+    }
+
+    @Override
+    public Move sendMove() {
+        var possibleMoves = moveCalculator.getValidMovesForPlayer(player);
+        Move chosenMove = SetUtils.getRandomElement(possibleMoves);
+        moveExecutor.executeMove(chosenMove);
+        return chosenMove;
+    }
+
+    @Override
+    public void receiveMove(Move move) {
+        moveExecutor.executeMove(move);
+    }
 }
