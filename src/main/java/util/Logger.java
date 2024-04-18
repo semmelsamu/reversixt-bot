@@ -12,7 +12,7 @@ public class Logger {
     |-----------------------------------------------------------------------------------------------
     */
 
-    private static Logger logger = new Logger("Logger", 0);
+    private static Logger logger = new Logger("Logger", 2);
 
     public static Logger get() {
         return logger;
