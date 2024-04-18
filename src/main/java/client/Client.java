@@ -4,7 +4,7 @@ import player.move.Move;
 
 public interface Client {
 
-    public int getGroupName();
+    public int getGroupNumber();
 
     public void setMap();
 
