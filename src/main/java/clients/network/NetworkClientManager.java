@@ -15,10 +15,18 @@ public class NetworkClientManager {
 
     public NetworkClientManager(String ip, int port, NetworkClient networkClient)
             throws IOException {
+
+        // Store client
+        this.networkClient = networkClient;
+
+        // Connect
         socket = new Socket(ip, port);
         out = new DataOutputStream(socket.getOutputStream());
         in = new DataInputStream(socket.getInputStream());
-        this.networkClient = networkClient;
+
+        // Launch
+        sendGroupNumber();
+        run();
     }
 
     private void sendGroupNumber() throws IOException {
