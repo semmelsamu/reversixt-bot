@@ -129,7 +129,7 @@ public class Game {
     }
 
     public Tile[] getAllParticipatingPlayers() {
-        return Arrays.copyOfRange(Tile.getAllPlayerTiles(), 0, initialPlayers - 1);
+        return Arrays.copyOfRange(Tile.getAllPlayerTiles(), 0, initialPlayers);
     }
 
     public Player getCurrentPlayer() {
