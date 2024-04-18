@@ -1,17 +1,21 @@
 package client;
 
-import player.move.Move;
-
 public interface Client {
 
-    public int getGroupNumber();
+    public int sendGroupNumber();
 
-    public void setMap(String map);
+    public void receiveMap(String map);
 
-    public void setPlayer();
+    public void receivePlayerNumber(byte player);
 
-    public Move getMove();
+    public MoveAnswer sendMoveAnswer();
 
-    public void processMove();
+    public void receiveMove(short x, short y, byte type, byte player);
+
+    public void receiveDisqualification(byte player);
+
+    public void receiveEndingPhase1();
+
+    public void receiveEndingPhase2();
 
 }
