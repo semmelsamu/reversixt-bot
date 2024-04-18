@@ -1,4 +1,4 @@
-package clients.local;
+package clients;
 
 import board.Tile;
 import player.move.Move;
@@ -6,7 +6,7 @@ import player.move.Move;
 /**
  * A client that operates with local Data structures and Types, such as Tile, Move, ...
  */
-public interface LocalClient {
+public interface Client {
 
     void receiveMap(String map);
 

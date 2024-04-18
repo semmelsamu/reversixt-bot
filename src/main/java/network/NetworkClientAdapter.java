@@ -1,20 +1,19 @@
-package clients.local;
+package network;
 
 import board.Coordinates;
 import board.Tile;
-import clients.network.MoveAnswer;
-import clients.network.NetworkClient;
+import clients.Client;
 import player.move.Bonus;
 import player.move.BonusMove;
 import player.move.ChoiceMove;
 import player.move.Move;
 
-public class LocalClientToNetworkClientAdapter implements NetworkClient {
+public class NetworkClientAdapter implements NetworkClient {
 
-    private final LocalClient localClient;
+    private final Client client;
 
-    public LocalClientToNetworkClientAdapter(LocalClient localClient) {
-        this.localClient = localClient;
+    public NetworkClientAdapter(Client client) {
+        this.client = client;
     }
 
     @Override
@@ -24,17 +23,17 @@ public class LocalClientToNetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveMap(String map) {
-        localClient.receiveMap(map);
+        client.receiveMap(map);
     }
 
     @Override
     public void receivePlayerNumber(byte player) {
-        localClient.receivePlayerNumber(Tile.fromChar((char) ((int) player)));
+        client.receivePlayerNumber(Tile.fromChar((char) ((int) player)));
     }
 
     @Override
     public MoveAnswer sendMoveAnswer() {
-        Move result = localClient.sendMove();
+        Move result = client.sendMove();
 
         short x = (short) result.getCoordinates().x;
         short y = (short) result.getCoordinates().y;
@@ -59,15 +58,15 @@ public class LocalClientToNetworkClientAdapter implements NetworkClient {
         Coordinates coordinates = new Coordinates(x, y);
 
         if (type == 0) {
-            localClient.receiveMove(new Move(playerTile, coordinates));
+            client.receiveMove(new Move(playerTile, coordinates));
         }
         else if (type == 20 || type == 21) {
             Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
-            localClient.receiveMove(new BonusMove(playerTile, coordinates, bonus));
+            client.receiveMove(new BonusMove(playerTile, coordinates, bonus));
         }
         else {
             Tile playerToSwapWith = Tile.fromChar((char) ((int) type));
-            localClient.receiveMove(new ChoiceMove(playerTile, coordinates, playerToSwapWith));
+            client.receiveMove(new ChoiceMove(playerTile, coordinates, playerToSwapWith));
         }
     }
 

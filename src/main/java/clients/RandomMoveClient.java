@@ -1,7 +1,6 @@
 package clients;
 
 import board.Tile;
-import clients.local.LocalClient;
 import game.Game;
 import game.GameFactory;
 import game.MoveCalculator;
@@ -12,7 +11,7 @@ import util.SetUtils;
 /**
  * This client always picks a random move.
  */
-public class RandomMoveClient implements LocalClient {
+public class RandomMoveClient implements Client {
 
     private Game game = null;
     private Tile player = null;

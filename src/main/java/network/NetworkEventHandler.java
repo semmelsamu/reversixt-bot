@@ -1,4 +1,4 @@
-package clients.network;
+package network;
 
 import util.Logger;
 
