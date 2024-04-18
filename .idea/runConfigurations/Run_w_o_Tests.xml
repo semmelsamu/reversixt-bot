@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run w/o Tests" type="Application" factoryName="Application" folderName="IntelliJ Run" singleton="false">
+    <option name="MAIN_CLASS_NAME" value="Main" />
+    <module name="revxt-ss24-g04.main" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
