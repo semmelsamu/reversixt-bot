@@ -6,7 +6,7 @@ public interface Client {
 
     public int getGroupNumber();
 
-    public void setMap();
+    public void setMap(String map);
 
     public void setPlayer();
 
