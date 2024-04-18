@@ -36,6 +36,7 @@ public class Client {
             in.readFully(message);
 
             switch (messageType) {
+                //   1: // Client sends group name
                 case 2: // Server sends map
                     processGameField(new String(message));
                     break;
@@ -45,6 +46,7 @@ public class Client {
                 case 4: // Server requests move
                     respondToMoveRequest();
                     break;
+                //   5: // Client sends move
                 case 6: // Server sends move from other player
                     processMoveNotification(message);
                     break;
@@ -61,5 +63,4 @@ public class Client {
             }
         }
     }
-
 }
