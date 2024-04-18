@@ -1,4 +1,4 @@
-package client;
+package clients;
 
 import util.Logger;
 
@@ -14,16 +14,19 @@ public class NetworkClientManager {
     private DataOutputStream out;
     private DataInputStream in;
 
-    public NetworkClientManager(String ip, int port) throws IOException {
+    private NetworkClient networkClient;
+
+    public NetworkClientManager(String ip, int port, NetworkClient networkClient) throws IOException {
         socket = new Socket(ip, port);
         out = new DataOutputStream(socket.getOutputStream());
         in = new DataInputStream(socket.getInputStream());
+        this.networkClient = networkClient;
     }
 
-    private void sendGroupNumber(int groupNumber) throws IOException {
+    private void sendGroupNumber() throws IOException {
         out.writeByte(1); // Message type
         out.writeInt(1); // Message length
-        out.writeByte(groupNumber);
+        out.writeByte(networkClient.sendGroupNumber());
     }
 
     public void run() throws IOException {
@@ -38,13 +41,13 @@ public class NetworkClientManager {
             switch (messageType) {
                 //   1: // Client sends group name
                 case 2: // Server sends map
-                    processGameField(new String(message));
+                    networkClient.receiveMap(new String(message));
                     break;
                 case 3: // Server assigns player number
-                    processPlayerNumber(message[0]);
+                    networkClient.receivePlayerNumber(message[0]);
                     break;
                 case 4: // Server requests move
-                    respondToMoveRequest();
+                    networkClient.getMoveAnswer()
                     break;
                 //   5: // Client sends move
                 case 6: // Server sends move from other player
