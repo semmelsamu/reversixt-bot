@@ -1,5 +1,8 @@
 package clients.network;
 
+/**
+ * A client that operates with the server's data types, such as uint16, short, byte...
+ */
 public interface NetworkClient {
 
     int sendGroupNumber();
