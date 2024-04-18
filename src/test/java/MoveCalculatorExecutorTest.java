@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import player.move.ChoiceMove;
 import player.move.InversionMove;
 import player.move.Move;
+import player.move.OverwriteMove;
+import util.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +70,13 @@ public class MoveCalculatorExecutorTest {
                         new Coordinates(2, 2), Tile.PLAYER3,
                         new Coordinates(3, 3), Tile.PLAYER3,
                         new Coordinates(4, 4), Tile.PLAYER3
+                )
+        ));
+
+        testExpectations.put("maps/example.map", Map.of(
+                new OverwriteMove(Tile.PLAYER1, new Coordinates(7, 10)),
+                Map.of(
+                        new Coordinates(7, 10), Tile.PLAYER1
                 )
         ));
 
