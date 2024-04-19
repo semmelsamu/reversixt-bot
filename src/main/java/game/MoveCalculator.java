@@ -9,6 +9,7 @@ import util.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MoveCalculator {
     private Game game;
@@ -28,7 +29,7 @@ public class MoveCalculator {
      * @return All valid moves for this player
      */
     public Set<Move> getValidMovesForPlayer(Tile playerValue) {
-        Logger.get().debug("Searching for all valid moves for Player " + playerValue);
+        Logger.get().log("Searching for all valid moves for Player " + playerValue);
         Set<Move> moves = new HashSet<>();
         for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(playerValue)) {
             if (game.getTile(occupiedTile) != playerValue) {
@@ -54,6 +55,9 @@ public class MoveCalculator {
             }
 
         }
+
+        Logger.get().debug("Valid moves for Player " + playerValue + ":\n" +
+                moves.stream().map(move -> "    " + move).collect(Collectors.joining("\n")));
 
         return moves;
     }
