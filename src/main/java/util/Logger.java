@@ -120,8 +120,8 @@ public class Logger {
 
         // Print
         System.out.println(
-                /*color + "[" + name + "]  " + ANSI_RESET + currentDate + "  " + color + type +
-                        ANSI_YELLOW + "  [" + className + "." + methodName + "]  " +*/ color +
+                /*color + "[" + name + "]  " + ANSI_RESET + currentDate + "  " + color + type +*/
+                        ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color +
                 message + ANSI_RESET + "  " + timeElapsedMs + "ms");
     }
 

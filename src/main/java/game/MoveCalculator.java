@@ -7,8 +7,10 @@ import board.TileReader;
 import player.move.*;
 import util.Logger;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MoveCalculator {
     private Game game;
@@ -39,24 +41,25 @@ public class MoveCalculator {
             moves.addAll(getValidMovesForPiece(occupiedTile, player));
         }
 
-        if(game.playerHasOverwriteStones(player)) {
+        if (game.playerHasOverwriteStones(player)) {
             // Add overwrite moves.
 
             Set<Coordinates> coordinates = new HashSet<>();
 
             // Those are on basically any tile which is occupied by a player or an expansion field.
-            for(Tile playerTile : game.getAllParticipatingPlayers()) {
+            for (Tile playerTile : game.getAllParticipatingPlayers()) {
                 coordinates.addAll(game.gameStats.getAllCoordinatesWhereTileIs(playerTile));
             }
             coordinates.addAll(game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION));
 
-            for(var coordinate : coordinates) {
+            for (var coordinate : coordinates) {
                 moves.add(new OverwriteMove(player, coordinate));
             }
 
         }
 
-        Logger.get().debug("Valid moves for Player " + player + ": " + moves);
+        Logger.get().debug("Valid moves for Player " + player + ":\n" +
+                moves.stream().map(move -> "    " + move).collect(Collectors.joining("\n")));
 
         return moves;
     }
