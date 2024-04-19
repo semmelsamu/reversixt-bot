@@ -79,17 +79,20 @@ public class NetworkEventHandler {
 
 
                 case 2: // Server sends map
+                    Logger.get().verbose("Receiving map");
                     networkClient.receiveMap(new String(message));
                     break;
 
 
                 case 3: // Server assigns player number
+                    Logger.get().verbose("Receiving player number");
                     playerNumber = message[0];
                     networkClient.receivePlayerNumber(playerNumber);
                     break;
 
 
                 case 4: // Server requests move
+                    Logger.get().verbose("Receiving move request");
 
                     // Get move answer
                     MoveAnswer answer = networkClient.sendMoveAnswer();
@@ -108,6 +111,7 @@ public class NetworkEventHandler {
 
 
                 case 6: // Server sends move from other player
+                    Logger.get().verbose("Receiving move from other player");
 
                     // Extract message byte stream to primitives
                     short x = (short) ((message[0] << 8) & 0xFF00);
@@ -124,30 +128,42 @@ public class NetworkEventHandler {
 
 
                 case 7: // Server disqualifies
+                    Logger.get().verbose("Receiving disqualification");
+
                     byte disqualifiedPlayer = message[0];
                     networkClient.receiveDisqualification(disqualifiedPlayer);
                     if(disqualifiedPlayer == playerNumber) {
-                        Logger.get().log("Disconnecting from server");
-                        socket.close();
-                        Logger.get().log("Disconnected");
+                        Logger.get().error("Client got disqualified");
+                        disconnect();
                     }
                     break;
 
 
                 case 8: // End of phase 1
+                    Logger.get().verbose("Receiving ending of phase 1");
+
                     networkClient.receiveEndingPhase1();
                     break;
 
 
                 case 9: // End of phase 2 - the end.
+                    Logger.get().verbose("Receiving ending of phase 2");
+
                     networkClient.receiveEndingPhase2();
+                    disconnect();
                     break;
 
 
                 default:
-                    Logger.get().warn("Unknown message type: " + messageType);
+                    Logger.get().error("Unknown message type: " + messageType);
 
             }
         }
+    }
+
+    public void disconnect() throws IOException {
+        Logger.get().log("Disconnecting from server");
+        socket.close();
+        Logger.get().log("Disconnected");
     }
 }
