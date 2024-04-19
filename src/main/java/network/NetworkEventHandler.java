@@ -4,6 +4,7 @@ import util.Logger;
 
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 
 /**
  * Manages the communication between a client and a server via a network socket.
@@ -15,6 +16,8 @@ public class NetworkEventHandler {
     private final DataInputStream in;
 
     private final NetworkClient networkClient;
+
+    private byte playerNumber = 0x0;
 
     /**
      * Connect a networkClient to a server.
@@ -28,20 +31,27 @@ public class NetworkEventHandler {
     public NetworkEventHandler(NetworkClient networkClient, String ip, int port)
             throws IOException {
 
+        Logger.get().log("Starting network client");
+
         // Store client
         this.networkClient = networkClient;
 
         // Connect
+        Logger.get().log("Trying to connect to server " + ip + " on port " + port);
         socket = new Socket(ip, port);
         out = new DataOutputStream(socket.getOutputStream());
         in = new DataInputStream(socket.getInputStream());
+        Logger.get().log("Connected");
 
         // Launch
         sendGroupNumber();
         run();
+
+        Logger.get().log("Exiting NetworkEventHandler");
     }
 
     private void sendGroupNumber() throws IOException {
+        Logger.get().log("Sending group number to server");
         out.writeByte(1); // Message type
         out.writeInt(1); // Message length
         out.writeByte(networkClient.sendGroupNumber());
@@ -51,10 +61,16 @@ public class NetworkEventHandler {
 
         while (!socket.isClosed()) {
 
+            Logger.get().log("Waiting for server");
+
             int messageType = in.readByte();
             int length = in.readInt();
             byte[] message = new byte[length];
             in.readFully(message);
+
+            Logger.get().log("Server responded with code " + messageType);
+            Logger.get().log("Message length: " + length);
+            Logger.get().log("Body: " + Arrays.toString(message));
 
             switch (messageType) {
 
@@ -68,7 +84,8 @@ public class NetworkEventHandler {
 
 
                 case 3: // Server assigns player number
-                    networkClient.receivePlayerNumber(message[0]);
+                    playerNumber = message[0];
+                    networkClient.receivePlayerNumber(playerNumber);
                     break;
 
 
@@ -107,7 +124,13 @@ public class NetworkEventHandler {
 
 
                 case 7: // Server disqualifies
-                    networkClient.receiveDisqualification(message[0]);
+                    byte disqualifiedPlayer = message[0];
+                    networkClient.receiveDisqualification(disqualifiedPlayer);
+                    if(disqualifiedPlayer == playerNumber) {
+                        Logger.get().log("Disconnecting from server");
+                        socket.close();
+                        Logger.get().log("Disconnected");
+                    }
                     break;
 
 
@@ -123,7 +146,6 @@ public class NetworkEventHandler {
 
                 default:
                     Logger.get().warn("Unknown message type: " + messageType);
-
 
             }
         }
