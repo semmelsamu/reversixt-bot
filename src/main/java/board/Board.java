@@ -23,8 +23,8 @@ public class Board {
     /**
      * The dimensions of the game board. Used for quick access.
      */
-    public final int width;
-    public final int height;
+    private final int width;
+    private final int height;
 
     /**
      * The game board.
@@ -68,7 +68,7 @@ public class Board {
     public Tile getTile(Coordinates position) {
 
         if (!coordinatesLayInBoard(position)) {
-            Logger.get().warn("Tried to get a tile from coordinates the board doesn't have");
+            Logger.get().debug("Not tile is found, check for transitions.");
             return null;
         }
 
@@ -87,6 +87,14 @@ public class Board {
 
     public Map<TransitionPart, TransitionPart> getTransitions() {
         return transitions;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getWidth() {
+        return width;
     }
 
     public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
