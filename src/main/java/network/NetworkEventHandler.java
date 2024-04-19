@@ -19,13 +19,13 @@ public class NetworkEventHandler {
     /**
      * Connect a networkClient to a server.
      *
-     * @param ip            The IP address of the server to which the client will connect.
-     * @param port          The port number on the server to which the client will connect.
      * @param networkClient The client object that handles the actual "client" work. Must
      *                      implement the {@link NetworkClient} interface.
+     * @param ip            The IP address of the server to which the client will connect.
+     * @param port          The port number on the server to which the client will connect.
      * @throws IOException If at some point the connection to the server fails.
      */
-    public NetworkEventHandler(String ip, int port, NetworkClient networkClient)
+    public NetworkEventHandler(NetworkClient networkClient, String ip, int port)
             throws IOException {
 
         // Store client

@@ -12,7 +12,7 @@ public class Launcher {
 
     public static void launchClientOnNetwork(Client client, String ip, int port)
             throws IOException {
-        new NetworkEventHandler(ip, port, new NetworkClientAdapter(client));
+        new NetworkEventHandler(new NetworkClientAdapter(client), ip, port);
     }
 
 }
