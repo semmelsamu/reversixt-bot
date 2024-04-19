@@ -6,6 +6,7 @@ import game.GameFactory;
 import game.MoveCalculator;
 import game.MoveExecutor;
 import player.move.Move;
+import util.Logger;
 import util.SetUtils;
 
 /**
@@ -34,7 +35,10 @@ public class RandomMoveClient implements Client {
     @Override
     public Move sendMove() {
         var possibleMoves = moveCalculator.getValidMovesForPlayer(player);
+        Logger.get().log("Possible moves: " + possibleMoves);
+        Logger.get().log("Selecting random move");
         Move chosenMove = SetUtils.getRandomElement(possibleMoves);
+        Logger.get().log("Selected " + chosenMove);
         moveExecutor.executeMove(chosenMove);
         return chosenMove;
     }
