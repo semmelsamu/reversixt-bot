@@ -1,6 +1,7 @@
 package network;
 
 import util.Logger;
+import util.LoggerUtils;
 
 import java.io.*;
 import java.net.*;
@@ -68,9 +69,8 @@ public class NetworkEventHandler {
             byte[] message = new byte[length];
             in.readFully(message);
 
-            Logger.get().log("Server responded with code " + messageType);
-            Logger.get().log("Message length: " + length);
-            Logger.get().log("Body: " + Arrays.toString(message));
+            Logger.get().log(LoggerUtils.getTextForMessageType(messageType));
+            Logger.get().verbose("Message: " + Arrays.toString(message) + " (Length: " + length + ")");
 
             switch (messageType) {
 
@@ -79,20 +79,17 @@ public class NetworkEventHandler {
 
 
                 case 2: // Server sends map
-                    Logger.get().verbose("Receiving map");
                     networkClient.receiveMap(new String(message));
                     break;
 
 
                 case 3: // Server assigns player number
-                    Logger.get().verbose("Receiving player number");
                     playerNumber = message[0];
                     networkClient.receivePlayerNumber(playerNumber);
                     break;
 
 
                 case 4: // Server requests move
-                    Logger.get().verbose("Receiving move request");
 
                     // Get move answer
                     MoveAnswer answer = networkClient.sendMoveAnswer();
@@ -111,7 +108,6 @@ public class NetworkEventHandler {
 
 
                 case 6: // Server sends move from other player
-                    Logger.get().verbose("Receiving move from other player");
 
                     // Extract message byte stream to primitives
                     short x = (short) ((message[0] << 8) & 0xFF00);
@@ -128,7 +124,6 @@ public class NetworkEventHandler {
 
 
                 case 7: // Server disqualifies
-                    Logger.get().verbose("Receiving disqualification");
 
                     byte disqualifiedPlayer = message[0];
                     networkClient.receiveDisqualification(disqualifiedPlayer);
@@ -140,14 +135,12 @@ public class NetworkEventHandler {
 
 
                 case 8: // End of phase 1
-                    Logger.get().verbose("Receiving ending of phase 1");
 
                     networkClient.receiveEndingPhase1();
                     break;
 
 
                 case 9: // End of phase 2 - the end.
-                    Logger.get().verbose("Receiving ending of phase 2");
 
                     networkClient.receiveEndingPhase2();
                     disconnect();

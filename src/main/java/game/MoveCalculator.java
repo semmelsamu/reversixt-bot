@@ -27,7 +27,9 @@ public class MoveCalculator {
      * Get all valid moves for this player
      */
     public Set<Move> getValidMovesForPlayer(Tile player) {
-        Logger.get().debug("Searching for all valid moves for Player " + player);
+
+        Logger.get().log("Searching for all valid moves for Player " + player);
+
         Set<Move> moves = new HashSet<>();
         for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(player)) {
             if (game.getTile(occupiedTile) != player) {
@@ -53,6 +55,8 @@ public class MoveCalculator {
             }
 
         }
+
+        Logger.get().debug("Valid moves for Player " + player + ": " + moves);
 
         return moves;
     }

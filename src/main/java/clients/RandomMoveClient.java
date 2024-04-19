@@ -35,7 +35,6 @@ public class RandomMoveClient implements Client {
     @Override
     public Move sendMove() {
         var possibleMoves = moveCalculator.getValidMovesForPlayer(player);
-        Logger.get().log("Possible moves: " + possibleMoves);
         Logger.get().log("Selecting random move");
         Move chosenMove = SetUtils.getRandomElement(possibleMoves);
         Logger.get().log("Selected " + chosenMove);
