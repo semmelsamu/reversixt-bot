@@ -8,14 +8,14 @@ import player.move.BonusMove;
 import player.move.ChoiceMove;
 import player.move.Move;
 
-/**
- * Adapts a Client to work with the NetworkClient ergo the NetworkEventHandler, which communicates
- * with the Server.
- */
 public class NetworkClientAdapter implements NetworkClient {
 
     private final Client client;
 
+    /**
+     * Adapt a Client to work with the NetworkClient aka the NetworkEventHandler, which
+     * communicates with the Server.
+     */
     public NetworkClientAdapter(Client client) {
         this.client = client;
     }
