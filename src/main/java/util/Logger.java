@@ -12,7 +12,7 @@ public class Logger {
     |-----------------------------------------------------------------------------------------------
     */
 
-    private static Logger logger = new Logger("Logger", 2);
+    private static Logger logger = new Logger("Logger", 0);
 
     public static Logger get() {
         return logger;
@@ -120,9 +120,9 @@ public class Logger {
 
         // Print
         System.out.println(
-                color + "[" + name + "]  " + ANSI_RESET + currentDate + "  " + color + type +
-                        ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color +
-                        message + ANSI_RESET + "  " + timeElapsedMs + "ms");
+                /*color + "[" + name + "]  " + ANSI_RESET + currentDate + "  " + color + type +
+                        ANSI_YELLOW + "  [" + className + "." + methodName + "]  " +*/ color +
+                message + ANSI_RESET + "  " + timeElapsedMs + "ms");
     }
 
 
