@@ -1,6 +1,7 @@
 package exercises;
 
 import clients.RandomMoveClient;
+import network.Launcher;
 import network.NetworkClientAdapter;
 import network.NetworkEventHandler;
 
@@ -30,6 +31,6 @@ public class Exercise04 {
      * ist. Aufgaben 2 und 3 werden in diesem Zusammenhang auch überprüft.
      */
     public static void abnahme() throws IOException {
-        new NetworkEventHandler("127.0.0.1", 7777, new NetworkClientAdapter(new RandomMoveClient()));
+        Launcher.launchClientOnNetwork(new RandomMoveClient(), "127.0.0.1", 7777);
     }
 }
