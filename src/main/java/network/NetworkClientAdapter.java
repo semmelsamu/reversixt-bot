@@ -32,7 +32,7 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receivePlayerNumber(byte player) {
-        client.receivePlayerNumber(Tile.fromChar((char) ((int) player)));
+        client.receivePlayerNumber(uint8ToTile(player));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class NetworkClientAdapter implements NetworkClient {
     @Override
     public void receiveMove(short x, short y, byte type, byte player) {
 
-        Tile playerTile = Tile.fromChar((char) ((int) player));
+        Tile playerTile = uint8ToTile(player);
         Coordinates coordinates = new Coordinates(x, y);
 
         if (type == 0) {
@@ -67,7 +67,7 @@ public class NetworkClientAdapter implements NetworkClient {
             Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
             client.receiveMove(new BonusMove(playerTile, coordinates, bonus));
         } else {
-            Tile playerToSwapWith = Tile.fromChar((char) ((int) type));
+            Tile playerToSwapWith = uint8ToTile(type);
             client.receiveMove(new ChoiceMove(playerTile, coordinates, playerToSwapWith));
         }
     }
@@ -85,5 +85,9 @@ public class NetworkClientAdapter implements NetworkClient {
     @Override
     public void receiveEndingPhase2() {
 
+    }
+
+    public static Tile uint8ToTile(byte uint8) {
+        return Tile.fromChar((char) (uint8 + '0'));
     }
 }
