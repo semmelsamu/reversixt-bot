@@ -1,16 +1,19 @@
-import exercises.Exercise03;
+import exercises.Exercise02;
+import exercises.Exercise04;
 import util.Logger;
+
+import java.io.IOException;
 
 public class Main {
 
-    private static final String VERSION = "0.2";
+    private static final String VERSION = "0.4";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Initialize Logger
         Logger.get().name = "revxt-ss24-g04-v" + VERSION;
         Logger.get().log("Starting");
 
         // Launch whatever
-        Exercise03.aufgabe3();
+        Exercise04.abnahme();
     }
 }

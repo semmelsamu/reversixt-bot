@@ -75,6 +75,8 @@ public class MoveExecutor {
         if (move instanceof InversionMove) {
             executeInversionLogic();
         }
+
+        Logger.get().debug("Game after move execution: " + game);
     }
 
     private static Set<Coordinates> getTilesToColorInDirection(TileReader tileReader, Move move) {
