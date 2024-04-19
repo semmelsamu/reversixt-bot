@@ -19,6 +19,7 @@ public class PrioritiseChoiceBonusMoveCriterion extends AbstractRating {
 
     @Override
     public void evaluateByCriterion() {
+        /*
         Set<Move> validMoves = getGame().getValidMovesForCurrentPlayer();
 
         if (validMoves.isEmpty()) {
@@ -50,5 +51,6 @@ public class PrioritiseChoiceBonusMoveCriterion extends AbstractRating {
             addPlayerRatingByCriterion(new MapTileRating(bonusTilesValidMove, 3));
 
         }
+        */
     }
 }

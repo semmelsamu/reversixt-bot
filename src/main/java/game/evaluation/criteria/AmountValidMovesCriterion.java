@@ -19,6 +19,7 @@ public class AmountValidMovesCriterion extends AbstractRating {
 
     @Override
     public void evaluateByCriterion() {
+        /*
         Set<Move> validMovesForCurrentPlayer = getGame().getValidMovesForCurrentPlayer();
         if (validMovesForCurrentPlayer.isEmpty()) {
             addPlayerRatingByCriterion(-2);
@@ -27,5 +28,7 @@ public class AmountValidMovesCriterion extends AbstractRating {
         for (Move move : validMovesForCurrentPlayer) {
             addPlayerRatingByCriterion(new MapTileRating(move.getCoordinates(), 1));
         }
+        */
     }
+
 }

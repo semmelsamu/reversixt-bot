@@ -20,7 +20,7 @@ public class TileFillLevelCriterion extends AbstractRating {
     public void evaluateByCriterion() {
         //nicht erreichbare felder
         // globale konstanten
-        GameStats gameStats = getGame().getGameStats();
+        /*GameStats gameStats = getGame().getGameStats();
         int allAvailableFields = getGame().getBoard().getHeight() * getGame().getBoard().getWidth();
         allAvailableFields -= gameStats.getAllCoordinatesWhereTileIs(Tile.WALL).size();
 
@@ -41,5 +41,6 @@ public class TileFillLevelCriterion extends AbstractRating {
         } else if (allPlayersTiles > allAvailableFields * 0.7) {
             addPlayerRatingByCriterion((int) ((ourAmountTiles - allTileAveragePlayers) * 0.5));
         }
+        */
     }
 }

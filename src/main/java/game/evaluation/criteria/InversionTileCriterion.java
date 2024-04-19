@@ -23,6 +23,7 @@ public class InversionTileCriterion extends AbstractRating {
 
     @Override
     public void evaluateByCriterion() {
+        /*
         Set<Move> validMoves = getGame().getValidMovesForCurrentPlayer();
 
         if (validMoves.isEmpty()) {
@@ -54,5 +55,6 @@ public class InversionTileCriterion extends AbstractRating {
             addPlayerRatingByCriterion(new MapTileRating(inversionTilesValidMove,
                     beforeUsPlayerRating - ourPlayerRating));
         }
+         */
     }
 }

@@ -11,7 +11,8 @@ import player.Player;
 public class AmountBombsCriterion extends AbstractRating {
 
     public AmountBombsCriterion(Game game) {
-        super(RatingType.BOMBS, game, game.getBombRadius() * game.getBombRadius());
+        super(RatingType.BOMBS, game, 1);
+        // weight: bombRadius * bombRadius
     }
 
     @Override
