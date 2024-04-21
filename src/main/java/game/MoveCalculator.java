@@ -41,19 +41,9 @@ public class MoveCalculator {
 
         if(game.playerHasOverwriteStones(playerValue)) {
             // Add overwrite moves.
-
-            Set<Coordinates> coordinates = new HashSet<>();
-
-            // Those are on basically any tile which is occupied by a player or an expansion field.
-            for(Tile playerTile : game.getAllParticipatingPlayers()) {
-                coordinates.addAll(game.gameStats.getAllCoordinatesWhereTileIs(playerTile));
-            }
-            coordinates.addAll(game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION));
-
-            for(var coordinate : coordinates) {
+            for(var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
                 moves.add(new OverwriteMove(playerValue, coordinate));
             }
-
         }
 
         Logger.get().debug("Valid moves for Player " + playerValue + ":\n" +
