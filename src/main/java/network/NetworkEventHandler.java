@@ -12,9 +12,9 @@ import java.util.Arrays;
  */
 public class NetworkEventHandler {
 
-    private final Socket socket;
-    private final DataOutputStream out;
-    private final DataInputStream in;
+    private Socket socket;
+    private DataOutputStream out;
+    private DataInputStream in;
 
     private final NetworkClient networkClient;
 
@@ -27,26 +27,30 @@ public class NetworkEventHandler {
      *                      implement the {@link NetworkClient} interface.
      * @param ip            The IP address of the server to which the client will connect.
      * @param port          The port number on the server to which the client will connect.
-     * @throws IOException If at some point the connection to the server fails.
      */
-    public NetworkEventHandler(NetworkClient networkClient, String ip, int port)
-            throws IOException {
+    public NetworkEventHandler(NetworkClient networkClient, String ip, int port) {
 
         Logger.get().log("Starting network client");
 
         // Store client
         this.networkClient = networkClient;
 
-        // Connect
-        Logger.get().log("Trying to connect to server " + ip + " on port " + port);
-        socket = new Socket(ip, port);
-        out = new DataOutputStream(socket.getOutputStream());
-        in = new DataInputStream(socket.getInputStream());
-        Logger.get().log("Connected");
+        try {
 
-        // Launch
-        sendGroupNumber();
-        run();
+            // Connect
+            Logger.get().log("Trying to connect to server " + ip + " on port " + port);
+            socket = new Socket(ip, port);
+            out = new DataOutputStream(socket.getOutputStream());
+            in = new DataInputStream(socket.getInputStream());
+            Logger.get().log("Connected");
+
+            // Launch
+            sendGroupNumber();
+            run();
+
+        } catch (IOException e) {
+            Logger.get().error("Failed connecting to server: " + e.getMessage());
+        }
 
         Logger.get().log("Exiting NetworkEventHandler");
     }
