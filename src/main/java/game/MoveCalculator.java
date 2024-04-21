@@ -52,6 +52,23 @@ public class MoveCalculator {
         return moves;
     }
 
+    public Set<Move> getAllBombMoves(Tile player) {
+
+        Set<Move> result = new HashSet<>();
+
+        // Bombs can be thrown on every tile which is not a wall.
+        for(Tile tile : Tile.values()) {
+            if(tile == Tile.WALL) continue;
+
+            for(Coordinates position : game.getGameStats().getAllCoordinatesWhereTileIs(tile)) {
+                result.add(new BombMove(player, position));
+            }
+
+        }
+
+        return result;
+    }
+
     /**
      * @param ownTileCoordinates one piece of this player
      * @param playerValue Tile of player that moves are calculated for
