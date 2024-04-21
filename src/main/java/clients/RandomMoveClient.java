@@ -1,10 +1,7 @@
 package clients;
 
 import board.Tile;
-import game.Game;
-import game.GameFactory;
-import game.MoveCalculator;
-import game.MoveExecutor;
+import game.*;
 import player.move.Move;
 import util.Logger;
 import util.SetUtils;
@@ -45,5 +42,10 @@ public class RandomMoveClient implements Client {
     @Override
     public void receiveMove(Move move) {
         moveExecutor.executeMove(move);
+    }
+
+    @Override
+    public void updateGamePhase(GamePhase gamePhase) {
+        game.setGamePhase(gamePhase);
     }
 }

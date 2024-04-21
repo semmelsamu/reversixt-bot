@@ -63,6 +63,8 @@ public class Game {
      */
     public GameStats gameStats;
 
+    public GamePhase gamePhase;
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -99,6 +101,7 @@ public class Game {
         this.currentPlayer = 0;
 
         gameStats = new GameStats(this);
+        gamePhase = GamePhase.PHASE_1;
     }
 
     /*
@@ -164,6 +167,14 @@ public class Game {
 
     public boolean coordinatesLayInBoard(Coordinates position) {
         return board.coordinatesLayInBoard(position);
+    }
+
+    public GamePhase getGamePhase() {
+        return gamePhase;
+    }
+
+    public void setGamePhase(GamePhase gamePhase) {
+        this.gamePhase = gamePhase;
     }
 
     /*

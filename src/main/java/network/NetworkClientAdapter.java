@@ -3,6 +3,7 @@ package network;
 import board.Coordinates;
 import board.Tile;
 import clients.Client;
+import game.GamePhase;
 import player.move.Bonus;
 import player.move.BonusMove;
 import player.move.ChoiceMove;
@@ -79,12 +80,12 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveEndingPhase1() {
-
+        client.updateGamePhase(GamePhase.PHASE_2);
     }
 
     @Override
     public void receiveEndingPhase2() {
-
+        client.updateGamePhase(GamePhase.END);
     }
 
     public static Tile uint8ToTile(byte uint8) {

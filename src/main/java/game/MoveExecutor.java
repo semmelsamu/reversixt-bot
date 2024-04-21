@@ -27,6 +27,16 @@ public class MoveExecutor {
     public void executeMove(Move move) {
 
         Logger.get().log("Executing move " + move);
+        if (GamePhase.PHASE_1.equals(game.getGamePhase())) {
+            executeMovePhase1(move);
+        } else {
+            executeBomb(move);
+        }
+
+        Logger.get().debug("Game after move execution: " + game);
+    }
+
+    private void executeMovePhase1(Move move) {
         Tile playerValue = move.getPlayer();
         Set<Coordinates> tilesToColor = new HashSet<>();
         // Check every direction
@@ -75,8 +85,6 @@ public class MoveExecutor {
         if (move instanceof InversionMove) {
             executeInversionLogic();
         }
-
-        Logger.get().debug("Game after move execution: " + game);
     }
 
     private static Set<Coordinates> getTilesToColorInDirection(TileReader tileReader, Move move) {
@@ -180,4 +188,17 @@ public class MoveExecutor {
         }
     }
 
+    public void executeBomb(Move move) {
+        if (game.getCurrentPlayer().getBombs() == 0) {
+            Logger.get().error("No bombs available");
+            return;
+        }
+        if (game.getGameStats().getAllCoordinatesWhereTileIs(Tile.WALL).stream()
+                .anyMatch(coordinates -> coordinates == move.getCoordinates())) {
+            Logger.get().error("Bomb cannot be placed on a wall tile");
+            return;
+        }
+        //TODO: increase with bomb radius
+        game.setTile(move.getCoordinates(), Tile.WALL);
+    }
 }
