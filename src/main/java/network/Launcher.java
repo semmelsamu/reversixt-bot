@@ -2,6 +2,7 @@ package network;
 
 import clients.Client;
 import clients.RandomMoveClient;
+import util.Logger;
 
 import java.io.IOException;
 
@@ -10,8 +11,7 @@ import java.io.IOException;
  */
 public class Launcher {
 
-    public static void launchClientOnNetwork(Client client, String ip, int port)
-            throws IOException {
+    public static void launchClientOnNetwork(Client client, String ip, int port) {
         new NetworkEventHandler(new NetworkClientAdapter(client), ip, port);
     }
 
