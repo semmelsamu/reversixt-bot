@@ -131,6 +131,10 @@ public class Game {
         return players;
     }
 
+    public int getBombRadius(){
+        return bombRadius;
+    }
+
     public Tile[] getAllParticipatingPlayers() {
         return Arrays.copyOfRange(Tile.getAllPlayerTiles(), 0, initialPlayers);
     }
@@ -141,6 +145,14 @@ public class Game {
 
     public Tile getTile(Coordinates position) {
         return board.getTile(position);
+    }
+
+    public int getHeight() {
+        return board.getHeight();
+    }
+
+    public int getWidth() {
+        return board.getWidth();
     }
 
     public void setTile(Coordinates position, Tile value) {

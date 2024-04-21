@@ -198,7 +198,24 @@ public class MoveExecutor {
             Logger.get().error("Bomb cannot be placed on a wall tile");
             return;
         }
-        //TODO: increase with bomb radius
-        game.setTile(move.getCoordinates(), Tile.WALL);
+        for (Coordinates bombRadius : findBombRadius(move.getCoordinates())) {
+            game.setTile(bombRadius, Tile.WALL);
+        }
+    }
+
+    private Set<Coordinates> findBombRadius(Coordinates coordinates) {
+        int x = coordinates.x;
+        int y = coordinates.y;
+        int radius = game.getBombRadius();
+        Set<Coordinates> allDestroyedTiles = new HashSet<>();
+
+        for (int i = x - radius; i <= x + radius; i++) {
+            for (int j = y - radius; j <= y + radius; j++) {
+                if (i >= 0 && i < game.getHeight() && j >= 0 && j < game.getWidth()) {
+                    allDestroyedTiles.add(new Coordinates(i, j));
+                }
+            }
+        }
+        return allDestroyedTiles;
     }
 }
