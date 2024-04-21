@@ -30,7 +30,7 @@ public class Exercise04 {
      * mit zufälligen aber validen Zügen gegeneinander spielen, bis das Ende des Spiels erreicht
      * ist. Aufgaben 2 und 3 werden in diesem Zusammenhang auch überprüft.
      */
-    public static void abnahme() {
-        Launcher.launchClientOnNetwork(new RandomMoveClient(), "127.0.0.1", 7777);
+    public static void abnahme(String ip, int port) {
+        Launcher.launchClientOnNetwork(new RandomMoveClient(), ip, port);
     }
 }
