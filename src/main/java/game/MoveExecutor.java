@@ -18,24 +18,23 @@ public class MoveExecutor {
         this.game = game;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Main coloring logic
-    |--------------------------------------------------------------------------
-    */
-
     public void executeMove(Move move) {
 
         Logger.get().log("Executing move " + move);
         if (GamePhase.PHASE_1.equals(game.getGamePhase())) {
             executeMovePhase1(move);
         } else {
-            executeBomb(move);
+            executeBombMove(move);
         }
 
         Logger.get().debug("Game after move execution: " + game);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Main coloring logic
+    |--------------------------------------------------------------------------
+    */
     private void executeMovePhase1(Move move) {
         Tile playerValue = move.getPlayer();
         Set<Coordinates> tilesToColor = new HashSet<>();
@@ -188,16 +187,17 @@ public class MoveExecutor {
         }
     }
 
-    public void executeBomb(Move move) {
+    public void executeBombMove(Move move) {
         if (game.getCurrentPlayer().getBombs() == 0) {
             Logger.get().error("No bombs available");
             return;
         }
-        if (game.getGameStats().getAllCoordinatesWhereTileIs(Tile.WALL).stream()
-                .anyMatch(coordinates -> coordinates == move.getCoordinates())) {
-            Logger.get().error("Bomb cannot be placed on a wall tile");
+
+        if (!(move instanceof BombMove)) {
+            Logger.get().log("Not a bomb move");
             return;
         }
+
         for (Coordinates bombRadius : findBombRadius(move.getCoordinates())) {
             game.setTile(bombRadius, Tile.WALL);
         }
