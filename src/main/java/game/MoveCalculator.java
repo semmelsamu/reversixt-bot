@@ -39,9 +39,9 @@ public class MoveCalculator {
             moves.addAll(getValidMovesForPiece(occupiedTile, playerValue));
         }
 
-        if(game.playerHasOverwriteStones(playerValue)) {
+        if (game.playerHasOverwriteStones(playerValue)) {
             // Add overwrite moves.
-            for(var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
+            for (var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
                 moves.add(new OverwriteMove(playerValue, coordinate));
             }
         }
@@ -57,25 +57,25 @@ public class MoveCalculator {
         Set<Move> result = new HashSet<>();
 
         // Bombs can be thrown on every tile which is not a wall.
-        for(Tile tile : Tile.values()) {
-            if(tile == Tile.WALL) continue;
+        for (Tile tile : Tile.values()) {
+            if (tile == Tile.WALL) {
+                continue;
+            }
 
-            for(Coordinates position : game.getGameStats().getAllCoordinatesWhereTileIs(tile)) {
+            for (Coordinates position : game.getGameStats().getAllCoordinatesWhereTileIs(tile)) {
                 result.add(new BombMove(player, position));
             }
 
         }
-
         return result;
     }
 
     /**
      * @param ownTileCoordinates one piece of this player
-     * @param playerValue Tile of player that moves are calculated for
+     * @param playerValue        Tile of player that moves are calculated for
      * @return Valid moves for one piece of this player
      */
-    private Set<Move> getValidMovesForPiece(Coordinates ownTileCoordinates,
-                                            Tile playerValue) {
+    private Set<Move> getValidMovesForPiece(Coordinates ownTileCoordinates, Tile playerValue) {
         Logger.get()
                 .verbose("Searching for valid moves originating from piece " + ownTileCoordinates);
         Set<Move> moves = new HashSet<>();
@@ -102,8 +102,7 @@ public class MoveCalculator {
                 continue;
             }
 
-            Set<Move> movesInDirection =
-                    getValidMovesForPieceInDirection(tileReader, playerValue);
+            Set<Move> movesInDirection = getValidMovesForPieceInDirection(tileReader, playerValue);
             if (movesInDirection != null) {
                 moves.addAll(movesInDirection);
             }
@@ -113,7 +112,7 @@ public class MoveCalculator {
     }
 
     /**
-     * @param tileReader tileReader with coordinates and direction of first neighbour of own tile
+     * @param tileReader  tileReader with coordinates and direction of first neighbour of own tile
      * @param playerValue Tile of player that moves are calculated for
      * @return Valid moves for one piece for one of eight directions
      */

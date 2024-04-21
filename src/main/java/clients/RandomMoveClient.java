@@ -6,13 +6,15 @@ import player.move.Move;
 import util.Logger;
 import util.SetUtils;
 
+import java.util.Set;
+
 /**
  * This client always picks a random move.
  */
 public class RandomMoveClient implements Client {
 
-    private Game game = null;
-    private Tile player = null;
+    private Game game;
+    private Tile player;
 
     private MoveCalculator moveCalculator;
     private MoveExecutor moveExecutor;
@@ -31,12 +33,21 @@ public class RandomMoveClient implements Client {
 
     @Override
     public Move sendMove() {
-        var possibleMoves = moveCalculator.getValidMovesForPlayer(player);
-        Logger.get().log("Selecting random move");
-        Move chosenMove = SetUtils.getRandomElement(possibleMoves);
-        Logger.get().log("Selected " + chosenMove);
-        moveExecutor.executeMove(chosenMove);
-        return chosenMove;
+        if (game.getGamePhase().equals(GamePhase.PHASE_1)) {
+            Set<Move> possibleMoves = moveCalculator.getValidMovesForPlayer(player);
+            Logger.get().log("Selecting random move");
+            Move chosenMove = SetUtils.getRandomElement(possibleMoves);
+            Logger.get().log("Selected " + chosenMove);
+            moveExecutor.executeMove(chosenMove);
+            return chosenMove;
+        } else {
+            Set<Move> possibleMoves = moveCalculator.getAllBombMoves(player);
+            Logger.get().log("Selecting random move");
+            Move chosenMove = SetUtils.getRandomElement(possibleMoves);
+            Logger.get().log("Selected " + chosenMove);
+            moveExecutor.executeMove(chosenMove);
+            return chosenMove;
+        }
     }
 
     @Override
