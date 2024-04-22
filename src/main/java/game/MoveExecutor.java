@@ -203,19 +203,28 @@ public class MoveExecutor {
         }
     }
 
+    // TODO: refactor
     private Set<Coordinates> getAllTilesToBeBombed(Coordinates coordinates) {
-        int x = coordinates.x;
-        int y = coordinates.y;
         int radius = game.getBombRadius();
         Set<Coordinates> allDestroyedTiles = new HashSet<>();
+        Set<Coordinates> allDestroyedTilesTemp = new HashSet<>();
 
-        for (int i = x - radius; i <= x + radius; i++) {
-            for (int j = y - radius; j <= y + radius; j++) {
-                if (i >= 0 && i < game.getHeight() && j >= 0 && j < game.getWidth()) {
-                    allDestroyedTiles.add(new Coordinates(i, j));
+        allDestroyedTiles.add(coordinates);
+        for (int i = 0; i < radius; i++) {
+            for (Coordinates allDestroyedTile : allDestroyedTiles) {
+                for (Direction direction : Direction.values()) {
+                    TileReader reader = new TileReader(game, allDestroyedTile, direction);
+                    if (reader.hasNext()) {
+                        reader.next();
+                        allDestroyedTilesTemp.add(new Coordinates(reader.getCoordinates().x,
+                                reader.getCoordinates().y));
+                    }
                 }
             }
+            allDestroyedTiles.addAll(allDestroyedTilesTemp);
+            allDestroyedTilesTemp.clear();
         }
+
         return allDestroyedTiles;
     }
 }
