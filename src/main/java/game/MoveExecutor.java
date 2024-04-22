@@ -104,7 +104,7 @@ public class MoveExecutor {
             currentTile = tileReader.getTile();
 
             // Check if the coordinates are the same as of the new Tile
-            if (move.getCoordinates() == tileReader.getCoordinates()) {
+            if (move.getCoordinates().equals(tileReader.getCoordinates())) {
                 return new HashSet<>();
             }
             // Check if there is an unoccupied tile
@@ -198,12 +198,12 @@ public class MoveExecutor {
             return;
         }
 
-        for (Coordinates bombRadius : findBombRadius(move.getCoordinates())) {
-            game.setTile(bombRadius, Tile.WALL);
+        for (Coordinates bombedTile : getAllTilesToBeBombed(move.getCoordinates())) {
+            game.setTile(bombedTile, Tile.WALL);
         }
     }
 
-    private Set<Coordinates> findBombRadius(Coordinates coordinates) {
+    private Set<Coordinates> getAllTilesToBeBombed(Coordinates coordinates) {
         int x = coordinates.x;
         int y = coordinates.y;
         int radius = game.getBombRadius();
