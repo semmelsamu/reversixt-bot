@@ -1,13 +1,11 @@
-import game.Game;
 import game.GameFactory;
 import org.junit.jupiter.api.Test;
 import util.File;
 import util.TestLogger;
 
-import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 
 public class MapReadingTest {
