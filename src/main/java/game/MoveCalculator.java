@@ -116,6 +116,7 @@ public class MoveCalculator {
             }
 
             tileReader.next();
+
             // If there are no tiles between existing and new piece
             if (!tilesBetweenExistingAndNewPiece) {
                 if (currentCoordinates != tileReader.getCoordinates()) {
@@ -125,15 +126,16 @@ public class MoveCalculator {
             currentTile = tileReader.getTile();
             currentCoordinates = tileReader.getCoordinates();
 
+            // If an own tile is overwritten, return because this tile is handled separately
+            if (currentTile == playerValue) {
+                return movesPerDirection;
+            }
+
             // Overwrite Logic
             if (game.playerHasOverwriteStones(playerValue)) {
                 // Overwrite stone logic
                 if (currentTile.isPlayer() && tilesBetweenExistingAndNewPiece) {
                     movesPerDirection.add(new OverwriteMove(playerValue, currentCoordinates));
-                    // If an own tile is overwritten, return because this tile is handled separately
-                    if (currentTile == playerValue) {
-                        return movesPerDirection;
-                    }
                 }
             }
         }
