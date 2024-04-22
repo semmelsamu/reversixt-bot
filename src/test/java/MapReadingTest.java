@@ -4,26 +4,28 @@ import org.junit.jupiter.api.Test;
 import util.File;
 import util.TestLogger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class MapReadingTest {
 
     @Test
-    public void testAllMaps() {
-        for (String map : File.getAllMaps()) {
-            assertEquals(testMap(map), 0);
-        }
+    public void createFromFile_test() {
+        List<String> allMaps = File.getAllMaps();
+
+        assertDoesNotThrow(() -> {
+            for (String map : allMaps) {
+                TestLogger.get().log("Map " + map);
+                GameFactory.createFromFile(map);
+            }
+        });
     }
 
-    public int testMap(String filename) {
-        try {
-            Game game = GameFactory.createFromFile(filename);
-            TestLogger.get().log("Map " + filename);
-            return 0;
-        } catch (Exception e) {
-            TestLogger.get().error(filename + " generated error:" + e.getMessage());
-            return 1;
-        }
+    @Test
+    public void getAllMaps_test() {
+        assertDoesNotThrow(File::getAllMaps);
     }
 }
