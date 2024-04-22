@@ -38,14 +38,12 @@ public class RandomMoveClient implements Client {
             Logger.get().log("Selecting random move");
             Move chosenMove = SetUtils.getRandomElement(possibleMoves);
             Logger.get().log("Selected " + chosenMove);
-            moveExecutor.executeMove(chosenMove);
             return chosenMove;
         } else {
             Set<Move> possibleMoves = moveCalculator.getAllBombMoves(player);
             Logger.get().log("Selecting random move");
             Move chosenMove = SetUtils.getRandomElement(possibleMoves);
             Logger.get().log("Selected " + chosenMove);
-            moveExecutor.executeMove(chosenMove);
             return chosenMove;
         }
     }
