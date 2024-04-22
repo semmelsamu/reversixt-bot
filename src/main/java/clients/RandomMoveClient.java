@@ -14,8 +14,8 @@ import util.SetUtils;
  */
 public class RandomMoveClient implements Client {
 
-    private Game game = null;
-    private Tile player = null;
+    private Game game;
+    private Tile player;
 
     private MoveCalculator moveCalculator;
     private MoveExecutor moveExecutor;
@@ -38,7 +38,6 @@ public class RandomMoveClient implements Client {
         Logger.get().log("Selecting random move");
         Move chosenMove = SetUtils.getRandomElement(possibleMoves);
         Logger.get().log("Selected " + chosenMove);
-        moveExecutor.executeMove(chosenMove);
         return chosenMove;
     }
 
