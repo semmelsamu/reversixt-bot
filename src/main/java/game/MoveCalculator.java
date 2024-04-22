@@ -40,7 +40,7 @@ public class MoveCalculator {
         }
 
         if(game.playerHasOverwriteStones(playerValue)) {
-            // Add overwrite moves.
+            // Add overwrite moves on expansion tiles
             for(var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
                 moves.add(new OverwriteMove(playerValue, coordinate));
             }
@@ -80,7 +80,7 @@ public class MoveCalculator {
                 continue;
             }
 
-            // Check if first neighbour tile has the same coordinates as the own piece
+            // Check if the neighbour is the same tile due to a transition
             if (tileReader.getCoordinates() == ownTileCoordinates) {
                 continue;
             }
@@ -125,10 +125,11 @@ public class MoveCalculator {
             currentTile = tileReader.getTile();
             currentCoordinates = tileReader.getCoordinates();
 
+            // Overwrite Logic
             if (game.playerHasOverwriteStones(playerValue)) {
                 // Overwrite stone logic
                 if (currentTile.isPlayer() && tilesBetweenExistingAndNewPiece) {
-                    movesPerDirection.add(new Move(playerValue, currentCoordinates));
+                    movesPerDirection.add(new OverwriteMove(playerValue, currentCoordinates));
                     // If an own tile is overwritten, return because this tile is handled separately
                     if (currentTile == playerValue) {
                         return movesPerDirection;
