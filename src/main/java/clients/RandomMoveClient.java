@@ -2,6 +2,7 @@ package clients;
 
 import board.Tile;
 import game.*;
+import player.move.BombMove;
 import player.move.Move;
 import util.Logger;
 import util.SetUtils;
@@ -43,7 +44,7 @@ public class RandomMoveClient implements Client {
             possibleMoves.addAll(moveCalculator.getAllBombMoves(player));
         }
 
-        if(possibleMoves.isEmpty()) {
+        if (possibleMoves.isEmpty()) {
             throw new RuntimeException("Could not calculate any possible moves :(");
         }
 
@@ -55,7 +56,11 @@ public class RandomMoveClient implements Client {
 
     @Override
     public void receiveMove(Move move) {
-        moveExecutor.executeMove(move);
+        if (GamePhase.PHASE_1.equals(game.getGamePhase())) {
+            moveExecutor.executeMove(move);
+        } else {
+            moveExecutor.executeMove(new BombMove(move.getPlayer(), move.getCoordinates()));
+        }
     }
 
     @Override
