@@ -5,12 +5,17 @@ import board.Tile;
 import game.Game;
 import game.MoveExecutor;
 import player.move.InversionMove;
+import player.move.Move;
 
 public class MoveExecutorHelper {
 
-    public static void executeMovePlayer1(Game game, int x, int y) {
+    public static void executeInversionMovePlayer1(Game game, int x, int y) {
         (new MoveExecutor(game)).executeMove(
                 new InversionMove(Tile.PLAYER1, new Coordinates(x, y)));
+    }
+
+    public static void executeExistingMovePlayer1(Game game, Move move) {
+        (new MoveExecutor(game)).executeMove(move);
     }
 
 }

@@ -2,42 +2,28 @@ import board.Tile;
 import game.Game;
 import game.GameFactory;
 import game.MoveCalculator;
-import game.MoveExecutor;
 import org.junit.jupiter.api.Test;
+import player.move.Move;
 import util.File;
-import util.TestLogger;
+import util.MoveExecutorHelper;
 
-import java.util.Arrays;
-
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class MoveExecutionExceptionTest {
 
     @Test
-    public void testEveryMove() {
+    public void everyFirstMoveOnEveryMap_noException_test() {
 
         for (String map : File.getAllMaps()) {
             Game game = GameFactory.createFromFile(map);
 
-            TestLogger.get().log("Map " + map);
-            TestLogger.get().verbose(game.toString());
-
-            for (var move : (new MoveCalculator(game).getValidMovesForPlayer(Tile.PLAYER1))) {
+            for (Move move : (new MoveCalculator(game).getValidMovesForPlayer(Tile.PLAYER1))) {
                 Game testCase = GameFactory.createFromFile(map);
 
-                try {
-                    MoveExecutor moveExecutor = new MoveExecutor(testCase);
-                    moveExecutor.executeMove(move);
-                    TestLogger.get().log("Move " + move);
-                    TestLogger.get().verbose(testCase.toString());
-                } catch (Exception e) {
-                    TestLogger.get().error("Move execution failed: " + e.getMessage() + " at " +
-                            Arrays.toString(e.getStackTrace()));
-                    TestLogger.get().error("Initial map: " + game);
-                    TestLogger.get().error("Tried to execute move " + move);
-                    TestLogger.get().error("Game after attempting to execute move: " + testCase);
-                    fail("Test failed");
-                }
+                assertDoesNotThrow(
+                        () -> MoveExecutorHelper.executeExistingMovePlayer1(testCase, move));
+
             }
         }
     }

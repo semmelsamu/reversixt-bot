@@ -2,10 +2,8 @@ import board.Coordinates;
 import board.Tile;
 import game.Game;
 import game.GameFactory;
-import game.MoveExecutor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import player.move.InversionMove;
 import util.Logger;
 import util.MoveExecutorHelper;
 
@@ -19,7 +17,7 @@ public class InversionTileTest {
 
         Logger.get().log(game.toString());
 
-        MoveExecutorHelper.executeMovePlayer1(game, 4, 4);
+        MoveExecutorHelper.executeInversionMovePlayer1(game, 4, 4);
 
         Logger.get().log(game.toString());
 
