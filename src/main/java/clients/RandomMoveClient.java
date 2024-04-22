@@ -6,6 +6,7 @@ import player.move.Move;
 import util.Logger;
 import util.SetUtils;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -33,19 +34,23 @@ public class RandomMoveClient implements Client {
 
     @Override
     public Move sendMove() {
+
+        Set<Move> possibleMoves = new HashSet<>();
+
         if (game.getGamePhase().equals(GamePhase.PHASE_1)) {
-            Set<Move> possibleMoves = moveCalculator.getValidMovesForPlayer(player);
-            Logger.get().log("Selecting random move");
-            Move chosenMove = SetUtils.getRandomElement(possibleMoves);
-            Logger.get().log("Selected " + chosenMove);
-            return chosenMove;
+            possibleMoves.addAll(moveCalculator.getValidMovesForPlayer(player));
         } else {
-            Set<Move> possibleMoves = moveCalculator.getAllBombMoves(player);
-            Logger.get().log("Selecting random move");
-            Move chosenMove = SetUtils.getRandomElement(possibleMoves);
-            Logger.get().log("Selected " + chosenMove);
-            return chosenMove;
+            possibleMoves.addAll(moveCalculator.getAllBombMoves(player));
         }
+
+        if(possibleMoves.isEmpty()) {
+            throw new RuntimeException("Could not calculate any possible moves :(");
+        }
+
+        Logger.get().log("Selecting random move");
+        Move chosenMove = SetUtils.getRandomElement(possibleMoves);
+        Logger.get().log("Selected " + chosenMove);
+        return chosenMove;
     }
 
     @Override
