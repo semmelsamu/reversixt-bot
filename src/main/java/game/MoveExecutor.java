@@ -18,15 +18,24 @@ public class MoveExecutor {
         this.game = game;
     }
 
+    public void executeMove(Move move) {
+
+        Logger.get().log("Executing move " + move);
+        if (!(move instanceof BombMove)) {
+            executeMovePhase1(move);
+        } else {
+            executeBombMove(move);
+        }
+
+        Logger.get().debug("Game after move execution: " + game);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Main coloring logic
     |--------------------------------------------------------------------------
     */
-
-    public void executeMove(Move move) {
-
-        Logger.get().log("Executing move " + move);
+    private void executeMovePhase1(Move move) {
         Tile playerValue = move.getPlayer();
         Set<Coordinates> tilesToColor = new HashSet<>();
         // Check every direction
@@ -75,8 +84,6 @@ public class MoveExecutor {
         if (move instanceof InversionMove) {
             executeInversionLogic();
         }
-
-        Logger.get().debug("Game after move execution: " + game);
     }
 
     private static Set<Coordinates> getTilesToColorInDirection(TileReader tileReader, Move move) {
@@ -180,4 +187,35 @@ public class MoveExecutor {
         }
     }
 
+    public void executeBombMove(Move move) {
+        if (game.getCurrentPlayer().getBombs() == 0) {
+            Logger.get().error("No bombs available");
+            return;
+        }
+
+        if (!(move instanceof BombMove)) {
+            Logger.get().log("Not a bomb move");
+            return;
+        }
+
+        for (Coordinates bombRadius : findBombRadius(move.getCoordinates())) {
+            game.setTile(bombRadius, Tile.WALL);
+        }
+    }
+
+    private Set<Coordinates> findBombRadius(Coordinates coordinates) {
+        int x = coordinates.x;
+        int y = coordinates.y;
+        int radius = game.getBombRadius();
+        Set<Coordinates> allDestroyedTiles = new HashSet<>();
+
+        for (int i = x - radius; i <= x + radius; i++) {
+            for (int j = y - radius; j <= y + radius; j++) {
+                if (i >= 0 && i < game.getHeight() && j >= 0 && j < game.getWidth()) {
+                    allDestroyedTiles.add(new Coordinates(i, j));
+                }
+            }
+        }
+        return allDestroyedTiles;
+    }
 }

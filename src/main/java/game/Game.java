@@ -63,6 +63,8 @@ public class Game {
      */
     public GameStats gameStats;
 
+    public GamePhase gamePhase;
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -99,6 +101,7 @@ public class Game {
         this.currentPlayer = 0;
 
         gameStats = new GameStats(this);
+        gamePhase = GamePhase.PHASE_1;
     }
 
     /*
@@ -128,6 +131,10 @@ public class Game {
         return players;
     }
 
+    public int getBombRadius(){
+        return bombRadius;
+    }
+
     public Tile[] getAllParticipatingPlayers() {
         return Arrays.copyOfRange(Tile.getAllPlayerTiles(), 0, initialPlayers);
     }
@@ -138,6 +145,14 @@ public class Game {
 
     public Tile getTile(Coordinates position) {
         return board.getTile(position);
+    }
+
+    public int getHeight() {
+        return board.getHeight();
+    }
+
+    public int getWidth() {
+        return board.getWidth();
     }
 
     public void setTile(Coordinates position, Tile value) {
@@ -164,6 +179,14 @@ public class Game {
 
     public boolean coordinatesLayInBoard(Coordinates position) {
         return board.coordinatesLayInBoard(position);
+    }
+
+    public GamePhase getGamePhase() {
+        return gamePhase;
+    }
+
+    public void setGamePhase(GamePhase gamePhase) {
+        this.gamePhase = gamePhase;
     }
 
     /*

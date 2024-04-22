@@ -1,6 +1,7 @@
 package clients;
 
 import board.Tile;
+import game.GamePhase;
 import player.move.Move;
 
 /**
@@ -15,5 +16,7 @@ public interface Client {
     Move sendMove();
 
     void receiveMove(Move move);
+
+    void updateGamePhase(GamePhase gamePhase);
 
 }
