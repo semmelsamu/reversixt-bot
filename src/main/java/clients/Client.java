@@ -1,6 +1,7 @@
 package clients;
 
 import board.Tile;
+import game.Game;
 import game.GamePhase;
 import player.move.Move;
 
@@ -9,14 +10,6 @@ import player.move.Move;
  */
 public interface Client {
 
-    void receiveMap(String map);
-
-    void receivePlayerNumber(Tile player);
-
-    Move sendMove();
-
-    void receiveMove(Move move);
-
-    void updateGamePhase(GamePhase gamePhase);
+    Move sendMove(Game game);
 
 }
