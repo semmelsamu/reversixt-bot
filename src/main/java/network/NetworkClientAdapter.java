@@ -102,4 +102,8 @@ public class NetworkClientAdapter implements NetworkClient {
     public static Tile uint8ToTile(byte uint8) {
         return Tile.fromChar((char) (uint8 + '0'));
     }
+
+    public Game getGame(){
+        return this.game;
+    }
 }

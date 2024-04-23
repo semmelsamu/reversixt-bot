@@ -18,4 +18,8 @@ public class MoveExecutorHelper {
         (new MoveExecutor(game)).executeMove(move);
     }
 
+    public static Tile getTile(Game game, int x, int y){
+        return game.getTile(new Coordinates(x, y));
+    }
+
 }
