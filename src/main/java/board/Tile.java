@@ -89,8 +89,7 @@ public enum Tile {
      * States that this tile has not been occupied by any player
      */
     public boolean isUnoccupied() {
-        return (this == EMPTY || this == INVERSION || this == BONUS || this == CHOICE ||
-                this == EXPANSION);
+        return (this == EMPTY || this == INVERSION || this == BONUS || this == CHOICE);
     }
 
     /**
