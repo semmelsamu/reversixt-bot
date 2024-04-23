@@ -16,13 +16,10 @@ import java.util.Set;
  */
 public class RandomMoveClient implements Client {
 
-    private Game game;
-    private Tile player;
-
-    private MoveCalculator moveCalculator;
-
     @Override
     public Move sendMove(Game game, Tile player) {
+
+        MoveCalculator moveCalculator = new MoveCalculator(game);
 
         Set<Move> possibleMoves = new HashSet<>();
 
@@ -39,6 +36,8 @@ public class RandomMoveClient implements Client {
         Logger.get().log("Selecting random move");
         Move chosenMove = SetUtils.getRandomElement(possibleMoves);
         Logger.get().log("Selected " + chosenMove);
+
         return chosenMove;
+
     }
 }
