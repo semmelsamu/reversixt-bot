@@ -142,17 +142,17 @@ public class MoveCalculator {
             currentTile = tileReader.getTile();
             currentCoordinates = tileReader.getCoordinates();
 
-            // If an own tile is overwritten, return because this tile is handled separately
-            if (currentTile == playerValue) {
-                return movesPerDirection;
-            }
-
             // Overwrite Logic
             if (game.playerHasOverwriteStones(playerValue)) {
                 // Overwrite stone logic
                 if (currentTile.isPlayer() && tilesBetweenExistingAndNewPiece) {
                     movesPerDirection.add(new OverwriteMove(playerValue, currentCoordinates));
                 }
+            }
+
+            // If an own tile is overwritten, return because this tile is handled separately
+            if (currentTile == playerValue) {
+                return movesPerDirection;
             }
         }
         // If necessary create special move
