@@ -20,22 +20,9 @@ public class RandomMoveClient implements Client {
     private Tile player;
 
     private MoveCalculator moveCalculator;
-    private MoveExecutor moveExecutor;
 
     @Override
-    public void receiveMap(String map) {
-        this.game = GameFactory.createFromString(map);
-        moveCalculator = new MoveCalculator(game);
-        moveExecutor = new MoveExecutor(game);
-    }
-
-    @Override
-    public void receivePlayerNumber(Tile player) {
-        this.player = player;
-    }
-
-    @Override
-    public Move sendMove() {
+    public Move sendMove(Game game, Tile player) {
 
         Set<Move> possibleMoves = new HashSet<>();
 
@@ -53,18 +40,5 @@ public class RandomMoveClient implements Client {
         Move chosenMove = SetUtils.getRandomElement(possibleMoves);
         Logger.get().log("Selected " + chosenMove);
         return chosenMove;
-    }
-
-    @Override
-    public void receiveMove(Move move) {
-        if(game.getTile(move.getCoordinates()).equals(Tile.INVERSION))
-            moveExecutor.executeMove(new InversionMove(move.getPlayer(), move.getCoordinates()));
-        else
-            moveExecutor.executeMove(move);
-    }
-
-    @Override
-    public void updateGamePhase(GamePhase gamePhase) {
-        game.setGamePhase(gamePhase);
     }
 }

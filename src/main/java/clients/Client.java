@@ -10,6 +10,6 @@ import player.move.Move;
  */
 public interface Client {
 
-    Move sendMove(Game game);
+    Move sendMove(Game game, Tile player);
 
 }
