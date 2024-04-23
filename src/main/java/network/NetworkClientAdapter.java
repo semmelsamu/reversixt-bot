@@ -66,7 +66,12 @@ public class NetworkClientAdapter implements NetworkClient {
 
         if (game.getGamePhase() == GamePhase.PHASE_1) {
             if (type == 0) {
-                moveExecutor.executeMove(new Move(playerTile, coordinates));
+                if(game.getTile(coordinates) != Tile.INVERSION) {
+                    moveExecutor.executeMove(new Move(playerTile, coordinates));
+                }
+                else {
+                    moveExecutor.executeMove(new InversionMove(playerTile, coordinates));
+                }
             } else if (type == 20 || type == 21) {
                 Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
                 moveExecutor.executeMove(new BonusMove(playerTile, coordinates, bonus));
