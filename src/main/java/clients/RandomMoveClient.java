@@ -3,6 +3,7 @@ package clients;
 import board.Tile;
 import game.*;
 import player.move.BombMove;
+import player.move.InversionMove;
 import player.move.Move;
 import util.Logger;
 import util.SetUtils;
@@ -56,7 +57,10 @@ public class RandomMoveClient implements Client {
 
     @Override
     public void receiveMove(Move move) {
-        moveExecutor.executeMove(move);
+        if(game.getTile(move.getCoordinates()).equals(Tile.INVERSION))
+            moveExecutor.executeMove(new InversionMove(move.getPlayer(), move.getCoordinates()));
+        else
+            moveExecutor.executeMove(move);
     }
 
     @Override
