@@ -124,26 +124,25 @@ public class MoveExecutor {
 
     private void executeBonusLogic(BonusMove bonusMove) {
         if (bonusMove.getBonus() == Bonus.BOMB) {
-            game.getCurrentPlayer().incrementBombs();
+            game.getPlayers()[bonusMove.getPlayer().toPlayerIndex()].incrementBombs();
         } else if (bonusMove.getBonus() == Bonus.OVERWRITE_STONE) {
-            game.getCurrentPlayer().incrementOverwriteStone();
+            game.getPlayers()[bonusMove.getPlayer().toPlayerIndex()].incrementOverwriteStone();
         } else {
             Logger.get().fatal("Tried to execute bonus move without bonus action");
         }
     }
 
     private void executeChoiceLogic(ChoiceMove choiceMove) {
-        Tile currentPlayer = game.getTile(choiceMove.getCoordinates());
         Tile playerToSwapWith = choiceMove.getPlayerToSwapWith();
 
         // Collect all occupied tiles of current player
         var oldTilesPlayerFromCurrentPlayer =
-                new HashSet<>(game.getGameStats().getAllCoordinatesWhereTileIs(currentPlayer));
+                new HashSet<>(game.getGameStats().getAllCoordinatesWhereTileIs(choiceMove.getPlayer()));
 
         // Iterate through all old tiles of player to swap with
         for (Coordinates coordinates : new HashSet<>(
                 game.getGameStats().getAllCoordinatesWhereTileIs(playerToSwapWith))) {
-            game.setTile(coordinates, currentPlayer);
+            game.setTile(coordinates, choiceMove.getPlayer());
         }
 
         // Iterate through all old tiles of current player
@@ -187,15 +186,9 @@ public class MoveExecutor {
         }
     }
 
-    public void executeBombMove(Move move) {
-        if (game.getCurrentPlayer().getBombs() == 0) {
-            Logger.get().error("No bombs available");
-            return;
-        }
-
-        if (!(move instanceof BombMove)) {
-            Logger.get().log("Not a bomb move");
-            return;
+    public void executeBombMove(BombMove move) {
+        if (game.getPlayers()[move.getPlayer().toPlayerIndex()].getBombs() == 0) {
+            throw new RuntimeException("No bombs available :(");
         }
 
         for (Coordinates bombedTile : getAllTilesToBeBombed(move.getCoordinates())) {
