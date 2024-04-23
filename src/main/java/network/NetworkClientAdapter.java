@@ -3,13 +3,16 @@ package network;
 import board.Coordinates;
 import board.Tile;
 import clients.Client;
-import game.GamePhase;
+import game.*;
 import player.move.*;
 
 public class NetworkClientAdapter implements NetworkClient {
 
     private final Client client;
-    private GamePhase currentPhase;
+
+    private Game game;
+    private MoveExecutor moveExecutor;
+    private Tile player;
 
     /**
      * Adapt a Client to work with the NetworkClient aka the NetworkEventHandler, which
@@ -17,7 +20,6 @@ public class NetworkClientAdapter implements NetworkClient {
      */
     public NetworkClientAdapter(Client client) {
         this.client = client;
-        currentPhase = GamePhase.PHASE_1;
     }
 
     @Override
@@ -27,17 +29,18 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveMap(String map) {
-        client.receiveMap(map);
+        this.game = GameFactory.createFromString(map);
+        moveExecutor = new MoveExecutor(game);
     }
 
     @Override
     public void receivePlayerNumber(byte player) {
-        client.receivePlayerNumber(uint8ToTile(player));
+        this.player = uint8ToTile(player);
     }
 
     @Override
     public MoveAnswer sendMoveAnswer() {
-        Move result = client.sendMove();
+        Move result = client.sendMove(game, player);
 
         short x = (short) result.getCoordinates().x;
         short y = (short) result.getCoordinates().y;
@@ -61,18 +64,18 @@ public class NetworkClientAdapter implements NetworkClient {
         Tile playerTile = uint8ToTile(player);
         Coordinates coordinates = new Coordinates(x, y);
 
-        if (currentPhase == GamePhase.PHASE_1) {
+        if (game.getGamePhase() == GamePhase.PHASE_1) {
             if (type == 0) {
-                client.receiveMove(new Move(playerTile, coordinates));
+                moveExecutor.executeMove(new Move(playerTile, coordinates));
             } else if (type == 20 || type == 21) {
                 Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
-                client.receiveMove(new BonusMove(playerTile, coordinates, bonus));
+                moveExecutor.executeMove(new BonusMove(playerTile, coordinates, bonus));
             } else {
                 Tile playerToSwapWith = uint8ToTile(type);
-                client.receiveMove(new ChoiceMove(playerTile, coordinates, playerToSwapWith));
+                moveExecutor.executeMove(new ChoiceMove(playerTile, coordinates, playerToSwapWith));
             }
         } else {
-            client.receiveMove(new BombMove(playerTile, coordinates));
+            moveExecutor.executeMove(new BombMove(playerTile, coordinates));
         }
     }
 
@@ -83,13 +86,12 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveEndingPhase1() {
-        client.updateGamePhase(GamePhase.PHASE_2);
-        currentPhase = GamePhase.PHASE_2;
+        game.setGamePhase(GamePhase.PHASE_2);
     }
 
     @Override
     public void receiveEndingPhase2() {
-        client.updateGamePhase(GamePhase.END);
+        game.setGamePhase(GamePhase.END);
     }
 
     public static Tile uint8ToTile(byte uint8) {

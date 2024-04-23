@@ -16,26 +16,10 @@ import java.util.Set;
  */
 public class RandomMoveClient implements Client {
 
-    private Game game;
-    private Tile player;
-
-    private MoveCalculator moveCalculator;
-    private MoveExecutor moveExecutor;
-
     @Override
-    public void receiveMap(String map) {
-        this.game = GameFactory.createFromString(map);
-        moveCalculator = new MoveCalculator(game);
-        moveExecutor = new MoveExecutor(game);
-    }
+    public Move sendMove(Game game, Tile player) {
 
-    @Override
-    public void receivePlayerNumber(Tile player) {
-        this.player = player;
-    }
-
-    @Override
-    public Move sendMove() {
+        MoveCalculator moveCalculator = new MoveCalculator(game);
 
         Set<Move> possibleMoves = new HashSet<>();
 
@@ -52,19 +36,8 @@ public class RandomMoveClient implements Client {
         Logger.get().log("Selecting random move");
         Move chosenMove = SetUtils.getRandomElement(possibleMoves);
         Logger.get().log("Selected " + chosenMove);
+
         return chosenMove;
-    }
 
-    @Override
-    public void receiveMove(Move move) {
-        if(game.getTile(move.getCoordinates()).equals(Tile.INVERSION))
-            moveExecutor.executeMove(new InversionMove(move.getPlayer(), move.getCoordinates()));
-        else
-            moveExecutor.executeMove(move);
-    }
-
-    @Override
-    public void updateGamePhase(GamePhase gamePhase) {
-        game.setGamePhase(gamePhase);
     }
 }
