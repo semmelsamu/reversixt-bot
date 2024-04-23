@@ -44,4 +44,9 @@ tasks.register('copyToBin', Copy) {
     include '*.jar'
 }
 
+tasks.register('deleteBin', Delete){
+    delete 'bin'
+}
+
 jar.finalizedBy('copyToBin')
+clean.finalizedBy('deleteBin')
