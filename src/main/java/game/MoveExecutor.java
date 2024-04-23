@@ -24,7 +24,7 @@ public class MoveExecutor {
         if (!(move instanceof BombMove)) {
             executeMovePhase1(move);
         } else {
-            executeBombMove(move);
+            executeBombMove((BombMove) move);
         }
 
         Logger.get().debug("Game after move execution: " + game);
