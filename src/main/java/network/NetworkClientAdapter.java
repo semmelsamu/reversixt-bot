@@ -45,7 +45,7 @@ public class NetworkClientAdapter implements NetworkClient {
         byte type = 0;
 
         if (result instanceof ChoiceMove) {
-            type = (byte) ((ChoiceMove) result).getPlayerToSwapWith().toPlayerIndex();
+            type = (byte) (((ChoiceMove) result).getPlayerToSwapWith().toPlayerIndex() + 1);
         }
 
         if (result instanceof BonusMove) {
