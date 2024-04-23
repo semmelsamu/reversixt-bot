@@ -4,14 +4,12 @@ import board.Coordinates;
 import board.Tile;
 import clients.Client;
 import game.GamePhase;
-import player.move.Bonus;
-import player.move.BonusMove;
-import player.move.ChoiceMove;
-import player.move.Move;
+import player.move.*;
 
 public class NetworkClientAdapter implements NetworkClient {
 
     private final Client client;
+    private GamePhase currentPhase;
 
     /**
      * Adapt a Client to work with the NetworkClient aka the NetworkEventHandler, which
@@ -19,6 +17,7 @@ public class NetworkClientAdapter implements NetworkClient {
      */
     public NetworkClientAdapter(Client client) {
         this.client = client;
+        currentPhase = GamePhase.PHASE_1;
     }
 
     @Override
@@ -62,14 +61,19 @@ public class NetworkClientAdapter implements NetworkClient {
         Tile playerTile = uint8ToTile(player);
         Coordinates coordinates = new Coordinates(x, y);
 
-        if (type == 0) {
-            client.receiveMove(new Move(playerTile, coordinates));
-        } else if (type == 20 || type == 21) {
-            Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
-            client.receiveMove(new BonusMove(playerTile, coordinates, bonus));
+        if (currentPhase == GamePhase.PHASE_1) {
+            if (type == 0) {
+                client.receiveMove(new Move(playerTile, coordinates));
+
+            } else if (type == 20 || type == 21) {
+                Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
+                client.receiveMove(new BonusMove(playerTile, coordinates, bonus));
+            } else {
+                Tile playerToSwapWith = uint8ToTile(type);
+                client.receiveMove(new ChoiceMove(playerTile, coordinates, playerToSwapWith));
+            }
         } else {
-            Tile playerToSwapWith = uint8ToTile(type);
-            client.receiveMove(new ChoiceMove(playerTile, coordinates, playerToSwapWith));
+            client.receiveMove(new BombMove(playerTile, coordinates));
         }
     }
 
@@ -81,6 +85,7 @@ public class NetworkClientAdapter implements NetworkClient {
     @Override
     public void receiveEndingPhase1() {
         client.updateGamePhase(GamePhase.PHASE_2);
+        currentPhase = GamePhase.PHASE_2;
     }
 
     @Override

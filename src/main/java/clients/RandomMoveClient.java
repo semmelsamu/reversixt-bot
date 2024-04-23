@@ -56,11 +56,7 @@ public class RandomMoveClient implements Client {
 
     @Override
     public void receiveMove(Move move) {
-        if (GamePhase.PHASE_1.equals(game.getGamePhase())) {
-            moveExecutor.executeMove(move);
-        } else {
-            moveExecutor.executeMove(new BombMove(move.getPlayer(), move.getCoordinates()));
-        }
+        moveExecutor.executeMove(move);
     }
 
     @Override
