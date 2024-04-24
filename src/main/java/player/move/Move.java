@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * A most basic move where the player only sets a stone.
  */
-public class Move implements Comparable<Move> {
+public abstract class Move implements Comparable<Move> {
 
     /**
      * The player this move belongs to.
