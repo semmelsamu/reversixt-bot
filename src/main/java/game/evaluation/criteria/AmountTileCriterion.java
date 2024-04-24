@@ -23,9 +23,9 @@ public class AmountTileCriterion extends AbstractRating {
                             .size();
         }
         amountTileAllPlayerAverage /= getGame().getPlayers().length;
-        int ourAmountOfTiles = getGame().getGameStats()
-                .getAllCoordinatesWhereTileIs(getGame().getCurrentPlayer().getPlayerValue()).size();
-        addPlayerRatingByCriterion(ourAmountOfTiles - amountTileAllPlayerAverage);
+        // TODO: int ourAmountOfTiles = getGame().getGameStats()
+        // TODO:         .getAllCoordinatesWhereTileIs(getGame().getCurrentPlayer().getPlayerValue()).size();
+        // TODO: addPlayerRatingByCriterion(ourAmountOfTiles - amountTileAllPlayerAverage);
 
     }
 }

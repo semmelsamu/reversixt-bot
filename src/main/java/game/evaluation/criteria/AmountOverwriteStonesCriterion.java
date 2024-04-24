@@ -21,8 +21,8 @@ public class AmountOverwriteStonesCriterion extends AbstractRating {
             overwriteStonesAverage += player.getOverwriteStones();
         }
         overwriteStonesAverage /= getGame().getPlayers().length;
-        int currentPlayerOverwriteStones = getGame().getCurrentPlayer().getOverwriteStones();
+        // TODO: int currentPlayerOverwriteStones = getGame().getCurrentPlayer().getOverwriteStones();
 
-        addPlayerRatingByCriterion(currentPlayerOverwriteStones - overwriteStonesAverage);
+        // TODO: addPlayerRatingByCriterion(currentPlayerOverwriteStones - overwriteStonesAverage);
     }
 }

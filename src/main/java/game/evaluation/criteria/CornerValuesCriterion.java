@@ -23,8 +23,8 @@ public class CornerValuesCriterion extends AbstractRating {
     public void evaluateByCriterion() {
         // 8 neutral
         // durchgehende ecken
-        List<Coordinates> playerTiles = getGame().getAllCoordinatesWhereTileIs(
-                getGame().getCurrentPlayer().getPlayerValue());
+        // TODO: List<Coordinates> playerTiles = getGame().getAllCoordinatesWhereTileIs(
+        /*        getGame().getCurrentPlayer().getPlayerValue());
         for(Coordinates tile : playerTiles) {
             int availableNeighbours = 0;
             for (Direction direction : Direction.values()) {
@@ -35,6 +35,6 @@ public class CornerValuesCriterion extends AbstractRating {
                 availableNeighbours++;
             }
             addPlayerRatingByCriterion(new MapTileRating(tile, Math.abs(8 - availableNeighbours)));
-        }
+        }*/
     }
 }

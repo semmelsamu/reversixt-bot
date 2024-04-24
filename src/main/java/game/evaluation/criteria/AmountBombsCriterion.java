@@ -22,8 +22,8 @@ public class AmountBombsCriterion extends AbstractRating {
             bombsAverage += player.getBombs();
         }
         bombsAverage /= getGame().getPlayers().length;
-        int currentPlayerBombs = getGame().getCurrentPlayer().getBombs();
+        // TODO: int currentPlayerBombs = getGame().getCurrentPlayer().getBombs();
 
-        addPlayerRatingByCriterion(currentPlayerBombs - bombsAverage);
+        // TODO: addPlayerRatingByCriterion(currentPlayerBombs - bombsAverage);
     }
 }
