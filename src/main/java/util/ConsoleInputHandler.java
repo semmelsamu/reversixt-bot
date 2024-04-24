@@ -68,20 +68,20 @@ public class ConsoleInputHandler {
         switch (selectOption("Which kind of move should it be?", MoveType.values())) {
             case BONUS_MOVE -> {
                 Bonus bonus = selectOption("Which bonus do you wish?", Bonus.values());
-                return new BonusMove(player.getPlayerValue(), coordinates, bonus);
+                return new BonusMove(player, coordinates, bonus);
             }
             case CHOICE_MOVE -> {
                 Player playerToSwapWith =
                         selectOption("Which player do you wish to swap stones with?",
                                 game.getPlayers());
-                return new ChoiceMove(player.getPlayerValue(), coordinates,
-                        playerToSwapWith.getPlayerValue());
+                return new ChoiceMove(player, coordinates,
+                        playerToSwapWith);
             }
             case INVERSION_MOVE -> {
-                return new InversionMove(player.getPlayerValue(), coordinates);
+                return new InversionMove(player, coordinates);
             }
             default -> {
-                return new Move(player.getPlayerValue(), coordinates);
+                return new Move(player, coordinates);
             }
         }
     }
