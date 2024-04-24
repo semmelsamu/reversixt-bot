@@ -1,14 +1,14 @@
 package player.move;
 
 import board.Coordinates;
-import board.Tile;
+import player.Player;
 
 /**
  * A move that uses overwrite stones.
  */
 public class OverwriteMove extends Move {
 
-    public OverwriteMove(Tile player, Coordinates coordinates) {
+    public OverwriteMove(Player player, Coordinates coordinates) {
         super(player, coordinates);
     }
 

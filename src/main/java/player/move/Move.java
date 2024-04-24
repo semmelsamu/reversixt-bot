@@ -1,7 +1,7 @@
 package player.move;
 
 import board.Coordinates;
-import board.Tile;
+import player.Player;
 
 import java.util.Objects;
 
@@ -13,14 +13,14 @@ public class Move implements Comparable<Move> {
     /**
      * The player this move belongs to.
      */
-    protected final Tile player;
+    protected final Player player;
 
     /**
      * The tile the move targets.
      */
     protected final Coordinates coordinates;
 
-    public Move(Tile player, Coordinates coordinates) {
+    public Move(Player player, Coordinates coordinates) {
         this.player = player;
         this.coordinates = coordinates;
     }
@@ -31,7 +31,7 @@ public class Move implements Comparable<Move> {
     |--------------------------------------------------------------------------
     */
 
-    public Tile getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 

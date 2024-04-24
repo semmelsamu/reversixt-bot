@@ -1,14 +1,14 @@
 package player.move;
 
 import board.Coordinates;
-import board.Tile;
+import player.Player;
 
 /**
  * Throw a bomb.
  */
 public class BombMove extends Move {
 
-    public BombMove(Tile player, Coordinates coordinates) {
+    public BombMove(Player player, Coordinates coordinates) {
         super(player, coordinates);
     }
 

@@ -2,6 +2,7 @@ package player.move;
 
 import board.Coordinates;
 import board.Tile;
+import player.Player;
 
 import java.util.Objects;
 
@@ -15,7 +16,7 @@ public class ChoiceMove extends Move {
      */
     private final Tile playerToSwapWith;
 
-    public ChoiceMove(Tile player, Coordinates coordinates, Tile playerToSwapWith) {
+    public ChoiceMove(Player player, Coordinates coordinates, Tile playerToSwapWith) {
         super(player, coordinates);
         this.playerToSwapWith = playerToSwapWith;
     }
