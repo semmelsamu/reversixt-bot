@@ -4,6 +4,7 @@ import board.Coordinates;
 import board.Direction;
 import board.Tile;
 import board.TileReader;
+import player.Player;
 import player.move.*;
 import util.Logger;
 
@@ -133,54 +134,54 @@ public class MoveExecutor {
     }
 
     private void executeChoiceLogic(ChoiceMove choiceMove) {
-        Tile playerToSwapWith = choiceMove.getPlayerToSwapWith();
+        Player playerToSwapWith = choiceMove.getPlayerToSwapWith();
 
         // Collect all occupied tiles of current player
-        var oldTilesPlayerFromCurrentPlayer =
-                new HashSet<>(game.getGameStats().getAllCoordinatesWhereTileIs(choiceMove.getPlayer().getPlayerValue()));
+        var oldTilesPlayerFromCurrentPlayer = new HashSet<>(game.getGameStats()
+                .getAllCoordinatesWhereTileIs(choiceMove.getPlayer().getPlayerValue()));
 
         // Iterate through all old tiles of player to swap with
-        for (Coordinates coordinates : new HashSet<>(
-                game.getGameStats().getAllCoordinatesWhereTileIs(playerToSwapWith))) {
+        for (Coordinates coordinates : new HashSet<>(game.getGameStats()
+                .getAllCoordinatesWhereTileIs(playerToSwapWith.getPlayerValue()))) {
             game.setTile(coordinates, choiceMove.getPlayer().getPlayerValue());
         }
 
         // Iterate through all old tiles of current player
         for (Coordinates coordinates : oldTilesPlayerFromCurrentPlayer) {
-            game.setTile(coordinates, playerToSwapWith);
+            game.setTile(coordinates, playerToSwapWith.getPlayerValue());
         }
     }
 
     private void executeInversionLogic() {
 
         // Overwriting Tiles in Board
-        Tile[] participatingPlayerTiles = game.getAllParticipatingPlayers();
+        Player[] players = game.getPlayers();
         // TODO: Tile[] participatingPlayerTiles = (Tile[]) Arrays.stream(game.getPlayers()).map
         //  (Player::getPlayerValue).toArray();
 
         // Updating OccupiedTiles of all Players
 
-        var previousPlayer = participatingPlayerTiles[participatingPlayerTiles.length - 1];
+        var previousPlayer = players[players.length - 1];
 
         // We need to create a copy of the coordinate set as we are altering it in the loop
         // Else we get a ConcurrentModificationException.
-        Set<Coordinates> oldTilesFromPred =
-                new HashSet<>(game.getGameStats().getAllCoordinatesWhereTileIs(previousPlayer));
+        Set<Coordinates> oldTilesFromPred = new HashSet<>(
+                game.getGameStats().getAllCoordinatesWhereTileIs(previousPlayer.getPlayerValue()));
 
         Set<Coordinates> oldOwnTiles = null;
 
-        for (int i = 0; i < participatingPlayerTiles.length; i++) {
+        for (int i = 0; i < players.length; i++) {
 
             if (i != 0) {
                 oldTilesFromPred = oldOwnTiles;
             }
 
             oldOwnTiles = new HashSet<>(
-                    game.getGameStats().getAllCoordinatesWhereTileIs(participatingPlayerTiles[i]));
+                    game.getGameStats().getAllCoordinatesWhereTileIs(players[i].getPlayerValue()));
             Logger.get().debug(oldTilesFromPred.toString());
 
             for (Coordinates coordinates : oldTilesFromPred) {
-                game.setTile(coordinates, participatingPlayerTiles[i]);
+                game.setTile(coordinates, players[i].getPlayerValue());
             }
 
         }
