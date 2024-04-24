@@ -2,7 +2,6 @@ package util;
 
 import board.Tile;
 import clients.Client;
-import clients.RandomMoveClient;
 import game.Game;
 import network.Launcher;
 import network.NetworkClientAdapter;
@@ -10,6 +9,8 @@ import network.NetworkClientAdapter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NetworkClientHelper {
 
@@ -47,19 +48,23 @@ public class NetworkClientHelper {
         return client.getGame();
     }
 
-    public static void create2NetworkClients(Client client) throws InterruptedException {
-        Thread client1Thread = new Thread(() -> {
-            Launcher.launchClientOnNetwork(client, "127.0.0.1", 7777);
-        });
+    public static void createNetworkClients(Client client, int numClients)
+            throws InterruptedException {
+        List<Thread> threads = new ArrayList<>();
 
-        Thread client2Thread = new Thread(() -> {
-            Launcher.launchClientOnNetwork(client, "127.0.0.1", 7777);
-        });
+        for (int i = 0; i < numClients; i++) {
+            Thread clientThread = new Thread(() -> {
+                Launcher.launchClientOnNetwork(client, "127.0.0.1", 7777);
+            });
+            threads.add(clientThread);
+        }
 
-        client1Thread.start();
-        client2Thread.start();
+        for (Thread thread : threads) {
+            thread.start();
+        }
 
-        client1Thread.join();
-        client2Thread.join();
+        for (Thread thread : threads) {
+            thread.join();
+        }
     }
 }
