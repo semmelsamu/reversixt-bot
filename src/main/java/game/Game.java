@@ -50,13 +50,7 @@ public class Game {
     /**
      * Array containing all players with their information
      */
-    private Player[] players;
-
-    /**
-     * The number of the player whose turn it is.
-     * You are probably looking for {@link #getCurrentPlayer()}
-     */
-    private int currentPlayer;
+    private final Player[] players;
 
     /**
      * The container for all stats about the game and the logic
@@ -97,9 +91,6 @@ public class Game {
                     new Player(Tile.getAllPlayerTiles()[i], initialOverwriteStones, initialBombs);
         }
 
-        // Set first player
-        this.currentPlayer = 0;
-
         gameStats = new GameStats(this);
         gamePhase = GamePhase.PHASE_1;
     }
@@ -112,8 +103,8 @@ public class Game {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public Player[] getPlayers() {
-        return players;
+    public Player getPlayer(int playerNumber) {
+        return players[playerNumber];
     }
 
     public int getBombRadius(){
@@ -122,10 +113,6 @@ public class Game {
 
     public Tile[] getAllParticipatingPlayers() {
         return Arrays.copyOfRange(Tile.getAllPlayerTiles(), 0, initialPlayers);
-    }
-
-    public Player getCurrentPlayer() {
-        return players[currentPlayer];
     }
 
     public Tile getTile(Coordinates position) {
