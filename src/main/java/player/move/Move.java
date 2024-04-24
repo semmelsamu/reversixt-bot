@@ -26,9 +26,11 @@ public abstract class Move implements Comparable<Move> {
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Getters
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Getters
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     public Player getPlayer() {
@@ -39,6 +41,14 @@ public abstract class Move implements Comparable<Move> {
         return coordinates;
     }
 
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Comparing and hashing
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     @Override
     public int compareTo(Move that) {
         if (this.coordinates.x != that.coordinates.x) {
@@ -46,11 +56,6 @@ public abstract class Move implements Comparable<Move> {
         } else {
             return Integer.compare(this.coordinates.y, that.coordinates.y);
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Move{player=" + player + ", coordinates=" + coordinates + "}";
     }
 
     @Override
