@@ -51,3 +51,20 @@ tasks.register('deleteBin', Delete){
 
 jar.finalizedBy('copyToBin')
 clean.finalizedBy('deleteBin')
+
+
+tasks.register('cleanOldLogFiles', Delete) {
+    def logFiles = file('.').listFiles().findAll { it.isFile() && it.name.startsWith('log_game_') }
+
+    logFiles.sort { it.lastModified() }
+
+    def keepCount = 20
+    def filesToDelete = logFiles.drop(keepCount)
+
+    filesToDelete.each { file ->
+        delete file
+        println("Deleted old log file: ${file.name}")
+    }
+}
+
+testClasses.finalizedBy('cleanOldLogFiles')
