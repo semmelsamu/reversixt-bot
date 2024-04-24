@@ -37,7 +37,7 @@ public class MoveCalculator {
                 Logger.get().error("Wrong coordinates in Player" + player.getPlayerValue() + "'s List stones");
                 continue;
             }
-            moves.addAll(getValidMovesForPiece(occupiedTile, player.getPlayerValue()));
+            moves.addAll(getValidMovesForPiece(occupiedTile, player));
         }
 
         if(player.getOverwriteStones() > 0) {
