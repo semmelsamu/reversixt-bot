@@ -174,7 +174,7 @@ public class MoveCalculator {
                 movesPerDirection.add(
                         new BonusMove(player, currentCoordinates, Bonus.OVERWRITE_STONE));
             }
-            default -> movesPerDirection.add(new Move(player, currentCoordinates));
+            default -> movesPerDirection.add(new NormalMove(player, currentCoordinates));
 
         }
 

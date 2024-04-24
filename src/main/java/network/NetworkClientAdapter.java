@@ -69,7 +69,7 @@ public class NetworkClientAdapter implements NetworkClient {
         if (game.getGamePhase() == GamePhase.PHASE_1) {
             if (type == 0) {
                 if (game.getTile(coordinates) != Tile.INVERSION) {
-                    moveExecutor.executeMove(new Move(player, coordinates));
+                    moveExecutor.executeMove(new NormalMove(player, coordinates));
                 } else {
                     moveExecutor.executeMove(new InversionMove(player, coordinates));
                 }

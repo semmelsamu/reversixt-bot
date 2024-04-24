@@ -59,7 +59,7 @@ public class ConsoleInputHandler {
         Coordinates coordinates = new Coordinates(x, y);
 
         enum MoveType {
-            MOVE,
+            NORMAL_MOVE,
             BONUS_MOVE,
             CHOICE_MOVE,
             INVERSION_MOVE
@@ -81,7 +81,7 @@ public class ConsoleInputHandler {
                 return new InversionMove(player, coordinates);
             }
             default -> {
-                return new Move(player, coordinates);
+                return new NormalMove(player, coordinates);
             }
         }
     }
