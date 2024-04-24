@@ -2,6 +2,7 @@ import board.Tile;
 import game.Game;
 import game.GameFactory;
 import org.junit.jupiter.api.Test;
+import player.Player;
 import util.TestLogger;
 
 import java.util.HashMap;
@@ -15,9 +16,9 @@ public class TileCountingTest {
     public void countWindowMapPlayersTiles_test(){
         Game game = GameFactory.createFromFile("maps/initialMaps/window.map");
 
-        for (Tile allParticipatingPlayer : game.getAllParticipatingPlayers()) {
+        for (Player allParticipatingPlayer : game.getPlayers()) {
             int calculatedTileCount =
-                    game.getAllCoordinatesWhereTileIs(allParticipatingPlayer).size();
+                    game.getAllCoordinatesWhereTileIs(allParticipatingPlayer.getPlayerValue()).size();
             assertEquals(4, calculatedTileCount, "Tile count for each player at 4");
         }
     }
@@ -26,9 +27,9 @@ public class TileCountingTest {
     public void countCheckerboardMapPlayersTiles_test(){
         Game game = GameFactory.createFromFile("maps/initialMaps/checkerboard.map");
 
-        for (Tile allParticipatingPlayer : game.getAllParticipatingPlayers()) {
+        for (Player allParticipatingPlayer : game.getPlayers()) {
             int calculatedTileCount =
-                    game.getAllCoordinatesWhereTileIs(allParticipatingPlayer).size();
+                    game.getAllCoordinatesWhereTileIs(allParticipatingPlayer.getPlayerValue()).size();
             assertEquals(8, calculatedTileCount, "Tile count for each player at 8");
         }
     }
