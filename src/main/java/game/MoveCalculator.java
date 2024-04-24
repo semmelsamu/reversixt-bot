@@ -32,17 +32,19 @@ public class MoveCalculator {
     public Set<Move> getValidMovesForPlayer(Player player) {
         Logger.get().log("Searching for all valid moves for Player " + player.getPlayerValue());
         Set<Move> moves = new HashSet<>();
-        for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(player.getPlayerValue())) {
+        for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(
+                player.getPlayerValue())) {
             if (game.getTile(occupiedTile) != player.getPlayerValue()) {
-                Logger.get().error("Wrong coordinates in Player" + player.getPlayerValue() + "'s List stones");
+                Logger.get().error("Wrong coordinates in Player" + player.getPlayerValue() +
+                        "'s List stones");
                 continue;
             }
             moves.addAll(getValidMovesForPiece(occupiedTile, player));
         }
 
-        if(player.getOverwriteStones() > 0) {
+        if (player.getOverwriteStones() > 0) {
             // Add overwrite moves on expansion tiles
-            for(var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
+            for (var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
                 moves.add(new OverwriteMove(player, coordinate));
             }
         }
@@ -73,7 +75,7 @@ public class MoveCalculator {
 
     /**
      * @param ownTileCoordinates one piece of this player
-     * @param player        Tile of player that moves are calculated for
+     * @param player             Tile of player that moves are calculated for
      * @return Valid moves for one piece of this player
      */
     private Set<Move> getValidMovesForPiece(Coordinates ownTileCoordinates, Player player) {
@@ -113,8 +115,8 @@ public class MoveCalculator {
     }
 
     /**
-     * @param tileReader  tileReader with coordinates and direction of first neighbour of own tile
-     * @param player Tile of player that moves are calculated for
+     * @param tileReader tileReader with coordinates and direction of first neighbour of own tile
+     * @param player     Tile of player that moves are calculated for
      * @return Valid moves for one piece for one of eight directions
      */
     private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Player player) {
@@ -159,15 +161,14 @@ public class MoveCalculator {
         // If necessary create special move
         switch (currentTile) {
             case CHOICE -> {
-                for (Tile playerTile : game.getAllParticipatingPlayers()) {
-                    if (playerTile != currentTile) {
+                for (Player currentPlayer : game.getPlayers()) {
+                    if (currentPlayer.getPlayerValue() != currentTile) {
                         movesPerDirection.add(
-                                new ChoiceMove(player, currentCoordinates, playerTile));
+                                new ChoiceMove(player, currentCoordinates, currentPlayer));
                     }
                 }
             }
-            case INVERSION ->
-                    movesPerDirection.add(new InversionMove(player, currentCoordinates));
+            case INVERSION -> movesPerDirection.add(new InversionMove(player, currentCoordinates));
             case BONUS -> {
                 movesPerDirection.add(new BonusMove(player, currentCoordinates, Bonus.BOMB));
                 movesPerDirection.add(
