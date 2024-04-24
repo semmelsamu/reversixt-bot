@@ -107,12 +107,12 @@ public class Game {
         return players;
     }
 
-    public int getBombRadius(){
-        return bombRadius;
+    public Player getPlayer(int playerNumber) {
+        return players[playerNumber - 1];
     }
 
-    public Tile[] getAllParticipatingPlayers() {
-        return Arrays.copyOfRange(Tile.getAllPlayerTiles(), 0, initialPlayers);
+    public int getBombRadius(){
+        return bombRadius;
     }
 
     public Tile getTile(Coordinates position) {
