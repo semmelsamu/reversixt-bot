@@ -11,6 +11,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
@@ -40,15 +43,18 @@ public class boeseMap01NetworkTest {
         Semaphore semaphore = new Semaphore(0);
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-        String serverBinaryPath =
-                "/mnt/d/Projects/revxt-ss24-g04/binaries/x86/server_nogl"; // Update with the
-        // correct absolute path in WSL
+        Path currentDirectory = Paths.get(System.getProperty("user.dir"));
 
-        String serverParameter = "/mnt/d/Projects/revxt-ss24-g04/maps/boeseMaps/boeseMap01.map";
+        Path serverParameterPath =
+                currentDirectory.resolve("maps/boeseMaps/boeseMap01.map").toAbsolutePath();
+        Path serverBinaryPath =
+                currentDirectory.resolve("binaries/x86/server_nogl").toAbsolutePath();
+
 
         // Start the server process in WSL
         ProcessBuilder processBuilder =
-                new ProcessBuilder("wsl", serverBinaryPath, serverParameter);
+                new ProcessBuilder("wsl", convertWindowsPathToWSL(serverBinaryPath.toString()),
+                        convertWindowsPathToWSL(serverParameterPath.toString()));
         serverProcess = processBuilder.start();
 
         // Start a thread to continuously read and print the server output
@@ -81,11 +87,19 @@ public class boeseMap01NetworkTest {
         executorService.shutdown();
     }
 
+    public static String convertWindowsPathToWSL(String windowsPath) throws IOException {
+        String unixStylePath = windowsPath.replace("\\", "/");
+
+        if (unixStylePath.matches("[A-Za-z]:.*")) {
+            String driveLetter = unixStylePath.substring(0, 1).toLowerCase();
+            unixStylePath = "/mnt/" + driveLetter + unixStylePath.substring(2);
+        }
+        return unixStylePath;
+    }
+
 
     @Test
     public void moveCalculator_test() throws InterruptedException {
-        //most random thing I've ever seen, if client is ready to connect, you need to wait
-        // actually before it's ready
 
         Thread client1Thread = new Thread(() -> {
             Launcher.launchClientOnNetwork(new RandomMoveClient(), "127.0.0.1", 7777);
@@ -95,12 +109,9 @@ public class boeseMap01NetworkTest {
             Launcher.launchClientOnNetwork(new RandomMoveClient(), "127.0.0.1", 7777);
         });
 
-
-        // Starte beide Threads gleichzeitig
         client1Thread.start();
         client2Thread.start();
 
-        // Warte bis beide Threads beendet sind
         client1Thread.join();
         client2Thread.join();
 
