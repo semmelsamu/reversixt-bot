@@ -14,11 +14,10 @@ public class MoveExecutionExceptionTest {
 
     @Test
     public void everyFirstMoveOnEveryMap_noException_test() {
-        /* TODO:
         for (String map : File.getAllMaps()) {
             Game game = GameFactory.createFromFile(map);
 
-            for (Move move : (new MoveCalculator(game).getValidMovesForPlayer(Tile.PLAYER1))) {
+            for (Move move : (new MoveCalculator(game).getValidMovesForPlayer(game.getPlayer(1)))) {
                 Game testCase = GameFactory.createFromFile(map);
 
                 assertDoesNotThrow(
@@ -26,6 +25,5 @@ public class MoveExecutionExceptionTest {
 
             }
         }
-        */
     }
 }
