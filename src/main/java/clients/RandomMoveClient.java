@@ -2,8 +2,7 @@ package clients;
 
 import board.Tile;
 import game.*;
-import player.move.BombMove;
-import player.move.InversionMove;
+import player.Player;
 import player.move.Move;
 import util.Logger;
 import util.SetUtils;
@@ -17,7 +16,7 @@ import java.util.Set;
 public class RandomMoveClient implements Client {
 
     @Override
-    public Move sendMove(Game game, Tile player) {
+    public Move sendMove(Game game, Player player) {
 
         MoveCalculator moveCalculator = new MoveCalculator(game);
 

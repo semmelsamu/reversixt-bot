@@ -4,6 +4,7 @@ import board.Coordinates;
 import board.Tile;
 import clients.Client;
 import game.*;
+import player.Player;
 import player.move.*;
 
 public class NetworkClientAdapter implements NetworkClient {
@@ -12,7 +13,7 @@ public class NetworkClientAdapter implements NetworkClient {
 
     private Game game;
     private MoveExecutor moveExecutor;
-    private Tile player;
+    private Player player;
 
     /**
      * Adapt a Client to work with the NetworkClient aka the NetworkEventHandler, which
@@ -35,7 +36,7 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receivePlayerNumber(byte player) {
-        this.player = uint8ToTile(player);
+        this.player = game.getPlayer(player);
     }
 
     @Override
@@ -48,7 +49,8 @@ public class NetworkClientAdapter implements NetworkClient {
         byte type = 0;
 
         if (result instanceof ChoiceMove) {
-            type = (byte) (((ChoiceMove) result).getPlayerToSwapWith().toPlayerIndex() + 1);
+            type = (byte) (((ChoiceMove) result).getPlayerToSwapWith().getPlayerValue()
+                    .toPlayerIndex() + 1);
         }
 
         if (result instanceof BonusMove) {
@@ -59,28 +61,27 @@ public class NetworkClientAdapter implements NetworkClient {
     }
 
     @Override
-    public void receiveMove(short x, short y, byte type, byte player) {
+    public void receiveMove(short x, short y, byte type, byte playerNumber) {
 
-        Tile playerTile = uint8ToTile(player);
+        Player player = game.getPlayer(playerNumber);
         Coordinates coordinates = new Coordinates(x, y);
 
         if (game.getGamePhase() == GamePhase.PHASE_1) {
             if (type == 0) {
-                if(game.getTile(coordinates) != Tile.INVERSION) {
-                    moveExecutor.executeMove(new Move(playerTile, coordinates));
-                }
-                else {
-                    moveExecutor.executeMove(new InversionMove(playerTile, coordinates));
+                if (game.getTile(coordinates) != Tile.INVERSION) {
+                    moveExecutor.executeMove(new Move(player, coordinates));
+                } else {
+                    moveExecutor.executeMove(new InversionMove(player, coordinates));
                 }
             } else if (type == 20 || type == 21) {
                 Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
-                moveExecutor.executeMove(new BonusMove(playerTile, coordinates, bonus));
+                moveExecutor.executeMove(new BonusMove(player, coordinates, bonus));
             } else {
-                Tile playerToSwapWith = uint8ToTile(type);
-                moveExecutor.executeMove(new ChoiceMove(playerTile, coordinates, playerToSwapWith));
+                Player playerToSwapWith = game.getPlayer(type);
+                moveExecutor.executeMove(new ChoiceMove(player, coordinates, playerToSwapWith));
             }
         } else {
-            moveExecutor.executeMove(new BombMove(playerTile, coordinates));
+            moveExecutor.executeMove(new BombMove(player, coordinates));
         }
     }
 

@@ -1,8 +1,7 @@
 package clients;
 
-import board.Tile;
 import game.Game;
-import game.GamePhase;
+import player.Player;
 import player.move.Move;
 
 /**
@@ -10,6 +9,6 @@ import player.move.Move;
  */
 public interface Client {
 
-    Move sendMove(Game game, Tile player);
+    Move sendMove(Game game, Player player);
 
 }
