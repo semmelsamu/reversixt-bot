@@ -16,23 +16,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class NetworkServerHelper {
 
     private static Process serverProcess;
+    private static final String arch = System.getProperty("os.arch");
 
     public void startServer(String map) throws InterruptedException, IOException {
         Semaphore semaphore = new Semaphore(0);
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-        Path currentDirectory = Paths.get(System.getProperty("user.dir"));
-
-        Path serverParameterPath = currentDirectory.resolve(map).toAbsolutePath();
-        Path serverBinaryPath =
-                currentDirectory.resolve("binaries/x86/server_nogl").toAbsolutePath();
-
-
-        // Start the server process in WSL
-        ProcessBuilder processBuilder =
-                new ProcessBuilder("wsl", convertWindowsPathToWSL(serverBinaryPath.toString()),
-                        convertWindowsPathToWSL(serverParameterPath.toString()));
-        serverProcess = processBuilder.start();
+        startProcess(map);
 
         // Start a thread to continuously read and print the server output
         Thread outputReaderThread = new Thread(() -> {
@@ -50,6 +40,7 @@ public class NetworkServerHelper {
                             break;
                         }
 
+                        // check for right port number -> 7777
                         if (!released && lineBuilder.toString().contains("Port number is ")) {
                             portBuilder.append((char) c);
                             if (portBuilder.toString().length() == 4 &&
@@ -60,11 +51,15 @@ public class NetworkServerHelper {
                         }
                         System.out.print((char) c);
                         lineBuilder.append((char) c);
+
+                        // check if port is open
                         if (!released &&
                                 lineBuilder.toString().contains("Opening port...FAILED.")) {
                             semaphore.release();
                             fail("Port instance is already running");
                         }
+
+                        //continue if first client is connected
                         if (!released &&
                                 lineBuilder.toString().contains("Waiting client 1 to connect...")) {
                             released = true;
@@ -73,8 +68,7 @@ public class NetworkServerHelper {
 
                         }
                     } else {
-                        // Sleep für eine kurze Zeit, um die CPU zu entlasten, wenn keine Daten
-                        // verfügbar sind
+                        // Sleep for a short time if cpu is under too much load
                         Thread.sleep(100);
                     }
                 }
@@ -87,6 +81,27 @@ public class NetworkServerHelper {
         outputReaderThread.start();
         semaphore.acquire();
         executorService.shutdown();
+    }
+
+    private void startProcess(String map) throws IOException {
+        Path currentDirectory = Paths.get(System.getProperty("user.dir"));
+
+        Path serverParameterPath = currentDirectory.resolve(map).toAbsolutePath();
+        ProcessBuilder processBuilder;
+        if (arch != null && arch.contains("arm")) {
+            Path serverBinaryPath =
+                    currentDirectory.resolve("binaries/arm/server_nogl").toAbsolutePath();
+            processBuilder =
+                    new ProcessBuilder(serverBinaryPath.toString(), serverParameterPath.toString());
+        } else {
+            Path serverBinaryPath =
+                    currentDirectory.resolve("binaries/x86/server_nogl").toAbsolutePath();
+            // Start the server process in WSL
+            processBuilder =
+                    new ProcessBuilder("wsl", convertWindowsPathToWSL(serverBinaryPath.toString()),
+                            convertWindowsPathToWSL(serverParameterPath.toString()));
+        }
+        serverProcess = processBuilder.start();
     }
 
 
@@ -105,11 +120,13 @@ public class NetworkServerHelper {
         assertNotNull(serverProcess, "serverProcess is null");
         serverProcess.destroy();
 
-        try {
-            stopWSLApplication();
-        } catch (IOException | InterruptedException e) {
-            // Handle exceptions if needed
-            e.printStackTrace();
+        if (arch != null && !arch.contains("arm")) {
+            try {
+                stopWSLApplication();
+            } catch (IOException | InterruptedException e) {
+                // Handle exceptions if needed
+                e.printStackTrace();
+            }
         }
 
         // Optional: Wait for the server process to terminate
