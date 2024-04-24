@@ -14,9 +14,9 @@ public class ChoiceMove extends Move {
     /**
      * The other player which the player will swap places with after he set the stone.
      */
-    private final Tile playerToSwapWith;
+    private final Player playerToSwapWith;
 
-    public ChoiceMove(Player player, Coordinates coordinates, Tile playerToSwapWith) {
+    public ChoiceMove(Player player, Coordinates coordinates, Player playerToSwapWith) {
         super(player, coordinates);
         this.playerToSwapWith = playerToSwapWith;
     }
@@ -27,7 +27,7 @@ public class ChoiceMove extends Move {
     |--------------------------------------------------------------------------
     */
 
-    public Tile getPlayerToSwapWith() {
+    public Player getPlayerToSwapWith() {
         return playerToSwapWith;
     }
 
