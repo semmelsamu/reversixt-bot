@@ -144,11 +144,6 @@ public class Game {
         return board.getAllCoordinatesWhereTileIs(tile);
     }
 
-    public boolean playerHasOverwriteStones(Tile playerTile) {
-        Player player = players[playerTile.toPlayerIndex()];
-        return player.getOverwriteStones() > 0;
-    }
-
     public boolean coordinatesLayInBoard(Coordinates position) {
         return board.coordinatesLayInBoard(position);
     }
