@@ -103,8 +103,8 @@ public class Game {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public Player getPlayer(int playerNumber) {
-        return players[playerNumber];
+    public Player[] getPlayers() {
+        return players;
     }
 
     public int getBombRadius(){
