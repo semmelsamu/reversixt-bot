@@ -11,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Executors;
@@ -64,10 +63,20 @@ public class boeseMap01NetworkTest {
                 int c;
                 boolean released = false;
                 StringBuilder lineBuilder = new StringBuilder();
+                StringBuilder portBuilder = new StringBuilder();
                 while ((c = reader.read()) != -1) {
+
+                    if (!released && lineBuilder.toString().contains("Port number is ")) {
+                        portBuilder.append((char) c);
+                        if (portBuilder.toString().length() == 4 &&
+                                Integer.parseInt(portBuilder.toString()) != 7777) {
+                            semaphore.release();
+                            fail("Another Port instance is already running");
+                        }
+                    }
                     System.out.print((char) c);
                     lineBuilder.append((char) c);
-                    if (!released && lineBuilder.toString().contains("7778")) {
+                    if (!released && lineBuilder.toString().contains("Opening port...FAILED.")) {
                         semaphore.release();
                         fail("Port instance is already running");
                     }
@@ -87,7 +96,7 @@ public class boeseMap01NetworkTest {
         executorService.shutdown();
     }
 
-    public static String convertWindowsPathToWSL(String windowsPath) throws IOException {
+    public static String convertWindowsPathToWSL(String windowsPath) {
         String unixStylePath = windowsPath.replace("\\", "/");
 
         if (unixStylePath.matches("[A-Za-z]:.*")) {
