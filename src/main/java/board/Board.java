@@ -2,6 +2,7 @@ package board;
 
 import util.Logger;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.Map;
  * This class only stores information about what is currently on the game board, not the state of
  * the game.
  */
-public class Board {
+public class Board implements Cloneable{
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -155,5 +156,25 @@ public class Board {
         }
         result.append("(Width: ").append(width).append(", height: ").append(height).append(")");
         return "Board" + "\n" + "\u001B[0m" + result;
+    }
+
+    @Override
+    public Board clone() {
+        try {
+            Board clone = (Board) super.clone();
+
+            clone.tiles = new Tile[height][width];
+            for (int y = 0; y < height; y++) {
+                System.arraycopy(tiles[y], 0, clone.tiles[y], 0, width);
+            }
+
+            clone.transitions = new HashMap<>();
+            for (Map.Entry<TransitionPart, TransitionPart> entry : transitions.entrySet()) {
+                clone.transitions.put(entry.getKey().clone(), entry.getValue().clone());
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Game {
+public class Game implements Cloneable{
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -46,12 +46,12 @@ public class Game {
     /**
      * The actual game board.
      */
-    private final Board board;
+    private Board board;
 
     /**
      * Array containing all players with their information
      */
-    private final Player[] players;
+    private Player[] players;
 
     /**
      * The container for all stats about the game and the logic
@@ -215,5 +215,24 @@ public class Game {
         String[] lines = result.toString().split("\n");
         return "Game\n\u001B[0m" +
                 Arrays.stream(lines).map(line -> "    " + line).collect(Collectors.joining("\n"));
+    }
+
+    @Override
+    public Game clone() {
+        try {
+            Game clone = (Game) super.clone();
+
+            clone.board = this.board.clone();
+
+            clone.players = new Player[this.players.length];
+            for (int i = 0; i < this.players.length; i++) {
+                clone.players[i] = this.players[i].clone();
+            }
+
+            clone.gameStats = this.gameStats.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
