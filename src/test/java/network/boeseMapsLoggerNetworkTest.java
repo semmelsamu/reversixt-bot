@@ -4,27 +4,42 @@ import clients.RandomMoveClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import util.Logger;
 import util.NetworkClientHelper;
 import util.NetworkServerHelper;
+import util.TestLogger;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class boeseMapsLoggerNetworkTest {
 
-    private static Logger loggerSpy;
+    private Logger loggerSpy;
 
     private NetworkServerHelper server;
 
     @BeforeEach
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
-        loggerSpy = Mockito.mock(Logger.class);
+        loggerSpy = mock(Logger.class);
+
+        Answer<Void> logAnswer = createLoggingAnswer(TestLogger.get()::log);
+        Answer<Void> errorAnswer = createLoggingAnswer(TestLogger.get()::error);
+        Answer<Void> debugAnswer = createLoggingAnswer(TestLogger.get()::debug);
+        Answer<Void> fatalAnswer = createLoggingAnswer(TestLogger.get()::fatal);
+        Answer<Void> warnAnswer = createLoggingAnswer(TestLogger.get()::warn);
+
+        // Set the behaviors on the mock logger
+        doAnswer(logAnswer).when(loggerSpy).log(anyString());
+        doAnswer(errorAnswer).when(loggerSpy).error(anyString());
+        doAnswer(debugAnswer).when(loggerSpy).debug(anyString());
+        doAnswer(fatalAnswer).when(loggerSpy).fatal(anyString());
+        doAnswer(warnAnswer).when(loggerSpy).warn(anyString());
+
 
         // Verwende Reflection, um das private Feld zu finden
         Field field = Logger.class.getDeclaredField("logger");
@@ -32,6 +47,14 @@ public class boeseMapsLoggerNetworkTest {
         field.set(field, loggerSpy);
 
 
+    }
+
+    private Answer<Void> createLoggingAnswer(Consumer<String> logMethod) {
+        return invocation -> {
+            String message = invocation.getArgument(0);
+            logMethod.accept(message);
+            return null;
+        };
     }
 
 

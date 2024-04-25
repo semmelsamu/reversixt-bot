@@ -2,7 +2,6 @@ package boeseMaps;
 
 import board.Tile;
 import game.Game;
-import network.NetworkClientAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import player.move.Move;
