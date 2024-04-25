@@ -69,4 +69,13 @@ public enum Direction {
     public int getValue() {
         return value;
     }
+
+    /**
+     * @return oppositeDirection
+     */
+    public Direction getOppositeDirection() {
+        // taking 4 steps in overall 8 directions -> opposite direction
+        int newIndex = (this.value + 4) % 8;
+        return Direction.values()[newIndex];
+    }
 }
