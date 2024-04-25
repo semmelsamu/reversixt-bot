@@ -53,18 +53,28 @@ jar.finalizedBy('copyToBin')
 clean.finalizedBy('deleteBin')
 
 
-tasks.register('cleanOldLogFiles', Delete) {
-    def logFiles = file('.').listFiles().findAll { it.isFile() && it.name.startsWith('log_game_') }
+tasks.register('cleanOldLogFiles') {
+    doLast {
+        def logDir = file('binaries/log')
+        logDir.mkdirs()
 
-    logFiles.sort { it.lastModified() }
+        fileTree(dir: '.', include: 'log_game_*.txt').each { file ->
+            file.renameTo(new File(logDir, file.name))
+            println("Moved log file: ${file.name}")
+        }
 
-    def keepCount = 20
-    def filesToDelete = logFiles.drop(keepCount)
+        def logFiles = logDir.listFiles().findAll { it.isFile() && it.name.startsWith('log_game_') }
 
-    filesToDelete.each { file ->
-        delete file
-        println("Deleted old log file: ${file.name}")
+        logFiles.sort { -it.lastModified() } // Sort in descending order
+
+        def keepCount = 50
+        def filesToDelete = logFiles.take(logFiles.size() - keepCount)
+
+        filesToDelete.each { file ->
+            file.delete()
+            println("Deleted old log file: ${file.name}")
+        }
     }
 }
 
-testClasses.finalizedBy('cleanOldLogFiles')
+test.finalizedBy(cleanOldLogFiles)
