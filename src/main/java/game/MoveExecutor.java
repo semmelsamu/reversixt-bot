@@ -22,6 +22,14 @@ public class MoveExecutor {
     public void executeMove(Move move) {
 
         Logger.get().log("Executing move " + move);
+
+        if(move.getPlayer().equals(game.getCurrentPlayer())) {
+            game.nextPlayer();
+        }
+        else {
+            Logger.get().warn("Executing move of player who is currently not their turn");
+        }
+
         if (!(move instanceof BombMove)) {
             executeMovePhase1(move);
         } else {

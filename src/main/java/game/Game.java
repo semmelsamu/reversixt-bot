@@ -4,6 +4,7 @@ import board.Board;
 import board.Coordinates;
 import board.Tile;
 import board.TransitionPart;
+import network.MoveAnswer;
 import player.Player;
 import util.Logger;
 
@@ -57,6 +58,8 @@ public class Game {
      */
     public GameStats gameStats;
 
+    private int currentPlayer;
+
     public GamePhase gamePhase;
 
     /*
@@ -92,7 +95,32 @@ public class Game {
         }
 
         gameStats = new GameStats(this);
+
+        currentPlayer = 1;
+
         gamePhase = GamePhase.PHASE_1;
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Current player logic
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    public void nextPlayer() {
+        int oldPlayer = currentPlayer;
+        do {
+            currentPlayer = (currentPlayer + 1) % players.length;
+            if(oldPlayer == currentPlayer) {
+                Logger.get().log("No more player has any moves");
+            }
+        } while (!(new MoveCalculator(this)).getValidMovesForPlayer(getCurrentPlayer()).isEmpty() || oldPlayer == currentPlayer);
+    }
+
+    public Player getCurrentPlayer() {
+        return getPlayer(currentPlayer);
     }
 
     /*
@@ -111,7 +139,7 @@ public class Game {
         return players[playerNumber - 1];
     }
 
-    public int getBombRadius(){
+    public int getBombRadius() {
         return bombRadius;
     }
 
