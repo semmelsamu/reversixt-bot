@@ -33,49 +33,42 @@ public class NetworkServerHelper {
                 StringBuilder lineBuilder = new StringBuilder();
                 StringBuilder portBuilder = new StringBuilder();
                 while (serverProcess.isAlive()) {
-                    if (reader.ready()) {
-                        c = reader.read();
 
-                        if (c == -1) {
-                            break;
-                        }
+                    c = reader.read();
 
-                        // check for right port number -> 7777
-                        if (!released && lineBuilder.toString().contains("Port number is ")) {
-                            portBuilder.append((char) c);
-                            if (portBuilder.toString().length() == 4 &&
-                                    Integer.parseInt(portBuilder.toString()) != 7777) {
-                                semaphore.release();
-                                fail("Another Port instance is already running");
-                            }
-                        }
-                        System.out.print((char) c);
-                        lineBuilder.append((char) c);
-
-                        // check if port is open
-                        if (!released &&
-                                lineBuilder.toString().contains("Opening port...FAILED.")) {
-                            semaphore.release();
-                            fail("Port instance is already running");
-                        }
-
-                        //continue if first client is connected
-                        if (!released &&
-                                lineBuilder.toString().contains("Waiting client 1 to connect...")) {
-                            released = true;
-                            executorService.schedule(() -> semaphore.release(), 1,
-                                    TimeUnit.SECONDS);
-
-                        }
-                    } else {
-                        // Sleep for a short time if cpu is under too much load
-                        Thread.sleep(100);
+                    if (c == -1) {
+                        break;
                     }
+
+                    // check for right port number -> 7777
+                    if (!released && lineBuilder.toString().contains("Port number is ")) {
+                        portBuilder.append((char) c);
+                        if (portBuilder.toString().length() == 4 &&
+                                Integer.parseInt(portBuilder.toString()) != 7777) {
+                            semaphore.release();
+                            fail("Another Port instance is already running");
+                        }
+                    }
+                    System.out.print((char) c);
+                    lineBuilder.append((char) c);
+
+                    // check if port is open
+                    if (!released && lineBuilder.toString().contains("Opening port...FAILED.")) {
+                        semaphore.release();
+                        fail("Port instance is already running");
+                    }
+
+                    //continue if first client is connected
+                    if (!released &&
+                            lineBuilder.toString().contains("Waiting client 1 to connect...")) {
+                        released = true;
+                        executorService.schedule(() -> semaphore.release(), 1, TimeUnit.SECONDS);
+
+                    }
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
         });
         outputReaderThread.start();
