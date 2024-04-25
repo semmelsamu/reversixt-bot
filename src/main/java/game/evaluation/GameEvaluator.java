@@ -2,6 +2,7 @@ package game.evaluation;
 
 import board.*;
 import game.Game;
+import game.GameFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,7 @@ import java.util.List;
  */
 public class GameEvaluator {
 
-    private int playerRating;
+    //private int playerRating;
 
     private final Game game;
     private final Tile player;
@@ -23,21 +24,24 @@ public class GameEvaluator {
 
     public GameEvaluator(Game game, Tile player) {
         this.game = game;
-        this.playerRating = 0;
         this.player = player;
         tileRatings = calculateTileRatings();
-        ratings = new ArrayList<>();
         //registerCriteria();
     }
 
     /**
      * Registers all criteria and adds it value to the player rating
      */
-    public void evaluate() {
-        for (AbstractRating rating : ratings) {
-            rating.evaluateByCriterion();
-            this.playerRating += rating.getPlayerRatingByCriterion();
+    public int evaluate() {
+        return sumUpAllRatingsForOccupiedTiles();
+    }
+
+    private int sumUpAllRatingsForOccupiedTiles() {
+        int sum = 0;
+        for (Coordinates tile : game.getAllCoordinatesWhereTileIs(player)) {
+            sum += tileRatings[tile.y][tile.x];
         }
+        return sum;
     }
 
     /**
