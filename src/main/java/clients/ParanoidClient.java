@@ -7,12 +7,25 @@ import game.evaluation.GameEvaluator;
 import player.Player;
 import player.move.Move;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 public class ParanoidClient implements Client {
 
 
     @Override
     public Move sendMove(Game game, Player player) {
 
+        Map<Move, Integer> moveScores = new HashMap<>();
+
+        for (Move move : (new MoveCalculator(game)).getValidMovesForPlayer(player)) {
+            Game clonedGame = game.clone();
+            (new MoveExecutor(clonedGame)).executeMove(move);
+            moveScores.put(move, minmax(clonedGame, player, 4));
+        }
+
+        return Collections.max(moveScores.entrySet(), Map.Entry.comparingByValue()).getKey();
 
     }
 
@@ -32,7 +45,7 @@ public class ParanoidClient implements Client {
             Game clonedGame = game.clone();
             (new MoveExecutor(clonedGame)).executeMove(move);
 
-            result = minmax(clonedGame, player, depth-1);
+            result = minmax(clonedGame, player, depth - 1);
             score = max ? Integer.max(score, result) : Integer.min(score, result);
         }
 
