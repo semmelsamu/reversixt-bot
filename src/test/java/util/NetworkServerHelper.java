@@ -81,7 +81,7 @@ public class NetworkServerHelper {
 
         Path serverParameterPath = currentDirectory.resolve(map).toAbsolutePath();
         ProcessBuilder processBuilder;
-        if (arch != null && arch.contains("arm")) {
+        if (arch != null && arch.contains("aarch64")) {
             Path serverBinaryPath =
                     currentDirectory.resolve("binaries/arm/server_nogl").toAbsolutePath();
             processBuilder =
@@ -113,7 +113,7 @@ public class NetworkServerHelper {
         assertNotNull(serverProcess, "serverProcess is null");
         serverProcess.destroy();
 
-        if (arch != null && !arch.contains("arm")) {
+        if (arch != null && !arch.contains("aarch64")) {
             try {
                 stopWSLApplication();
             } catch (IOException | InterruptedException e) {
