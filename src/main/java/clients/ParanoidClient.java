@@ -31,7 +31,7 @@ public class ParanoidClient implements Client {
 
     private int minmax(Game game, Player player, int depth) {
         if (depth == 0) {
-            return (new GameEvaluator(game)).evaluate();
+            return (new GameEvaluator(game, player.getPlayerValue())).evaluate();
         }
 
         boolean max = player == game.getCurrentPlayer();

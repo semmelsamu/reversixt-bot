@@ -2,7 +2,7 @@ package player;
 
 import board.Tile;
 
-public class Player {
+public class Player implements Cloneable{
 
     /*
     |--------------------------------------------------------------------------
@@ -89,5 +89,14 @@ public class Player {
                 ", overwriteStones=" + overwriteStones +
                 ", bombs=" + bombs +
                 '}';
+    }
+
+    @Override
+    public Player clone() {
+        try {
+            return (Player) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

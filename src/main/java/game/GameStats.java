@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class GameStats {
+public class GameStats implements Cloneable{
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -56,4 +56,17 @@ public class GameStats {
         coordinatesGroupedByTile.get(tile).add(coordinates);
     }
 
+    @Override
+    public GameStats clone() {
+        try {
+            GameStats clone = (GameStats) super.clone();
+            clone.coordinatesGroupedByTile = new HashMap<>();
+            for (Map.Entry<Tile, Set<Coordinates>> entry : coordinatesGroupedByTile.entrySet()) {
+                clone.coordinatesGroupedByTile.put(entry.getKey(), new HashSet<>(entry.getValue()));
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }
