@@ -22,13 +22,7 @@ public class RandomMoveClient implements Client {
 
         MoveCalculator moveCalculator = new MoveCalculator(game);
 
-        Set<Move> possibleMoves = new HashSet<>();
-
-        if (game.getGamePhase().equals(GamePhase.PHASE_1)) {
-            possibleMoves.addAll(moveCalculator.getValidMovesForPlayer(player));
-        } else {
-            possibleMoves.addAll(moveCalculator.getAllBombMoves(player));
-        }
+        Set<Move> possibleMoves = new HashSet<>(moveCalculator.getValidMovesForPlayer(player));
 
         if (possibleMoves.isEmpty()) {
             throw new RuntimeException("Could not calculate any possible moves :(");

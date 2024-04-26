@@ -33,6 +33,11 @@ public class MoveCalculator {
      */
     public Set<Move> getValidMovesForPlayer(Player player) {
         logger.log("Searching for all valid moves for Player " + player.getPlayerValue());
+
+        if (game.getGamePhase().equals(GamePhase.PHASE_2)) {
+            return getAllBombMoves(player);
+        }
+
         Set<Move> moves = new HashSet<>();
         for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(
                 player.getPlayerValue())) {
@@ -57,7 +62,7 @@ public class MoveCalculator {
         return moves;
     }
 
-    public Set<Move> getAllBombMoves(Player player) {
+    private Set<Move> getAllBombMoves(Player player) {
 
         Set<Move> result = new HashSet<>();
 
