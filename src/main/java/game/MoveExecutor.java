@@ -35,7 +35,9 @@ public class MoveExecutor {
             executeBombMove((BombMove) move);
         }
 
-        game.nextPlayer();
+        if(move.getPlayer().equals(game.getCurrentPlayer())) {
+            game.nextPlayer();
+        }
 
         logger.debug("Game after move execution: " + game);
     }
