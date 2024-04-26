@@ -1,12 +1,7 @@
-import board.Tile;
 import game.Game;
 import game.GameFactory;
 import org.junit.jupiter.api.Test;
 import player.Player;
-import util.TestLogger;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

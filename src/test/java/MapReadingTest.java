@@ -1,7 +1,7 @@
 import game.GameFactory;
 import org.junit.jupiter.api.Test;
 import util.File;
-import util.TestLogger;
+import util.Logger;
 
 import java.util.List;
 
@@ -10,13 +10,15 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class MapReadingTest {
 
+    Logger logger = new Logger(this.getClass().getName());
+
     @Test
     public void createFromFile_test() {
         List<String> allMaps = File.getAllMaps();
 
         assertDoesNotThrow(() -> {
             for (String map : allMaps) {
-                TestLogger.get().log("Map " + map);
+                logger.log("Map " + map);
                 GameFactory.createFromFile(map);
             }
         });

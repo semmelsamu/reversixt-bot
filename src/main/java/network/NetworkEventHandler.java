@@ -12,6 +12,8 @@ import java.util.Arrays;
  */
 public class NetworkEventHandler {
 
+    Logger logger = new Logger(this.getClass().getName());
+
     private Socket socket;
     private DataOutputStream out;
     private DataInputStream in;
@@ -30,7 +32,7 @@ public class NetworkEventHandler {
      */
     public NetworkEventHandler(NetworkClient networkClient, String ip, int port) {
 
-        Logger.get().log("Starting network client");
+        logger.log("Starting network client");
 
         // Store client
         this.networkClient = networkClient;
@@ -38,25 +40,25 @@ public class NetworkEventHandler {
         try {
 
             // Connect
-            Logger.get().log("Trying to connect to server " + ip + " on port " + port);
+            logger.log("Trying to connect to server " + ip + " on port " + port);
             socket = new Socket(ip, port);
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
-            Logger.get().log("Connected");
+            logger.log("Connected");
 
             // Launch
             sendGroupNumber();
             run();
 
         } catch (IOException e) {
-            Logger.get().error("Failed connecting to server: " + e.getMessage());
+            logger.error("Failed connecting to server: " + e.getMessage());
         }
 
-        Logger.get().log("Exiting NetworkEventHandler");
+        logger.log("Exiting NetworkEventHandler");
     }
 
     private void sendGroupNumber() throws IOException {
-        Logger.get().log("Sending group number to server");
+        logger.log("Sending group number to server");
         out.writeByte(1); // Message type
         out.writeInt(1); // Message length
         out.writeByte(networkClient.sendGroupNumber());
@@ -66,15 +68,15 @@ public class NetworkEventHandler {
 
         while (!socket.isClosed()) {
 
-            Logger.get().log("Waiting for server");
+            logger.log("Waiting for server");
 
             int messageType = in.readByte();
             int length = in.readInt();
             byte[] message = new byte[length];
             in.readFully(message);
 
-            Logger.get().log(LoggerUtils.getTextForMessageType(messageType));
-            Logger.get().verbose("Message: " + Arrays.toString(message) + " (Length: " + length + ")");
+            logger.log(LoggerUtils.getTextForMessageType(messageType));
+            logger.verbose("Message: " + Arrays.toString(message) + " (Length: " + length + ")");
 
             switch (messageType) {
 
@@ -132,7 +134,7 @@ public class NetworkEventHandler {
                     byte disqualifiedPlayer = message[0];
                     networkClient.receiveDisqualification(disqualifiedPlayer);
                     if(disqualifiedPlayer == playerNumber) {
-                        Logger.get().error("Client got disqualified");
+                        logger.error("Client got disqualified");
                         disconnect();
                     }
                     break;
@@ -152,15 +154,15 @@ public class NetworkEventHandler {
 
 
                 default:
-                    Logger.get().error("Unknown message type: " + messageType);
+                    logger.error("Unknown message type: " + messageType);
 
             }
         }
     }
 
     public void disconnect() throws IOException {
-        Logger.get().log("Disconnecting from server");
+        logger.log("Disconnecting from server");
         socket.close();
-        Logger.get().log("Disconnected");
+        logger.log("Disconnected");
     }
 }

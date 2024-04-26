@@ -1,6 +1,8 @@
 package util;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Logger {
 
@@ -12,7 +14,7 @@ public class Logger {
     |-----------------------------------------------------------------------------------------------
     */
 
-    private static Logger logger = new Logger("Logger", 0);
+    private static final Logger logger = new Logger(Logger.class.getName());
 
     public static Logger get() {
         return logger;
@@ -48,42 +50,57 @@ public class Logger {
     /*
     |-----------------------------------------------------------------------------------------------
     |
+    |   Constructor
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    public Logger(String name) {
+        this.name = name;
+        lastTimeActive = System.nanoTime();
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
     |   Attributes
     |
     |-----------------------------------------------------------------------------------------------
     */
 
-    /**
-     * The name of the logger. Displayed in each message which gets sent to the system out.
-     */
-    public String name = "Logger";
-
-    /**
-     * The minimum priority a message must have in order to be logged.
-     * DEBUG=0 VERBOSE=1 LOG=2 WARNING=3 ERROR=4 FATAL=5
-     */
-    public int priority;
+    private final String name;
 
     /**
      * Stores the last time the logger was active in nanoseconds.
      */
     private long lastTimeActive;
 
-
     /*
     |-----------------------------------------------------------------------------------------------
     |
-    |   Constructor
+    |   Priorities
     |
     |-----------------------------------------------------------------------------------------------
     */
 
-    public Logger(String name, int priority) {
-        this.name = name;
-        this.priority = priority;
-        this.lastTimeActive = System.nanoTime();
+    /**
+     * Stores the priorities for each logger.
+     * 0 = DEBUG / log everything,
+     * 1 = VERBOSE,
+     * 2 = LOG,
+     * 3 = WARNING,
+     * 4 = ERROR,
+     * 5 = FATAL.
+     */
+    private static Map<String, Integer> priorities = new HashMap<>();
+    public static void setPriority(String name, int priority) {
+        priorities.put(name, priority);
     }
 
+    /**
+     * If no specific priority is given, this default value is used.
+     */
+    public static int defaultPriority;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -98,7 +115,7 @@ public class Logger {
      */
     private void console(String color, String type, String message, int priority) {
 
-        if (priority < this.priority) {
+        if (priority < priorities.getOrDefault(this.name, defaultPriority)) {
             return;
         }
 
@@ -106,8 +123,7 @@ public class Logger {
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
         StackTraceElement caller =
                 stackTraceElements[3]; // 0: getStackTrace, 1: log, 2: log, 3: caller
-        String className = caller.getClassName();
-        String methodName = caller.getMethodName();
+        String callerString = caller.getClassName() + "." + caller.getMethodName();
 
         // Get date
         Date currentDate = new Date();
@@ -120,9 +136,7 @@ public class Logger {
 
         // Print
         System.out.println(
-                /*color + "[" + name + "]  " + ANSI_RESET + currentDate + "  " + color + type +*/
-                        ANSI_YELLOW + "  [" + className + "." + methodName + "]  " + color +
-                message + ANSI_RESET + "  " + timeElapsedMs + "ms");
+                "[" + callerString + "]  " + color + message + ANSI_RESET + "  " + timeElapsedMs + "ms");
     }
 
 

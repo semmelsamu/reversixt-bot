@@ -13,6 +13,8 @@ import java.util.LinkedList;
  */
 public class GameFactory {
 
+    static Logger logger = new Logger(GameFactory.class.getName());
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -29,22 +31,22 @@ public class GameFactory {
      */
     private static Game createFromLines(LinkedList<String> lines) {
 
-        Logger.get().log("Creating game from lines");
+        logger.log("Creating game from lines");
 
         // We unshift line for line and parse it
 
         // Parsing initial player data
         int initialPlayers = Integer.parseInt(lines.remove(0));
-        Logger.get().verbose("Initial players: " + initialPlayers);
+        logger.verbose("Initial players: " + initialPlayers);
         int initialOverwriteStones = Integer.parseInt(lines.remove(0));
-        Logger.get().verbose("Initial overwrite stones: " + initialOverwriteStones);
+        logger.verbose("Initial overwrite stones: " + initialOverwriteStones);
 
         // Parsing initial bomb data
         String[] bombs = lines.remove(0).split((" "));
         int initialBombs = Integer.parseInt(bombs[0]);
-        Logger.get().verbose("Initial bombs: " + initialBombs);
+        logger.verbose("Initial bombs: " + initialBombs);
         int bombRadius = Integer.parseInt(bombs[1]);
-        Logger.get().verbose("Bomb radius: " + bombRadius);
+        logger.verbose("Bomb radius: " + bombRadius);
 
         // Create board from remaining lines
         Board board = BoardFactory.createFromLines(lines);
@@ -55,7 +57,7 @@ public class GameFactory {
 
     public static Game createFromString(String string) {
 
-        Logger.get().log("Creating game from string");
+        logger.log("Creating game from string");
 
         // Mind lines can be separated by nl or cr+nl
         String[] lines = string.split("\\r?\\n");
@@ -70,7 +72,7 @@ public class GameFactory {
 
     public static Game createFromFile(String filename) {
 
-        Logger.get().log("Creating game from file " + filename);
+        logger.log("Creating game from file " + filename);
         return createFromString(File.readFile(filename));
     }
 

@@ -142,11 +142,11 @@ public class GameEvaluator {
     public void printRatings() {
         for (AbstractRating rating : ratings) {
             if (rating.getMapTileRatings().isEmpty()) {
-                Logger.get().log(rating.getRatingType().name() + ": " +
+                logger.log(rating.getRatingType().name() + ": " +
                         rating.getPlayerRatingByCriterion() + " with a weight of " +
                         rating.getWeight());
             } else {
-                Logger.get().log(rating.getRatingType().name() + ": " + rating.getMapTileRatings() +
+                logger.log(rating.getRatingType().name() + ": " + rating.getMapTileRatings() +
                         " = " + rating.getPlayerRatingByCriterion() + " with a weight of " +
                         rating.getWeight());
             }

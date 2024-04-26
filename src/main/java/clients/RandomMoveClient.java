@@ -15,6 +15,8 @@ import java.util.Set;
  */
 public class RandomMoveClient implements Client {
 
+    Logger logger = new Logger(this.getClass().getName());
+
     @Override
     public Move sendMove(Game game, Player player) {
 
@@ -32,9 +34,9 @@ public class RandomMoveClient implements Client {
             throw new RuntimeException("Could not calculate any possible moves :(");
         }
 
-        Logger.get().log("Selecting random move");
+        logger.log("Selecting random move");
         Move chosenMove = SetUtils.getRandomElement(possibleMoves);
-        Logger.get().log("Selected " + chosenMove);
+        logger.log("Selected " + chosenMove);
 
         return chosenMove;
 

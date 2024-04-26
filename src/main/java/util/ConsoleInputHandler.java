@@ -42,14 +42,11 @@ public class ConsoleInputHandler {
     */
 
     public static String selectMap() {
-        Logger.get().log("Selecting map");
         return (String) selectOption("Which map do you want to load? Enter the number.",
                 File.getAllMaps().toArray());
     }
 
     public static Move selectMove(Game game) {
-        Logger.get().log("Selecting move");
-
         Player player = selectOption("Which player should execute this move?", game.getPlayers());
 
         System.out.print(color + "\nEnter the x coordinate.\n> ");

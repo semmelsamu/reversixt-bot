@@ -13,6 +13,8 @@ import java.util.Set;
 
 public class MoveExecutor {
 
+    Logger logger = new Logger(this.getClass().getName());
+
     Game game;
 
     public MoveExecutor(Game game) {
@@ -21,13 +23,13 @@ public class MoveExecutor {
 
     public void executeMove(Move move) {
 
-        Logger.get().log("Executing move " + move);
+        logger.log("Executing move " + move);
 
         if(move.getPlayer().equals(game.getCurrentPlayer())) {
             game.nextPlayer();
         }
         else {
-            Logger.get().warn("Executing move of player who is currently not their turn");
+            logger.warn("Executing move of player who is currently not their turn");
         }
 
         if (!(move instanceof BombMove)) {
@@ -36,7 +38,7 @@ public class MoveExecutor {
             executeBombMove((BombMove) move);
         }
 
-        Logger.get().debug("Game after move execution: " + game);
+        logger.debug("Game after move execution: " + game);
     }
 
     /*
@@ -137,7 +139,7 @@ public class MoveExecutor {
         } else if (bonusMove.getBonus() == Bonus.OVERWRITE_STONE) {
             bonusMove.getPlayer().incrementOverwriteStone();
         } else {
-            Logger.get().fatal("Tried to execute bonus move without bonus action");
+            logger.fatal("Tried to execute bonus move without bonus action");
         }
     }
 
@@ -186,7 +188,7 @@ public class MoveExecutor {
 
             oldOwnTiles = new HashSet<>(
                     game.getGameStats().getAllCoordinatesWhereTileIs(players[i].getPlayerValue()));
-            Logger.get().debug(oldTilesFromPred.toString());
+            logger.debug(oldTilesFromPred.toString());
 
             for (Coordinates coordinates : oldTilesFromPred) {
                 game.setTile(coordinates, players[i].getPlayerValue());

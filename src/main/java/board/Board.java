@@ -11,7 +11,9 @@ import java.util.Map;
  * This class only stores information about what is currently on the game board, not the state of
  * the game.
  */
-public class Board implements Cloneable{
+public class Board implements Cloneable {
+
+    Logger logger = new Logger(this.getClass().getName());
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -69,7 +71,7 @@ public class Board implements Cloneable{
     public Tile getTile(Coordinates position) {
 
         if (!coordinatesLayInBoard(position)) {
-            Logger.get().debug("Not tile is found, check for transitions.");
+            logger.debug("Not tile is found, check for transitions.");
             return null;
         }
 
@@ -79,7 +81,7 @@ public class Board implements Cloneable{
     public void setTile(Coordinates coordinates, Tile tile) {
 
         if (!coordinatesLayInBoard(coordinates)) {
-            Logger.get().error("Tried to set a tile on coordinates the board doesn't have");
+            logger.error("Tried to set a tile on coordinates the board doesn't have");
             return;
         }
 

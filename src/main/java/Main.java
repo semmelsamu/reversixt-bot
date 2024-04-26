@@ -1,5 +1,7 @@
 import exercises.Exercise02;
 import exercises.Exercise04;
+import game.Game;
+import game.GameFactory;
 import util.CommandLineArguments;
 import util.Logger;
 
@@ -12,9 +14,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // Initialize Logger
-        Logger.get().name = "revxt-ss24-g04-v" + VERSION;
-        Logger.get().log("Starting");
+        Logger.defaultPriority = 2;
 
         var parsedArgs = CommandLineArguments.parse(args);
 

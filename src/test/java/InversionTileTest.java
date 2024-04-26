@@ -11,15 +11,17 @@ import java.util.Set;
 
 public class InversionTileTest {
 
+    Logger logger = new Logger(this.getClass().getName());
+
     @Test
     public void boeseMap10_test() {
         Game game = GameFactory.createFromFile("maps/boeseMaps/boeseMap10.map");
 
-        Logger.get().log(game.toString());
+        logger.log(game.toString());
 
         MoveExecutorHelper.executeInversionMovePlayer1(game, 4, 4);
 
-        Logger.get().log(game.toString());
+        logger.log(game.toString());
 
         Set<Coordinates> player1Tiles =
                 game.getGameStats().getAllCoordinatesWhereTileIs(Tile.PLAYER1);

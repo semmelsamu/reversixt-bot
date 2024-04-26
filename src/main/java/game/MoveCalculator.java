@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MoveCalculator {
+
+    Logger logger = new Logger(this.getClass().getName());
     private Game game;
 
     public MoveCalculator(Game game) {
@@ -30,12 +32,12 @@ public class MoveCalculator {
      * @return A set of all valid moves for this player
      */
     public Set<Move> getValidMovesForPlayer(Player player) {
-        Logger.get().log("Searching for all valid moves for Player " + player.getPlayerValue());
+        logger.log("Searching for all valid moves for Player " + player.getPlayerValue());
         Set<Move> moves = new HashSet<>();
         for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(
                 player.getPlayerValue())) {
             if (game.getTile(occupiedTile) != player.getPlayerValue()) {
-                Logger.get().error("Wrong coordinates in Player" + player.getPlayerValue() +
+                logger.error("Wrong coordinates in Player" + player.getPlayerValue() +
                         "'s List stones");
                 continue;
             }
@@ -49,7 +51,7 @@ public class MoveCalculator {
             }
         }
 
-        Logger.get().debug("Valid moves for Player " + player.getPlayerValue() + ":\n" +
+        logger.debug("Valid moves for Player " + player.getPlayerValue() + ":\n" +
                 moves.stream().map(move -> "    " + move).collect(Collectors.joining("\n")));
 
         return moves;
@@ -79,7 +81,7 @@ public class MoveCalculator {
      * @return Valid moves for one piece of this player
      */
     private Set<Move> getValidMovesForPiece(Coordinates ownTileCoordinates, Player player) {
-        Logger.get()
+        logger
                 .verbose("Searching for valid moves originating from piece " + ownTileCoordinates);
         Set<Move> moves = new HashSet<>();
         for (Direction direction : Direction.values()) {
@@ -120,7 +122,7 @@ public class MoveCalculator {
      * @return Valid moves for one piece for one of eight directions
      */
     private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Player player) {
-        Logger.get().verbose("Searching for valid moves in direction ");
+        logger.verbose("Searching for valid moves in direction ");
 
         Set<Move> movesPerDirection = new HashSet<>();
         Tile currentTile = tileReader.getTile();

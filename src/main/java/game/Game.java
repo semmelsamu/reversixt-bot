@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Game implements Cloneable{
+public class Game implements Cloneable {
+
+    Logger logger = new Logger(this.getClass().getName());
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -76,7 +78,7 @@ public class Game implements Cloneable{
     public Game(int initialPlayers, int initialOverwriteStones, int initialBombs, int bombRadius,
                 Board board) {
 
-        Logger.get().log("Creating game");
+        logger.log("Creating game");
 
         // Store initial information
         this.initialPlayers = initialPlayers;
@@ -113,10 +115,11 @@ public class Game implements Cloneable{
         int oldPlayer = currentPlayer;
         do {
             currentPlayer = (currentPlayer + 1) % players.length;
-            if(oldPlayer == currentPlayer) {
-                Logger.get().log("No more player has any moves");
+            if (oldPlayer == currentPlayer) {
+                logger.log("No more player has any moves");
             }
-        } while (!(new MoveCalculator(this)).getValidMovesForPlayer(getCurrentPlayer()).isEmpty() || oldPlayer == currentPlayer);
+        } while (!(new MoveCalculator(this)).getValidMovesForPlayer(getCurrentPlayer()).isEmpty() ||
+                oldPlayer == currentPlayer);
     }
 
     public Player getCurrentPlayer() {
