@@ -1,4 +1,4 @@
-package network;
+package boeseMaps;
 
 import clients.RandomMoveClient;
 import org.junit.jupiter.api.AfterEach;

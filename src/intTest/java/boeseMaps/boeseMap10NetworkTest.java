@@ -1,23 +1,15 @@
-package network;
+package boeseMaps;
 
 import clients.RandomMoveClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.stubbing.Answer;
-import util.Logger;
 import util.NetworkClientHelper;
 import util.NetworkServerHelper;
-import util.TestLogger;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.function.Consumer;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
-public class boeseMap01NetworkTest {
+public class boeseMap10NetworkTest {
 
     private NetworkServerHelper server;
 
@@ -29,8 +21,8 @@ public class boeseMap01NetworkTest {
     @Test
     public void randomClient_test() throws InterruptedException, IOException {
         server = new NetworkServerHelper();
-        server.startServer("maps/boeseMaps/boeseMap01.map");
-        NetworkClientHelper.createNetworkClients(new RandomMoveClient(), 2);
+        server.startServer("maps/boeseMaps/boeseMap10.map");
+        NetworkClientHelper.createNetworkClients(new RandomMoveClient(), 3);
     }
 
     @AfterEach

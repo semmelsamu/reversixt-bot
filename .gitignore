@@ -6,4 +6,4 @@ bin
 build
 .gradle
 log_game*
-binaries/log
+binaries/logArchive

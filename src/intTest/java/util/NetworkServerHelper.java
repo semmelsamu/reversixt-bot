@@ -1,5 +1,7 @@
 package util;
 
+import org.junit.jupiter.api.Assertions;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -110,7 +112,7 @@ public class NetworkServerHelper {
 
     public void stopServer() {
         // Stop the server process
-        assertNotNull(serverProcess, "serverProcess is null");
+        Assertions.assertNotNull(serverProcess, "serverProcess is null");
         serverProcess.destroy();
 
         if (arch != null && !arch.contains("aarch64")) {

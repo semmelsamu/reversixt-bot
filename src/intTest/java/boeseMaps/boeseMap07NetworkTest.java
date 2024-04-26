@@ -1,4 +1,4 @@
-package network;
+package boeseMaps;
 
 import clients.RandomMoveClient;
 import org.junit.jupiter.api.AfterEach;
@@ -9,7 +9,7 @@ import util.NetworkServerHelper;
 
 import java.io.IOException;
 
-public class boeseMap09NetworkTest {
+public class boeseMap07NetworkTest {
 
     private NetworkServerHelper server;
 
@@ -21,7 +21,7 @@ public class boeseMap09NetworkTest {
     @Test
     public void randomClient_test() throws InterruptedException, IOException {
         server = new NetworkServerHelper();
-        server.startServer("maps/boeseMaps/boeseMap09.map");
+        server.startServer("maps/boeseMaps/boeseMap07.map");
         NetworkClientHelper.createNetworkClients(new RandomMoveClient(), 2);
     }
 

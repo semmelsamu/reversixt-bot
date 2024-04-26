@@ -1,15 +1,11 @@
 package util;
 
-import board.Tile;
 import clients.Client;
-import game.Game;
 import network.Launcher;
-import network.NetworkClientAdapter;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,8 +72,8 @@ public class NetworkClientHelper {
     }
 
     public static void terminateLogger() throws NoSuchFieldException, IllegalAccessException {
-        verify(loggerSpy, times(0)).error(anyString());
-        verify(loggerSpy, times(0)).fatal(anyString());
+        Mockito.verify(loggerSpy, Mockito.times(0)).error(anyString());
+        Mockito.verify(loggerSpy, Mockito.times(0)).fatal(anyString());
 
         Field instance = Logger.class.getDeclaredField("logger");
         instance.setAccessible(true);

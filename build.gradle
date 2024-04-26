@@ -12,6 +12,15 @@ sourceSets {
             srcDirs = ['src/main/java']
         }
     }
+    intTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    intTestImplementation.extendsFrom implementation
+    intTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
 run {
@@ -25,6 +34,11 @@ repositories {
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testImplementation 'org.mockito:mockito-core:5.11.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    intTestImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    intTestImplementation 'org.mockito:mockito-core:5.11.0'
+    intTestRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
@@ -55,7 +69,7 @@ clean.finalizedBy('deleteBin')
 
 tasks.register('cleanOldLogFiles') {
     doLast {
-        def logDir = file('binaries/log')
+        def logDir = file('binaries/logArchive')
         logDir.mkdirs()
 
         fileTree(dir: '.', include: 'log_game_*.txt').each { file ->
@@ -77,4 +91,4 @@ tasks.register('cleanOldLogFiles') {
     }
 }
 
-test.finalizedBy(cleanOldLogFiles)
+intTestClasses.finalizedBy(cleanOldLogFiles)
