@@ -8,7 +8,6 @@ import util.File;
 import util.MoveExecutorHelper;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class MoveExecutionExceptionTest {
 

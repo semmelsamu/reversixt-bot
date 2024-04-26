@@ -134,7 +134,7 @@ public class NetworkServerHelper {
 
     private void stopWSLApplication() throws IOException, InterruptedException {
         // Stop the WSL application process
-        ProcessBuilder processBuilder = new ProcessBuilder("wsl", "--terminate", "server_nogl");
+        ProcessBuilder processBuilder = new ProcessBuilder("wsl", "--terminate", "ubuntu");
         Process wslProcess = processBuilder.start();
 
         // Optional: Wait for the WSL application process to terminate
