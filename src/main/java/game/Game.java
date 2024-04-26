@@ -114,14 +114,11 @@ public class Game implements Cloneable {
     public void nextPlayer() {
         int oldPlayer = currentPlayer;
         do {
-            currentPlayer = (currentPlayer + 1);
-
-            if (currentPlayer > players.length) {
-                currentPlayer = 1;
-            }
+            currentPlayer = (currentPlayer % players.length) + 1;
 
             if (oldPlayer == currentPlayer) {
-                logger.log("No more player has any moves");
+                logger.log("No more player has any moves, probably entering game phase 2");
+                currentPlayer = (currentPlayer % players.length) + 1;
                 break;
             }
 
