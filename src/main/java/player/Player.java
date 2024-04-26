@@ -2,7 +2,9 @@ package player;
 
 import board.Tile;
 
-public class Player implements Cloneable{
+import java.util.Objects;
+
+public class Player implements Cloneable {
 
     /*
     |--------------------------------------------------------------------------
@@ -84,11 +86,8 @@ public class Player implements Cloneable{
 
     @Override
     public String toString() {
-        return "Player{" +
-                "playerValue=" + playerValue +
-                ", overwriteStones=" + overwriteStones +
-                ", bombs=" + bombs +
-                '}';
+        return "Player{" + "playerValue=" + playerValue + ", overwriteStones=" + overwriteStones +
+                ", bombs=" + bombs + '}';
     }
 
     @Override
@@ -99,4 +98,17 @@ public class Player implements Cloneable{
             throw new AssertionError();
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Player player = (Player) o;
+        return playerValue == player.playerValue;
+    }
+
 }
