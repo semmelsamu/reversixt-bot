@@ -6,30 +6,55 @@ import game.MoveExecutor;
 import game.evaluation.GameEvaluator;
 import player.Player;
 import player.move.Move;
+import util.Logger;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ParanoidClient implements Client {
 
+    Logger logger = new Logger(this.getClass().getName());
 
     @Override
     public Move sendMove(Game game, Player player) {
 
-        Map<Move, Integer> moveScores = new HashMap<>();
+        logger.log("Calculating new move");
 
-        for (Move move : (new MoveCalculator(game)).getValidMovesForPlayer(player)) {
-            Game clonedGame = game.clone();
-            (new MoveExecutor(clonedGame)).executeMove(move);
-            moveScores.put(move, minmax(clonedGame, player, 4));
+        Set<Move> validMoves = (new MoveCalculator(game)).getValidMovesForPlayer(player);
+
+        logger.debug(validMoves.size() + " valid move(s)");
+
+        if (validMoves.size() == 0) {
+            logger.fatal("Could not calculate any valid moves :(");
+            return null;
         }
 
-        return Collections.max(moveScores.entrySet(), Map.Entry.comparingByValue()).getKey();
+        Map<Move, Integer> moveScores = new HashMap<>();
+
+        logger.log("Calculating minmax for every move");
+
+        for (Move move : validMoves) {
+            Game clonedGame = game.clone();
+            (new MoveExecutor(clonedGame)).executeMove(move);
+
+            int score = minmax(clonedGame, player, 1);
+            logger.debug("Move " + move.getCoordinates() + " scored " + score);
+            moveScores.put(move, score);
+        }
+
+        var result = Collections.max(moveScores.entrySet(), Map.Entry.comparingByValue());
+
+        logger.log("Highest score is move on " + result.getKey().getCoordinates() +
+                " with a score of " + result.getValue());
+
+        return result.getKey();
 
     }
 
     private int minmax(Game game, Player player, int depth) {
+
         if (depth == 0) {
             return (new GameEvaluator(game, player.getPlayerValue())).evaluate();
         }
