@@ -1,5 +1,7 @@
 package util;
 
+import org.junit.jupiter.api.Assertions;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -110,7 +112,7 @@ public class NetworkServerHelper {
 
     public void stopServer() {
         // Stop the server process
-        assertNotNull(serverProcess, "serverProcess is null");
+        Assertions.assertNotNull(serverProcess, "serverProcess is null");
         serverProcess.destroy();
 
         if (arch != null && !arch.contains("aarch64")) {
@@ -134,7 +136,7 @@ public class NetworkServerHelper {
 
     private void stopWSLApplication() throws IOException, InterruptedException {
         // Stop the WSL application process
-        ProcessBuilder processBuilder = new ProcessBuilder("wsl", "--terminate", "server_nogl");
+        ProcessBuilder processBuilder = new ProcessBuilder("wsl", "--terminate", "ubuntu");
         Process wslProcess = processBuilder.start();
 
         // Optional: Wait for the WSL application process to terminate

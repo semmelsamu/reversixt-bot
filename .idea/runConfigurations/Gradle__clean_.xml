@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Gradle (clean)" type="GradleRunConfiguration" factoryName="Gradle" folderName="Gradle Util">
+  <configuration default="false" name="Gradle (clean)" type="GradleRunConfiguration" factoryName="Gradle" folderName="Gradle">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
