@@ -159,9 +159,10 @@ public class MoveCalculator {
     /**
      * Check if firstNeighbour from own tile allows possible moves
      * Moves the pointer of tileReader on firstNeighbour by calling next()
-     * @param tileReader
-     * @param playerValue
-     * @return
+     * @param tileReader Tile reader pointing on own tile
+     *                   -> Points on first neighbour after method call
+     * @param playerValue Tile of player that moves are calculated for
+     * @return True if first neighbour allows moves, false if not
      */
     private boolean isFirstNeighbourValid(TileReader tileReader, Tile playerValue){
         Coordinates ownTileCoordinates = tileReader.getCoordinates();
