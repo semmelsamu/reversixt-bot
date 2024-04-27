@@ -36,7 +36,15 @@ public class MoveCalculator {
                 Logger.get().error("Wrong coordinates in Player" + playerValue + "'s List stones");
                 continue;
             }
-            moves.addAll(getValidMovesForPiece(occupiedTile, playerValue));
+            for(Direction direction : Direction.values()) {
+                TileReader tileReader = new TileReader(game, occupiedTile, direction);
+                Set<Move> movesForPieceInDirection =
+                        getValidMovesForPieceInDirection(tileReader, playerValue);
+                if(movesForPieceInDirection != null){
+                    moves.addAll(movesForPieceInDirection);
+                }
+            }
+            //moves.addAll(getValidMovesForPiece(occupiedTile, playerValue));
         }
 
         if(game.playerHasOverwriteStones(playerValue)) {
@@ -70,61 +78,30 @@ public class MoveCalculator {
         return result;
     }
 
-    /**
-     * @param ownTileCoordinates one piece of this player
-     * @param playerValue        Tile of player that moves are calculated for
-     * @return Valid moves for one piece of this player
-     */
-    private Set<Move> getValidMovesForPiece(Coordinates ownTileCoordinates, Tile playerValue) {
-        Logger.get()
-                .verbose("Searching for valid moves originating from piece " + ownTileCoordinates);
-        Set<Move> moves = new HashSet<>();
-        for (Direction direction : Direction.values()) {
-            TileReader tileReader = new TileReader(game, ownTileCoordinates, direction);
-            // Check if tile has a neighbour in this direction
-            if (!tileReader.hasNext()) {
-                continue;
-            }
-            tileReader.next();
-            Tile firstNeighbourTile = tileReader.getTile();
-            // Check if first neighbour tile is unoccupied
-            if (firstNeighbourTile.isUnoccupied()) {
-                continue;
-            }
-
-            // Check if first neighbour tile is an own tile
-            if (firstNeighbourTile == playerValue) {
-                continue;
-            }
-
-            // Check if the neighbour is the same tile due to a transition
-            if (tileReader.getCoordinates() == ownTileCoordinates) {
-                continue;
-            }
-
-            Set<Move> movesInDirection = getValidMovesForPieceInDirection(tileReader, playerValue, ownTileCoordinates);
-            if (movesInDirection != null) {
-                moves.addAll(movesInDirection);
-            }
-        }
-
-        return moves;
-    }
 
     /**
      * @param tileReader  tileReader with coordinates and direction of first neighbour of own tile
      * @param playerValue Tile of player that moves are calculated for
      * @return Valid moves for one piece for one of eight directions
      */
-    private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Tile playerValue, Coordinates ownTileCoordinates) {
+    private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Tile playerValue) {
         Logger.get().verbose("Searching for valid moves in direction ");
 
         Set<Move> movesPerDirection = new HashSet<>();
-        Tile currentTile = tileReader.getTile();
+        // Coordinates of tile moves are searched for
+        Coordinates ownTileCoordinates = tileReader.getCoordinates();
+        if(!isFirstNeighbourValid(tileReader, playerValue)){
+            return null;
+        }
+        // TileReader points on the first neighbour now!
+
+        // Coordinates of first Neighbour from the tile moves are searched for
         Coordinates firstNeighbourTileCoordinates = tileReader.getCoordinates();
+        // Stats of the current tile which is updated in the while loop
+        Tile currentTile = tileReader.getTile();
         Coordinates currentCoordinates = firstNeighbourTileCoordinates;
-        //boolean tilesBetweenExistingAndNewPiece = false;
-        // As long as there is an ococcupied tile
+
+        // While there is an ococcupied tile
         while (!currentTile.isUnoccupied()) {
 
             // Check if there is a dead end
@@ -132,6 +109,7 @@ public class MoveCalculator {
                 return movesPerDirection;
             }
 
+            // Go to next tile in direction
             tileReader.next();
             currentTile = tileReader.getTile();
             currentCoordinates = tileReader.getCoordinates();
@@ -143,8 +121,8 @@ public class MoveCalculator {
 
             // Overwrite Logic
             if (game.playerHasOverwriteStones(playerValue)) {
-                //Check if currentTile is a Player and if it is not a neighbour from the own tile we started from
-                if (currentTile.isPlayer() && !(currentCoordinates.equals(firstNeighbourTileCoordinates))) {
+                // Check if current Tile is the neighbour from the tile moves are searched for
+                if(!(currentCoordinates.equals(firstNeighbourTileCoordinates))){
                     movesPerDirection.add(new OverwriteMove(playerValue, currentCoordinates));
                 }
             }
@@ -176,5 +154,37 @@ public class MoveCalculator {
         }
 
         return movesPerDirection;
+    }
+
+    /**
+     * Check if firstNeighbour from own tile allows possible moves
+     * Moves the pointer of tileReader on firstNeighbour by calling next()
+     * @param tileReader
+     * @param playerValue
+     * @return
+     */
+    private boolean isFirstNeighbourValid(TileReader tileReader, Tile playerValue){
+        Coordinates ownTileCoordinates = tileReader.getCoordinates();
+        // Check if tile has a neighbour in this direction
+        if (!tileReader.hasNext()) {
+            return false;
+        }
+        tileReader.next();
+        Tile firstNeighbourTile = tileReader.getTile();
+        // Check if first neighbour tile is unoccupied
+        if (firstNeighbourTile.isUnoccupied()) {
+            return false;
+        }
+
+        // Check if first neighbour tile is an own tile
+        if (firstNeighbourTile == playerValue) {
+            return false;
+        }
+
+        // Check if the neighbour is the same tile due to a transition
+        if (tileReader.getCoordinates() == ownTileCoordinates) {
+            return false;
+        }
+        return true;
     }
 }
