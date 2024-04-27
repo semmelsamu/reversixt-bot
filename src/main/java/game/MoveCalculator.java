@@ -102,7 +102,7 @@ public class MoveCalculator {
                 continue;
             }
 
-            Set<Move> movesInDirection = getValidMovesForPieceInDirection(tileReader, playerValue);
+            Set<Move> movesInDirection = getValidMovesForPieceInDirection(tileReader, playerValue, ownTileCoordinates);
             if (movesInDirection != null) {
                 moves.addAll(movesInDirection);
             }
@@ -116,13 +116,14 @@ public class MoveCalculator {
      * @param playerValue Tile of player that moves are calculated for
      * @return Valid moves for one piece for one of eight directions
      */
-    private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Tile playerValue) {
+    private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Tile playerValue, Coordinates ownTileCoordinates) {
         Logger.get().verbose("Searching for valid moves in direction ");
 
         Set<Move> movesPerDirection = new HashSet<>();
         Tile currentTile = tileReader.getTile();
-        Coordinates currentCoordinates = tileReader.getCoordinates();
-        boolean tilesBetweenExistingAndNewPiece = false;
+        Coordinates firstNeighbourTileCoordinates = tileReader.getCoordinates();
+        Coordinates currentCoordinates = firstNeighbourTileCoordinates;
+        //boolean tilesBetweenExistingAndNewPiece = false;
         // As long as there is an ococcupied tile
         while (!currentTile.isUnoccupied()) {
 
@@ -132,20 +133,18 @@ public class MoveCalculator {
             }
 
             tileReader.next();
-
-            // If there are no tiles between existing and new piece
-            if (!tilesBetweenExistingAndNewPiece) {
-                if (currentCoordinates != tileReader.getCoordinates()) {
-                    tilesBetweenExistingAndNewPiece = true;
-                }
-            }
             currentTile = tileReader.getTile();
             currentCoordinates = tileReader.getCoordinates();
 
+            // Check if piece that we started from is reached
+            if(currentCoordinates.equals(ownTileCoordinates)){
+                return movesPerDirection;
+            }
+
             // Overwrite Logic
             if (game.playerHasOverwriteStones(playerValue)) {
-                // Overwrite stone logic
-                if (currentTile.isPlayer() && tilesBetweenExistingAndNewPiece) {
+                //Check if currentTile is a Player and if it is not a neighbour from the own tile we started from
+                if (currentTile.isPlayer() && !(currentCoordinates.equals(firstNeighbourTileCoordinates))) {
                     movesPerDirection.add(new OverwriteMove(playerValue, currentCoordinates));
                 }
             }
