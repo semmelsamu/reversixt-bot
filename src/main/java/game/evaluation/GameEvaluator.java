@@ -45,14 +45,14 @@ public class GameEvaluator {
     /**
      * OverwriteStones
      */
-    public int evaluateOverwriteStones(int valueOfOneStone){
+    private int evaluateOverwriteStones(int valueOfOneStone){
         return valueOfOneStone * player.getOverwriteStones();
     }
 
     /**
      *
      */
-    public int evaluateBombs(int valueOfOneStone){
+    private int evaluateBombs(int valueOfOneStone){
         return valueOfOneStone * player.getBombs();
     }
 
