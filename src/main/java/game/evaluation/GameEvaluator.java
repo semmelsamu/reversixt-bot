@@ -2,27 +2,26 @@ package game.evaluation;
 
 import board.*;
 import game.Game;
-import game.GameFactory;
+import game.MoveCalculator;
+import player.Player;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
- * Represents the evaluation logic
+ * Evaluates the current game situation for one player
  */
 public class GameEvaluator {
 
     //private int playerRating;
 
     private final Game game;
-    private final Tile player;
+    private final Player player;
     private final int[][] tileRatings; //TODO: should be placed in a higher standing class, as it is valid for the whole game
 
     // needs to be list for sorting reason
-    private List<AbstractRating> ratings;
+    //private List<AbstractRating> ratings;
 
-    public GameEvaluator(Game game, Tile player) {
+    public GameEvaluator(Game game, Player player) {
         this.game = game;
         this.player = player;
         tileRatings = calculateTileRatings();
@@ -30,15 +29,52 @@ public class GameEvaluator {
     }
 
     /**
-     * Registers all criteria and adds it value to the player rating
+     * @return Evaluation for the current game situation
      */
     public int evaluate() {
-        return sumUpAllRatingsForOccupiedTiles();
+        double rating = 0;
+        rating += sumUpAllRatingsForOccupiedTiles();
+        rating += evaluateMobility();
+        rating += evaluateOverwriteStones(5);
+        // As there are currently only bombs with radius 0 allowed, the value of bombs is only 1
+        rating += evaluateBombs(1);
+
+        return (int) rating;
     }
 
+    /**
+     * OverwriteStones
+     */
+    public int evaluateOverwriteStones(int valueOfOneStone){
+        return valueOfOneStone * player.getOverwriteStones();
+    }
+
+    /**
+     *
+     */
+    public int evaluateBombs(int valueOfOneStone){
+        return valueOfOneStone * player.getBombs();
+    }
+
+    /**
+     * Mobility
+     */
+    private double evaluateMobility(){
+        int x = getNumberOfValidMoves();
+        return 2 * logarithm(1.5, x + 0.5) + 0.25 * x - 3;
+    }
+
+    private int getNumberOfValidMoves(){
+        MoveCalculator moveCalculator = new MoveCalculator(game);
+        return moveCalculator.getValidMovesForPlayer(player).size();
+    }
+
+    /**
+     * TileRatings
+     */
     private int sumUpAllRatingsForOccupiedTiles() {
         int sum = 0;
-        for (Coordinates tile : game.getAllCoordinatesWhereTileIs(player)) {
+        for (Coordinates tile : game.getAllCoordinatesWhereTileIs(player.getPlayerValue())) {
             sum += tileRatings[tile.y][tile.x];
         }
         return sum;
@@ -90,6 +126,13 @@ public class GameEvaluator {
             }
         }
         return tileRating;
+    }
+
+    /**
+     * Math
+     */
+    private static double logarithm(double base, double x) {
+        return Math.log(x) / Math.log(base);
     }
 
     /*
