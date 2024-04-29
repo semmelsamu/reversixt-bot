@@ -129,6 +129,10 @@ public class Game implements Cloneable {
         return getPlayer(currentPlayer);
     }
 
+    public int getCurrentPlayerNumber() {
+        return currentPlayer;
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
