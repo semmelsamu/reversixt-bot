@@ -1,10 +1,13 @@
 package player;
 
 import board.Tile;
+import util.Logger;
 
 import java.util.Objects;
 
 public class Player implements Cloneable {
+
+    private Logger logger = new Logger(this.getClass().getName());
 
     /*
     |--------------------------------------------------------------------------
@@ -81,7 +84,11 @@ public class Player implements Cloneable {
      * Decrement overwrite stones by 1
      */
     public void decrementOverwriteStones() {
+        logger.log("Decrementing overwrite stones");
         overwriteStones--;
+        if(overwriteStones < 0) {
+            logger.error("Overwrite stones are below zero");
+        }
     }
 
     @Override
