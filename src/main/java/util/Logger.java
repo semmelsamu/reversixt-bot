@@ -123,7 +123,7 @@ public class Logger {
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
         StackTraceElement caller =
                 stackTraceElements[3]; // 0: getStackTrace, 1: log, 2: log, 3: caller
-        String callerString = caller.getClassName() + "." + caller.getMethodName();
+        String callerString = caller.getClassName() + ":" + caller.getMethodName();
 
         // Get date
         Date currentDate = new Date();
