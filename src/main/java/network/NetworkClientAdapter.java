@@ -13,7 +13,7 @@ public class NetworkClientAdapter implements NetworkClient {
 
     private Game game;
     private MoveExecutor moveExecutor;
-    private Player player;
+    private int player;
 
     /**
      * Adapt a Client to work with the NetworkClient aka the NetworkEventHandler, which
@@ -36,7 +36,7 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receivePlayerNumber(byte player) {
-        this.player = game.getPlayer(player);
+        this.player = player;
     }
 
     @Override

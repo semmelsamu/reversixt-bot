@@ -18,11 +18,11 @@ public class ParanoidClient implements Client {
     Logger logger = new Logger(this.getClass().getName());
 
     @Override
-    public Move sendMove(Game game, Player player) {
+    public Move sendMove(Game game, int player) {
 
         logger.log("Calculating new move");
 
-        Set<Move> validMoves = (new MoveCalculator(game)).getValidMovesForPlayer(player);
+        Set<Move> validMoves = (new MoveCalculator(game)).getValidMovesForPlayer(game.getPlayer(player));
 
         logger.debug(validMoves.size() + " valid move(s)");
 
@@ -53,13 +53,13 @@ public class ParanoidClient implements Client {
 
     }
 
-    private int minmax(Game game, Player player, int depth) {
+    private int minmax(Game game, int player, int depth) {
 
         if (depth == 0) {
-            return (new GameEvaluator(game, player)).evaluate();
+            return (new GameEvaluator(game, game.getPlayer(player))).evaluate();
         }
 
-        boolean max = player == game.getCurrentPlayer();
+        boolean max = game.getPlayer(player) == game.getCurrentPlayer();
 
         int score = max ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         int result = score;

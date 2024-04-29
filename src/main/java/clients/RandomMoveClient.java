@@ -18,11 +18,12 @@ public class RandomMoveClient implements Client {
     Logger logger = new Logger(this.getClass().getName());
 
     @Override
-    public Move sendMove(Game game, Player player) {
+    public Move sendMove(Game game, int player) {
 
         MoveCalculator moveCalculator = new MoveCalculator(game);
 
-        Set<Move> possibleMoves = new HashSet<>(moveCalculator.getValidMovesForPlayer(player));
+        Set<Move> possibleMoves =
+                new HashSet<>(moveCalculator.getValidMovesForPlayer(game.getPlayer(player)));
 
         if (possibleMoves.isEmpty()) {
             throw new RuntimeException("Could not calculate any possible moves :(");

@@ -9,6 +9,6 @@ import player.move.Move;
  */
 public interface Client {
 
-    Move sendMove(Game game, Player player);
+    Move sendMove(Game game, int player);
 
 }
