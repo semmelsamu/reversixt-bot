@@ -17,6 +17,8 @@ public class ParanoidClient implements Client {
 
     Logger logger = new Logger(this.getClass().getName());
 
+    private static long numberOfStatesVisited;
+
     @Override
     public Move sendMove(Game game, int player) {
 
@@ -28,7 +30,7 @@ public class ParanoidClient implements Client {
 
         Logger.setPriority(MoveCalculator.class.getName(), Logger.defaultPriority);
 
-        logger.debug(validMoves.size() + " valid move(s)");
+        logger.verbose(validMoves.size() + " valid move(s)");
 
         if (validMoves.size() == 0) {
             logger.fatal("Could not calculate any valid moves :(");
@@ -39,6 +41,8 @@ public class ParanoidClient implements Client {
 
         logger.log("Calculating minmax for every move");
 
+        numberOfStatesVisited = 0;
+
         for (Move move : validMoves) {
             Game clonedGame = game.clone();
             (new MoveExecutor(clonedGame)).executeMove(move);
@@ -48,16 +52,20 @@ public class ParanoidClient implements Client {
             moveScores.put(move, score);
         }
 
+        logger.log("Visited " + numberOfStatesVisited + " states");
+
         var result = Collections.max(moveScores.entrySet(), Map.Entry.comparingByValue());
 
-        logger.log("Highest score is move on " + result.getKey().getCoordinates() +
-                " with a score of " + result.getValue());
+        logger.log("Responding with move " + result.getKey().getCoordinates() +
+                " which has the highest score: " + result.getValue());
 
         return result.getKey();
 
     }
 
     private int minmax(Game game, int player, int depth) {
+
+        numberOfStatesVisited++;
 
         if (depth == 0) {
             return (new GameEvaluator(game, player)).evaluate();
