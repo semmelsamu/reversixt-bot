@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MoveCalculator {
+
+    private Logger logger = new Logger(this.getClass().getName());
+
     private Game game;
 
     public MoveCalculator(Game game) {
@@ -30,8 +33,28 @@ public class MoveCalculator {
      * @return All valid moves for this player
      */
     public Set<Move> getValidMovesForPlayer(Player player) {
+
         Logger.get().log("Searching for all valid moves for Player " + player);
-        Set<Move> moves = new HashSet<>();
+
+        Set<Move> result = new HashSet<>();
+
+        switch (game.getGamePhase()) {
+            case PHASE_1 -> result.addAll(calculateAllColoringMoves(player));
+            case PHASE_2 -> result.addAll(getAllBombMoves(player));
+            default -> logger.error("No valid game phase to calculate moves for");
+        }
+
+        Logger.get().debug("Valid moves for Player " + player + ":\n" +
+                result.stream().map(move -> "    " + move).collect(Collectors.joining("\n")));
+
+        return result;
+    }
+
+    private Set<Move> calculateAllColoringMoves(Player player) {
+        logger.log("Calculating all coloring moves");
+
+        HashSet<Move> moves = new HashSet<>();
+
         for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(player.getPlayerValue())) {
             if (game.getTile(occupiedTile) != player.getPlayerValue()) {
                 Logger.get().error("Wrong coordinates in Player" + player + "'s List stones");
@@ -55,13 +78,11 @@ public class MoveCalculator {
             }
         }
 
-        Logger.get().debug("Valid moves for Player " + player + ":\n" +
-                moves.stream().map(move -> "    " + move).collect(Collectors.joining("\n")));
-
         return moves;
     }
 
     public Set<Move> getAllBombMoves(Player player) {
+        logger.log("Calculating all bomb moves");
 
         Set<Move> result = new HashSet<>();
 
