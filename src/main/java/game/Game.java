@@ -192,6 +192,7 @@ public class Game implements Cloneable {
 
     public void setGamePhase(GamePhase gamePhase) {
         this.gamePhase = gamePhase;
+        logger.log("Entering phase " + gamePhase + ", current game: " + this);
     }
 
     /*
