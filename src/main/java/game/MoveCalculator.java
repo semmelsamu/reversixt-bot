@@ -145,7 +145,8 @@ public class MoveCalculator {
             }
 
             // Overwrite Logic
-            if (player.getOverwriteStones() > 0) {
+            // Check if player has overwrite stones an if the current tile can be overwritten
+            if (player.getOverwriteStones() > 0 && currentTile.isPlayer()) {
                 // Check if current Tile is the neighbour from the tile moves are searched for
                 if(!(currentCoordinates.equals(firstNeighbourTileCoordinates))){
                     movesPerDirection.add(new OverwriteMove(playerNumber, currentCoordinates));
