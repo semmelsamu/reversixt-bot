@@ -70,7 +70,8 @@ public class Coordinates {
     public int hashCode() {
         return Objects.hash(x, y);
     }
-/*
+
+    /*
     |-----------------------------------------------------------------------------------------------
     |
     |   To String
