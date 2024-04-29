@@ -25,6 +25,7 @@ public class ParanoidClient implements Client {
         if(depth < 1) {
             throw new IllegalArgumentException("Depth must be 1 or greater");
         }
+        logger.log("Launching Paranoid Client with depth limit " + depth);
         this.depth = depth;
     }
 
