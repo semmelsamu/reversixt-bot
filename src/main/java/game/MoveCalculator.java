@@ -34,7 +34,7 @@ public class MoveCalculator {
      */
     public Set<Move> getValidMovesForPlayer(Player player) {
 
-        Logger.get().log("Searching for all valid moves for Player " + player);
+        logger.log("Searching for all valid moves for Player " + player);
 
         Set<Move> result = new HashSet<>();
 
@@ -44,7 +44,7 @@ public class MoveCalculator {
             default -> logger.error("No valid game phase to calculate moves for");
         }
 
-        Logger.get().debug("Valid moves for Player " + player + ":\n" +
+        logger.debug("Valid moves for Player " + player + ":\n" +
                 result.stream().map(move -> "    " + move).collect(Collectors.joining("\n")));
 
         return result;
@@ -57,7 +57,7 @@ public class MoveCalculator {
 
         for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(player.getPlayerValue())) {
             if (game.getTile(occupiedTile) != player.getPlayerValue()) {
-                Logger.get().error("Wrong coordinates in Player" + player + "'s List stones");
+                logger.error("Wrong coordinates in Player" + player + "'s List stones");
                 continue;
             }
             for(Direction direction : Direction.values()) {
@@ -107,7 +107,7 @@ public class MoveCalculator {
      * @return Valid moves for one piece for one of eight directions
      */
     private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Player player) {
-        Logger.get().verbose("Searching for valid moves in direction ");
+        logger.verbose("Searching for valid moves in direction ");
 
         Set<Move> movesPerDirection = new HashSet<>();
         // Coordinates of tile moves are searched for
