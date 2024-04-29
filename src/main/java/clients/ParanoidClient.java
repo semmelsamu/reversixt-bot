@@ -59,7 +59,7 @@ public class ParanoidClient implements Client {
             return (new GameEvaluator(game, game.getPlayer(player))).evaluate();
         }
 
-        boolean max = game.getPlayer(player) == game.getCurrentPlayer();
+        boolean max = player == game.getCurrentPlayerNumber();
 
         int score = max ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         int result = score;
