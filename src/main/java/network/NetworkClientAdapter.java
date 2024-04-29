@@ -49,8 +49,7 @@ public class NetworkClientAdapter implements NetworkClient {
         byte type = 0;
 
         if (result instanceof ChoiceMove) {
-            type = (byte) (((ChoiceMove) result).getPlayerToSwapWith().getPlayerValue()
-                    .toPlayerIndex() + 1);
+            type = (byte) (((ChoiceMove) result).getPlayerToSwapWith() + 1);
         }
 
         if (result instanceof BonusMove) {
@@ -63,25 +62,23 @@ public class NetworkClientAdapter implements NetworkClient {
     @Override
     public void receiveMove(short x, short y, byte type, byte playerNumber) {
 
-        Player player = game.getPlayer(playerNumber);
         Coordinates coordinates = new Coordinates(x, y);
 
         if (game.getGamePhase() == GamePhase.PHASE_1) {
             if (type == 0) {
                 if (game.getTile(coordinates) != Tile.INVERSION) {
-                    moveExecutor.executeMove(new NormalMove(player, coordinates));
+                    moveExecutor.executeMove(new NormalMove(playerNumber, coordinates));
                 } else {
-                    moveExecutor.executeMove(new InversionMove(player, coordinates));
+                    moveExecutor.executeMove(new InversionMove(playerNumber, coordinates));
                 }
             } else if (type == 20 || type == 21) {
                 Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
-                moveExecutor.executeMove(new BonusMove(player, coordinates, bonus));
+                moveExecutor.executeMove(new BonusMove(playerNumber, coordinates, bonus));
             } else {
-                Player playerToSwapWith = game.getPlayer(type);
-                moveExecutor.executeMove(new ChoiceMove(player, coordinates, playerToSwapWith));
+                moveExecutor.executeMove(new ChoiceMove(playerNumber, coordinates, type));
             }
         } else {
-            moveExecutor.executeMove(new BombMove(player, coordinates));
+            moveExecutor.executeMove(new BombMove(playerNumber, coordinates));
         }
     }
 

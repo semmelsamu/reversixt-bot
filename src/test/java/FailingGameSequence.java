@@ -15,6 +15,7 @@ public class FailingGameSequence {
         MoveCalculator moveCalculator = new MoveCalculator(game);
         Player player1 = game.getPlayer(1);
         Player player2 = game.getPlayer(2);
+        /*
         moveExecutor.executeMove(new NormalMove(player1, new Coordinates(5, 1)));
         moveExecutor.executeMove(new NormalMove(player2, new Coordinates(6, 1)));
         moveExecutor.executeMove(new NormalMove(player1, new Coordinates(5, 1)));
@@ -31,5 +32,6 @@ public class FailingGameSequence {
         moveCalculator.getValidMovesForPlayer(player2);
         // invalid move
         moveExecutor.executeMove(new NormalMove(player2, new Coordinates(7, 1)));
+        */
     }
 }

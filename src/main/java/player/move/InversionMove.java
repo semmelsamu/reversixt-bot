@@ -8,7 +8,7 @@ import player.Player;
  */
 public class InversionMove extends Move {
 
-    public InversionMove(Player player, Coordinates coordinates) {
+    public InversionMove(int player, Coordinates coordinates) {
         super(player, coordinates);
     }
 

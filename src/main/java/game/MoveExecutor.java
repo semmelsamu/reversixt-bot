@@ -25,7 +25,7 @@ public class MoveExecutor {
 
         logger.log("Executing move " + move);
 
-        if(!move.getPlayer().equals(game.getCurrentPlayer())) {
+        if(move.getPlayerNumber() != game.getCurrentPlayerNumber()) {
             logger.warn("Executing move of player who is currently not their turn");
         }
 
@@ -35,7 +35,7 @@ public class MoveExecutor {
             executeBombMove((BombMove) move);
         }
 
-        if(move.getPlayer().equals(game.getCurrentPlayer())) {
+        if(move.getPlayerNumber() == game.getCurrentPlayerNumber()) {
             game.nextPlayer();
         }
 
@@ -48,7 +48,7 @@ public class MoveExecutor {
     |--------------------------------------------------------------------------
     */
     private void executeMovePhase1(Move move) {
-        Tile playerValue = move.getPlayer().getPlayerValue();
+        Tile playerValue = game.getPlayer(move.getPlayerNumber()).getPlayerValue();
         Set<Coordinates> tilesToColor = new HashSet<>();
         // Check every direction
         for (Direction direction : Direction.values()) {
@@ -76,7 +76,7 @@ public class MoveExecutor {
         }
         // Check if an overwrite stone has to be used
         if (!(game.getTile(move.getCoordinates()).isUnoccupied())) {
-            move.getPlayer().decrementOverwriteStones();
+            game.getPlayer(move.getPlayerNumber()).decrementOverwriteStones();
         }
 
         // Color all tiles
@@ -98,9 +98,9 @@ public class MoveExecutor {
         }
     }
 
-    private static Set<Coordinates> getTilesToColorInDirection(TileReader tileReader, Move move) {
+    private Set<Coordinates> getTilesToColorInDirection(TileReader tileReader, Move move) {
         Tile currentTile = tileReader.getTile();
-        Tile playerValue = move.getPlayer().getPlayerValue();
+        Tile playerValue = game.getPlayer(move.getPlayerNumber()).getPlayerValue();
         Set<Coordinates> tilesToColorInDirection = new HashSet<>();
         // As long as the current tile is not an own piece
         while (currentTile != playerValue) {
@@ -135,26 +135,28 @@ public class MoveExecutor {
     */
 
     private void executeBonusLogic(BonusMove bonusMove) {
+        Player player = game.getPlayer(bonusMove.getPlayerNumber());
         if (bonusMove.getBonus() == Bonus.BOMB) {
-            bonusMove.getPlayer().incrementBombs();
+            player.incrementBombs();
         } else if (bonusMove.getBonus() == Bonus.OVERWRITE_STONE) {
-            bonusMove.getPlayer().incrementOverwriteStone();
+            player.incrementOverwriteStone();
         } else {
             logger.fatal("Tried to execute bonus move without bonus action");
         }
     }
 
     private void executeChoiceLogic(ChoiceMove choiceMove) {
-        Player playerToSwapWith = choiceMove.getPlayerToSwapWith();
+        Player player = game.getPlayer(choiceMove.getPlayerNumber());
+        Player playerToSwapWith = game.getPlayer(choiceMove.getPlayerToSwapWith());
 
         // Collect all occupied tiles of current player
         var oldTilesPlayerFromCurrentPlayer = new HashSet<>(game.getGameStats()
-                .getAllCoordinatesWhereTileIs(choiceMove.getPlayer().getPlayerValue()));
+                .getAllCoordinatesWhereTileIs(player.getPlayerValue()));
 
         // Iterate through all old tiles of player to swap with
         for (Coordinates coordinates : new HashSet<>(game.getGameStats()
                 .getAllCoordinatesWhereTileIs(playerToSwapWith.getPlayerValue()))) {
-            game.setTile(coordinates, choiceMove.getPlayer().getPlayerValue());
+            game.setTile(coordinates, player.getPlayerValue());
         }
 
         // Iterate through all old tiles of current player
@@ -199,7 +201,7 @@ public class MoveExecutor {
     }
 
     public void executeBombMove(BombMove move) {
-        if (move.getPlayer().getBombs() == 0) {
+        if (game.getPlayer(move.getPlayerNumber()).getBombs() == 0) {
             throw new RuntimeException("No bombs available :(");
         }
 

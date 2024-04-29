@@ -91,7 +91,7 @@ public class NetworkClientHelper {
 
         for (Client client : clients) {
             executorService.execute(() -> {
-                moves.add(client.sendMove(any(), move.getPlayer()));
+                moves.add(client.sendMove(any(), move.getPlayerNumber()));
             });
         }
 

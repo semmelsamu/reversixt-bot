@@ -8,7 +8,7 @@ import player.Player;
  */
 public class BombMove extends Move {
 
-    public BombMove(Player player, Coordinates coordinates) {
+    public BombMove(int player, Coordinates coordinates) {
         super(player, coordinates);
     }
 

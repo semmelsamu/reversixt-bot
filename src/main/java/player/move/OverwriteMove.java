@@ -8,7 +8,7 @@ import player.Player;
  */
 public class OverwriteMove extends Move {
 
-    public OverwriteMove(Player player, Coordinates coordinates) {
+    public OverwriteMove(int player, Coordinates coordinates) {
         super(player, coordinates);
     }
 

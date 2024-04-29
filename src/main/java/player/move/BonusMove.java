@@ -15,7 +15,7 @@ public class BonusMove extends Move {
      */
     private final Bonus bonus;
 
-    public BonusMove(Player player, Coordinates coordinates, Bonus bonus) {
+    public BonusMove(int player, Coordinates coordinates, Bonus bonus) {
         super(player, coordinates);
         this.bonus = bonus;
     }

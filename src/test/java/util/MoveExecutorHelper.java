@@ -11,7 +11,7 @@ public class MoveExecutorHelper {
 
     public static void executeInversionMovePlayer1(Game game, int x, int y) {
         (new MoveExecutor(game)).executeMove(
-                new InversionMove(game.getPlayer(1), new Coordinates(x, y)));
+                new InversionMove(1, new Coordinates(x, y)));
     }
 
     public static void executeExistingMovePlayer1(Game game, Move move) {

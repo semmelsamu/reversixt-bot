@@ -122,7 +122,7 @@ public class Game implements Cloneable {
                 break;
             }
 
-        } while ((new MoveCalculator(this)).getValidMovesForPlayer(getCurrentPlayer()).isEmpty());
+        } while ((new MoveCalculator(this)).getValidMovesForPlayer(getCurrentPlayerNumber()).isEmpty());
     }
 
     public Player getCurrentPlayer() {

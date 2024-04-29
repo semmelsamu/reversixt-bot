@@ -48,6 +48,7 @@ public class ConsoleInputHandler {
 
     public static Move selectMove(Game game) {
         Player player = selectOption("Which player should execute this move?", game.getPlayers());
+        int playerIndex = player.getPlayerValue().toPlayerIndex();
 
         System.out.print(color + "\nEnter the x coordinate.\n> ");
         int x = scanner.nextInt();
@@ -61,24 +62,24 @@ public class ConsoleInputHandler {
             CHOICE_MOVE,
             INVERSION_MOVE
         }
-        ;
+
         switch (selectOption("Which kind of move should it be?", MoveType.values())) {
             case BONUS_MOVE -> {
                 Bonus bonus = selectOption("Which bonus do you wish?", Bonus.values());
-                return new BonusMove(player, coordinates, bonus);
+                return new BonusMove(playerIndex, coordinates, bonus);
             }
             case CHOICE_MOVE -> {
                 Player playerToSwapWith =
                         selectOption("Which player do you wish to swap stones with?",
                                 game.getPlayers());
-                return new ChoiceMove(player, coordinates,
-                        playerToSwapWith);
+                return new ChoiceMove(playerIndex, coordinates,
+                        playerToSwapWith.getPlayerValue().toPlayerIndex());
             }
             case INVERSION_MOVE -> {
-                return new InversionMove(player, coordinates);
+                return new InversionMove(playerIndex, coordinates);
             }
             default -> {
-                return new NormalMove(player, coordinates);
+                return new NormalMove(playerIndex, coordinates);
             }
         }
     }

@@ -29,18 +29,20 @@ public class MoveCalculator {
     */
 
     /**
-     * @param player Tile of player that moves are calculated for
+     * @param playerNumber Number of player that moves are calculated for
      * @return All valid moves for this player
      */
-    public Set<Move> getValidMovesForPlayer(Player player) {
+    public Set<Move> getValidMovesForPlayer(int playerNumber) {
+
+        Player player = game.getPlayer(playerNumber);
 
         logger.log("Searching for all valid moves for Player " + player);
 
         Set<Move> result = new HashSet<>();
 
         switch (game.getGamePhase()) {
-            case PHASE_1 -> result.addAll(calculateAllColoringMoves(player));
-            case PHASE_2 -> result.addAll(getAllBombMoves(player));
+            case PHASE_1 -> result.addAll(calculateAllColoringMoves(playerNumber));
+            case PHASE_2 -> result.addAll(getAllBombMoves(playerNumber));
             default -> logger.error("No valid game phase to calculate moves for");
         }
 
@@ -50,8 +52,10 @@ public class MoveCalculator {
         return result;
     }
 
-    private Set<Move> calculateAllColoringMoves(Player player) {
+    private Set<Move> calculateAllColoringMoves(int playerNumber) {
         logger.log("Calculating all coloring moves");
+
+        Player player = game.getPlayer(playerNumber);
 
         HashSet<Move> moves = new HashSet<>();
 
@@ -63,7 +67,7 @@ public class MoveCalculator {
             for(Direction direction : Direction.values()) {
                 TileReader tileReader = new TileReader(game, occupiedTile, direction);
                 Set<Move> movesForPieceInDirection =
-                        getValidMovesForPieceInDirection(tileReader, player);
+                        getValidMovesForPieceInDirection(tileReader, playerNumber);
                 if(movesForPieceInDirection != null){
                     moves.addAll(movesForPieceInDirection);
                 }
@@ -74,14 +78,14 @@ public class MoveCalculator {
         if(player.getOverwriteStones() > 0) {
             // Add overwrite moves on expansion tiles
             for(var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
-                moves.add(new OverwriteMove(player, coordinate));
+                moves.add(new OverwriteMove(playerNumber, coordinate));
             }
         }
 
         return moves;
     }
 
-    public Set<Move> getAllBombMoves(Player player) {
+    public Set<Move> getAllBombMoves(int player) {
         logger.log("Calculating all bomb moves");
 
         Set<Move> result = new HashSet<>();
@@ -103,10 +107,11 @@ public class MoveCalculator {
 
     /**
      * @param tileReader  tileReader with coordinates and direction of first neighbour of own tile
-     * @param player Tile of player that moves are calculated for
+     * @param playerNumber Tile of player that moves are calculated for
      * @return Valid moves for one piece for one of eight directions
      */
-    private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Player player) {
+    private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, int playerNumber) {
+        Player player = game.getPlayer(playerNumber);
         Set<Move> movesPerDirection = new HashSet<>();
         // Coordinates of tile moves are searched for
         Coordinates ownTileCoordinates = tileReader.getCoordinates();
@@ -143,7 +148,7 @@ public class MoveCalculator {
             if (player.getOverwriteStones() > 0) {
                 // Check if current Tile is the neighbour from the tile moves are searched for
                 if(!(currentCoordinates.equals(firstNeighbourTileCoordinates))){
-                    movesPerDirection.add(new OverwriteMove(player, currentCoordinates));
+                    movesPerDirection.add(new OverwriteMove(playerNumber, currentCoordinates));
                 }
             }
 
@@ -155,20 +160,19 @@ public class MoveCalculator {
         // If necessary create special move
         switch (currentTile) {
             case CHOICE -> {
-                for (Player everyPlayer : game.getPlayers()) {
-                        // TODO: Check if old if-condition is needed
+                for(int playerToSwapWith = 1; playerToSwapWith < game.getPlayers().length; playerToSwapWith++) {
                         movesPerDirection.add(
-                                new ChoiceMove(everyPlayer, currentCoordinates, everyPlayer));
+                                new ChoiceMove(playerNumber, currentCoordinates, playerToSwapWith));
                 }
             }
             case INVERSION ->
-                    movesPerDirection.add(new InversionMove(player, currentCoordinates));
+                    movesPerDirection.add(new InversionMove(playerNumber, currentCoordinates));
             case BONUS -> {
-                movesPerDirection.add(new BonusMove(player, currentCoordinates, Bonus.BOMB));
+                movesPerDirection.add(new BonusMove(playerNumber, currentCoordinates, Bonus.BOMB));
                 movesPerDirection.add(
-                        new BonusMove(player, currentCoordinates, Bonus.OVERWRITE_STONE));
+                        new BonusMove(playerNumber, currentCoordinates, Bonus.OVERWRITE_STONE));
             }
-            default -> movesPerDirection.add(new NormalMove(player, currentCoordinates));
+            default -> movesPerDirection.add(new NormalMove(playerNumber, currentCoordinates));
 
         }
 

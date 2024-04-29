@@ -8,7 +8,7 @@ import player.Player;
  */
 public class NormalMove extends Move {
 
-    public NormalMove(Player player, Coordinates coordinates) {
+    public NormalMove(int player, Coordinates coordinates) {
         super(player, coordinates);
     }
 

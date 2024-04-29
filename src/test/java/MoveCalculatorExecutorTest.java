@@ -5,11 +5,7 @@ import game.GameFactory;
 import game.MoveCalculator;
 import game.MoveExecutor;
 import org.junit.jupiter.api.Test;
-import player.move.ChoiceMove;
-import player.move.InversionMove;
 import player.move.Move;
-import player.move.OverwriteMove;
-import util.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,7 +93,7 @@ public class MoveCalculatorExecutorTest {
 
                 MoveCalculator moveCalculator = new MoveCalculator(game);
                 var calculatedMoves =
-                        moveCalculator.getValidMovesForPlayer(validMove.getKey().getPlayer());
+                        moveCalculator.getValidMovesForPlayer(validMove.getKey().getPlayerNumber());
 
                 assertTrue(calculatedMoves.contains(validMove.getKey()));
 

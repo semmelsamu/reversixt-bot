@@ -15,13 +15,13 @@ public class GameEvaluator {
     //private int playerRating;
 
     private final Game game;
-    private final Player player;
+    private final int player;
     private final int[][] tileRatings; //TODO: should be placed in a higher standing class, as it is valid for the whole game
 
     // needs to be list for sorting reason
     //private List<AbstractRating> ratings;
 
-    public GameEvaluator(Game game, Player player) {
+    public GameEvaluator(Game game, int player) {
         this.game = game;
         this.player = player;
         tileRatings = calculateTileRatings();
@@ -46,14 +46,14 @@ public class GameEvaluator {
      * OverwriteStones
      */
     private int evaluateOverwriteStones(int valueOfOneStone){
-        return valueOfOneStone * player.getOverwriteStones();
+        return valueOfOneStone * game.getPlayer(player).getOverwriteStones();
     }
 
     /**
      *
      */
     private int evaluateBombs(int valueOfOneStone){
-        return valueOfOneStone * player.getBombs();
+        return valueOfOneStone * game.getPlayer(player).getBombs();
     }
 
     /**
@@ -74,7 +74,7 @@ public class GameEvaluator {
      */
     private int sumUpAllRatingsForOccupiedTiles() {
         int sum = 0;
-        for (Coordinates tile : game.getAllCoordinatesWhereTileIs(player.getPlayerValue())) {
+        for (Coordinates tile : game.getAllCoordinatesWhereTileIs(game.getPlayer(player).getPlayerValue())) {
             sum += tileRatings[tile.y][tile.x];
         }
         return sum;

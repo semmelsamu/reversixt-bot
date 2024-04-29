@@ -30,7 +30,7 @@ public class Exercise02 {
         Logger.get().log(game.toString());
 
         // Get and print all valid moves
-        Set<Move> validMoves = (new MoveCalculator(game)).getValidMovesForPlayer(game.getPlayer(1));
+        Set<Move> validMoves = (new MoveCalculator(game)).getValidMovesForPlayer(1);
 
         Logger.get().log("All valid moves for current Player:");
         for (var move : validMoves) {
