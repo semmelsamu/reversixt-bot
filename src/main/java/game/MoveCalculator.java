@@ -107,8 +107,6 @@ public class MoveCalculator {
      * @return Valid moves for one piece for one of eight directions
      */
     private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, Player player) {
-        logger.verbose("Searching for valid moves in direction ");
-
         Set<Move> movesPerDirection = new HashSet<>();
         // Coordinates of tile moves are searched for
         Coordinates ownTileCoordinates = tileReader.getCoordinates();
