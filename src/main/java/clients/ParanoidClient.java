@@ -19,6 +19,15 @@ public class ParanoidClient implements Client {
 
     private static long numberOfStatesVisited;
 
+    private int depth;
+
+    public ParanoidClient(int depth) {
+        if(depth < 1) {
+            throw new IllegalArgumentException("Depth must be 1 or greater");
+        }
+        this.depth = depth;
+    }
+
     @Override
     public Move sendMove(Game game, int player) {
 
@@ -47,7 +56,7 @@ public class ParanoidClient implements Client {
             Game clonedGame = game.clone();
             (new MoveExecutor(clonedGame)).executeMove(move);
 
-            int score = minmax(clonedGame, player, 1);
+            int score = minmax(clonedGame, player, this.depth - 1);
             logger.debug("Move " + move.getCoordinates() + " scored " + score);
             moveScores.put(move, score);
         }
@@ -56,7 +65,7 @@ public class ParanoidClient implements Client {
 
         var result = Collections.max(moveScores.entrySet(), Map.Entry.comparingByValue());
 
-        logger.log("Responding with move " + result.getKey().getCoordinates() +
+        logger.log("Responding with move " + result.getKey() +
                 " which has the highest score: " + result.getValue());
 
         return result.getKey();
