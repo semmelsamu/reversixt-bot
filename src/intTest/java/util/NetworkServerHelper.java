@@ -82,7 +82,9 @@ public class NetworkServerHelper {
 
     private void startProcess(String map) throws IOException {
         String userDir = System.getProperty("user.dir");
-        userDir = userDir.substring(0, userDir.indexOf("src"));
+        if(userDir.contains("src")){
+            userDir = userDir.substring(0, userDir.indexOf("src"));
+        }
         Path currentDirectory = Paths.get(userDir);
 
         Path serverParameterPath = currentDirectory.resolve(map).toAbsolutePath();
