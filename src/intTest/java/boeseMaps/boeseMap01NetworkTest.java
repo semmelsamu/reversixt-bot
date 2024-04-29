@@ -4,14 +4,10 @@ import clients.RandomMoveClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.stubbing.Answer;
 import util.NetworkClientHelper;
 import util.NetworkServerHelper;
 
 import java.io.IOException;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 public class boeseMap01NetworkTest {
 

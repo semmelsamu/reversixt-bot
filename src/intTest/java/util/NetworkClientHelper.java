@@ -2,23 +2,27 @@ package util;
 
 import clients.Client;
 import network.Launcher;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
+import player.move.Move;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 public class NetworkClientHelper {
 
 
     private static Logger loggerSpy;
+
+    private static final List<Client> clients = new ArrayList<>();
 
     public static void createNetworkClients(Client client, int numClients)
             throws InterruptedException {
@@ -26,6 +30,7 @@ public class NetworkClientHelper {
 
         for (int i = 0; i < numClients; i++) {
             Thread clientThread = new Thread(() -> {
+                clients.add(client);
                 Launcher.launchClientOnNetwork(client, "127.0.0.1", 7777);
             });
             threads.add(clientThread);
@@ -78,5 +83,20 @@ public class NetworkClientHelper {
         Field instance = Logger.class.getDeclaredField("logger");
         instance.setAccessible(true);
         instance.set(null, null);
+    }
+
+    public static void validateMove(Move move) {
+        List<Move> moves = new ArrayList<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
+
+        for (Client client : clients) {
+            executorService.execute(() -> {
+                moves.add(client.sendMove(any(), move.getPlayer()));
+            });
+        }
+
+        executorService.shutdown();
+
+        assertTrue(moves.contains(move), "Move was executed");
     }
 }

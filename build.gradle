@@ -72,7 +72,7 @@ tasks.register('cleanOldLogFiles') {
         def logDir = file('binaries/logArchive')
         logDir.mkdirs()
 
-        fileTree(dir: '.', include: 'log_game_*.txt').each { file ->
+        fileTree(dir: 'src/intTest', include: 'log_game_*.txt').each { file ->
             file.renameTo(new File(logDir, file.name))
             println("Moved log file: ${file.name}")
         }
