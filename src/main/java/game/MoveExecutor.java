@@ -23,7 +23,7 @@ public class MoveExecutor {
 
     public void executeMove(Move move) {
 
-        logger.log("Executing move " + move);
+        logger.verbose("Executing move " + move);
 
         if(move.getPlayerNumber() != game.getCurrentPlayerNumber()) {
             logger.warn("Executing move of player who is currently not their turn");

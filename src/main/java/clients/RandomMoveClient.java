@@ -31,7 +31,7 @@ public class RandomMoveClient implements Client {
 
         logger.log("Selecting random move");
         Move chosenMove = SetUtils.getRandomElement(possibleMoves);
-        logger.log("Selected " + chosenMove);
+        logger.verbose("Selected " + chosenMove);
 
         return chosenMove;
 

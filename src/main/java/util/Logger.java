@@ -148,6 +148,10 @@ public class Logger {
     |-----------------------------------------------------------------------------------------------
     */
 
+    public static void newline() {
+        System.out.println();
+    }
+
     /**
      * Log a fatal error and terminate the program.
      *

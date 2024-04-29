@@ -31,22 +31,22 @@ public class GameFactory {
      */
     private static Game createFromLines(LinkedList<String> lines) {
 
-        logger.log("Creating game from lines");
+        logger.verbose("Creating game from lines");
 
         // We unshift line for line and parse it
 
         // Parsing initial player data
         int initialPlayers = Integer.parseInt(lines.remove(0));
-        logger.verbose("Initial players: " + initialPlayers);
+        logger.debug("Initial players: " + initialPlayers);
         int initialOverwriteStones = Integer.parseInt(lines.remove(0));
-        logger.verbose("Initial overwrite stones: " + initialOverwriteStones);
+        logger.debug("Initial overwrite stones: " + initialOverwriteStones);
 
         // Parsing initial bomb data
         String[] bombs = lines.remove(0).split((" "));
         int initialBombs = Integer.parseInt(bombs[0]);
-        logger.verbose("Initial bombs: " + initialBombs);
+        logger.debug("Initial bombs: " + initialBombs);
         int bombRadius = Integer.parseInt(bombs[1]);
-        logger.verbose("Bomb radius: " + bombRadius);
+        logger.debug("Bomb radius: " + bombRadius);
 
         // Create board from remaining lines
         Board board = BoardFactory.createFromLines(lines);
@@ -57,7 +57,7 @@ public class GameFactory {
 
     public static Game createFromString(String string) {
 
-        logger.log("Creating game from string");
+        logger.verbose("Creating game from string");
 
         // Mind lines can be separated by nl or cr+nl
         String[] lines = string.split("\\r?\\n");
@@ -72,7 +72,7 @@ public class GameFactory {
 
     public static Game createFromFile(String filename) {
 
-        logger.log("Creating game from file " + filename);
+        logger.verbose("Creating game from file " + filename);
         return createFromString(File.readFile(filename));
     }
 

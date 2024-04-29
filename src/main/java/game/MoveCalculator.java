@@ -36,7 +36,7 @@ public class MoveCalculator {
 
         Player player = game.getPlayer(playerNumber);
 
-        logger.log("Searching for all valid moves for Player " + player);
+        logger.verbose("Searching for all valid moves for Player " + player);
 
         Set<Move> result = new HashSet<>();
 
@@ -46,14 +46,14 @@ public class MoveCalculator {
             default -> logger.error("No valid game phase to calculate moves for");
         }
 
-        logger.debug("Valid moves for Player " + player + ":\n" +
+        logger.debug(result.size() + "valid moves for Player " + player + ":\n" +
                 result.stream().map(move -> "    " + move).collect(Collectors.joining("\n")));
 
         return result;
     }
 
     private Set<Move> calculateAllColoringMoves(int playerNumber) {
-        logger.log("Calculating all coloring moves");
+        logger.verbose("Calculating all coloring moves");
 
         Player player = game.getPlayer(playerNumber);
 
@@ -86,7 +86,7 @@ public class MoveCalculator {
     }
 
     public Set<Move> getAllBombMoves(int player) {
-        logger.log("Calculating all bomb moves");
+        logger.verbose("Calculating all bomb moves");
 
         Set<Move> result = new HashSet<>();
 

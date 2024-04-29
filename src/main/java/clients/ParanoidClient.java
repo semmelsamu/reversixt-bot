@@ -48,7 +48,7 @@ public class ParanoidClient implements Client {
 
         Map<Move, Integer> moveScores = new HashMap<>();
 
-        logger.log("Calculating minmax for every move");
+        logger.verbose("Calculating minmax for every move");
 
         numberOfStatesVisited = 0;
 
@@ -65,8 +65,8 @@ public class ParanoidClient implements Client {
 
         var result = Collections.max(moveScores.entrySet(), Map.Entry.comparingByValue());
 
-        logger.log("Responding with move " + result.getKey() +
-                " which has the highest score: " + result.getValue());
+        logger.log("Responding with " + result.getKey().getClass().getSimpleName() + result.getKey().getCoordinates() +
+                " which has a score of " + result.getValue());
 
         return result.getKey();
 

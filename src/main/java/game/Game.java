@@ -78,7 +78,7 @@ public class Game implements Cloneable {
     public Game(int initialPlayers, int initialOverwriteStones, int initialBombs, int bombRadius,
                 Board board) {
 
-        logger.log("Creating game");
+        logger.verbose("Creating game");
 
         // Store initial information
         this.initialPlayers = initialPlayers;

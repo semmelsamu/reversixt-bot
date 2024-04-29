@@ -26,13 +26,13 @@ public class BoardFactory {
      */
     public static Board createFromLines(LinkedList<String> lines) {
 
-        logger.log("Creating board from lines");
+        logger.verbose("Creating board from lines");
 
         // Parsing dimensions
         String[] dimensions = lines.remove(0).split(" ");
         int height = Integer.parseInt(dimensions[0]);
         int width = Integer.parseInt(dimensions[1]);
-        logger.verbose("Dimensions: Height " + height + "; Width " + width);
+        logger.debug("Dimensions: Height " + height + "; Width " + width);
 
         // Parsing
         char[][] rawTiles = parseMap(lines, height, width);
@@ -56,13 +56,13 @@ public class BoardFactory {
 
     private static char[][] parseMap(List<String> lines, int height, int width) {
 
-        logger.log("Parsing map");
+        logger.verbose("Parsing map");
 
         char[][] map = new char[height][width];
 
         for (int y = 0; y < height; y++) {
             String currentLine = lines.remove(0);
-            logger.verbose(currentLine);
+            logger.debug(currentLine);
             String[] currentRows = currentLine.split((" "));
             for (int x = 0; x < width; x++) {
                 map[y][x] = currentRows[x].charAt(0);
@@ -74,7 +74,7 @@ public class BoardFactory {
 
     private static int[][] parseTransitions(LinkedList<String> lines) {
 
-        logger.log("Parsing transitions");
+        logger.verbose("Parsing transitions");
 
         int[][] transitions = new int[lines.size()][6];
 
@@ -82,7 +82,7 @@ public class BoardFactory {
 
             String currentLine = lines.get(i);
 
-            logger.verbose(currentLine);
+            logger.debug(currentLine);
             String[] transitionParts = currentLine.split(" ");
             transitions[i] = new int[]{
                     Integer.parseInt(transitionParts[0]), Integer.parseInt(transitionParts[1]),
