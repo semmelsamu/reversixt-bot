@@ -3,6 +3,7 @@ package util;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
@@ -71,6 +72,7 @@ public class NetworkServerHelper {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                semaphore.release();
             }
         });
         outputReaderThread.start();
@@ -79,7 +81,9 @@ public class NetworkServerHelper {
     }
 
     private void startProcess(String map) throws IOException {
-        Path currentDirectory = Paths.get(System.getProperty("user.dir"));
+        String userDir = System.getProperty("user.dir");
+        userDir = userDir.substring(0, userDir.indexOf("src"));
+        Path currentDirectory = Paths.get(userDir);
 
         Path serverParameterPath = currentDirectory.resolve(map).toAbsolutePath();
         ProcessBuilder processBuilder;
