@@ -5,3 +5,5 @@ editor.jar
 bin
 build
 .gradle
+log_game*
+binaries/logArchive
