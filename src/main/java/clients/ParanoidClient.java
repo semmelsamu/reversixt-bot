@@ -1,6 +1,7 @@
 package clients;
 
 import game.Game;
+import game.GamePhase;
 import game.MoveCalculator;
 import game.MoveExecutor;
 import game.evaluation.GameEvaluator;
@@ -62,7 +63,7 @@ public class ParanoidClient implements Client {
             (new MoveExecutor(clonedGame)).executeMove(move);
 
             int result;
-            if(depth > 0) {
+            if(depth > 0 && clonedGame.getPhase() == GamePhase.END) {
                 result = minmax(clonedGame, player, depth).getValue();
             }
             else {
