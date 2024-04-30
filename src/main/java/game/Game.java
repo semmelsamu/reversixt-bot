@@ -5,11 +5,13 @@ import board.Coordinates;
 import board.Tile;
 import board.TransitionPart;
 import player.Player;
+import player.move.Move;
 import util.Logger;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Game implements Cloneable {
@@ -111,28 +113,39 @@ public class Game implements Cloneable {
     */
 
     public void nextPlayer() {
+        if(gamePhase == GamePhase.END) {
+            logger.error("Cannot calculate next player in end phase");
+            return;
+        }
+
         int oldPlayer = currentPlayer;
         MoveCalculator moveCalculator = new MoveCalculator(this);
+
+        Set<Move> validMoves;
 
         do {
             currentPlayer = (currentPlayer % players.length) + 1;
 
             if (oldPlayer == currentPlayer) {
-                currentPlayer = (currentPlayer % players.length) + 1;
                 if (gamePhase == GamePhase.PHASE_1) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
                                     "phase");
                     gamePhase = GamePhase.PHASE_2;
+                    nextPlayer();
                 } else if (gamePhase == GamePhase.PHASE_2) {
                     logger.log("No more player has any bomb moves, entering end");
                     gamePhase = GamePhase.END;
-                    break;
+                    currentPlayer = 0;
+                    return;
                 }
             }
 
-        } while (moveCalculator.getValidMovesForPlayer(getCurrentPlayerNumber())
-                .isEmpty() || getCurrentPlayer().isDisqualified());
+            validMoves = moveCalculator.getValidMovesForPlayer(getCurrentPlayerNumber());
+
+        } while (validMoves.isEmpty() || getCurrentPlayer().isDisqualified());
+
+        logger.verbose("Current player is now " + currentPlayer);
     }
 
     public Player getCurrentPlayer() {
@@ -217,12 +230,14 @@ public class Game implements Cloneable {
         result.append("Initial bombs: ").append(initialBombs).append("\n");
         result.append("Bomb radius: ").append(bombRadius).append("\n");
 
+        result.append("Phase: ").append(gamePhase).append("\n");
+
         result.append("Players (Overwrite Stones / Bombs)").append("\n");
         for (Player player : players) {
             result.append("- ").append(player.getPlayerValue().toString()).append(" (")
                     .append(player.getOverwriteStones()).append(" / ").append(player.getBombs())
                     .append(")");
-            if(player.getPlayerValue().toPlayerIndex() + 1 == currentPlayer) {
+            if (player.getPlayerValue().toPlayerIndex() + 1 == currentPlayer) {
                 result.append(" *");
             }
             result.append("\n");
