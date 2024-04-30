@@ -4,10 +4,12 @@ import board.Coordinates;
 import board.Tile;
 import clients.Client;
 import game.*;
-import player.Player;
 import player.move.*;
+import util.Logger;
 
 public class NetworkClientAdapter implements NetworkClient {
+
+    private final Logger logger = new Logger(this.getClass().getName());
 
     private final Client client;
 
@@ -64,7 +66,7 @@ public class NetworkClientAdapter implements NetworkClient {
 
         Coordinates coordinates = new Coordinates(x, y);
 
-        if (game.getGamePhase() == GamePhase.PHASE_1) {
+        if (game.getPhase() == GamePhase.PHASE_1) {
             if (type == 0) {
                 if (game.getTile(coordinates) != Tile.INVERSION) {
                     moveExecutor.executeMove(new NormalMove(playerNumber, coordinates));
@@ -84,17 +86,21 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveDisqualification(byte player) {
-
+        game.getPlayer(player).disqualify();
     }
 
     @Override
     public void receiveEndingPhase1() {
-        game.setGamePhase(GamePhase.PHASE_2);
+        if(game.getPhase() != GamePhase.PHASE_2) {
+            logger.warn("Server and client game phase do not match");
+        }
     }
 
     @Override
     public void receiveEndingPhase2() {
-        game.setGamePhase(GamePhase.END);
+        if(game.getPhase() != GamePhase.END) {
+            logger.warn("Server and client game phase do not match");
+        }
     }
 
     public Game getGame(){

@@ -4,7 +4,6 @@ import board.Board;
 import board.Coordinates;
 import board.Tile;
 import board.TransitionPart;
-import network.MoveAnswer;
 import player.Player;
 import util.Logger;
 
@@ -106,23 +105,34 @@ public class Game implements Cloneable {
     /*
     |-----------------------------------------------------------------------------------------------
     |
-    |   Current player logic
+    |   Player logic
     |
     |-----------------------------------------------------------------------------------------------
     */
 
     public void nextPlayer() {
         int oldPlayer = currentPlayer;
+        MoveCalculator moveCalculator = new MoveCalculator(this);
+
         do {
             currentPlayer = (currentPlayer % players.length) + 1;
 
             if (oldPlayer == currentPlayer) {
-                logger.log("No more player has any moves, probably entering game phase 2");
                 currentPlayer = (currentPlayer % players.length) + 1;
-                break;
+                if (gamePhase == GamePhase.PHASE_1) {
+                    logger.log(
+                            "No more player has any moves in the coloring phase, entering bomb " +
+                                    "phase");
+                    gamePhase = GamePhase.PHASE_2;
+                } else if (gamePhase == GamePhase.PHASE_2) {
+                    logger.log("No more player has any bomb moves, entering end");
+                    gamePhase = GamePhase.END;
+                    break;
+                }
             }
 
-        } while ((new MoveCalculator(this)).getValidMovesForPlayer(getCurrentPlayerNumber()).isEmpty());
+        } while (moveCalculator.getValidMovesForPlayer(getCurrentPlayerNumber())
+                .isEmpty() || getCurrentPlayer().isDisqualified());
     }
 
     public Player getCurrentPlayer() {
@@ -186,13 +196,8 @@ public class Game implements Cloneable {
         return board.coordinatesLayInBoard(position);
     }
 
-    public GamePhase getGamePhase() {
+    public GamePhase getPhase() {
         return gamePhase;
-    }
-
-    public void setGamePhase(GamePhase gamePhase) {
-        this.gamePhase = gamePhase;
-        logger.log("Entering phase " + gamePhase + ", current game: " + this);
     }
 
     /*
@@ -216,11 +221,14 @@ public class Game implements Cloneable {
         for (Player player : players) {
             result.append("- ").append(player.getPlayerValue().toString()).append(" (")
                     .append(player.getOverwriteStones()).append(" / ").append(player.getBombs())
-                    .append(")\n");
+                    .append(")");
+            if(player.getPlayerValue().toPlayerIndex() + 1 == currentPlayer) {
+                result.append(" *");
+            }
+            result.append("\n");
         }
 
-        result.append(board.toString()).append("\n");
-        result.append(gameStats);
+        result.append(board.toString());
 
         // Indent
         String[] lines = result.toString().split("\n");

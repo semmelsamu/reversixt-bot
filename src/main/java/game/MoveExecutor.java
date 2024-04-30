@@ -35,9 +35,7 @@ public class MoveExecutor {
             executeBombMove((BombMove) move);
         }
 
-        if(move.getPlayerNumber() == game.getCurrentPlayerNumber()) {
-            game.nextPlayer();
-        }
+        game.nextPlayer();
 
         logger.debug("Game after move execution: " + game);
     }
@@ -208,6 +206,8 @@ public class MoveExecutor {
         for (Coordinates bombedTile : getAllTilesToBeBombed(move.getCoordinates())) {
             game.setTile(bombedTile, Tile.WALL);
         }
+
+        game.getPlayer(move.getPlayerNumber()).decrementBombs();
     }
 
     // TODO: refactor

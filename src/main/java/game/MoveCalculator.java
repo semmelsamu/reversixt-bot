@@ -40,7 +40,7 @@ public class MoveCalculator {
 
         Set<Move> result = new HashSet<>();
 
-        switch (game.getGamePhase()) {
+        switch (game.getPhase()) {
             case PHASE_1 -> result.addAll(calculateAllColoringMoves(playerNumber));
             case PHASE_2 -> result.addAll(getAllBombMoves(playerNumber));
             default -> logger.error("No valid game phase to calculate moves for");
@@ -59,25 +59,26 @@ public class MoveCalculator {
 
         HashSet<Move> moves = new HashSet<>();
 
-        for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(player.getPlayerValue())) {
+        for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(
+                player.getPlayerValue())) {
             if (game.getTile(occupiedTile) != player.getPlayerValue()) {
                 logger.error("Wrong coordinates in Player" + player + "'s List stones");
                 continue;
             }
-            for(Direction direction : Direction.values()) {
+            for (Direction direction : Direction.values()) {
                 TileReader tileReader = new TileReader(game, occupiedTile, direction);
                 Set<Move> movesForPieceInDirection =
                         getValidMovesForPieceInDirection(tileReader, playerNumber);
-                if(movesForPieceInDirection != null){
+                if (movesForPieceInDirection != null) {
                     moves.addAll(movesForPieceInDirection);
                 }
             }
             //moves.addAll(getValidMovesForPiece(occupiedTile, playerValue));
         }
 
-        if(player.getOverwriteStones() > 0) {
+        if (player.getOverwriteStones() > 0) {
             // Add overwrite moves on expansion tiles
-            for(var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
+            for (var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
                 moves.add(new OverwriteMove(playerNumber, coordinate));
             }
         }
@@ -87,6 +88,10 @@ public class MoveCalculator {
 
     public Set<Move> getAllBombMoves(int player) {
         logger.verbose("Calculating all bomb moves");
+
+        if (game.getPlayer(player).getBombs() == 0) {
+            return new HashSet<>();
+        }
 
         Set<Move> result = new HashSet<>();
 
@@ -106,7 +111,7 @@ public class MoveCalculator {
 
 
     /**
-     * @param tileReader  tileReader with coordinates and direction of first neighbour of own tile
+     * @param tileReader   tileReader with coordinates and direction of first neighbour of own tile
      * @param playerNumber Tile of player that moves are calculated for
      * @return Valid moves for one piece for one of eight directions
      */
@@ -115,7 +120,7 @@ public class MoveCalculator {
         Set<Move> movesPerDirection = new HashSet<>();
         // Coordinates of tile moves are searched for
         Coordinates ownTileCoordinates = tileReader.getCoordinates();
-        if(!isFirstNeighbourValid(tileReader, player.getPlayerValue())){
+        if (!isFirstNeighbourValid(tileReader, player.getPlayerValue())) {
             return null;
         }
         // TileReader points on the first neighbour now!
@@ -140,7 +145,7 @@ public class MoveCalculator {
             currentCoordinates = tileReader.getCoordinates();
 
             // Check if piece that we started from is reached
-            if(currentCoordinates.equals(ownTileCoordinates)){
+            if (currentCoordinates.equals(ownTileCoordinates)) {
                 return movesPerDirection;
             }
 
@@ -148,7 +153,7 @@ public class MoveCalculator {
             // Check if player has overwrite stones an if the current tile can be overwritten
             if (player.getOverwriteStones() > 0 && currentTile.isPlayer()) {
                 // Check if current Tile is the neighbour from the tile moves are searched for
-                if(!(currentCoordinates.equals(firstNeighbourTileCoordinates))){
+                if (!(currentCoordinates.equals(firstNeighbourTileCoordinates))) {
                     movesPerDirection.add(new OverwriteMove(playerNumber, currentCoordinates));
                 }
             }
@@ -161,9 +166,10 @@ public class MoveCalculator {
         // If necessary create special move
         switch (currentTile) {
             case CHOICE -> {
-                for(int playerToSwapWith = 1; playerToSwapWith < game.getPlayers().length; playerToSwapWith++) {
-                        movesPerDirection.add(
-                                new ChoiceMove(playerNumber, currentCoordinates, playerToSwapWith));
+                for (int playerToSwapWith = 1; playerToSwapWith < game.getPlayers().length;
+                     playerToSwapWith++) {
+                    movesPerDirection.add(
+                            new ChoiceMove(playerNumber, currentCoordinates, playerToSwapWith));
                 }
             }
             case INVERSION ->
@@ -183,12 +189,13 @@ public class MoveCalculator {
     /**
      * Check if firstNeighbour from own tile allows possible moves
      * Moves the pointer of tileReader on firstNeighbour by calling next()
-     * @param tileReader Tile reader pointing on own tile
-     *                   -> Points on first neighbour after method call
+     *
+     * @param tileReader  Tile reader pointing on own tile
+     *                    -> Points on first neighbour after method call
      * @param playerValue Tile of player that moves are calculated for
      * @return True if first neighbour allows moves, false if not
      */
-    private boolean isFirstNeighbourValid(TileReader tileReader, Tile playerValue){
+    private boolean isFirstNeighbourValid(TileReader tileReader, Tile playerValue) {
         Coordinates ownTileCoordinates = tileReader.getCoordinates();
         // Check if tile has a neighbour in this direction
         if (!tileReader.hasNext()) {
