@@ -30,6 +30,8 @@ public class Player implements Cloneable {
      */
     private int bombs;
 
+    private boolean isDisqualified;
+
     /*
     |--------------------------------------------------------------------------
     | Constructor
@@ -40,6 +42,7 @@ public class Player implements Cloneable {
         this.playerValue = playerValue;
         this.overwriteStones = overwriteStones;
         this.bombs = bombs;
+        this.isDisqualified = false;
     }
 
     /*
@@ -58,6 +61,10 @@ public class Player implements Cloneable {
 
     public int getBombs() {
         return bombs;
+    }
+
+    public boolean isDisqualified() {
+        return isDisqualified;
     }
 
     /*
@@ -88,6 +95,14 @@ public class Player implements Cloneable {
         if(overwriteStones < 0) {
             logger.error("Overwrite stones are below zero");
         }
+    }
+
+    public void decrementBombs() {
+        bombs--;
+    }
+
+    public void disqualify() {
+        this.isDisqualified = true;
     }
 
     @Override
