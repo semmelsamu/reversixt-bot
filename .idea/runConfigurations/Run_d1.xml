@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run w/o Tests" type="Application" factoryName="Application" folderName="IntelliJ" singleton="false">
+  <configuration default="false" name="Run d1" type="Application" factoryName="Application" folderName="Depth" singleton="false">
     <option name="MAIN_CLASS_NAME" value="Main" />
     <module name="revxt-ss24-g04.main" />
-    <option name="PROGRAM_PARAMETERS" value="-i 127.0.0.1 -p 7777" />
+    <option name="PROGRAM_PARAMETERS" value="-i 127.0.0.1 -p 7777 -d 1" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
