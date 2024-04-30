@@ -83,7 +83,7 @@ public class NetworkClientAdapter implements NetworkClient {
             moveExecutor.executeMove(new BombMove(playerNumber, coordinates));
         }
 
-        logger.log(game.toString());
+        logger.verbose(game.toString());
     }
 
     @Override
