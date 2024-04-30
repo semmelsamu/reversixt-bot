@@ -112,27 +112,30 @@ public class Game implements Cloneable {
     |-----------------------------------------------------------------------------------------------
     */
 
+    private void rotateCurrentPlayer() {
+        currentPlayer = (currentPlayer % players.length) + 1;
+    }
+
     public void nextPlayer() {
-        if(gamePhase == GamePhase.END) {
+        if (gamePhase == GamePhase.END) {
             logger.error("Cannot calculate next player in end phase");
             return;
         }
 
         int oldPlayer = currentPlayer;
-        MoveCalculator moveCalculator = new MoveCalculator(this);
-
-        Set<Move> validMoves;
 
         do {
-            currentPlayer = (currentPlayer % players.length) + 1;
+            rotateCurrentPlayer();
 
-            if (oldPlayer == currentPlayer) {
+            if (oldPlayer == currentPlayer &&
+                    (new MoveCalculator(this)).getValidMovesForPlayer(currentPlayer).isEmpty()) {
                 if (gamePhase == GamePhase.PHASE_1) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
                                     "phase");
                     gamePhase = GamePhase.PHASE_2;
-                    nextPlayer();
+                    rotateCurrentPlayer();
+                    oldPlayer = currentPlayer;
                 } else if (gamePhase == GamePhase.PHASE_2) {
                     logger.log("No more player has any bomb moves, entering end");
                     gamePhase = GamePhase.END;
@@ -141,9 +144,8 @@ public class Game implements Cloneable {
                 }
             }
 
-            validMoves = moveCalculator.getValidMovesForPlayer(getCurrentPlayerNumber());
-
-        } while (validMoves.isEmpty() || getCurrentPlayer().isDisqualified());
+        } while ((new MoveCalculator(this)).getValidMovesForPlayer(getCurrentPlayerNumber())
+                .isEmpty() || getCurrentPlayer().isDisqualified());
 
         logger.verbose("Current player is now " + currentPlayer);
     }
@@ -169,7 +171,13 @@ public class Game implements Cloneable {
     }
 
     public Player getPlayer(int playerNumber) {
-        return players[playerNumber - 1];
+        try {
+            return players[playerNumber - 1];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            logger.fatal(
+                    "Could not get player with number " + playerNumber + ": " + e.getMessage());
+            return null;
+        }
     }
 
     public int getBombRadius() {
