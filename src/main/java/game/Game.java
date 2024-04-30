@@ -63,7 +63,7 @@ public class Game implements Cloneable {
 
     private int currentPlayer;
 
-    public GamePhase gamePhase;
+    private GamePhase gamePhase;
 
     /*
     |-----------------------------------------------------------------------------------------------
