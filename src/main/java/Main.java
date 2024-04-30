@@ -17,10 +17,8 @@ public class Main {
 
         var parsedArgs = CommandLineArguments.parse(args);
 
-        Logger.defaultPriority = Integer.parseInt(parsedArgs.getOrDefault("-l", "3"));
-        Logger.setPriority(NetworkEventHandler.class.getName(), 1);
-        Logger.setPriority(ParanoidClient.class.getName(), 0);
-        Logger.setPriority(NetworkClientAdapter.class.getName(), 1);
+        Logger.defaultPriority = Integer.parseInt(parsedArgs.getOrDefault("-l", "2"));
+        Logger.setPriority(Game.class.getName(), 3);
 
         // Launch whatever
 

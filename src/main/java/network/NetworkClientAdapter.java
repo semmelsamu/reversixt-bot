@@ -34,6 +34,7 @@ public class NetworkClientAdapter implements NetworkClient {
     public void receiveMap(String map) {
         this.game = GameFactory.createFromString(map);
         moveExecutor = new MoveExecutor(game);
+        logger.log(game.toString());
     }
 
     @Override
@@ -89,6 +90,7 @@ public class NetworkClientAdapter implements NetworkClient {
     @Override
     public void receiveDisqualification(byte player) {
         game.getPlayer(player).disqualify();
+        logger.log(game.toString());
     }
 
     @Override
@@ -96,6 +98,7 @@ public class NetworkClientAdapter implements NetworkClient {
         if(game.getPhase() != GamePhase.PHASE_2) {
             logger.warn("Server and client game phase do not match");
         }
+        logger.log(game.toString());
     }
 
     @Override
@@ -103,6 +106,7 @@ public class NetworkClientAdapter implements NetworkClient {
         if(game.getPhase() != GamePhase.END) {
             logger.warn("Server and client game phase do not match");
         }
+        logger.log(game.toString());
     }
 
     public Game getGame(){

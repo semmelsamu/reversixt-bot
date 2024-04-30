@@ -60,6 +60,7 @@ public class ParanoidClient implements Client {
                 game.getCurrentPlayerNumber())) {
 
             Game clonedGame = game.clone();
+
             (new MoveExecutor(clonedGame)).executeMove(move);
 
             int result;
