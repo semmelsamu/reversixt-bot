@@ -136,7 +136,7 @@ public class Game implements Cloneable {
                 } else if (gamePhase == GamePhase.PHASE_2) {
                     logger.log("No more player has any bomb moves, entering end");
                     gamePhase = GamePhase.END;
-                    currentPlayer = 0;
+                    currentPlayer = 1;
                     return;
                 }
             }
