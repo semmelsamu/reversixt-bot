@@ -44,7 +44,7 @@ public class ParanoidClient implements Client {
 
         Map.Entry<Move, Integer> result = minmax(game, player, depth);
 
-        logger.log("Visited" + numberOfStatesVisited + " possible states in");
+        logger.log("Visited " + numberOfStatesVisited + " possible states in");
 
         logger.log("Responding with " + result.getKey().getClass().getSimpleName() + result.getKey().getCoordinates() +
                 " which has a score of " + result.getValue());
