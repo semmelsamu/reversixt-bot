@@ -4,27 +4,26 @@ import exercises.Exercise04;
 import exercises.Exercise05;
 import game.Game;
 import util.CommandLineArguments;
+import util.CommandLineArguments.Arguments;
 import util.Logger;
 
 public class Main {
     public static void main(String[] args) {
 
-        var parsedArgs = CommandLineArguments.parse(args);
+        CommandLineArguments cla = new CommandLineArguments(args);
 
-        Logger.useColors = Boolean.parseBoolean(parsedArgs.getOrDefault("-c", "false"));
-        Logger.defaultPriority = Integer.parseInt(parsedArgs.getOrDefault("-l", "2"));
+        Logger.useColors = cla.getBoolean(Arguments.LOGGER_USE_COLORS);
+        Logger.defaultPriority = cla.getInt(Arguments.LOGGER_DEFAULT_PRIORITY);
         Logger.setPriority(Game.class.getName(), 3);
 
         // Launch whatever
 
-        switch (parsedArgs.getOrDefault("-e", "0")) {
-            case "1" -> Exercise01.aufgabe3();
-            case "2" -> Exercise02.aufgabe3();
-            case "4" -> Exercise04.abnahme(parsedArgs.getOrDefault("-i", "127.0.0.1"),
-                    Integer.parseInt(parsedArgs.getOrDefault("-p", "7777")));
-            default -> Exercise05.abnahme(parsedArgs.getOrDefault("-i", "127.0.0.1"),
-                    Integer.parseInt(parsedArgs.getOrDefault("-p", "7777")),
-                    Integer.parseInt(parsedArgs.getOrDefault("-d", "3")));
+        switch (cla.getInt(Arguments.EXERCISE)) {
+            case 1 -> Exercise01.aufgabe3();
+            case 2 -> Exercise02.aufgabe3();
+            case 3 -> Exercise04.abnahme(cla.getString(Arguments.IP), cla.getInt(Arguments.PORT));
+            default -> Exercise05.abnahme(cla.getString(Arguments.IP), cla.getInt(Arguments.PORT),
+                    cla.getInt(Arguments.DEPTH));
         }
 
     }
