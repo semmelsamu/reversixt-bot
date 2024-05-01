@@ -4,14 +4,11 @@ import board.Board;
 import board.Coordinates;
 import board.Tile;
 import board.TransitionPart;
-import player.Player;
-import player.move.Move;
 import util.Logger;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Game implements Cloneable {

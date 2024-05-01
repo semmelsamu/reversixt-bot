@@ -1,9 +1,8 @@
-package game.evaluation;
+package evaluation;
 
 import board.*;
 import game.Game;
 import game.MoveCalculator;
-import player.Player;
 
 import java.util.Arrays;
 

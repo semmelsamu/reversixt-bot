@@ -1,14 +1,8 @@
-package game.evaluation.criteria;
+package evaluation.criteria;
 
-import board.Coordinates;
-import board.Direction;
-import board.TileReader;
+import evaluation.AbstractRating;
+import evaluation.RatingType;
 import game.Game;
-import game.evaluation.AbstractRating;
-import game.evaluation.MapTileRating;
-import game.evaluation.RatingType;
-
-import java.util.List;
 
 /**
  * Rates every tile, tiles with fewer neighbours are better

@@ -1,13 +1,5 @@
 package util;
 
-import board.Coordinates;
-import board.Tile;
-import game.Game;
-import game.MoveCalculator;
-import player.move.Move;
-
-import java.util.Set;
-
 public class MoveCalculatorHelper {
 /*
     public static Set<Move> getAllValidMovesForPlayer(Game game, Tile player){

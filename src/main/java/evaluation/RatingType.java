@@ -1,4 +1,4 @@
-package game.evaluation;
+package evaluation;
 
 /**
  * Types of different rating types

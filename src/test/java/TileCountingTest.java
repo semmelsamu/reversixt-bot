@@ -1,7 +1,7 @@
 import game.Game;
 import game.GameFactory;
 import org.junit.jupiter.api.Test;
-import player.Player;
+import game.Player;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

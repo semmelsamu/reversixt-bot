@@ -4,8 +4,8 @@ import board.Coordinates;
 import board.Tile;
 import game.Game;
 import game.MoveExecutor;
-import player.move.InversionMove;
-import player.move.Move;
+import move.InversionMove;
+import move.Move;
 
 public class MoveExecutorHelper {
 

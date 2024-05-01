@@ -2,8 +2,8 @@ package util;
 
 import board.Coordinates;
 import game.Game;
-import player.Player;
-import player.move.*;
+import game.Player;
+import move.*;
 
 import java.util.Scanner;
 

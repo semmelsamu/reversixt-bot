@@ -4,7 +4,7 @@ import board.Coordinates;
 import board.Tile;
 import clients.Client;
 import game.*;
-import player.move.*;
+import move.*;
 import util.Logger;
 
 public class NetworkClientAdapter implements NetworkClient {

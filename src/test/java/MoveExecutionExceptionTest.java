@@ -1,9 +1,8 @@
-import board.Tile;
 import game.Game;
 import game.GameFactory;
 import game.MoveCalculator;
 import org.junit.jupiter.api.Test;
-import player.move.Move;
+import move.Move;
 import util.File;
 import util.Logger;
 import util.MoveExecutorHelper;

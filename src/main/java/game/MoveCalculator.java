@@ -4,8 +4,7 @@ import board.Coordinates;
 import board.Direction;
 import board.Tile;
 import board.TileReader;
-import player.Player;
-import player.move.*;
+import move.*;
 import util.Logger;
 
 import java.util.HashSet;

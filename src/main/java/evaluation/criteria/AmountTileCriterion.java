@@ -1,9 +1,9 @@
-package game.evaluation.criteria;
+package evaluation.criteria;
 
+import evaluation.AbstractRating;
+import evaluation.RatingType;
 import game.Game;
-import game.evaluation.AbstractRating;
-import game.evaluation.RatingType;
-import player.Player;
+import game.Player;
 
 /**
  * Determines the value amount of tiles for each player on the field

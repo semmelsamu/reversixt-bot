@@ -5,7 +5,7 @@ import game.GameFactory;
 import game.MoveCalculator;
 import game.MoveExecutor;
 import org.junit.jupiter.api.Test;
-import player.move.Move;
+import move.Move;
 
 import java.util.HashMap;
 import java.util.Map;

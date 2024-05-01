@@ -4,15 +4,11 @@ import game.Game;
 import game.GamePhase;
 import game.MoveCalculator;
 import game.MoveExecutor;
-import game.evaluation.GameEvaluator;
-import player.Player;
-import player.move.Move;
+import evaluation.GameEvaluator;
+import move.Move;
 import util.Logger;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class ParanoidClient implements Client {
 

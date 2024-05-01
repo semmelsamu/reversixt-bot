@@ -1,9 +1,7 @@
 package clients;
 
-import board.Tile;
 import game.*;
-import player.Player;
-import player.move.Move;
+import move.Move;
 import util.Logger;
 import util.SetUtils;
 

@@ -1,4 +1,4 @@
-package game.evaluation;
+package evaluation;
 
 import game.Game;
 

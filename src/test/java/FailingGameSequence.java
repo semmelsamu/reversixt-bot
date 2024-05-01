@@ -1,11 +1,8 @@
-import board.Coordinates;
-import board.Tile;
 import game.Game;
 import game.GameFactory;
 import game.MoveCalculator;
 import game.MoveExecutor;
-import player.Player;
-import player.move.NormalMove;
+import game.Player;
 
 public class FailingGameSequence {
     public static void main(String[] args) {

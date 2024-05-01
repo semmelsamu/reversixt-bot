@@ -1,11 +1,10 @@
 package exercises;
 
-import board.Tile;
 import game.Game;
 import game.GameFactory;
 import game.MoveCalculator;
 import game.MoveExecutor;
-import player.move.Move;
+import move.Move;
 import util.ConsoleInputHandler;
 import util.Logger;
 

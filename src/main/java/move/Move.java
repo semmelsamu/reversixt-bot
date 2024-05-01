@@ -1,4 +1,4 @@
-package player.move;
+package move;
 
 import board.Coordinates;
 

@@ -1,7 +1,6 @@
-package player.move;
+package move;
 
 import board.Coordinates;
-import player.Player;
 
 /**
  * Throw a bomb.

@@ -1,8 +1,6 @@
-package player.move;
+package move;
 
 import board.Coordinates;
-import board.Tile;
-import player.Player;
 
 import java.util.Objects;
 

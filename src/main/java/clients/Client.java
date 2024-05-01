@@ -1,8 +1,7 @@
 package clients;
 
 import game.Game;
-import player.Player;
-import player.move.Move;
+import move.Move;
 
 /**
  * A client that operates with local Data structures and Types, such as Tile, Move, ...

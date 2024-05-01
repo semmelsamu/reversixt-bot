@@ -3,7 +3,7 @@ package util;
 import clients.Client;
 import network.Launcher;
 import org.mockito.Mockito;
-import player.move.Move;
+import move.Move;
 
 import java.util.ArrayList;
 import java.util.List;

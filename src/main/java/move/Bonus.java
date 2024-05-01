@@ -1,4 +1,4 @@
-package player.move;
+package move;
 
 /**
  * This enum contains the options a player has if he sets on a bonus field.

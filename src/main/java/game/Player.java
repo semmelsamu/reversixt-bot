@@ -1,9 +1,7 @@
-package player;
+package game;
 
 import board.Tile;
 import util.Logger;
-
-import java.util.Objects;
 
 public class Player implements Cloneable {
 

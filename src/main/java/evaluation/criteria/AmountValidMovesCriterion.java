@@ -1,12 +1,8 @@
-package game.evaluation.criteria;
+package evaluation.criteria;
 
+import evaluation.AbstractRating;
+import evaluation.RatingType;
 import game.Game;
-import game.evaluation.AbstractRating;
-import game.evaluation.MapTileRating;
-import game.evaluation.RatingType;
-import player.move.Move;
-
-import java.util.Set;
 
 /**
  * Compares the valid moves of each player

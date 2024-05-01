@@ -1,11 +1,8 @@
-package game.evaluation.criteria;
+package evaluation.criteria;
 
-import board.Tile;
+import evaluation.AbstractRating;
+import evaluation.RatingType;
 import game.Game;
-import game.GameStats;
-import game.evaluation.AbstractRating;
-import game.evaluation.RatingType;
-import player.Player;
 
 /**
  * Evaluation how much tiles the player has on the map

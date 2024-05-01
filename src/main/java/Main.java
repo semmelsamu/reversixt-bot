@@ -1,14 +1,8 @@
-import clients.ParanoidClient;
 import exercises.Exercise01;
 import exercises.Exercise02;
 import exercises.Exercise04;
 import exercises.Exercise05;
 import game.Game;
-import game.MoveCalculator;
-import game.MoveExecutor;
-import network.NetworkClientAdapter;
-import network.NetworkEventHandler;
-import player.Player;
 import util.CommandLineArguments;
 import util.Logger;
 
