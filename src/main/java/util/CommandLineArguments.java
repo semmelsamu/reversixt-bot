@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class CommandLineArguments {
 
-    public enum Arguments {
+    public enum Argument {
 
         IP("i", "127.0.0.1"),
         PORT("p", 7777),
@@ -20,9 +20,9 @@ public class CommandLineArguments {
         public final String name;
         public final Object defaultValue;
 
-        Arguments(String name, Object fallback) {
+        Argument(String name, Object defaultValue) {
             this.name = name;
-            this.defaultValue = fallback;
+            this.defaultValue = defaultValue;
         }
 
         public static String[] getAllNames() {
@@ -42,7 +42,7 @@ public class CommandLineArguments {
 
         if (args[0].equals("-h")) {
             System.out.println("Usage:");
-            for (var argument : Arguments.values()) {
+            for (var argument : Argument.values()) {
                 System.out.println("-" + argument.name + "\t" + argument + "\t(Default: " +
                         argument.defaultValue + ")");
             }
@@ -66,7 +66,7 @@ public class CommandLineArguments {
             name = name.substring(1);
 
             // Check if given argument exists in defined arguments
-            if (!Arrays.asList(Arguments.getAllNames()).contains(name)) {
+            if (!Arrays.asList(Argument.getAllNames()).contains(name)) {
                 throw new IllegalArgumentException("Argument name " + name + " is unknown");
             }
 
@@ -75,7 +75,7 @@ public class CommandLineArguments {
         }
     }
 
-    public Object get(Arguments argument) {
+    public Object get(Argument argument) {
         if (values.containsKey(argument.name)) {
             return values.get(argument.name);
         } else {
@@ -83,15 +83,15 @@ public class CommandLineArguments {
         }
     }
 
-    public String getString(Arguments argument) {
+    public String getString(Argument argument) {
         return get(argument).toString();
     }
 
-    public int getInt(Arguments argument) {
+    public int getInt(Argument argument) {
         return Integer.parseInt(getString(argument));
     }
 
-    public boolean getBoolean(Arguments argument) {
+    public boolean getBoolean(Argument argument) {
         return Boolean.parseBoolean(getString(argument));
     }
 
