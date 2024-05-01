@@ -11,6 +11,7 @@ public class Main {
 
         var parsedArgs = CommandLineArguments.parse(args);
 
+        Logger.useColors = Boolean.parseBoolean(parsedArgs.getOrDefault("-c", "false"));
         Logger.defaultPriority = Integer.parseInt(parsedArgs.getOrDefault("-l", "2"));
         Logger.setPriority(Game.class.getName(), 3);
 

@@ -75,6 +75,8 @@ public class Logger {
      */
     private long lastTimeActive;
 
+    public static boolean useColors = true;
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -93,6 +95,7 @@ public class Logger {
      * 5 = FATAL.
      */
     private static Map<String, Integer> priorities = new HashMap<>();
+
     public static void setPriority(String name, int priority) {
         priorities.put(name, priority);
     }
@@ -121,8 +124,8 @@ public class Logger {
 
         // Use StackTraceElement to get caller
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-        StackTraceElement caller =
-                stackTraceElements[3]; // 0: getStackTrace, 1: log, 2: log, 3: caller
+        // 0: getStackTrace, 1: this function, 2: public log function, 3: caller
+        StackTraceElement caller = stackTraceElements[3];
         String callerString = caller.getClassName() + ":" + caller.getMethodName();
 
         // Get date
@@ -135,8 +138,8 @@ public class Logger {
         lastTimeActive = currentTime;
 
         // Print
-        System.out.println(
-                "[" + callerString + "]  " + color + message + ANSI_RESET + "  " + timeElapsedMs + "ms");
+        System.out.println("[" + callerString + "]  " + (useColors ? color : "") + message +
+                (useColors ? ANSI_RESET : "") + "  " + timeElapsedMs + "ms");
     }
 
 
