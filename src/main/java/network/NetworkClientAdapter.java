@@ -90,6 +90,9 @@ public class NetworkClientAdapter implements NetworkClient {
     @Override
     public void receiveDisqualification(byte player) {
         game.getPlayer(player).disqualify();
+        if(game.getCurrentPlayer().isDisqualified()) {
+            game.nextPlayer();
+        }
         logger.log(game.toString());
     }
 
