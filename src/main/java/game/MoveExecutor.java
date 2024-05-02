@@ -10,7 +10,7 @@ import util.Logger;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MoveExecutor {
+public final class MoveExecutor {
 
     static Logger logger = new Logger(MoveExecutor.class.getName());
 

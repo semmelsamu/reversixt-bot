@@ -7,7 +7,7 @@ import game.MoveCalculator;
 /**
  * Evaluates the current game situation for one player
  */
-public class GameEvaluator {
+public final class GameEvaluator {
     private static int[][] tileRatings;
 
     /**

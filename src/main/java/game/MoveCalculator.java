@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MoveCalculator {
+public final class MoveCalculator {
 
     static Logger logger = new Logger(MoveCalculator.class.getName());
 
@@ -113,7 +113,7 @@ public class MoveCalculator {
         Set<Move> movesPerDirection = new HashSet<>();
         // Coordinates of tile moves are searched for
         Coordinates ownTileCoordinates = tileReader.getCoordinates();
-        if (!isFirstNeighbourValid(game, tileReader, player.getPlayerValue())) {
+        if (!isFirstNeighbourValid(tileReader, player.getPlayerValue())) {
             return null;
         }
         // TileReader points on the first neighbour now!
@@ -124,7 +124,7 @@ public class MoveCalculator {
         Tile currentTile = tileReader.getTile();
         Coordinates currentCoordinates = firstNeighbourTileCoordinates;
 
-        // While there is an ococcupied tile
+        // While there is an occupied tile
         while (!currentTile.isUnoccupied()) {
 
             // Check if there is a dead end
@@ -181,14 +181,14 @@ public class MoveCalculator {
 
     /**
      * Check if firstNeighbour from own tile allows possible moves
-     * Moves the pointer of tileReader on firstNeighbour by calling next()
+     * moves the pointer of tileReader on firstNeighbour by calling next()
      *
      * @param tileReader  Tile reader pointing on own tile
      *                    -> Points on first neighbour after method call
      * @param playerValue Tile of player that moves are calculated for
      * @return True if first neighbour allows moves, false if not
      */
-    private static boolean isFirstNeighbourValid(Game game, TileReader tileReader, Tile playerValue) {
+    private static boolean isFirstNeighbourValid(TileReader tileReader, Tile playerValue) {
         Coordinates ownTileCoordinates = tileReader.getCoordinates();
         // Check if tile has a neighbour in this direction
         if (!tileReader.hasNext()) {
@@ -207,9 +207,6 @@ public class MoveCalculator {
         }
 
         // Check if the neighbour is the same tile due to a transition
-        if (tileReader.getCoordinates() == ownTileCoordinates) {
-            return false;
-        }
-        return true;
+        return tileReader.getCoordinates() != ownTileCoordinates;
     }
 }
