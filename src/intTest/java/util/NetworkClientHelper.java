@@ -1,9 +1,9 @@
 package util;
 
 import clients.Client;
+import move.Move;
 import network.Launcher;
 import org.mockito.Mockito;
-import move.Move;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,8 @@ import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 
 public class NetworkClientHelper {
 
@@ -47,6 +48,7 @@ public class NetworkClientHelper {
     }
 
     public static void verifyLogger() throws NoSuchFieldException, IllegalAccessException {
+        Mockito.verify(loggerSpy, Mockito.times(0)).warn(anyString());
         Mockito.verify(loggerSpy, Mockito.times(0)).error(anyString());
         Mockito.verify(loggerSpy, Mockito.times(0)).fatal(anyString());
     }
