@@ -96,8 +96,7 @@ public class MoveCalculatorExecutorTest {
 
                 assertTrue(calculatedMoves.contains(validMove.getKey()));
 
-                MoveExecutor moveExecutor = new MoveExecutor(game);
-                moveExecutor.executeMove(validMove.getKey());
+                MoveExecutor.executeMove(game, validMove.getKey());
 
                 for (var expectedValue : validMove.getValue().entrySet()) {
                     assertEquals(expectedValue.getValue(), game.getTile(expectedValue.getKey()));

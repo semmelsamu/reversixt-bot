@@ -12,15 +12,9 @@ import java.util.Set;
 
 public class MoveExecutor {
 
-    Logger logger = new Logger(this.getClass().getName());
+    static Logger logger = new Logger(MoveExecutor.class.getName());
 
-    Game game;
-
-    public MoveExecutor(Game game) {
-        this.game = game;
-    }
-
-    public void executeMove(Move move) {
+    public static void executeMove(Game game, Move move) {
 
         logger.verbose("Executing move " + move);
 
@@ -29,9 +23,9 @@ public class MoveExecutor {
         }
 
         if (!(move instanceof BombMove)) {
-            executeMovePhase1(move);
+            executeMovePhase1(game, move);
         } else {
-            executeBombMove((BombMove) move);
+            executeBombMove(game, (BombMove) move);
         }
 
         game.nextPlayer();
@@ -44,7 +38,7 @@ public class MoveExecutor {
     | Main coloring logic
     |--------------------------------------------------------------------------
     */
-    private void executeMovePhase1(Move move) {
+    private static void executeMovePhase1(Game game, Move move) {
         Tile playerValue = game.getPlayer(move.getPlayerNumber()).getPlayerValue();
         Set<Coordinates> tilesToColor = new HashSet<>();
         // Check every direction
@@ -69,7 +63,7 @@ public class MoveExecutor {
             if (tileReader.getCoordinates() == move.getCoordinates()) {
                 continue;
             }
-            tilesToColor.addAll(getTilesToColorInDirection(tileReader, move));
+            tilesToColor.addAll(getTilesToColorInDirection(game, tileReader, move));
         }
         // Check if an overwrite stone has to be used
         if (!(game.getTile(move.getCoordinates()).isUnoccupied())) {
@@ -83,19 +77,19 @@ public class MoveExecutor {
         game.setTile(move.getCoordinates(), playerValue);
 
         if (move instanceof BonusMove) {
-            executeBonusLogic((BonusMove) move);
+            executeBonusLogic(game, (BonusMove) move);
         }
 
         if (move instanceof ChoiceMove) {
-            executeChoiceLogic((ChoiceMove) move);
+            executeChoiceLogic(game, (ChoiceMove) move);
         }
 
         if (move instanceof InversionMove) {
-            executeInversionLogic();
+            executeInversionLogic(game);
         }
     }
 
-    private Set<Coordinates> getTilesToColorInDirection(TileReader tileReader, Move move) {
+    private static Set<Coordinates> getTilesToColorInDirection(Game game, TileReader tileReader, Move move) {
         Tile currentTile = tileReader.getTile();
         Tile playerValue = game.getPlayer(move.getPlayerNumber()).getPlayerValue();
         Set<Coordinates> tilesToColorInDirection = new HashSet<>();
@@ -131,7 +125,7 @@ public class MoveExecutor {
     |--------------------------------------------------------------------------
     */
 
-    private void executeBonusLogic(BonusMove bonusMove) {
+    private static void executeBonusLogic(Game game, BonusMove bonusMove) {
         Player player = game.getPlayer(bonusMove.getPlayerNumber());
         if (bonusMove.getBonus() == Bonus.BOMB) {
             player.incrementBombs();
@@ -142,7 +136,7 @@ public class MoveExecutor {
         }
     }
 
-    private void executeChoiceLogic(ChoiceMove choiceMove) {
+    private static void executeChoiceLogic(Game game, ChoiceMove choiceMove) {
         Player player = game.getPlayer(choiceMove.getPlayerNumber());
         Player playerToSwapWith = game.getPlayer(choiceMove.getPlayerToSwapWith());
 
@@ -162,7 +156,7 @@ public class MoveExecutor {
         }
     }
 
-    private void executeInversionLogic() {
+    private static void executeInversionLogic(Game game) {
 
         // Overwriting Tiles in Board
         Player[] players = game.getPlayers();
@@ -197,12 +191,12 @@ public class MoveExecutor {
         }
     }
 
-    public void executeBombMove(BombMove move) {
+    public static void executeBombMove(Game game, BombMove move) {
         if (game.getPlayer(move.getPlayerNumber()).getBombs() == 0) {
             throw new RuntimeException("No bombs available :(");
         }
 
-        for (Coordinates bombedTile : getAllTilesToBeBombed(move.getCoordinates())) {
+        for (Coordinates bombedTile : getAllTilesToBeBombed(game, move.getCoordinates())) {
             game.setTile(bombedTile, Tile.WALL);
         }
 
@@ -210,7 +204,7 @@ public class MoveExecutor {
     }
 
     // TODO: refactor
-    private Set<Coordinates> getAllTilesToBeBombed(Coordinates coordinates) {
+    private static Set<Coordinates> getAllTilesToBeBombed(Game game, Coordinates coordinates) {
         int radius = game.getBombRadius();
         Set<Coordinates> allDestroyedTiles = new HashSet<>();
         Set<Coordinates> allDestroyedTilesTemp = new HashSet<>();

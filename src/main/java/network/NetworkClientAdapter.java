@@ -3,7 +3,10 @@ package network;
 import board.Coordinates;
 import board.Tile;
 import clients.Client;
-import game.*;
+import game.Game;
+import game.GameFactory;
+import game.GamePhase;
+import game.MoveExecutor;
 import move.*;
 import util.Logger;
 
@@ -33,7 +36,6 @@ public class NetworkClientAdapter implements NetworkClient {
     @Override
     public void receiveMap(String map) {
         this.game = GameFactory.createFromString(map);
-        moveExecutor = new MoveExecutor(game);
         logger.log(game.toString());
     }
 
@@ -70,18 +72,18 @@ public class NetworkClientAdapter implements NetworkClient {
         if (game.getPhase() == GamePhase.PHASE_1) {
             if (type == 0) {
                 if (game.getTile(coordinates) != Tile.INVERSION) {
-                    moveExecutor.executeMove(new NormalMove(playerNumber, coordinates));
+                    MoveExecutor.executeMove(game, new NormalMove(playerNumber, coordinates));
                 } else {
-                    moveExecutor.executeMove(new InversionMove(playerNumber, coordinates));
+                    MoveExecutor.executeMove(game, new InversionMove(playerNumber, coordinates));
                 }
             } else if (type == 20 || type == 21) {
                 Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
-                moveExecutor.executeMove(new BonusMove(playerNumber, coordinates, bonus));
+                MoveExecutor.executeMove(game, new BonusMove(playerNumber, coordinates, bonus));
             } else {
-                moveExecutor.executeMove(new ChoiceMove(playerNumber, coordinates, type));
+                MoveExecutor.executeMove(game, new ChoiceMove(playerNumber, coordinates, type));
             }
         } else {
-            moveExecutor.executeMove(new BombMove(playerNumber, coordinates));
+            MoveExecutor.executeMove(game, new BombMove(playerNumber, coordinates));
         }
 
         logger.verbose(game.toString());

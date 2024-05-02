@@ -78,7 +78,7 @@ public class ParanoidClient implements Client {
 
             Game clonedGame = game.clone();
 
-            (new MoveExecutor(clonedGame)).executeMove(move);
+            MoveExecutor.executeMove(clonedGame, move);
             numberOfStatesVisited++;
 
             int score;

@@ -10,12 +10,12 @@ import move.Move;
 public class MoveExecutorHelper {
 
     public static void executeInversionMovePlayer1(Game game, int x, int y) {
-        (new MoveExecutor(game)).executeMove(
+        MoveExecutor.executeMove(game,
                 new InversionMove(1, new Coordinates(x, y)));
     }
 
     public static void executeExistingMovePlayer1(Game game, Move move) {
-        (new MoveExecutor(game)).executeMove(move);
+        MoveExecutor.executeMove(game, move);
     }
 
     public static Tile getTile(Game game, int x, int y){
