@@ -1,10 +1,10 @@
 package clients;
 
+import evaluation.GameEvaluator;
 import game.Game;
 import game.GamePhase;
 import game.MoveCalculator;
 import game.MoveExecutor;
-import evaluation.GameEvaluator;
 import move.Move;
 import util.Logger;
 
@@ -15,6 +15,7 @@ public class ParanoidClient implements Client {
     Logger logger = new Logger(this.getClass().getName());
 
     private long numberOfStatesVisited;
+    private long numberOfGamesEvaluated;
 
     private int depth;
 
@@ -35,12 +36,14 @@ public class ParanoidClient implements Client {
         }
 
         numberOfStatesVisited = 0;
+        numberOfGamesEvaluated = 0;
 
         logger.log("Calculating new move");
 
         Map.Entry<Move, Integer> result = minmax(game, player, depth);
 
         logger.log("Visited " + numberOfStatesVisited + " possible states in");
+        logger.log("Evaluated " + numberOfGamesEvaluated + " games");
 
         logger.log("Responding with " + result.getKey().getClass().getSimpleName() + result.getKey().getCoordinates() +
                 " which has a score of " + result.getValue());
@@ -51,7 +54,6 @@ public class ParanoidClient implements Client {
 
     private Map.Entry<Move, Integer> minmax(Game game, int player, int depth) {
 
-        numberOfStatesVisited++;
         depth--;
 
         boolean max = player == game.getCurrentPlayerNumber();
@@ -65,6 +67,7 @@ public class ParanoidClient implements Client {
             Game clonedGame = game.clone();
 
             (new MoveExecutor(clonedGame)).executeMove(move);
+            numberOfStatesVisited++;
 
             int score;
             if(depth > 0 && clonedGame.getPhase() == GamePhase.PHASE_1) {
@@ -72,6 +75,7 @@ public class ParanoidClient implements Client {
             }
             else {
                 score = (new GameEvaluator(game, player)).evaluate();
+                numberOfGamesEvaluated++;
             }
 
             if(max ? (score > resultScore) : (score < resultScore)) {
