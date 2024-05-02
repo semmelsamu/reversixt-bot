@@ -8,7 +8,10 @@ import game.MoveExecutor;
 import move.Move;
 import util.Logger;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ParanoidClient implements Client {
 
@@ -17,10 +20,12 @@ public class ParanoidClient implements Client {
     private long numberOfStatesVisited;
     private long numberOfGamesEvaluated;
 
+    private List<Integer> branchingFactors;
+
     private int depth;
 
     public ParanoidClient(int depth) {
-        if(depth < 1) {
+        if (depth < 1) {
             throw new IllegalArgumentException("Depth must be 1 or greater");
         }
         logger.log("Launching Paranoid Client with depth limit " + depth);
@@ -30,23 +35,27 @@ public class ParanoidClient implements Client {
     @Override
     public Move sendMove(Game game, int player) {
 
-        if(game.getPhase() == GamePhase.END) {
+        if (game.getPhase() == GamePhase.END) {
             logger.error("Move was requested but we think the game already ended");
             return null;
         }
 
         numberOfStatesVisited = 0;
         numberOfGamesEvaluated = 0;
+        branchingFactors = new LinkedList<>();
 
         logger.log("Calculating new move");
 
         Map.Entry<Move, Integer> result = minmax(game, player, depth);
 
-        logger.log("Visited " + numberOfStatesVisited + " possible states in");
-        logger.log("Evaluated " + numberOfGamesEvaluated + " games");
+        logger.log("Done");
+        logger.verbose("Visited " + numberOfStatesVisited + " possible states");
+        logger.verbose("Evaluated " + numberOfGamesEvaluated + " games");
+        logger.verbose("Average branching factor: " +
+                branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0.0));
 
-        logger.log("Responding with " + result.getKey().getClass().getSimpleName() + result.getKey().getCoordinates() +
-                " which has a score of " + result.getValue());
+        logger.log("Responding with " + result.getKey().getClass().getSimpleName() +
+                result.getKey().getCoordinates() + " which has a score of " + result.getValue());
 
         return result.getKey();
 
@@ -61,8 +70,12 @@ public class ParanoidClient implements Client {
         Move resultMove = null;
         int resultScore = max ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        for (Move move : (new MoveCalculator(game)).getValidMovesForPlayer(
-                game.getCurrentPlayerNumber())) {
+        Set<Move> possibleMoves =
+                (new MoveCalculator(game)).getValidMovesForPlayer(game.getCurrentPlayerNumber());
+
+        branchingFactors.add(possibleMoves.size());
+
+        for (Move move : possibleMoves) {
 
             Game clonedGame = game.clone();
 
@@ -70,15 +83,14 @@ public class ParanoidClient implements Client {
             numberOfStatesVisited++;
 
             int score;
-            if(depth > 0 && clonedGame.getPhase() == GamePhase.PHASE_1) {
+            if (depth > 0 && clonedGame.getPhase() == GamePhase.PHASE_1) {
                 score = minmax(clonedGame, player, depth).getValue();
-            }
-            else {
+            } else {
                 score = (new GameEvaluator(game, player)).evaluate();
                 numberOfGamesEvaluated++;
             }
 
-            if(max ? (score > resultScore) : (score < resultScore)) {
+            if (max ? (score > resultScore) : (score < resultScore)) {
                 resultScore = score;
                 resultMove = move;
             }

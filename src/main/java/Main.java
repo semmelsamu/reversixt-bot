@@ -1,3 +1,4 @@
+import clients.ParanoidClient;
 import exercises.Exercise01;
 import exercises.Exercise02;
 import exercises.Exercise04;
@@ -15,6 +16,7 @@ public class Main {
         Logger.useColors = cla.getBoolean(Argument.LOGGER_USE_COLORS);
         Logger.defaultPriority = cla.getInt(Argument.LOGGER_DEFAULT_PRIORITY);
         Logger.setPriority(Game.class.getName(), 3);
+        Logger.setPriority(ParanoidClient.class.getName(), 1);
 
         // Launch whatever
 
