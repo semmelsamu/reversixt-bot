@@ -4,6 +4,7 @@ import board.Board;
 import board.Coordinates;
 import board.Tile;
 import board.TransitionPart;
+import evaluation.StaticGameStats;
 import util.Logger;
 
 import java.util.Arrays;
@@ -26,22 +27,22 @@ public class Game implements Cloneable {
     /**
      * The number of players this game usually starts with.
      */
-    private final int initialPlayers;
+    //private final int initialPlayers;
 
     /**
      * The number of overwrite stones each player has in the beginning.
      */
-    private final int initialOverwriteStones;
+    //private final int initialOverwriteStones;
 
     /**
      * The number of bombs each player has in the beginning.
      */
-    private final int initialBombs;
+    //private final int initialBombs;
 
     /**
      * The amount of steps from the center of the explosion a bomb blows tiles up.
      */
-    private final int bombRadius;
+    //private final int bombRadius;
 
     /**
      * The actual game board.
@@ -57,6 +58,8 @@ public class Game implements Cloneable {
      * The container for all stats about the game and the logic
      */
     public GameStats gameStats;
+
+    public StaticGameStats staticGameStats;
 
     private int currentPlayer;
 
@@ -78,12 +81,6 @@ public class Game implements Cloneable {
 
         logger.verbose("Creating game");
 
-        // Store initial information
-        this.initialPlayers = initialPlayers;
-        this.initialOverwriteStones = initialOverwriteStones;
-        this.initialBombs = initialBombs;
-        this.bombRadius = bombRadius;
-
         // Set board
         this.board = board;
 
@@ -93,6 +90,10 @@ public class Game implements Cloneable {
             players[i] =
                     new Player(Tile.getAllPlayerTiles()[i], initialOverwriteStones, initialBombs);
         }
+
+        // Create static game stats
+        staticGameStats = new StaticGameStats(this, initialPlayers,
+                                            initialOverwriteStones, initialBombs, bombRadius);
 
         gameStats = new GameStats(this);
 
@@ -179,7 +180,7 @@ public class Game implements Cloneable {
     }
 
     public int getBombRadius() {
-        return bombRadius;
+        return staticGameStats.getBombRadius();
     }
 
     public Tile getTile(Coordinates position) {
@@ -231,10 +232,11 @@ public class Game implements Cloneable {
     public String toString() {
         StringBuilder result = new StringBuilder();
 
-        result.append("Initial players: ").append(initialPlayers).append("\n");
-        result.append("Initial overwrite stones: ").append(initialOverwriteStones).append("\n");
-        result.append("Initial bombs: ").append(initialBombs).append("\n");
-        result.append("Bomb radius: ").append(bombRadius).append("\n");
+        result.append("Initial players: ").append(staticGameStats.getInitialPlayers()).append("\n");
+        result.append("Initial overwrite stones: ")
+                .append(staticGameStats.getInitialOverwriteStones()).append("\n");
+        result.append("Initial bombs: ").append(staticGameStats.getInitialBombs()).append("\n");
+        result.append("Bomb radius: ").append(staticGameStats.getBombRadius()).append("\n");
 
         result.append("Phase: ").append(gamePhase).append("\n");
 

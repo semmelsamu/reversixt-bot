@@ -1,29 +1,22 @@
 package evaluation;
 
 import board.Coordinates;
-import board.Direction;
-import board.Tile;
-import board.TileReader;
 import game.Game;
 import game.MoveCalculator;
-
-import java.util.Arrays;
 
 /**
  * Evaluates the current game situation for one player
  */
 public class GameEvaluator {
-
-    // TODO: should be placed in a higher standing class, as it is valid for the whole game
-    // private static int[][] tileRatings;
+    private static int[][] tileRatings;
 
     /**
      * @return Evaluation for the current game situation
      */
     public static int evaluate(Game game, int player) {
-        // tileRatings = calculateTileRatings(game, player);
+        tileRatings = game.staticGameStats.getTileRatings();
         double rating = 0;
-        // rating += sumUpAllRatingsForOccupiedTiles(game, player);
+        rating += sumUpAllRatingsForOccupiedTiles(game, player);
         rating += evaluateMobility(game, player);
         rating += evaluateOverwriteStones(game, player, 5);
         // As there are currently only bombs with radius 0 allowed, the value of bombs is only 1
@@ -61,62 +54,13 @@ public class GameEvaluator {
     /**
      * TileRatings
      */
-    /*
+
     private static int sumUpAllRatingsForOccupiedTiles(Game game, int player) {
         int sum = 0;
         for (Coordinates tile : game.getAllCoordinatesWhereTileIs(game.getPlayer(player).getPlayerValue())) {
             sum += tileRatings[tile.y][tile.x];
         }
         return sum;
-    }
-     */
-
-    /**
-     * Calls calculateParticularTileRating(x, y) for each coordinate
-     * @return Array of tileRatings
-     */
-    private static int[][] calculateTileRatings(Game game, int player) {
-        int width = game.getWidth();
-        int height = game.getHeight();
-        int[][] tileRatings = new int[height][width];
-        for(int i = 0; i < height; i++) {
-            for(int j = 0; j < width; j++) {
-                if(game.getTile(new Coordinates(j, i)) == Tile.WALL){
-                    tileRatings[i][j] = 0;
-                    continue;
-                }
-                tileRatings[i][j] = calculateParicularTileRating(game, player, j, i);
-            }
-        }
-        return tileRatings;
-    }
-
-    /**
-     * Default tile rating: 1
-     * Checks all 4 angles on, whether they are only open in one direction
-     * Such angles are valuable, as tiles can "attack" in the angle but can not be "attacked"
-     * 1 bonuspoint for every angle, that fullfills the criterion
-     * Rating for WALLS: 0
-     * @param x X-coordinate
-     * @param y Y-coordinate
-     * @return Tile rating as an Integer
-     */
-    private static int calculateParicularTileRating(Game game, int player, int x, int y){
-        int tileRating = 1;
-        Direction[] halfOfAllDirections = Arrays.copyOfRange(Direction.values(),0, 4);
-        for(Direction direction : halfOfAllDirections) {
-            TileReader tileReader = new TileReader(game, new Coordinates(x, y), direction);
-            TileReader oppositeDirectionTileReader =
-                    new TileReader(game, new Coordinates(x, y), direction.getOppositeDirection());
-            if(tileReader.hasNext() && !oppositeDirectionTileReader.hasNext()){
-                tileRating++;
-                continue;
-            }
-            if(!tileReader.hasNext() && oppositeDirectionTileReader.hasNext()){
-                tileRating++;
-            }
-        }
-        return tileRating;
     }
 
     /**
@@ -171,8 +115,7 @@ public class GameEvaluator {
 
     /**
      * Prints the player ratings by type
-     */
-    /*
+     *//*
     public void printRatings() {
         for (AbstractRating rating : ratings) {
             if (rating.getMapTileRatings().isEmpty()) {
