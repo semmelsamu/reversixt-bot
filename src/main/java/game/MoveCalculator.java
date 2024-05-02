@@ -39,7 +39,7 @@ public final class MoveCalculator {
             default -> logger.error("No valid game phase to calculate moves for");
         }
 
-        logger.debug(result.size() + "valid moves for Player " + player + ":\n" +
+        logger.debug(result.size() + " valid moves for Player " + player + ":\n" +
                 result.stream().map(move -> "    " + move).collect(Collectors.joining("\n")));
 
         return result;
