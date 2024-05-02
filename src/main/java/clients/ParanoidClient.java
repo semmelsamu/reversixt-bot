@@ -86,7 +86,7 @@ public class ParanoidClient implements Client {
             if (depth > 0 && clonedGame.getPhase() == GamePhase.PHASE_1) {
                 score = minmax(clonedGame, player, depth).getValue();
             } else {
-                score = (new GameEvaluator(game, player)).evaluate();
+                score = GameEvaluator.evaluate(game, player);
                 numberOfGamesEvaluated++;
             }
 

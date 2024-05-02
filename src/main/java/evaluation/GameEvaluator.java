@@ -1,6 +1,9 @@
 package evaluation;
 
-import board.*;
+import board.Coordinates;
+import board.Direction;
+import board.Tile;
+import board.TileReader;
 import game.Game;
 import game.MoveCalculator;
 
@@ -11,32 +14,20 @@ import java.util.Arrays;
  */
 public class GameEvaluator {
 
-    //private int playerRating;
-
-    private final Game game;
-    private final int player;
-    private final int[][] tileRatings; //TODO: should be placed in a higher standing class, as it is valid for the whole game
-
-    // needs to be list for sorting reason
-    //private List<AbstractRating> ratings;
-
-    public GameEvaluator(Game game, int player) {
-        this.game = game;
-        this.player = player;
-        tileRatings = calculateTileRatings();
-        //registerCriteria();
-    }
+    // TODO: should be placed in a higher standing class, as it is valid for the whole game
+    // private static int[][] tileRatings;
 
     /**
      * @return Evaluation for the current game situation
      */
-    public int evaluate() {
+    public static int evaluate(Game game, int player) {
+        // tileRatings = calculateTileRatings(game, player);
         double rating = 0;
-        rating += sumUpAllRatingsForOccupiedTiles();
-        rating += evaluateMobility();
-        rating += evaluateOverwriteStones(5);
+        // rating += sumUpAllRatingsForOccupiedTiles(game, player);
+        rating += evaluateMobility(game, player);
+        rating += evaluateOverwriteStones(game, player, 5);
         // As there are currently only bombs with radius 0 allowed, the value of bombs is only 1
-        rating += evaluateBombs(1);
+        rating += evaluateBombs(game, player, 1);
 
         return (int) rating;
     }
@@ -44,26 +35,26 @@ public class GameEvaluator {
     /**
      * OverwriteStones
      */
-    private int evaluateOverwriteStones(int valueOfOneStone){
+    private static int evaluateOverwriteStones(Game game, int player, int valueOfOneStone){
         return valueOfOneStone * game.getPlayer(player).getOverwriteStones();
     }
 
     /**
      *
      */
-    private int evaluateBombs(int valueOfOneStone){
+    private static int evaluateBombs(Game game, int player, int valueOfOneStone){
         return valueOfOneStone * game.getPlayer(player).getBombs();
     }
 
     /**
      * Mobility
      */
-    private double evaluateMobility(){
-        int x = getNumberOfValidMoves();
+    private static double evaluateMobility(Game game, int player){
+        int x = getNumberOfValidMoves(game, player);
         return 2 * logarithm(1.5, x + 0.5) + 0.25 * x - 3;
     }
 
-    private int getNumberOfValidMoves(){
+    private static int getNumberOfValidMoves(Game game, int player){
         MoveCalculator moveCalculator = new MoveCalculator(game);
         return moveCalculator.getValidMovesForPlayer(player).size();
     }
@@ -71,19 +62,21 @@ public class GameEvaluator {
     /**
      * TileRatings
      */
-    private int sumUpAllRatingsForOccupiedTiles() {
+    /*
+    private static int sumUpAllRatingsForOccupiedTiles(Game game, int player) {
         int sum = 0;
         for (Coordinates tile : game.getAllCoordinatesWhereTileIs(game.getPlayer(player).getPlayerValue())) {
             sum += tileRatings[tile.y][tile.x];
         }
         return sum;
     }
+     */
 
     /**
      * Calls calculateParticularTileRating(x, y) for each coordinate
      * @return Array of tileRatings
      */
-    private int[][] calculateTileRatings() {
+    private static int[][] calculateTileRatings(Game game, int player) {
         int width = game.getWidth();
         int height = game.getHeight();
         int[][] tileRatings = new int[height][width];
@@ -93,7 +86,7 @@ public class GameEvaluator {
                     tileRatings[i][j] = 0;
                     continue;
                 }
-                tileRatings[i][j] = calculateParicularTileRating(j, i);
+                tileRatings[i][j] = calculateParicularTileRating(game, player, j, i);
             }
         }
         return tileRatings;
@@ -109,7 +102,7 @@ public class GameEvaluator {
      * @param y Y-coordinate
      * @return Tile rating as an Integer
      */
-    private int calculateParicularTileRating(int x, int y){
+    private static int calculateParicularTileRating(Game game, int player, int x, int y){
         int tileRating = 1;
         Direction[] halfOfAllDirections = Arrays.copyOfRange(Direction.values(),0, 4);
         for(Direction direction : halfOfAllDirections) {
