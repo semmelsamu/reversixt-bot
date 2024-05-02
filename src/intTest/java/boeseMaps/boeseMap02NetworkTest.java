@@ -1,5 +1,6 @@
 package boeseMaps;
 
+import clients.ParanoidClient;
 import clients.RandomMoveClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,15 +15,21 @@ public class boeseMap02NetworkTest {
     private NetworkServerHelper server;
 
     @BeforeEach
-    public void setUp() throws NoSuchFieldException, IllegalAccessException {
+    public void setUp()
+            throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
         NetworkClientHelper.spyLogger();
+        server = new NetworkServerHelper();
+        server.startServer("maps/boeseMaps/boeseMap02.map");
     }
 
     @Test
     public void randomClient_test() throws InterruptedException, IOException {
-        server = new NetworkServerHelper();
-        server.startServer("maps/boeseMaps/boeseMap02.map");
         NetworkClientHelper.createNetworkClients(new RandomMoveClient(), 2);
+    }
+
+    @Test
+    public void paranoidClient_depth3_test() throws InterruptedException, IOException {
+        NetworkClientHelper.createNetworkClients(new ParanoidClient(3), 2);
     }
 
     @AfterEach
