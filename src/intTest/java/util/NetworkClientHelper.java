@@ -7,16 +7,11 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class NetworkClientHelper {
-
 
     private static Logger loggerSpy;
 
@@ -28,8 +23,9 @@ public class NetworkClientHelper {
 
         for (int i = 0; i < numClients; i++) {
             Thread clientThread = new Thread(() -> {
-                clients.add(client);
-                Launcher.launchClientOnNetwork(client, "127.0.0.1", 7777);
+                Client spy = spy(client);
+                clients.add(spy);
+                Launcher.launchClientOnNetwork(spy, "127.0.0.1", 7777);
             });
             threads.add(clientThread);
         }
@@ -54,17 +50,7 @@ public class NetworkClientHelper {
     }
 
     public static void validateMove(Move move) {
-        List<Move> moves = new ArrayList<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
-
-        for (Client client : clients) {
-            executorService.execute(() -> {
-                moves.add(client.sendMove(any(), move.getPlayerNumber()));
-            });
-        }
-
-        executorService.shutdown();
-
-        assertTrue(moves.contains(move), "Move was executed");
+        verify(clients.get(move.getPlayerNumber() - 1), times(1)).sendMove(any(),
+                eq(move.getPlayerNumber()));
     }
 }
