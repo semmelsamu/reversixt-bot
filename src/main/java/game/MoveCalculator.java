@@ -13,13 +13,7 @@ import java.util.stream.Collectors;
 
 public class MoveCalculator {
 
-    private Logger logger = new Logger(this.getClass().getName());
-
-    private Game game;
-
-    public MoveCalculator(Game game) {
-        this.game = game;
-    }
+    static Logger logger = new Logger(MoveCalculator.class.getName());
 
     /*
     |--------------------------------------------------------------------------
@@ -31,7 +25,7 @@ public class MoveCalculator {
      * @param playerNumber Number of player that moves are calculated for
      * @return All valid moves for this player
      */
-    public Set<Move> getValidMovesForPlayer(int playerNumber) {
+    public static Set<Move> getValidMovesForPlayer(Game game, int playerNumber) {
 
         Player player = game.getPlayer(playerNumber);
 
@@ -40,8 +34,8 @@ public class MoveCalculator {
         Set<Move> result = new HashSet<>();
 
         switch (game.getPhase()) {
-            case PHASE_1 -> result.addAll(calculateAllColoringMoves(playerNumber));
-            case PHASE_2 -> result.addAll(getAllBombMoves(playerNumber));
+            case PHASE_1 -> result.addAll(calculateAllColoringMoves(game, playerNumber));
+            case PHASE_2 -> result.addAll(getAllBombMoves(game, playerNumber));
             default -> logger.error("No valid game phase to calculate moves for");
         }
 
@@ -51,7 +45,7 @@ public class MoveCalculator {
         return result;
     }
 
-    private Set<Move> calculateAllColoringMoves(int playerNumber) {
+    private static Set<Move> calculateAllColoringMoves(Game game, int playerNumber) {
         logger.verbose("Calculating all coloring moves");
 
         Player player = game.getPlayer(playerNumber);
@@ -67,7 +61,7 @@ public class MoveCalculator {
             for (Direction direction : Direction.values()) {
                 TileReader tileReader = new TileReader(game, occupiedTile, direction);
                 Set<Move> movesForPieceInDirection =
-                        getValidMovesForPieceInDirection(tileReader, playerNumber);
+                        getValidMovesForPieceInDirection(game, tileReader, playerNumber);
                 if (movesForPieceInDirection != null) {
                     moves.addAll(movesForPieceInDirection);
                 }
@@ -85,7 +79,7 @@ public class MoveCalculator {
         return moves;
     }
 
-    public Set<Move> getAllBombMoves(int player) {
+    private static Set<Move> getAllBombMoves(Game game, int player) {
         logger.verbose("Calculating all bomb moves");
 
         if (game.getPlayer(player).getBombs() == 0) {
@@ -114,12 +108,12 @@ public class MoveCalculator {
      * @param playerNumber Tile of player that moves are calculated for
      * @return Valid moves for one piece for one of eight directions
      */
-    private Set<Move> getValidMovesForPieceInDirection(TileReader tileReader, int playerNumber) {
+    private static Set<Move> getValidMovesForPieceInDirection(Game game, TileReader tileReader, int playerNumber) {
         Player player = game.getPlayer(playerNumber);
         Set<Move> movesPerDirection = new HashSet<>();
         // Coordinates of tile moves are searched for
         Coordinates ownTileCoordinates = tileReader.getCoordinates();
-        if (!isFirstNeighbourValid(tileReader, player.getPlayerValue())) {
+        if (!isFirstNeighbourValid(game, tileReader, player.getPlayerValue())) {
             return null;
         }
         // TileReader points on the first neighbour now!
@@ -194,7 +188,7 @@ public class MoveCalculator {
      * @param playerValue Tile of player that moves are calculated for
      * @return True if first neighbour allows moves, false if not
      */
-    private boolean isFirstNeighbourValid(TileReader tileReader, Tile playerValue) {
+    private static boolean isFirstNeighbourValid(Game game, TileReader tileReader, Tile playerValue) {
         Coordinates ownTileCoordinates = tileReader.getCoordinates();
         // Check if tile has a neighbour in this direction
         if (!tileReader.hasNext()) {

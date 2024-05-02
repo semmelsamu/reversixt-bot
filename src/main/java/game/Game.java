@@ -125,7 +125,7 @@ public class Game implements Cloneable {
             rotateCurrentPlayer();
 
             if (oldPlayer == currentPlayer &&
-                    (new MoveCalculator(this)).getValidMovesForPlayer(currentPlayer).isEmpty()) {
+                    MoveCalculator.getValidMovesForPlayer(this, currentPlayer).isEmpty()) {
                 if (gamePhase == GamePhase.PHASE_1) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
@@ -142,7 +142,7 @@ public class Game implements Cloneable {
                 }
             }
 
-        } while ((new MoveCalculator(this)).getValidMovesForPlayer(getCurrentPlayerNumber())
+        } while (MoveCalculator.getValidMovesForPlayer(this, getCurrentPlayerNumber())
                 .isEmpty() || getCurrentPlayer().isDisqualified());
 
         logger.verbose("Current player is now " + currentPlayer);

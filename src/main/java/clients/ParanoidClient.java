@@ -70,8 +70,7 @@ public class ParanoidClient implements Client {
         Move resultMove = null;
         int resultScore = max ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        Set<Move> possibleMoves =
-                (new MoveCalculator(game)).getValidMovesForPlayer(game.getCurrentPlayerNumber());
+        Set<Move> possibleMoves = MoveCalculator.getValidMovesForPlayer(game, game.getCurrentPlayerNumber());
 
         branchingFactors.add(possibleMoves.size());
 

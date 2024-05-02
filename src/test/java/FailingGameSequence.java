@@ -1,18 +1,12 @@
-import game.Game;
-import game.GameFactory;
-import game.MoveCalculator;
-import game.MoveExecutor;
-import game.Player;
-
 public class FailingGameSequence {
     public static void main(String[] args) {
 
+        /*
         Game game = GameFactory.createFromFile("maps/initialMaps/infinity.map");
         MoveExecutor moveExecutor = new MoveExecutor(game);
         MoveCalculator moveCalculator = new MoveCalculator(game);
         Player player1 = game.getPlayer(1);
         Player player2 = game.getPlayer(2);
-        /*
         moveExecutor.executeMove(new NormalMove(player1, new Coordinates(5, 1)));
         moveExecutor.executeMove(new NormalMove(player2, new Coordinates(6, 1)));
         moveExecutor.executeMove(new NormalMove(player1, new Coordinates(5, 1)));

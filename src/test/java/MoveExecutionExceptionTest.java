@@ -1,8 +1,8 @@
 import game.Game;
 import game.GameFactory;
 import game.MoveCalculator;
-import org.junit.jupiter.api.Test;
 import move.Move;
+import org.junit.jupiter.api.Test;
 import util.File;
 import util.Logger;
 import util.MoveExecutorHelper;
@@ -17,7 +17,7 @@ public class MoveExecutionExceptionTest {
         for (String map : File.getAllMaps()) {
             Game game = GameFactory.createFromFile(map);
 
-            for (Move move : (new MoveCalculator(game).getValidMovesForPlayer(1))) {
+            for (Move move : (MoveCalculator.getValidMovesForPlayer(game, 1))) {
                 Game testCase = GameFactory.createFromFile(map);
 
                 assertDoesNotThrow(

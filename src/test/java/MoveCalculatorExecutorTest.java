@@ -4,8 +4,8 @@ import game.Game;
 import game.GameFactory;
 import game.MoveCalculator;
 import game.MoveExecutor;
-import org.junit.jupiter.api.Test;
 import move.Move;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,9 +91,8 @@ public class MoveCalculatorExecutorTest {
 
                 Game game = GameFactory.createFromFile(testExpectation.getKey());
 
-                MoveCalculator moveCalculator = new MoveCalculator(game);
                 var calculatedMoves =
-                        moveCalculator.getValidMovesForPlayer(validMove.getKey().getPlayerNumber());
+                        MoveCalculator.getValidMovesForPlayer(game, validMove.getKey().getPlayerNumber());
 
                 assertTrue(calculatedMoves.contains(validMove.getKey()));
 

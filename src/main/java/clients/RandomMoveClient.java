@@ -1,6 +1,7 @@
 package clients;
 
-import game.*;
+import game.Game;
+import game.MoveCalculator;
 import move.Move;
 import util.Logger;
 import util.SetUtils;
@@ -18,10 +19,8 @@ public class RandomMoveClient implements Client {
     @Override
     public Move sendMove(Game game, int player) {
 
-        MoveCalculator moveCalculator = new MoveCalculator(game);
-
         Set<Move> possibleMoves =
-                new HashSet<>(moveCalculator.getValidMovesForPlayer(player));
+                new HashSet<>(MoveCalculator.getValidMovesForPlayer(game, player));
 
         if (possibleMoves.isEmpty()) {
             throw new RuntimeException("Could not calculate any possible moves :(");
