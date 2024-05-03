@@ -1,8 +1,6 @@
+import clients.OptimizedParanoidClient;
 import clients.ParanoidClient;
-import exercises.Exercise01;
-import exercises.Exercise02;
-import exercises.Exercise04;
-import exercises.Exercise05;
+import exercises.*;
 import game.Game;
 import util.CommandLineArguments;
 import util.CommandLineArguments.Argument;
@@ -24,7 +22,9 @@ public class Main {
             case 1 -> Exercise01.aufgabe3();
             case 2 -> Exercise02.aufgabe3();
             case 3 -> Exercise04.abnahme(cla.getString(Argument.IP), cla.getInt(Argument.PORT));
-            default -> Exercise05.abnahme(cla.getString(Argument.IP), cla.getInt(Argument.PORT),
+            case 5 -> Exercise05.abnahme(cla.getString(Argument.IP), cla.getInt(Argument.PORT),
+                    cla.getInt(Argument.DEPTH));
+            default -> Exercise06.abnahme(cla.getString(Argument.IP), cla.getInt(Argument.PORT),
                     cla.getInt(Argument.DEPTH));
         }
 
