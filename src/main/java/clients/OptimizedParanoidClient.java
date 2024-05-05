@@ -17,11 +17,6 @@ public class OptimizedParanoidClient implements Client {
 
     Logger logger = new Logger(this.getClass().getName());
 
-    private long numberOfStatesVisited;
-    private long numberOfGamesEvaluated;
-
-    private List<Integer> branchingFactors;
-
     private int depth;
 
     public OptimizedParanoidClient(int depth) {
@@ -40,21 +35,16 @@ public class OptimizedParanoidClient implements Client {
             return null;
         }
 
-        numberOfStatesVisited = 0;
-        numberOfGamesEvaluated = 0;
-        branchingFactors = new LinkedList<>();
+        initializeStats();
 
         logger.log("Calculating new move");
 
-        Map.Entry<Move, Integer> result = minmax(game, player, depth, Integer.MIN_VALUE,
-                Integer.MAX_VALUE);
+        Map.Entry<Move, Integer> result =
+                minmax(game, player, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
         logger.log("Done");
-        logger.verbose("Possible moves: " + branchingFactors.get(0));
-        logger.verbose("Visited " + numberOfStatesVisited + " possible states");
-        logger.verbose("Evaluated " + numberOfGamesEvaluated + " games");
-        logger.verbose("Average branching factor: " +
-                branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0.0));
+
+        logStats();
 
         logger.log("Responding with " + result.getKey().getClass().getSimpleName() +
                 result.getKey().getCoordinates() + " which has a score of " + result.getValue());
@@ -64,13 +54,14 @@ public class OptimizedParanoidClient implements Client {
     }
 
     /**
-     *
      * @param depth Depth of tree that is built
      * @param alpha Lowest value that is allowed by Max
-     * @param beta Highest value that is allowed by Min
+     * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
     private Map.Entry<Move, Integer> minmax(Game game, int player, int depth, int alpha, int beta) {
+
+        long startTime; // For logging stats
 
         depth--;
 
@@ -79,30 +70,42 @@ public class OptimizedParanoidClient implements Client {
         Move resultMove = null;
         int resultScore = max ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        Set<Move> possibleMoves = MoveCalculator.getValidMovesForPlayer(game, game.getCurrentPlayerNumber());
+        startTime = System.nanoTime(); // For logging stats
+        Set<Move> possibleMoves =
+                MoveCalculator.getValidMovesForPlayer(game, game.getCurrentPlayerNumber());
+        stats_calculationTime += (System.nanoTime() - startTime); // For logging stats
 
-        branchingFactors.add(possibleMoves.size());
+        stats_branchingFactors.add(possibleMoves.size()); // For logging stats
 
         for (Move move : possibleMoves) {
 
+            startTime = System.nanoTime(); // For logging stats
             Game clonedGame = game.clone();
+            stats_cloningTime += (System.nanoTime() - startTime); // For logging stats
 
+            startTime = System.nanoTime(); // For logging stats
             MoveExecutor.executeMove(clonedGame, move);
-            numberOfStatesVisited++;
+            stats_executionTime += (System.nanoTime() - startTime); // For logging stats
+
+            stats_gamesVisited++; // For logging stats
 
             int score;
             if (depth > 0 && clonedGame.getPhase() == GamePhase.PHASE_1) {
                 score = minmax(clonedGame, player, depth, alpha, beta).getValue();
             } else {
+                startTime = System.nanoTime(); // For logging stats
                 score = GameEvaluator.evaluate(game, player);
-                numberOfGamesEvaluated++;
+                stats_evaluationTime += (System.nanoTime() - startTime); // For logging stats
+                stats_gamesEvaluated++; // For logging stats
             }
 
             if (max && (score > resultScore)) {
                 resultScore = score;
                 resultMove = move;
                 alpha = Math.max(alpha, resultScore);
-                if(resultScore >= beta){
+                // Max-Skip
+                if (resultScore >= beta) {
+                    stats_maxSkips++; // For logging stats
                     break;
                 }
             }
@@ -110,7 +113,9 @@ public class OptimizedParanoidClient implements Client {
                 resultScore = score;
                 resultMove = move;
                 beta = Math.min(beta, resultScore);
-                if(resultScore <= alpha){
+                // Min-Skip
+                if (resultScore <= alpha) {
+                    stats_minSkips++; // For logging stats
                     break;
                 }
             }
@@ -121,6 +126,72 @@ public class OptimizedParanoidClient implements Client {
         assert resultMove != null;
 
         return Map.entry(resultMove, resultScore);
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Stats
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    private int stats_gamesVisited;
+    private int stats_gamesEvaluated;
+
+    private int stats_minSkips;
+    private int stats_maxSkips;
+
+    private int stats_evaluationTime;
+    private long stats_cloningTime;
+    private long stats_calculationTime;
+    private long stats_executionTime;
+
+    private List<Integer> stats_branchingFactors;
+
+    private void initializeStats() {
+        stats_branchingFactors = new LinkedList<>();
+        stats_gamesVisited = 0;
+        stats_gamesEvaluated = 0;
+        stats_minSkips = 0;
+        stats_maxSkips = 0;
+        stats_evaluationTime = 0;
+        stats_cloningTime = 0;
+        stats_calculationTime = 0;
+        stats_executionTime = 0;
+    }
+
+    private void logStats() {
+
+        logger.verbose("Stats:");
+
+        logger.verbose("Possible moves: " + stats_branchingFactors.get(0));
+
+        logger.verbose("Games visited: " + stats_gamesVisited);
+        logger.verbose("Total cloning time: " + stats_cloningTime / 1_000_000 + "ms");
+        logger.verbose("Average cloning time per game: " +
+                (float) stats_cloningTime / (float) stats_gamesVisited / 1_000_000 + "ms");
+
+        logger.verbose("Total move calculation time: " + stats_calculationTime / 1_000_000 + "ms");
+        logger.verbose("Average calculation time per move: " +
+                (float) stats_calculationTime / (float) stats_gamesVisited / 1_000_000 + "ms");
+
+        logger.verbose("Total move execution time: " + stats_executionTime / 1_000_000 + "ms");
+        logger.verbose("Average calculation time per move: " +
+                (float) stats_executionTime / (float) stats_gamesVisited / 1_000_000 + "ms");
+
+        logger.verbose("Average branching factor: " +
+                stats_branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0.0));
+
+        logger.verbose(
+                "Min-Skips: " + stats_minSkips + ", Max-Skips: " + stats_maxSkips + ", Total: " +
+                        (stats_minSkips + stats_maxSkips));
+
+        logger.verbose("Games evaluated: " + stats_gamesEvaluated);
+        logger.verbose("Total evaluation time: " + stats_evaluationTime / 1_000_000 + "ms");
+        logger.verbose("Average evaluation time per game: " +
+                (float) stats_evaluationTime / (float) stats_gamesEvaluated / 1_000_000 + "ms");
+
     }
 
 }
