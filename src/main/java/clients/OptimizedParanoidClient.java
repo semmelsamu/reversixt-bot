@@ -62,6 +62,13 @@ public class OptimizedParanoidClient implements Client {
 
     }
 
+    /**
+     *
+     * @param depth Depth of tree that is built
+     * @param alpha Lowest value that is allowed by Max
+     * @param beta Highest value that is allowed by Min
+     * @return Best move with the belonging score
+     */
     private Map.Entry<Move, Integer> minmax(Game game, int player, int depth, int alpha, int beta) {
 
         depth--;
