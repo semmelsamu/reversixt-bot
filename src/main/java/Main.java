@@ -15,6 +15,7 @@ public class Main {
         Logger.defaultPriority = cla.getInt(Argument.LOGGER_DEFAULT_PRIORITY);
         Logger.setPriority(Game.class.getName(), 3);
         Logger.setPriority(ParanoidClient.class.getName(), 1);
+        Logger.setPriority(OptimizedParanoidClient.class.getName(), 1);
 
         // Launch whatever
 
