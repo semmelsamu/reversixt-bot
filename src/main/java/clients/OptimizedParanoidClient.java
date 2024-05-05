@@ -50,6 +50,7 @@ public class OptimizedParanoidClient implements Client {
                 Integer.MAX_VALUE);
 
         logger.log("Done");
+        logger.verbose("Possible moves: " + branchingFactors.get(0));
         logger.verbose("Visited " + numberOfStatesVisited + " possible states");
         logger.verbose("Evaluated " + numberOfGamesEvaluated + " games");
         logger.verbose("Average branching factor: " +
