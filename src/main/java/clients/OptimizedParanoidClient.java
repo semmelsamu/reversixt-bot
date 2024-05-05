@@ -136,13 +136,15 @@ public class OptimizedParanoidClient implements Client {
     |-----------------------------------------------------------------------------------------------
     */
 
+    private long stats_totalTime;
+
     private int stats_gamesVisited;
     private int stats_gamesEvaluated;
 
     private int stats_minSkips;
     private int stats_maxSkips;
 
-    private int stats_evaluationTime;
+    private long stats_evaluationTime;
     private long stats_cloningTime;
     private long stats_calculationTime;
     private long stats_executionTime;
@@ -159,11 +161,14 @@ public class OptimizedParanoidClient implements Client {
         stats_cloningTime = 0;
         stats_calculationTime = 0;
         stats_executionTime = 0;
+        stats_totalTime = System.nanoTime();
     }
 
     private void logStats() {
 
         logger.verbose("Stats:");
+
+        logger.verbose("Total time: " + (System.nanoTime() - stats_totalTime) / 1_000_000 + "ms");
 
         logger.verbose("Possible moves: " + stats_branchingFactors.get(0));
 
