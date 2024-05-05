@@ -272,6 +272,7 @@ public class Game implements Cloneable {
             }
 
             clone.gameStats = this.gameStats.clone();
+            clone.staticGameStats = this.staticGameStats;
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
