@@ -137,8 +137,8 @@ public class Logger {
         // lastTimeActive = currentTime;
 
         // Print
-        System.out.println(
-                "[" + callerString + "]  " + (useColors ? color : "") + message + ANSI_RESET);
+        System.out.println("[" + callerString + "]  " + (useColors ? color : "") + message +
+                (useColors ? ANSI_RESET : ""));
     }
 
 
