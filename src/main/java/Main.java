@@ -17,6 +17,8 @@ public class Main {
         Logger.setPriority(ParanoidClient.class.getName(), 1);
         Logger.setPriority(OptimizedParanoidClient.class.getName(), 1);
 
+        Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
+
         // Launch whatever
 
         switch (cla.getInt(Argument.EXERCISE)) {

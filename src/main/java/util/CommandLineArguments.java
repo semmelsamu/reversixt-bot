@@ -6,8 +6,6 @@ import java.util.Map;
 
 public class CommandLineArguments {
 
-    Logger logger = new Logger(this.getClass().getName());
-
     public enum Argument {
 
         IP("i", "127.0.0.1"),
@@ -35,8 +33,6 @@ public class CommandLineArguments {
     Map<String, String> values;
 
     public CommandLineArguments(String[] args) {
-
-        this.logger.log("Arguments: " + String.join(" ", args));
 
         values = new HashMap<>();
 
