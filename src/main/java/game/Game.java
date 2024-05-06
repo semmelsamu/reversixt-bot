@@ -25,26 +25,6 @@ public class Game implements Cloneable {
     */
 
     /**
-     * The number of players this game usually starts with.
-     */
-    //private final int initialPlayers;
-
-    /**
-     * The number of overwrite stones each player has in the beginning.
-     */
-    //private final int initialOverwriteStones;
-
-    /**
-     * The number of bombs each player has in the beginning.
-     */
-    //private final int initialBombs;
-
-    /**
-     * The amount of steps from the center of the explosion a bomb blows tiles up.
-     */
-    //private final int bombRadius;
-
-    /**
      * The actual game board.
      */
     private Board board;
@@ -59,6 +39,9 @@ public class Game implements Cloneable {
      */
     public GameStats gameStats;
 
+    /**
+     * The container for all stats that are valid for the whole game
+     */
     public StaticGameStats staticGameStats;
 
     private int currentPlayer;
