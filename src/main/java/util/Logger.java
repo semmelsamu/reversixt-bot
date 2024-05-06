@@ -1,6 +1,5 @@
 package util;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -129,17 +128,17 @@ public class Logger {
         String callerString = caller.getClassName() + ":" + caller.getMethodName();
 
         // Get date
-        Date currentDate = new Date();
+        // Date currentDate = new Date();
 
         // Get elapsed time
-        long currentTime = System.nanoTime();
-        long timeElapsed = currentTime - lastTimeActive;
-        int timeElapsedMs = (int) (timeElapsed / 1_000_000);
-        lastTimeActive = currentTime;
+        // long currentTime = System.nanoTime();
+        // long timeElapsed = currentTime - lastTimeActive;
+        // int timeElapsedMs = (int) (timeElapsed / 1_000_000);
+        // lastTimeActive = currentTime;
 
         // Print
-        System.out.println("[" + callerString + "]  " + (useColors ? color : "") + message +
-                (useColors ? ANSI_RESET : "") + "  " + timeElapsedMs + "ms");
+        System.out.println(
+                "[" + callerString + "]  " + (useColors ? color : "") + message + ANSI_RESET);
     }
 
 
