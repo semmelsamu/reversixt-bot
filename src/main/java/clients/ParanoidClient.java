@@ -17,6 +17,7 @@ public class ParanoidClient implements Client {
 
     Logger logger = new Logger(this.getClass().getName());
 
+    private long stats_totalTime;
     private long numberOfStatesVisited;
     private long numberOfGamesEvaluated;
 
@@ -40,6 +41,7 @@ public class ParanoidClient implements Client {
             return null;
         }
 
+        stats_totalTime = System.nanoTime();
         numberOfStatesVisited = 0;
         numberOfGamesEvaluated = 0;
         branchingFactors = new LinkedList<>();
@@ -48,7 +50,7 @@ public class ParanoidClient implements Client {
 
         Map.Entry<Move, Integer> result = minmax(game, player, depth);
 
-        logger.log("Done");
+        logger.log("Done (" + ((System.nanoTime() - stats_totalTime) / 1_000_000) + "ms)");
         logger.verbose("Visited " + numberOfStatesVisited + " possible states");
         logger.verbose("Evaluated " + numberOfGamesEvaluated + " games");
         logger.verbose("Average branching factor: " +
