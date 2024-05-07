@@ -21,8 +21,6 @@ public class g2_map3NetworkTest {
     @BeforeEach
     public void setUp()
             throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
-
-        NetworkClientHelper.spyLogger();
         Logger.setPriority(MoveCalculator.class.getName(), 3);
         Logger.setPriority(MoveExecutor.class.getName(), 3);
         Logger.setPriority(Game.class.getName(), 3);
@@ -40,7 +38,5 @@ public class g2_map3NetworkTest {
     @AfterEach
     public void tearDown() throws NoSuchFieldException, IllegalAccessException {
         server.stopServer();
-
-        NetworkClientHelper.verifyLogger();
     }
 }

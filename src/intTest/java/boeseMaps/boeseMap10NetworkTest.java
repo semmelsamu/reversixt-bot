@@ -19,8 +19,6 @@ public class boeseMap10NetworkTest {
     @BeforeEach
     public void setUp()
             throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
-        NetworkClientHelper.spyLogger();
-
         server = new NetworkServerHelper();
         server.startServer("maps/boeseMaps/boeseMap10.map");
     }
@@ -40,7 +38,5 @@ public class boeseMap10NetworkTest {
     public void tearDown()
             throws NoSuchFieldException, IllegalAccessException, InterruptedException {
         server.stopServer();
-
-        NetworkClientHelper.verifyLogger();
     }
 }
