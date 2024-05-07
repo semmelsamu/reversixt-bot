@@ -8,94 +8,74 @@ import game.MoveExecutor;
 import move.Move;
 import util.Logger;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-public class ParanoidClient implements Client {
+public class ParanoidClient extends Client {
 
     Logger logger = new Logger(this.getClass().getName());
-
-    private long stats_totalTime;
-    private long numberOfStatesVisited;
-    private long numberOfGamesEvaluated;
-
-    private List<Integer> branchingFactors;
 
     public ParanoidClient() {
         logger.log("Launching Paranoid Client");
     }
 
     @Override
-    public Move sendMove(Game game, int player, int timeLimit, int depthLimit) {
+    public Move sendMove(int timeLimit, int depthLimit) {
 
         if (game.getPhase() == GamePhase.END) {
-            logger.error("Move was requested but we think the game already ended");
-            return null;
+            throw new RuntimeException("Move was requested but we think the game already ended");
         }
 
-        stats_totalTime = System.nanoTime();
-        numberOfStatesVisited = 0;
-        numberOfGamesEvaluated = 0;
-        branchingFactors = new LinkedList<>();
+        Set<Move> possibleMoves = MoveCalculator.getValidMovesForPlayer(game, ME);
 
-        logger.log("Calculating new move (time/depth) " + timeLimit + " " + depthLimit);
+        if(possibleMoves.isEmpty()) {
+            throw new RuntimeException("Could not calculate any possible moves");
+        }
 
-        Map.Entry<Move, Integer> result = minmax(game, player, depthLimit);
-
-        logger.log("Done (" + ((System.nanoTime() - stats_totalTime) / 1_000_000) + "ms)");
-        logger.verbose("Visited " + numberOfStatesVisited + " possible states");
-        logger.verbose("Evaluated " + numberOfGamesEvaluated + " games");
-        logger.verbose("Average branching factor: " +
-                branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0.0));
-
-        logger.log("Responding with " + result.getKey().getClass().getSimpleName() +
-                result.getKey().getCoordinates() + " which has a score of " + result.getValue());
-
-        return result.getKey();
-
-    }
-
-    private Map.Entry<Move, Integer> minmax(Game game, int player, int depth) {
-
-        depth--;
-
-        boolean max = player == game.getCurrentPlayerNumber();
-
+        int resultScore = Integer.MIN_VALUE;
         Move resultMove = null;
-        int resultScore = max ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        Set<Move> possibleMoves = MoveCalculator.getValidMovesForPlayer(game, game.getCurrentPlayerNumber());
-
-        branchingFactors.add(possibleMoves.size());
-
-        for (Move move : possibleMoves) {
+        for(Move move : possibleMoves) {
 
             Game clonedGame = game.clone();
-
             MoveExecutor.executeMove(clonedGame, move);
-            numberOfStatesVisited++;
+            int score = minmax(clonedGame, depthLimit);
 
-            int score;
-            if (depth > 0 && clonedGame.getPhase() == GamePhase.PHASE_1) {
-                score = minmax(clonedGame, player, depth).getValue();
-            } else {
-                score = GameEvaluator.evaluate(game, player);
-                numberOfGamesEvaluated++;
-            }
-
-            if (max ? (score > resultScore) : (score < resultScore)) {
+            if(score > resultScore) {
                 resultScore = score;
                 resultMove = move;
             }
         }
 
-        // This should never happen because if we have no moves
-        // the game would be evaluated instantly
-        assert resultMove != null;
-
-        return Map.entry(resultMove, resultScore);
+        return resultMove;
     }
 
+    private int minmax(Game game, int depth) {
+
+        if(depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
+            return GameEvaluator.evaluate(game, ME);
+        }
+
+        boolean isMaximizer = game.getCurrentPlayerNumber() == ME;
+
+        int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        for(Move move : MoveCalculator.getValidMovesForPlayer(game, ME)) {
+
+            Game clonedGame = game.clone();
+            MoveExecutor.executeMove(game, move);
+            int score = minmax(clonedGame, depth - 1);
+
+            if(isMaximizer) {
+                if(score > result)
+                    result = score;
+            }
+            else {
+                if(score < result)
+                    result = score;
+            }
+
+        }
+
+        return result;
+    }
 }

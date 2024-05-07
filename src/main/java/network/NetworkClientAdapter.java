@@ -17,8 +17,9 @@ public class NetworkClientAdapter implements NetworkClient {
     private final Client client;
 
     private Game game;
-    private MoveExecutor moveExecutor;
     private int player;
+
+    private MoveExecutor moveExecutor;
 
     /**
      * Adapt a Client to work with the NetworkClient aka the NetworkEventHandler, which
@@ -37,16 +38,18 @@ public class NetworkClientAdapter implements NetworkClient {
     public void receiveMap(String map) {
         this.game = GameFactory.createFromString(map);
         logger.log(game.toString());
+        client.setGame(game);
     }
 
     @Override
     public void receivePlayerNumber(byte player) {
         this.player = player;
+        client.setPlayer(player);
     }
 
     @Override
     public MoveAnswer sendMoveAnswer(int timeLimit, byte depthLimit) {
-        Move result = client.sendMove(game, player, timeLimit, depthLimit);
+        Move result = client.sendMove(timeLimit, depthLimit);
 
         short x = (short) result.getCoordinates().x;
         short y = (short) result.getCoordinates().y;
@@ -91,10 +94,7 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveDisqualification(byte player) {
-        game.getPlayer(player).disqualify();
-        if(game.getCurrentPlayer().isDisqualified()) {
-            game.nextPlayer();
-        }
+        game.disqualifyPlayer(player);
         logger.log(game.toString());
     }
 
