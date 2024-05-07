@@ -140,6 +140,13 @@ public class Game implements Cloneable {
         return currentPlayer;
     }
 
+    public void disqualifyPlayer(int player) {
+        getPlayer(player).disqualify();
+        if(getCurrentPlayer().isDisqualified()) {
+            nextPlayer();
+        }
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
