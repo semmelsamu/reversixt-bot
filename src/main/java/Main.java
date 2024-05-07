@@ -25,10 +25,8 @@ public class Main {
             case 1 -> Exercise01.aufgabe3();
             case 2 -> Exercise02.aufgabe3();
             case 3 -> Exercise04.abnahme(cla.getString(Argument.IP), cla.getInt(Argument.PORT));
-            case 5 -> Exercise05.abnahme(cla.getString(Argument.IP), cla.getInt(Argument.PORT),
-                    cla.getInt(Argument.DEPTH));
-            default -> Exercise06.abnahme(cla.getString(Argument.IP), cla.getInt(Argument.PORT),
-                    cla.getInt(Argument.DEPTH));
+            case 5 -> Exercise05.abnahme(cla.getString(Argument.IP), cla.getInt(Argument.PORT));
+            default -> Exercise06.abnahme(cla.getString(Argument.IP), cla.getInt(Argument.PORT));
         }
 
     }

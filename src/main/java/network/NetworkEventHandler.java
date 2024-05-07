@@ -1,11 +1,11 @@
 package network;
 
 import util.Logger;
-import util.LoggerUtils;
 
-import java.io.*;
-import java.net.*;
-import java.util.Arrays;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 
 /**
  * Manages the communication between a client and a server via a network socket.
@@ -72,10 +72,6 @@ public class NetworkEventHandler {
 
             int messageType = in.readByte();
             int length = in.readInt();
-            byte[] message = new byte[length];
-            in.readFully(message);
-
-            logger.debug("Message (Length " + length + "): " + Arrays.toString(message));
 
             Logger.newline();
 
@@ -86,23 +82,31 @@ public class NetworkEventHandler {
 
 
                 case 2: // Server sends map
+                    byte[] map = new byte[length];
+                    in.readFully(map);
                     logger.log("Receiving map");
-                    networkClient.receiveMap(new String(message));
+                    networkClient.receiveMap(new String(map));
                     break;
 
 
                 case 3: // Server assigns player number
-                    playerNumber = message[0];
+
+                    playerNumber = in.readByte();
+
                     logger.log("Receiving player number " + playerNumber);
                     networkClient.receivePlayerNumber(playerNumber);
                     break;
 
 
                 case 4: // Server requests move
-                    logger.log("Server requests move");
+
+                    int timeLimit = in.readInt();
+                    byte depthLimit = in.readByte();
+
+                    logger.log("Server requests move (time/depth) " + timeLimit + " " + depthLimit);
 
                     // Get move answer
-                    MoveAnswer answer = networkClient.sendMoveAnswer();
+                    MoveAnswer answer = networkClient.sendMoveAnswer(timeLimit, depthLimit);
 
                     // Write
                     out.writeByte(5); // Message type
@@ -119,13 +123,10 @@ public class NetworkEventHandler {
 
                 case 6: // Server sends move from other player
 
-                    // Extract message byte stream to primitives
-                    short x = (short) ((message[0] << 8) & 0xFF00);
-                    x |= (message[1] & 0xFF);
-                    short y = (short) ((message[2] << 8) & 0xFF00);
-                    y |= (message[3] & 0xFF);
-                    byte type = message[4];
-                    byte player = message[5];
+                    short x = in.readShort();
+                    short y = in.readShort();
+                    byte type = in.readByte();
+                    byte player = in.readByte();
 
                     logger.log("Receiving move (" + x + "/" + y + ") type=" + type + " player=" +
                             player);
@@ -138,9 +139,11 @@ public class NetworkEventHandler {
 
                 case 7: // Server disqualifies
 
-                    byte disqualifiedPlayer = message[0];
+                    byte disqualifiedPlayer = in.readByte();
+
                     logger.log("Receiving disqualification of player " + disqualifiedPlayer);
                     networkClient.receiveDisqualification(disqualifiedPlayer);
+
                     if (disqualifiedPlayer == playerNumber) {
                         logger.error("Client got disqualified");
                         disconnect();

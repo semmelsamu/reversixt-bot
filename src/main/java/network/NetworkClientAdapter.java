@@ -45,8 +45,8 @@ public class NetworkClientAdapter implements NetworkClient {
     }
 
     @Override
-    public MoveAnswer sendMoveAnswer() {
-        Move result = client.sendMove(game, player);
+    public MoveAnswer sendMoveAnswer(int timeLimit, byte depthLimit) {
+        Move result = client.sendMove(game, player, timeLimit, depthLimit);
 
         short x = (short) result.getCoordinates().x;
         short y = (short) result.getCoordinates().y;

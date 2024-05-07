@@ -11,7 +11,7 @@ public interface NetworkClient {
 
     void receivePlayerNumber(byte player);
 
-    MoveAnswer sendMoveAnswer();
+    MoveAnswer sendMoveAnswer(int timeLimit, byte depthLimit);
 
     void receiveMove(short x, short y, byte type, byte player);
 

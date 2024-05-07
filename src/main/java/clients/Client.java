@@ -8,6 +8,6 @@ import move.Move;
  */
 public interface Client {
 
-    Move sendMove(Game game, int player);
+    Move sendMove(Game game, int player, int timeLimit, int depthLimit);
 
 }
