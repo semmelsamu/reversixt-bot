@@ -20,7 +20,7 @@ public class boeseMap10NetworkTest {
     public void setUp()
             throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
         server = new NetworkServerHelper();
-        server.startServer("maps/boeseMaps/boeseMap10.map");
+        server.startServer("maps/boeseMaps/boeseMap10.map", 3);
     }
 
     @Test
@@ -30,7 +30,7 @@ public class boeseMap10NetworkTest {
 
     @Test
     public void paranoidClient_depth3_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new ParanoidClient(3), 3);
+        NetworkClientHelper.createNetworkClients(new ParanoidClient(), 3);
         NetworkClientHelper.validateMove(new InversionMove(1, new Coordinates(4, 4)));
     }
 

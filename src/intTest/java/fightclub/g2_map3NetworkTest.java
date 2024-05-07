@@ -26,13 +26,13 @@ public class g2_map3NetworkTest {
         Logger.setPriority(Game.class.getName(), 3);
         Logger.setPriority(NetworkClientAdapter.class.getName(), 3);
         server = new NetworkServerHelper();
-        server.startServer("maps/fightclub/g2_map3.map");
+        server.startServer("maps/fightclub/g2_map3.map", 1);
     }
 
 
     @Test
     public void paranoidClient_depth3_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new ParanoidClient(1), 5);
+        NetworkClientHelper.createNetworkClients(new ParanoidClient(), 5);
     }
 
     @AfterEach

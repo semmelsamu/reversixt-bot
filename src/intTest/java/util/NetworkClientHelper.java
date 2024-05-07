@@ -3,21 +3,16 @@ package util;
 import clients.Client;
 import move.Move;
 import network.Launcher;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class NetworkClientHelper {
-
-
-    private static Logger loggerSpy;
 
     private static final List<Client> clients = new ArrayList<>();
 
@@ -27,8 +22,14 @@ public class NetworkClientHelper {
 
         for (int i = 0; i < numClients; i++) {
             Thread clientThread = new Thread(() -> {
-                clients.add(client);
-                Launcher.launchClientOnNetwork(client, "127.0.0.1", 7777);
+                try {
+                    Client spy = spy(client);
+                    clients.add(spy);
+                    Launcher.launchClientOnNetwork(spy, "127.0.0.1", 7777);
+                } catch (Exception e) {
+                    fail(e.getMessage());
+                }
+
             });
             threads.add(clientThread);
         }
@@ -42,27 +43,8 @@ public class NetworkClientHelper {
         }
     }
 
-    public static void spyLogger() throws NoSuchFieldException, IllegalAccessException {
-        loggerSpy = mock(Logger.class);
-    }
-
-    public static void verifyLogger() throws NoSuchFieldException, IllegalAccessException {
-        Mockito.verify(loggerSpy, Mockito.times(0)).error(anyString());
-        Mockito.verify(loggerSpy, Mockito.times(0)).fatal(anyString());
-    }
-
     public static void validateMove(Move move) {
-        List<Move> moves = new ArrayList<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
-
-        for (Client client : clients) {
-            executorService.execute(() -> {
-                moves.add(client.sendMove(0, 0));
-            });
-        }
-
-        executorService.shutdown();
-
-        assertTrue(moves.contains(move), "Move was executed");
+        verify(clients.get(move.getPlayerNumber() - 1), times(1)).sendMove(any(),
+                eq(move.getPlayerNumber()));
     }
 }

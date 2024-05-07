@@ -12,7 +12,7 @@ public class Server {
 
         Runtime.getRuntime().addShutdownHook(new Thread(helper::stopServer));
 
-        helper.startServer(map);
+        helper.startServer(map, 3);
 
     }
 }
