@@ -17,7 +17,7 @@ public class RandomMoveClient implements Client {
     Logger logger = new Logger(this.getClass().getName());
 
     @Override
-    public Move sendMove(Game game, int player) {
+    public Move sendMove(Game game, int player, int timeLimit, int depthLimit) {
 
         Set<Move> possibleMoves =
                 new HashSet<>(MoveCalculator.getValidMovesForPlayer(game, player));

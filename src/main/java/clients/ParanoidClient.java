@@ -22,18 +22,12 @@ public class ParanoidClient implements Client {
 
     private List<Integer> branchingFactors;
 
-    private int depth;
-
-    public ParanoidClient(int depth) {
-        if (depth < 1) {
-            throw new IllegalArgumentException("Depth must be 1 or greater");
-        }
-        logger.log("Launching Paranoid Client with depth limit " + depth);
-        this.depth = depth;
+    public ParanoidClient() {
+        logger.log("Launching Paranoid Client");
     }
 
     @Override
-    public Move sendMove(Game game, int player) {
+    public Move sendMove(Game game, int player, int timeLimit, int depthLimit) {
 
         if (game.getPhase() == GamePhase.END) {
             logger.error("Move was requested but we think the game already ended");
@@ -44,9 +38,9 @@ public class ParanoidClient implements Client {
         numberOfGamesEvaluated = 0;
         branchingFactors = new LinkedList<>();
 
-        logger.log("Calculating new move");
+        logger.log("Calculating new move (time/depth) " + timeLimit + " " + depthLimit);
 
-        Map.Entry<Move, Integer> result = minmax(game, player, depth);
+        Map.Entry<Move, Integer> result = minmax(game, player, depthLimit);
 
         logger.log("Done");
         logger.verbose("Visited " + numberOfStatesVisited + " possible states");

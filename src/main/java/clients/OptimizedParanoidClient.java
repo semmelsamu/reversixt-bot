@@ -17,18 +17,12 @@ public class OptimizedParanoidClient implements Client {
 
     Logger logger = new Logger(this.getClass().getName());
 
-    private int depth;
-
-    public OptimizedParanoidClient(int depth) {
-        if (depth < 1) {
-            throw new IllegalArgumentException("Depth must be 1 or greater");
-        }
-        logger.log("Launching Optimized Paranoid Client with depth limit " + depth);
-        this.depth = depth;
+    public OptimizedParanoidClient() {
+        logger.log("Launching Optimized Paranoid Client with depth limit");
     }
 
     @Override
-    public Move sendMove(Game game, int player) {
+    public Move sendMove(Game game, int player, int timeLimit, int depthLimit) {
 
         if (game.getPhase() == GamePhase.END) {
             logger.error("Move was requested but we think the game already ended");
@@ -37,10 +31,10 @@ public class OptimizedParanoidClient implements Client {
 
         initializeStats();
 
-        logger.log("Calculating new move");
+        logger.log("Calculating new move (time/depth) " + timeLimit + " " + depthLimit);
 
         Map.Entry<Move, Integer> result =
-                minmax(game, player, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                minmax(game, player, depthLimit, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
         logger.log("Done");
 
