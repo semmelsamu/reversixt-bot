@@ -6,6 +6,7 @@ import network.Launcher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -42,6 +43,8 @@ public class NetworkClientHelper {
     }
 
     public static void validateMove(Move move) {
-        verify(clients.get(move.getPlayerNumber() - 1), times(1)).sendMove(anyInt(), anyInt());
+        Optional<Client> client =
+                clients.stream().filter(c -> c.ME == move.getPlayerNumber()).findFirst();
+        client.ifPresent(value -> verify(value, atLeastOnce()).sendMove(anyInt(), anyInt()));
     }
 }

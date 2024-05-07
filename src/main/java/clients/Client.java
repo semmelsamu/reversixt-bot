@@ -10,7 +10,7 @@ public abstract class Client {
 
     protected Game game;
 
-    protected int ME;
+    public int ME;
 
     public void setGame(Game game) {
         this.game = game;
