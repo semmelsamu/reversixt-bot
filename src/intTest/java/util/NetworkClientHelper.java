@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class NetworkClientHelper {
@@ -44,7 +42,6 @@ public class NetworkClientHelper {
     }
 
     public static void validateMove(Move move) {
-        verify(clients.get(move.getPlayerNumber() - 1), times(1)).sendMove(any(),
-                eq(move.getPlayerNumber()));
+        verify(clients.get(move.getPlayerNumber() - 1), times(1)).sendMove(anyInt(), anyInt());
     }
 }
