@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class OptimizedParanoidClient implements Client {
+public class OptimizedParanoidClient extends Client {
 
     Logger logger = new Logger(this.getClass().getName());
 
@@ -22,7 +22,7 @@ public class OptimizedParanoidClient implements Client {
     }
 
     @Override
-    public Move sendMove(Game game, int player, int timeLimit, int depthLimit) {
+    public Move sendMove(int timeLimit, int depthLimit) {
 
         if (game.getPhase() == GamePhase.END) {
             logger.error("Move was requested but we think the game already ended");
@@ -34,7 +34,7 @@ public class OptimizedParanoidClient implements Client {
         logger.log("Calculating new move (time/depth) " + timeLimit + " " + depthLimit);
 
         Map.Entry<Move, Integer> result =
-                minmax(game, player, depthLimit, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                minmax(game, depthLimit, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
         logger.log("Done");
 
@@ -53,13 +53,13 @@ public class OptimizedParanoidClient implements Client {
      * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
-    private Map.Entry<Move, Integer> minmax(Game game, int player, int depth, int alpha, int beta) {
+    private Map.Entry<Move, Integer> minmax(Game game, int depth, int alpha, int beta) {
 
         long startTime; // For logging stats
 
         depth--;
 
-        boolean max = player == game.getCurrentPlayerNumber();
+        boolean max = ME == game.getCurrentPlayerNumber();
 
         Move resultMove = null;
         int resultScore = max ? Integer.MIN_VALUE : Integer.MAX_VALUE;
@@ -85,10 +85,10 @@ public class OptimizedParanoidClient implements Client {
 
             int score;
             if (depth > 0 && clonedGame.getPhase() == GamePhase.PHASE_1) {
-                score = minmax(clonedGame, player, depth, alpha, beta).getValue();
+                score = minmax(clonedGame, depth, alpha, beta).getValue();
             } else {
                 startTime = System.nanoTime(); // For logging stats
-                score = GameEvaluator.evaluate(game, player);
+                score = GameEvaluator.evaluate(game, ME);
                 stats_evaluationTime += (System.nanoTime() - startTime); // For logging stats
                 stats_gamesEvaluated++; // For logging stats
             }
@@ -176,7 +176,7 @@ public class OptimizedParanoidClient implements Client {
                 (float) stats_calculationTime / (float) stats_gamesVisited / 1_000_000 + "ms");
 
         logger.verbose("Total move execution time: " + stats_executionTime / 1_000_000 + "ms");
-        logger.verbose("Average calculation time per move: " +
+        logger.verbose("Average execution time per move: " +
                 (float) stats_executionTime / (float) stats_gamesVisited / 1_000_000 + "ms");
 
         logger.verbose("Average branching factor: " +

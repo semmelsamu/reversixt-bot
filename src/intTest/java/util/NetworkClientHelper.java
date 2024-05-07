@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 
 public class NetworkClientHelper {
@@ -58,7 +57,7 @@ public class NetworkClientHelper {
 
         for (Client client : clients) {
             executorService.execute(() -> {
-                moves.add(client.sendMove(any(), move.getPlayerNumber(), 0, 0));
+                moves.add(client.sendMove(0, 0));
             });
         }
 
