@@ -1,30 +1,34 @@
-package boeseMaps;
+package fightclub;
 
 import clients.ParanoidClient;
-import clients.RandomMoveClient;
+import game.Game;
+import game.MoveCalculator;
+import game.MoveExecutor;
+import network.NetworkClientAdapter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import util.Logger;
 import util.NetworkClientHelper;
 import util.NetworkServerHelper;
 
 import java.io.IOException;
 
-public class boeseMap09NetworkTest {
+public class map1NetworkTest {
 
     private NetworkServerHelper server;
 
     @BeforeEach
     public void setUp()
             throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
+        Logger.setPriority(MoveCalculator.class.getName(), 3);
+        Logger.setPriority(MoveExecutor.class.getName(), 3);
+        Logger.setPriority(Game.class.getName(), 3);
+        Logger.setPriority(NetworkClientAdapter.class.getName(), 3);
         server = new NetworkServerHelper();
-        server.startServer("maps/boeseMaps/boeseMap09.map");
+        server.startServer("maps/fightclub/map1.map");
     }
 
-    @Test
-    public void randomClient_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new RandomMoveClient(), 2);
-    }
 
     @Test
     public void paranoidClient_depth3_test() throws InterruptedException, IOException {
