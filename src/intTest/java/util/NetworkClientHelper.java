@@ -45,6 +45,10 @@ public class NetworkClientHelper {
     public static void validateMove(Move move) {
         Optional<Client> client =
                 clients.stream().filter(c -> c.getME() == move.getPlayerNumber()).findFirst();
-        client.ifPresent(value -> verify(value, atLeastOnce()).sendMove(anyInt(), anyInt()));
+        if (client.isPresent()) {
+            verify(client.get(), atLeastOnce()).sendMove(anyInt(), anyInt());
+        } else {
+            fail("Client not found");
+        }
     }
 }
