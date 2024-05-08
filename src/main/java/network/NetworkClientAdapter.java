@@ -49,6 +49,8 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public MoveAnswer sendMoveAnswer(int timeLimit, byte depthLimit) {
+        checkPhase();
+
         Move result = client.sendMove(timeLimit, depthLimit);
 
         short x = (short) result.getCoordinates().x;
@@ -69,6 +71,7 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveMove(short x, short y, byte type, byte playerNumber) {
+        checkPhase();
 
         Coordinates coordinates = new Coordinates(x, y);
 
@@ -100,21 +103,37 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveEndingPhase1() {
-        if(game.getPhase() != GamePhase.PHASE_2) {
-            logger.warn("Server and client game phase do not match");
+        if (game.getPhase() != GamePhase.PHASE_2) {
+            logger.log("Server and client game phase may not match. " +
+                    "Waiting for next server message.");
+            checkPhase = true;
         }
         logger.log(game.toString());
+    }
+
+    /**
+     * Used to get rid of the Warning that appears in the edge case where there are no possible
+     * actions in the bomb phase, and it gets skipped. The server will then send 2 messages, first
+     * entering the bomb phase and then the end. On every message we check if the client game phase
+     * matches the server phase.
+     */
+    private boolean checkPhase = false;
+    private void checkPhase() {
+        if(checkPhase) {
+            logger.warn("Server and client game phase do not match.");
+        }
     }
 
     @Override
     public void receiveEndingPhase2() {
-        if(game.getPhase() != GamePhase.END) {
+        checkPhase = false;
+        if (game.getPhase() != GamePhase.END) {
             logger.warn("Server and client game phase do not match");
         }
         logger.log(game.toString());
     }
 
-    public Game getGame(){
+    public Game getGame() {
         return this.game;
     }
 }
