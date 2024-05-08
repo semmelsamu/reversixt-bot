@@ -18,7 +18,7 @@ public class OptimizedParanoidClient extends Client {
     Logger logger = new Logger(this.getClass().getName());
 
     public OptimizedParanoidClient() {
-        logger.log("Launching Optimized Paranoid Client with depth limit");
+        logger.log("Launching Optimized Paranoid Client");
     }
 
     @Override
