@@ -44,7 +44,7 @@ public class NetworkClientHelper {
 
     public static void validateMove(Move move) {
         Optional<Client> client =
-                clients.stream().filter(c -> c.ME == move.getPlayerNumber()).findFirst();
+                clients.stream().filter(c -> c.getME() == move.getPlayerNumber()).findFirst();
         client.ifPresent(value -> verify(value, atLeastOnce()).sendMove(anyInt(), anyInt()));
     }
 }

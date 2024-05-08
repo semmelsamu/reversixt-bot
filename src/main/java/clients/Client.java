@@ -10,7 +10,7 @@ public abstract class Client {
 
     protected Game game;
 
-    public int ME;
+    protected int ME;
 
     public void setGame(Game game) {
         this.game = game;
@@ -18,6 +18,10 @@ public abstract class Client {
 
     public void setPlayer(int player) {
         this.ME = player;
+    }
+
+    public int getME() {
+        return ME;
     }
 
     public abstract Move sendMove(int timeLimit, int depthLimit);
