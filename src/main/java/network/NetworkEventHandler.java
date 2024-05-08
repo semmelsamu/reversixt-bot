@@ -22,6 +22,8 @@ public class NetworkEventHandler {
 
     private byte playerNumber = 0x0;
 
+    private long stats_totalMoveCalculationTime = 0;
+
     /**
      * Connect a networkClient to a server.
      *
@@ -74,6 +76,8 @@ public class NetworkEventHandler {
             int length = in.readInt();
 
             Logger.newline();
+
+            long startTime = System.nanoTime();
 
             switch (messageType) {
 
@@ -171,7 +175,11 @@ public class NetworkEventHandler {
                     logger.error("Unknown message type: " + messageType);
 
             }
+
+            stats_totalMoveCalculationTime += System.nanoTime() - startTime;
         }
+
+        logger.log("Total calculation time: " + stats_totalMoveCalculationTime / 1_000_000 + "ms");
     }
 
     public void disconnect() throws IOException {
