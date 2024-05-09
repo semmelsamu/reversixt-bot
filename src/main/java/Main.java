@@ -13,6 +13,7 @@ public class Main {
         argumentParser.setParameter("p", new ArgumentParser.Parameter("Port", 7777));
         argumentParser.setParameter("e", new ArgumentParser.Parameter("Exercise", 0));
         argumentParser.setParameter("c", new ArgumentParser.Parameter("Colors", false));
+        argumentParser.setParameter("n", new ArgumentParser.Parameter("Move sorting", true));
         argumentParser.setParameter("q", new ArgumentParser.Parameter("Quiet Mode", false));
         argumentParser.setParameter("h", new ArgumentParser.Parameter("Help", false));
         ArgumentParser.ParsedArguments parsedArguments = argumentParser.parse(args);
