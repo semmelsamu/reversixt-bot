@@ -98,9 +98,9 @@ public class OptimizedParanoidClient extends Client {
                 resultScore = score;
                 resultMove = move;
                 alpha = Math.max(alpha, resultScore);
-                // Max-Skip
+                // Max-Cut
                 if (resultScore >= beta) {
-                    stats_maxSkips++; // For logging stats
+                    stats_maxCuts++; // For logging stats
                     return Map.entry(resultMove, resultScore);
                 }
             }
@@ -109,9 +109,9 @@ public class OptimizedParanoidClient extends Client {
                 resultScore = score;
                 resultMove = move;
                 beta = Math.min(beta, resultScore);
-                // Min-Skip
+                // Min-Cut
                 if (resultScore <= alpha) {
-                    stats_minSkips++; // For logging stats
+                    stats_minCuts++; // For logging stats
                     return Map.entry(resultMove, resultScore);
                 }
             }
@@ -137,8 +137,8 @@ public class OptimizedParanoidClient extends Client {
     private int stats_gamesVisited;
     private int stats_gamesEvaluated;
 
-    private int stats_minSkips;
-    private int stats_maxSkips;
+    private int stats_minCuts;
+    private int stats_maxCuts;
 
     private long stats_evaluationTime;
     private long stats_cloningTime;
@@ -151,8 +151,8 @@ public class OptimizedParanoidClient extends Client {
         stats_branchingFactors = new LinkedList<>();
         stats_gamesVisited = 0;
         stats_gamesEvaluated = 0;
-        stats_minSkips = 0;
-        stats_maxSkips = 0;
+        stats_minCuts = 0;
+        stats_maxCuts = 0;
         stats_evaluationTime = 0;
         stats_cloningTime = 0;
         stats_calculationTime = 0;
@@ -185,8 +185,8 @@ public class OptimizedParanoidClient extends Client {
                 stats_branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0.0));
 
         logger.verbose(
-                "Min-Skips: " + stats_minSkips + ", Max-Skips: " + stats_maxSkips + ", Total: " +
-                        (stats_minSkips + stats_maxSkips));
+                "Min-Cuts: " + stats_minCuts + ", Max-Cuts: " + stats_maxCuts + ", Total: " +
+                        (stats_minCuts + stats_maxCuts));
 
         logger.verbose("Games evaluated: " + stats_gamesEvaluated);
         logger.verbose("Total evaluation time: " + stats_evaluationTime / 1_000_000 + "ms");
