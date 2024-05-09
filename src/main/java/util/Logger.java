@@ -119,7 +119,7 @@ public class Logger {
         return string;
     }
 
-    private static String fillString(String string, int length) {
+    public static String fillString(String string, int length) {
         string = trimString(string, length);
         return string + " ".repeat(length - string.length());
     }
