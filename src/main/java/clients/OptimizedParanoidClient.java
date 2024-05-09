@@ -93,6 +93,7 @@ public class OptimizedParanoidClient extends Client {
                 stats_gamesEvaluated++; // For logging stats
             }
 
+            // Check if result score has to be updated in max
             if (max && (score > resultScore)) {
                 resultScore = score;
                 resultMove = move;
@@ -103,6 +104,7 @@ public class OptimizedParanoidClient extends Client {
                     return Map.entry(resultMove, resultScore);
                 }
             }
+            // Check if result score has to be updated in min
             if (!max && (score < resultScore)) {
                 resultScore = score;
                 resultMove = move;
