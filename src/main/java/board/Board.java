@@ -1,5 +1,6 @@
 package board;
 
+import exceptions.CoordinatesOutOfBoundsException;
 import util.Logger;
 
 import java.util.HashMap;
@@ -71,8 +72,7 @@ public class Board implements Cloneable {
     public Tile getTile(Coordinates position) {
 
         if (!coordinatesLayInBoard(position)) {
-            logger.debug("Not tile is found, check for transitions.");
-            return null;
+            throw new CoordinatesOutOfBoundsException("Tried to get a tile on coordinates the board doesn't have: " + position);
         }
 
         return this.tiles[position.y][position.x];
@@ -81,8 +81,7 @@ public class Board implements Cloneable {
     public void setTile(Coordinates coordinates, Tile tile) {
 
         if (!coordinatesLayInBoard(coordinates)) {
-            logger.error("Tried to set a tile on coordinates the board doesn't have");
-            return;
+            throw new CoordinatesOutOfBoundsException("Tried to set a tile on coordinates the board doesn't have: " + coordinates);
         }
 
         this.tiles[coordinates.y][coordinates.x] = tile;

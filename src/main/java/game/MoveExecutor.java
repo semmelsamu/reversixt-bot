@@ -4,6 +4,7 @@ import board.Coordinates;
 import board.Direction;
 import board.Tile;
 import board.TileReader;
+import exceptions.BonusNotSpecifiedException;
 import move.*;
 import util.Logger;
 
@@ -132,7 +133,7 @@ public final class MoveExecutor {
         } else if (bonusMove.getBonus() == Bonus.OVERWRITE_STONE) {
             player.incrementOverwriteStone();
         } else {
-            logger.fatal("Tried to execute bonus move without bonus action");
+            throw new BonusNotSpecifiedException("Tried to execute bonus move without bonus action");
         }
     }
 

@@ -1,6 +1,7 @@
 package util;
 
 import board.Coordinates;
+import exceptions.FailedSelectOptionException;
 import game.Game;
 import game.Player;
 import move.*;
@@ -109,8 +110,7 @@ public class ConsoleInputHandler {
 
             return result;
         } catch (Exception e) {
-            Logger.get().fatal("Failed to select option");
-            throw e;
+            throw new FailedSelectOptionException("Failed to select an option");
         }
     }
 }

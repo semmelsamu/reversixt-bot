@@ -91,7 +91,7 @@ public class Player implements Cloneable {
     public void decrementOverwriteStones() {
         overwriteStones--;
         if(overwriteStones < 0) {
-            logger.error("Overwrite stones are below zero");
+            throw new RuntimeException("Overwrite stones are below zero");
         }
     }
 

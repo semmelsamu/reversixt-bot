@@ -1,6 +1,7 @@
 package clients;
 
 import evaluation.GameEvaluator;
+import exceptions.GamePhaseNotValidException;
 import game.Game;
 import game.GamePhase;
 import game.MoveCalculator;
@@ -25,8 +26,8 @@ public class OptimizedParanoidClient extends Client {
     public Move sendMove(int timeLimit, int depthLimit) {
 
         if (game.getPhase() == GamePhase.END) {
-            logger.error("Move was requested but we think the game already ended");
-            return null;
+            throw new GamePhaseNotValidException(
+                    "Move was requested but we think the game already ended");
         }
 
         initializeStats();
@@ -184,9 +185,8 @@ public class OptimizedParanoidClient extends Client {
         logger.verbose("Average branching factor: " +
                 stats_branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0.0));
 
-        logger.verbose(
-                "Min-Cuts: " + stats_minCuts + ", Max-Cuts: " + stats_maxCuts + ", Total: " +
-                        (stats_minCuts + stats_maxCuts));
+        logger.verbose("Min-Cuts: " + stats_minCuts + ", Max-Cuts: " + stats_maxCuts + ", Total: " +
+                (stats_minCuts + stats_maxCuts));
 
         logger.verbose("Games evaluated: " + stats_gamesEvaluated);
         logger.verbose("Total evaluation time: " + stats_evaluationTime / 1_000_000 + "ms");

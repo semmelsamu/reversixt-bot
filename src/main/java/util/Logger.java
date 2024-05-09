@@ -172,15 +172,6 @@ public class Logger {
     }
 
     /**
-     * Log a fatal error and terminate the program.
-     *
-     * @param message The error message.
-     */
-    public void fatal(String message) {
-        console(ANSI_BOLD + ANSI_RED, "  FATAL", message, 5);
-    }
-
-    /**
      * Log an error.
      *
      * @param message The error message.

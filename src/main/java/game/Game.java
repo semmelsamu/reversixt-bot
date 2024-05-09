@@ -5,6 +5,7 @@ import board.Coordinates;
 import board.Tile;
 import board.TransitionPart;
 import evaluation.StaticGameStats;
+import exceptions.GamePhaseNotValidException;
 import util.Logger;
 
 import java.util.Arrays;
@@ -99,8 +100,7 @@ public class Game implements Cloneable {
 
     public void nextPlayer() {
         if (gamePhase == GamePhase.END) {
-            logger.error("Cannot calculate next player in end phase");
-            return;
+            throw new GamePhaseNotValidException("Cannot calculate next player in end phase");
         }
 
         int oldPlayer = currentPlayer;
@@ -160,13 +160,7 @@ public class Game implements Cloneable {
     }
 
     public Player getPlayer(int playerNumber) {
-        try {
-            return players[playerNumber - 1];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            logger.fatal(
-                    "Could not get player with number " + playerNumber + ": " + e.getMessage());
-            return null;
-        }
+        return players[playerNumber - 1];
     }
 
     public int getBombRadius() {

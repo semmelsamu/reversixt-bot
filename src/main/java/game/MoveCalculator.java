@@ -4,6 +4,7 @@ import board.Coordinates;
 import board.Direction;
 import board.Tile;
 import board.TileReader;
+import exceptions.GamePhaseNotValidException;
 import move.*;
 import util.Logger;
 
@@ -36,7 +37,8 @@ public final class MoveCalculator {
         switch (game.getPhase()) {
             case PHASE_1 -> result.addAll(calculateAllColoringMoves(game, playerNumber));
             case PHASE_2 -> result.addAll(getAllBombMoves(game, playerNumber));
-            default -> logger.error("No valid game phase to calculate moves for");
+            default -> throw new GamePhaseNotValidException(
+                    "No valid game phase to calculate moves for");
         }
 
         logger.debug(result.size() + " valid moves for Player " + player + ":\n" +
@@ -55,8 +57,7 @@ public final class MoveCalculator {
         for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(
                 player.getPlayerValue())) {
             if (game.getTile(occupiedTile) != player.getPlayerValue()) {
-                logger.error("Wrong coordinates in Player" + player + "'s List stones");
-                continue;
+                throw new AssertionError("Wrong coordinates in Player" + player + "'s List stones");
             }
             for (Direction direction : Direction.values()) {
                 TileReader tileReader = new TileReader(game, occupiedTile, direction);
@@ -108,7 +109,8 @@ public final class MoveCalculator {
      * @param playerNumber Tile of player that moves are calculated for
      * @return Valid moves for one piece for one of eight directions
      */
-    private static Set<Move> getValidMovesForPieceInDirection(Game game, TileReader tileReader, int playerNumber) {
+    private static Set<Move> getValidMovesForPieceInDirection(Game game, TileReader tileReader,
+                                                              int playerNumber) {
         Player player = game.getPlayer(playerNumber);
         Set<Move> movesPerDirection = new HashSet<>();
         // Coordinates of tile moves are searched for

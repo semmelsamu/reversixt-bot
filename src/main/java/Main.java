@@ -9,6 +9,8 @@ import util.Logger;
 public class Main {
     public static void main(String[] args) {
 
+        assert 1 == 1;
+
         CommandLineArguments cla = new CommandLineArguments(args);
 
         Logger.useColors = cla.getBoolean(Argument.LOGGER_USE_COLORS);

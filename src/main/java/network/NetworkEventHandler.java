@@ -1,5 +1,7 @@
 package network;
 
+import exceptions.ClientDisqualifiedException;
+import exceptions.NetworkException;
 import util.Logger;
 
 import java.io.DataInputStream;
@@ -50,7 +52,12 @@ public class NetworkEventHandler {
 
             // Launch
             sendGroupNumber();
-            run();
+            try {
+                run();
+            } catch(NetworkException | ClientDisqualifiedException e) {
+                logger.error(e.getMessage());
+                disconnect();
+            }
 
         } catch (IOException e) {
             logger.error("Failed connecting to server: " + e.getMessage());
@@ -66,7 +73,7 @@ public class NetworkEventHandler {
         out.writeByte(networkClient.sendGroupNumber());
     }
 
-    public void run() throws IOException {
+    public void run() throws IOException, NetworkException, ClientDisqualifiedException {
 
         while (!socket.isClosed()) {
 
@@ -149,8 +156,7 @@ public class NetworkEventHandler {
                     networkClient.receiveDisqualification(disqualifiedPlayer);
 
                     if (disqualifiedPlayer == playerNumber) {
-                        logger.error("Client got disqualified");
-                        disconnect();
+                        throw new ClientDisqualifiedException("Client got disqualified");
                     }
 
                     break;
@@ -172,7 +178,7 @@ public class NetworkEventHandler {
 
 
                 default:
-                    logger.error("Unknown message type: " + messageType);
+                    throw new NetworkException("Unknown message type: " + messageType);
 
             }
 
