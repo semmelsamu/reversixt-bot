@@ -112,6 +112,18 @@ public class Logger {
     |-----------------------------------------------------------------------------------------------
     */
 
+    private static String trimString(String string, int maxLength) {
+        if (string.length() > maxLength) {
+            return string.substring(0, maxLength - 3) + "...";
+        }
+        return string;
+    }
+
+    private static String fillString(String string, int length) {
+        string = trimString(string, length);
+        return string + " ".repeat(length - string.length());
+    }
+
     /**
      * Actual printing logic
      */
@@ -125,7 +137,10 @@ public class Logger {
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
         // 0: getStackTrace, 1: this function, 2: public log function, 3: caller
         StackTraceElement caller = stackTraceElements[3];
-        String callerString = caller.getClassName() + ":" + caller.getMethodName();
+
+        String callerClassName =
+                caller.getClassName().substring(caller.getClassName().lastIndexOf('.') + 1);
+        String callerMethodName = caller.getMethodName();
 
         // Get date
         // Date currentDate = new Date();
@@ -137,7 +152,9 @@ public class Logger {
         // lastTimeActive = currentTime;
 
         // Print
-        System.out.println("[" + callerString + "]  " + (useColors ? color : "") + message +
+        System.out.println(fillString(
+                "[" + trimString(callerClassName, 12) + ":" + trimString(callerMethodName, 10) + "]",
+                25) + (useColors ? color : "") + type + "  " + message +
                 (useColors ? ANSI_RESET : ""));
     }
 
@@ -178,7 +195,7 @@ public class Logger {
      * @param message The warning message.
      */
     public void warn(String message) {
-        console(ANSI_YELLOW, "WARNING", message, 3);
+        console(ANSI_YELLOW, "   WARN", message, 3);
     }
 
     /**
