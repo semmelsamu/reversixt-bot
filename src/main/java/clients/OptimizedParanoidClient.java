@@ -100,7 +100,7 @@ public class OptimizedParanoidClient extends Client {
                 // Max-Skip
                 if (resultScore >= beta) {
                     stats_maxSkips++; // For logging stats
-                    break;
+                    return Map.entry(resultMove, resultScore);
                 }
             }
             if (!max && (score < resultScore)) {
@@ -110,7 +110,7 @@ public class OptimizedParanoidClient extends Client {
                 // Min-Skip
                 if (resultScore <= alpha) {
                     stats_minSkips++; // For logging stats
-                    break;
+                    return Map.entry(resultMove, resultScore);
                 }
             }
         }
