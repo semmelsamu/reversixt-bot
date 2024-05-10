@@ -77,6 +77,7 @@ public class Logger {
     public static boolean useColors = true;
 
     private boolean replace = false;
+    private boolean replaced = false;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -153,12 +154,15 @@ public class Logger {
         // int timeElapsedMs = (int) (timeElapsed / 1_000_000);
         // lastTimeActive = currentTime;
 
+        String terminator = replace && replaced ? "\r" : "\n";
+
         // Print
-        System.out.print((replace ? "\r" : "\n") + fillString(
+        System.out.print(terminator + fillString(
                 "[" + trimString(callerClassName, 12) + ":" + trimString(callerMethodName, 10) + "]",
                 25) + (useColors ? color : "") + type + "  " + message +
                 (useColors ? ANSI_RESET : ""));
 
+        replaced = replace;
         replace = false;
     }
 
