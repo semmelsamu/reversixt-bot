@@ -61,26 +61,14 @@ public class ParanoidClient extends Client {
         }
 
         int currentPlayerNumber = game.getCurrentPlayerNumber();
-
         boolean isMaximizer = currentPlayerNumber == ME;
-
         int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
         for (Move move : MoveCalculator.getValidMovesForPlayer(game, currentPlayerNumber)) {
-
             Game clonedGame = game.clone();
             MoveExecutor.executeMove(clonedGame, move);
             int score = minmax(clonedGame, depth - 1);
-
-            if (isMaximizer) {
-                if (score > result) {
-                    result = score;
-                }
-            } else {
-                if (score < result) {
-                    result = score;
-                }
-            }
+            result = isMaximizer ? Math.max(result, score) : Math.min(result, score);
 
         }
 
