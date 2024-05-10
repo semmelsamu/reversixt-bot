@@ -29,6 +29,11 @@ public class TileReader {
      */
     private Direction direction;
 
+    /**
+     * "Das wievielte Teil"
+     */
+    private int tileNumber;
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -41,6 +46,7 @@ public class TileReader {
         this.game = game;
         this.coordinates = coordinates;
         this.direction = direction;
+        this.tileNumber = 0;
     }
 
     /*
@@ -63,6 +69,14 @@ public class TileReader {
      */
     public Coordinates getCoordinates() {
         return coordinates;
+    }
+
+    /**
+     * "Das wievielte Tile"
+     * @return
+     */
+    public int getTileNumber() {
+        return tileNumber;
     }
 
     /**
@@ -111,6 +125,8 @@ public class TileReader {
                         "Called next() on TileReader, but there is no next Tile");
             }
         }
+
+        tileNumber++;
 
     }
 }
