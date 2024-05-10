@@ -19,12 +19,12 @@ public final class MoveExecutor {
 
         logger.verbose("Executing move " + move);
 
-        if(move.getPlayerNumber() != game.getCurrentPlayerNumber()) {
+        if (move.getPlayerNumber() != game.getCurrentPlayerNumber()) {
             logger.warn("Executing move of player who is currently not their turn");
         }
 
         if (!(move instanceof BombMove)) {
-            executeMovePhase1(game, move);
+            executeColoringMove(game, move);
         } else {
             executeBombMove(game, (BombMove) move);
         }
@@ -35,47 +35,26 @@ public final class MoveExecutor {
     }
 
     /*
-    |--------------------------------------------------------------------------
-    | Main coloring logic
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Coloring Logic
+    |
+    |-----------------------------------------------------------------------------------------------
     */
-    private static void executeMovePhase1(Game game, Move move) {
-        Tile playerValue = game.getPlayer(move.getPlayerNumber()).getPlayerValue();
-        Set<Coordinates> tilesToColor = new HashSet<>();
-        // Check every direction
-        for (Direction direction : Direction.values()) {
-            TileReader tileReader = new TileReader(game, move.getCoordinates(), direction);
 
-            // Check if tile has a neighbour in this direction
-            if (!(tileReader.hasNext())) {
-                continue;
-            }
-            tileReader.next();
-            Tile firstNeighnbourTile = tileReader.getTile();
-            // Check if first neighbour tile is unoccupied
-            if (firstNeighnbourTile.isUnoccupied()) {
-                continue;
-            }
-            // Check if first neighbour tile is an own tile
-            if (firstNeighnbourTile == playerValue) {
-                continue;
-            }
-            // Check if first neighbour tile has the same coordinates
-            if (tileReader.getCoordinates() == move.getCoordinates()) {
-                continue;
-            }
-            tilesToColor.addAll(getTilesToColorInDirection(game, tileReader, move));
-        }
+    private static void executeColoringMove(Game game, Move move) {
+
+        Tile playerValue = game.getPlayer(move.getPlayerNumber()).getPlayerValue();
+
         // Check if an overwrite stone has to be used
         if (!(game.getTile(move.getCoordinates()).isUnoccupied())) {
             game.getPlayer(move.getPlayerNumber()).decrementOverwriteStones();
         }
 
         // Color all tiles
-        for (Coordinates coordinates : tilesToColor) {
+        for (var coordinates : getAllTilesToColor(game, playerValue, move.getCoordinates())) {
             game.setTile(coordinates, playerValue);
         }
-        game.setTile(move.getCoordinates(), playerValue);
 
         if (move instanceof BonusMove) {
             executeBonusLogic(game, (BonusMove) move);
@@ -90,40 +69,55 @@ public final class MoveExecutor {
         }
     }
 
-    private static Set<Coordinates> getTilesToColorInDirection(Game game, TileReader tileReader, Move move) {
-        Tile currentTile = tileReader.getTile();
-        Tile playerValue = game.getPlayer(move.getPlayerNumber()).getPlayerValue();
-        Set<Coordinates> tilesToColorInDirection = new HashSet<>();
-        // As long as the current tile is not an own piece
-        while (currentTile != playerValue) {
+    private static Set<Coordinates> getAllTilesToColor(Game game, Tile playerValue,
+                                                       Coordinates position) {
 
-            tilesToColorInDirection.add(tileReader.getCoordinates());
+        Set<Coordinates> result = new HashSet<>();
 
-            // Check if there is a dead end
-            if (!(tileReader.hasNext())) {
-                return new HashSet<>();
-            }
+        // Of course the Coordinates we set the stone on get colored
+        result.add(position);
 
-            tileReader.next();
-            currentTile = tileReader.getTile();
+        // Coloring in every Direction
+        for (Direction direction : Direction.values()) {
+            TileReader tileReader = new TileReader(game, position, direction);
 
-            // Check if the coordinates are the same as of the new Tile
-            if (move.getCoordinates().equals(tileReader.getCoordinates())) {
-                return new HashSet<>();
-            }
-            // Check if there is an unoccupied tile
-            if (currentTile.isUnoccupied()) {
-                return new HashSet<>();
+            Set<Coordinates> buffer = new HashSet<>();
+
+            while (tileReader.hasNext()) {
+                tileReader.next();
+                Tile currentTile = tileReader.getTile();
+
+                if (tileReader.getTileNumber() == 1) {
+                    if (currentTile.isUnoccupied() ||
+                            currentTile == playerValue ||
+                            tileReader.getCoordinates() == position) {
+                        break;
+                    }
+                }
+                else {
+                    if(currentTile.isUnoccupied()) {
+                        break;
+                    }
+                    if(currentTile == playerValue || tileReader.getCoordinates().equals(position)) {
+                        result.addAll(buffer);
+                        break;
+                    }
+                }
+
+                buffer.add(tileReader.getCoordinates());
             }
         }
-        return tilesToColorInDirection;
 
+        return result;
     }
 
+
     /*
-    |--------------------------------------------------------------------------
-    | Special move logic
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Special move logic
+    |
+    |-----------------------------------------------------------------------------------------------
     */
 
     private static void executeBonusLogic(Game game, BonusMove bonusMove) {
@@ -133,7 +127,8 @@ public final class MoveExecutor {
         } else if (bonusMove.getBonus() == Bonus.OVERWRITE_STONE) {
             player.incrementOverwriteStone();
         } else {
-            throw new BonusNotSpecifiedException("Tried to execute bonus move without bonus action");
+            throw new BonusNotSpecifiedException(
+                    "Tried to execute bonus move without bonus action");
         }
     }
 
@@ -142,8 +137,8 @@ public final class MoveExecutor {
         Player playerToSwapWith = game.getPlayer(choiceMove.getPlayerToSwapWith());
 
         // Collect all occupied tiles of current player
-        var oldTilesPlayerFromCurrentPlayer = new HashSet<>(game.getGameStats()
-                .getAllCoordinatesWhereTileIs(player.getPlayerValue()));
+        var oldTilesPlayerFromCurrentPlayer = new HashSet<>(
+                game.getGameStats().getAllCoordinatesWhereTileIs(player.getPlayerValue()));
 
         // Iterate through all old tiles of player to swap with
         for (Coordinates coordinates : new HashSet<>(game.getGameStats()
@@ -192,6 +187,14 @@ public final class MoveExecutor {
         }
     }
 
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Bomb move logic
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     public static void executeBombMove(Game game, BombMove move) {
         if (game.getPlayer(move.getPlayerNumber()).getBombs() == 0) {
             throw new RuntimeException("No bombs available :(");
@@ -204,7 +207,6 @@ public final class MoveExecutor {
         game.getPlayer(move.getPlayerNumber()).decrementBombs();
     }
 
-    // TODO: refactor
     private static Set<Coordinates> getAllTilesToBeBombed(Game game, Coordinates coordinates) {
         int radius = game.getBombRadius();
         Set<Coordinates> allDestroyedTiles = new HashSet<>();
