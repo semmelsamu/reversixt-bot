@@ -30,7 +30,7 @@ public class TileReader {
     private Direction direction;
 
     /**
-     * "Das wievielte Teil"
+     * How often next() was called
      */
     private int tileNumber;
 
@@ -72,8 +72,7 @@ public class TileReader {
     }
 
     /**
-     * "Das wievielte Tile"
-     * @return
+     * Get how often next() was called
      */
     public int getTileNumber() {
         return tileNumber;
