@@ -126,6 +126,7 @@ public class Game implements Cloneable {
                 }
             }
 
+            // TODO: As we do it here anyway, cache validMovesForPlayer!!!!!!
         } while (MoveCalculator.getValidMovesForPlayer(this, getCurrentPlayerNumber())
                 .isEmpty() || getCurrentPlayer().isDisqualified());
 
