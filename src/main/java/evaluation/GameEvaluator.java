@@ -2,6 +2,7 @@ package evaluation;
 
 import board.Coordinates;
 import game.Game;
+import game.GamePhase;
 import game.MoveCalculator;
 
 /**
@@ -17,7 +18,8 @@ public final class GameEvaluator {
         tileRatings = game.staticGameStats.getTileRatings();
         double rating = 0;
         rating += sumUpAllRatingsForOccupiedTiles(game, player);
-        rating += evaluateMobility(game, player);
+        if(game.getPhase().equals(GamePhase.PHASE_1))
+            rating += evaluateMobility(game, player);
         rating += evaluateOverwriteStones(game, player, 5);
         // As there are currently only bombs with radius 0 allowed, the value of bombs is only 1
         rating += evaluateBombs(game, player, 1);
