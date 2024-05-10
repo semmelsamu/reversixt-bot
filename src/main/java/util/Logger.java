@@ -76,6 +76,8 @@ public class Logger {
 
     public static boolean useColors = true;
 
+    private boolean replace = false;
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -152,10 +154,12 @@ public class Logger {
         // lastTimeActive = currentTime;
 
         // Print
-        System.out.println(fillString(
+        System.out.print((replace ? "\r" : "\n") + fillString(
                 "[" + trimString(callerClassName, 12) + ":" + trimString(callerMethodName, 10) + "]",
                 25) + (useColors ? color : "") + type + "  " + message +
                 (useColors ? ANSI_RESET : ""));
+
+        replace = false;
     }
 
 
@@ -169,6 +173,11 @@ public class Logger {
 
     public static void newline() {
         System.out.println();
+    }
+
+    public Logger replace() {
+        replace = true;
+        return this;
     }
 
     /**
