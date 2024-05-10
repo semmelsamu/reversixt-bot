@@ -77,7 +77,6 @@ public class Logger {
     public static boolean useColors = true;
 
     private boolean replace = false;
-    private boolean replaced = false;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -154,15 +153,14 @@ public class Logger {
         // int timeElapsedMs = (int) (timeElapsed / 1_000_000);
         // lastTimeActive = currentTime;
 
-        String terminator = replace && replaced ? "\r" : "\n";
+        String terminator = replace ? "\r" : "\n";
 
         // Print
         System.out.print(terminator + fillString(
                 "[" + trimString(callerClassName, 12) + ":" + trimString(callerMethodName, 10) + "]",
-                25) + (useColors ? color : "") + type + "  " + message +
+                25) + "  " + (useColors ? color : "") + type + "  " + message +
                 (useColors ? ANSI_RESET : ""));
 
-        replaced = replace;
         replace = false;
     }
 
@@ -175,10 +173,13 @@ public class Logger {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public static void newline() {
+    public void newline() {
         System.out.println();
     }
 
+    /**
+     * Set the replace-flag for the next message. This will overwrite the latest message.
+     */
     public Logger replace() {
         replace = true;
         return this;
