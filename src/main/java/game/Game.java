@@ -6,6 +6,7 @@ import board.Tile;
 import board.TransitionPart;
 import evaluation.StaticGameStats;
 import exceptions.GamePhaseNotValidException;
+import exceptions.MoveNotValidException;
 import move.Move;
 import util.Logger;
 
@@ -150,6 +151,16 @@ public class Game implements Cloneable {
         if (getCurrentPlayer().isDisqualified()) {
             nextPlayer();
         }
+    }
+
+    public void executeMove(Move move) {
+        if(!validMovesForCurrentPlayer.contains(move)) {
+            logger.error(this.toString());
+            logger.error(move.toString());
+            throw new MoveNotValidException("Tried to execute a move that is not valid");
+        }
+        MoveExecutor.executeMove(this, move);
+        nextPlayer();
     }
 
     /*
