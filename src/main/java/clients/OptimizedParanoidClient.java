@@ -61,7 +61,7 @@ public class OptimizedParanoidClient extends Client {
 
             i++;
             int progressPercentage = (int) ((float) i / (float) possibleMoves.size() * 100);
-            logger.log(progressPercentage < 100 ? progressPercentage + "%" : "Done");
+            logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
         }
 
         logStats();
@@ -167,8 +167,6 @@ public class OptimizedParanoidClient extends Client {
     }
 
     private void logStats() {
-
-        logger.verbose("Stats:");
 
         logger.verbose("Visited " + stats_gamesCalculated + " Games in " +
                 ms(stats_calculationTime + stats_cloningTime + stats_executionTime));

@@ -31,7 +31,7 @@ public class Main {
             Logger.defaultPriority = 2;
             Logger.setPriority(Game.class.getName(), 3);
             Logger.setPriority(ParanoidClient.class.getName(), 1);
-            Logger.setPriority(OptimizedParanoidClient.class.getName(), 1);
+            Logger.setPriority(OptimizedParanoidClient.class.getName(), 0);
 
             Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
         }
