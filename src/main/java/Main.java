@@ -44,7 +44,7 @@ public class Main {
         switch ((Integer) parsedArguments.get("e")) {
             case 1 -> Exercise01.aufgabe3();
             case 2 -> Exercise02.aufgabe3();
-            case 3 -> Exercise04.abnahme(ip, port);
+            case 4 -> Exercise04.abnahme(ip, port);
             case 5 -> Exercise05.abnahme(ip, port);
             default -> Exercise06.abnahme(ip, port);
         }
