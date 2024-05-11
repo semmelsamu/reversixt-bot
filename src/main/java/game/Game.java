@@ -160,6 +160,10 @@ public class Game implements Cloneable {
     |-----------------------------------------------------------------------------------------------
     */
 
+    public Set<Move> getValidMovesForCurrentPlayer() {
+        return validMovesForCurrentPlayer;
+    }
+
     public Player[] getPlayers() {
         return players;
     }
