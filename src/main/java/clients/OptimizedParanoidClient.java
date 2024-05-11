@@ -132,6 +132,8 @@ public class OptimizedParanoidClient extends Client {
     |-----------------------------------------------------------------------------------------------
     */
 
+    private long stats_totalTime;
+
     private int stats_gamesCalculated;
     private long stats_cloningTime;
     private long stats_executionTime;
@@ -146,6 +148,7 @@ public class OptimizedParanoidClient extends Client {
     }
 
     private void initializeStats() {
+        stats_totalTime = System.nanoTime();
         stats_gamesCalculated = 0;
         stats_cloningTime = 0;
         stats_executionTime = 0;
@@ -155,6 +158,8 @@ public class OptimizedParanoidClient extends Client {
     }
 
     private void logStats() {
+
+        logger.verbose("Total time: " + ms(System.nanoTime() - stats_totalTime));
 
         logger.verbose("Visited " + stats_gamesCalculated + " Games in " +
                 ms(stats_cloningTime + stats_executionTime));
