@@ -9,9 +9,6 @@ import game.MoveExecutor;
 import move.Move;
 import util.Logger;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class OptimizedParanoidClient extends Client {
@@ -32,19 +29,47 @@ public class OptimizedParanoidClient extends Client {
 
         initializeStats();
 
-        logger.log("Calculating new move (time/depth) " + timeLimit + " " + depthLimit);
+        logger.log("Calculating new move with time limit " + timeLimit + "ms and depth limit " +
+                depthLimit + " layers");
 
-        Map.Entry<Move, Integer> result =
-                minmax(game, depthLimit, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        Set<Move> possibleMoves = MoveCalculator.getValidMovesForPlayer(game, ME);
 
-        logger.log("Done");
+        logger.debug("There are " + possibleMoves.size() +
+                " possible moves, calculating the best scoring one\n");
+
+        int resultScore = Integer.MIN_VALUE;
+        Move resultMove = null;
+
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
+
+        int i = 0;
+        for (Move move : possibleMoves) {
+
+            Game clonedGame = game.clone();
+            MoveExecutor.executeMove(clonedGame, move);
+            int score = minmax(clonedGame, depthLimit - 1, alpha, beta);
+
+            logger.replace().debug("Move " + move + " has a score of " + score);
+
+            if (score > resultScore) {
+                resultScore = score;
+                resultMove = move;
+            }
+
+            alpha = Math.max(alpha, score);  // Update alpha for the maximizer
+
+            i++;
+            int progressPercentage = (int) ((float) i / (float) possibleMoves.size() * 100);
+            logger.log(progressPercentage < 100 ? progressPercentage + "%" : "Done");
+        }
 
         logStats();
 
-        logger.log("Responding with " + result.getKey().getClass().getSimpleName() +
-                result.getKey().getCoordinates() + " which has a score of " + result.getValue());
+        logger.log("Responding with " + resultMove.getClass().getSimpleName() +
+                resultMove.getCoordinates() + " which has a score of " + resultScore);
 
-        return result.getKey();
+        return resultMove;
 
     }
 
@@ -54,75 +79,59 @@ public class OptimizedParanoidClient extends Client {
      * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
-    private Map.Entry<Move, Integer> minmax(Game game, int depth, int alpha, int beta) {
+    private int minmax(Game game, int depth, int alpha, int beta) {
+        long stats_startTime;
 
-        long startTime; // For logging stats
+        if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
+            stats_gamesEvaluated++;
+            stats_startTime = System.nanoTime();
+            int score = GameEvaluator.evaluate(game, ME);
+            stats_evaluationTime += System.nanoTime() - stats_startTime;
+            return score;
+        }
 
-        depth--;
+        int currentPlayerNumber = game.getCurrentPlayerNumber();
 
-        boolean max = ME == game.getCurrentPlayerNumber();
+        boolean isMaximizer = currentPlayerNumber == ME;
 
-        Move resultMove = null;
-        int resultScore = max ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        startTime = System.nanoTime(); // For logging stats
-        Set<Move> possibleMoves =
-                MoveCalculator.getValidMovesForPlayer(game, game.getCurrentPlayerNumber());
-        stats_calculationTime += (System.nanoTime() - startTime); // For logging stats
-
-        stats_branchingFactors.add(possibleMoves.size()); // For logging stats
+        stats_startTime = System.nanoTime();
+        Set<Move> possibleMoves = MoveCalculator.getValidMovesForPlayer(game, currentPlayerNumber);
+        stats_calculationTime += System.nanoTime() - stats_startTime;
 
         for (Move move : possibleMoves) {
 
-            startTime = System.nanoTime(); // For logging stats
+            stats_gamesCalculated++;
+
+            stats_startTime = System.nanoTime();
             Game clonedGame = game.clone();
-            stats_cloningTime += (System.nanoTime() - startTime); // For logging stats
+            stats_cloningTime += System.nanoTime() - stats_startTime;
 
-            startTime = System.nanoTime(); // For logging stats
+            stats_startTime = System.nanoTime();
             MoveExecutor.executeMove(clonedGame, move);
-            stats_executionTime += (System.nanoTime() - startTime); // For logging stats
+            stats_executionTime += System.nanoTime() - stats_startTime;
 
-            stats_gamesVisited++; // For logging stats
+            int score = minmax(clonedGame, depth - 1, alpha, beta);
 
-            int score;
-            if (depth > 0 && clonedGame.getPhase() == GamePhase.PHASE_1) {
-                score = minmax(clonedGame, depth, alpha, beta).getValue();
-            } else {
-                startTime = System.nanoTime(); // For logging stats
-                score = GameEvaluator.evaluate(game, ME);
-                stats_evaluationTime += (System.nanoTime() - startTime); // For logging stats
-                stats_gamesEvaluated++; // For logging stats
-            }
-
-            // Check if result score has to be updated in max
-            if (max && (score > resultScore)) {
-                resultScore = score;
-                resultMove = move;
-                alpha = Math.max(alpha, resultScore);
-                // Max-Cut
-                if (resultScore >= beta) {
-                    stats_maxCuts++; // For logging stats
-                    return Map.entry(resultMove, resultScore);
+            if (isMaximizer) {
+                result = Math.max(result, score);
+                alpha = Math.max(alpha, result);
+                if (beta <= alpha) {
+                    stats_cutoffs++;
+                    break;  // Beta cutoff
                 }
-            }
-            // Check if result score has to be updated in min
-            if (!max && (score < resultScore)) {
-                resultScore = score;
-                resultMove = move;
-                beta = Math.min(beta, resultScore);
-                // Min-Cut
-                if (resultScore <= alpha) {
-                    stats_minCuts++; // For logging stats
-                    return Map.entry(resultMove, resultScore);
+            } else {
+                result = Math.min(result, score);
+                beta = Math.min(beta, result);
+                if (beta <= alpha) {
+                    stats_cutoffs++;
+                    break;  // Alpha cutoff
                 }
             }
         }
 
-        // This should never happen because if we have no moves
-        // the game would be evaluated instantly
-        assert resultMove != null;
-
-        return Map.entry(resultMove, resultScore);
+        return result;
     }
 
     /*
@@ -133,66 +142,44 @@ public class OptimizedParanoidClient extends Client {
     |-----------------------------------------------------------------------------------------------
     */
 
-    private long stats_totalTime;
-
-    private int stats_gamesVisited;
-    private int stats_gamesEvaluated;
-
-    private int stats_minCuts;
-    private int stats_maxCuts;
-
-    private long stats_evaluationTime;
-    private long stats_cloningTime;
+    private int stats_gamesCalculated;
     private long stats_calculationTime;
+    private long stats_cloningTime;
     private long stats_executionTime;
 
-    private List<Integer> stats_branchingFactors;
+    private int stats_gamesEvaluated;
+    private long stats_evaluationTime;
+
+    private long stats_cutoffs;
+
+    private String ms(long nanoseconds) {
+        return nanoseconds / 1_000_000 + "ms";
+    }
 
     private void initializeStats() {
-        stats_branchingFactors = new LinkedList<>();
-        stats_gamesVisited = 0;
-        stats_gamesEvaluated = 0;
-        stats_minCuts = 0;
-        stats_maxCuts = 0;
-        stats_evaluationTime = 0;
-        stats_cloningTime = 0;
+        stats_gamesCalculated = 0;
         stats_calculationTime = 0;
+        stats_cloningTime = 0;
         stats_executionTime = 0;
-        stats_totalTime = System.nanoTime();
+        stats_gamesEvaluated = 0;
+        stats_evaluationTime = 0;
+        stats_cutoffs = 0;
     }
 
     private void logStats() {
 
         logger.verbose("Stats:");
 
-        logger.verbose("Total time: " + (System.nanoTime() - stats_totalTime) / 1_000_000 + "ms");
+        logger.verbose("Visited " + stats_gamesCalculated + " Games in " +
+                ms(stats_calculationTime + stats_cloningTime + stats_executionTime));
+        logger.verbose("Calculation time: " + ms(stats_calculationTime));
+        logger.verbose("Cloning time: " + ms(stats_cloningTime));
+        logger.verbose("Execution time: " + ms(stats_executionTime));
 
-        logger.verbose("Possible moves: " + stats_branchingFactors.get(0));
+        logger.verbose("Cutoffs: " + stats_cutoffs);
 
-        logger.verbose("Games visited: " + stats_gamesVisited);
-        logger.verbose("Total cloning time: " + stats_cloningTime / 1_000_000 + "ms");
-        logger.verbose("Average cloning time per game: " +
-                (float) stats_cloningTime / (float) stats_gamesVisited / 1_000_000 + "ms");
-
-        logger.verbose("Total move calculation time: " + stats_calculationTime / 1_000_000 + "ms");
-        logger.verbose("Average calculation time per move: " +
-                (float) stats_calculationTime / (float) stats_gamesVisited / 1_000_000 + "ms");
-
-        logger.verbose("Total move execution time: " + stats_executionTime / 1_000_000 + "ms");
-        logger.verbose("Average execution time per move: " +
-                (float) stats_executionTime / (float) stats_gamesVisited / 1_000_000 + "ms");
-
-        logger.verbose("Average branching factor: " +
-                stats_branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0.0));
-
-        logger.verbose("Min-Cuts: " + stats_minCuts + ", Max-Cuts: " + stats_maxCuts + ", Total: " +
-                (stats_minCuts + stats_maxCuts));
-
-        logger.verbose("Games evaluated: " + stats_gamesEvaluated);
-        logger.verbose("Total evaluation time: " + stats_evaluationTime / 1_000_000 + "ms");
-        logger.verbose("Average evaluation time per game: " +
-                (float) stats_evaluationTime / (float) stats_gamesEvaluated / 1_000_000 + "ms");
-
+        logger.verbose(
+                "Evaluated " + stats_gamesEvaluated + " Games in " + ms(stats_evaluationTime));
     }
 
 }
