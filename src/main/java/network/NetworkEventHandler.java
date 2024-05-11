@@ -82,8 +82,6 @@ public class NetworkEventHandler {
             int messageType = in.readByte();
             int length = in.readInt();
 
-            logger.newline();
-
             long startTime = System.nanoTime();
 
             switch (messageType) {

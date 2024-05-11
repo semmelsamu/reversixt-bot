@@ -173,10 +173,6 @@ public class Logger {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public void newline() {
-        System.out.println();
-    }
-
     /**
      * Set the replace-flag for the next message. This will overwrite the latest message.
      */
