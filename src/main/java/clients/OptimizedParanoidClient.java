@@ -4,7 +4,6 @@ import evaluation.GameEvaluator;
 import exceptions.GamePhaseNotValidException;
 import game.Game;
 import game.GamePhase;
-import game.MoveExecutor;
 import move.Move;
 import util.Logger;
 
@@ -42,7 +41,7 @@ public class OptimizedParanoidClient extends Client {
         for (Move move : game.getValidMovesForCurrentPlayer()) {
 
             Game clonedGame = game.clone();
-            MoveExecutor.executeMove(clonedGame, move);
+            clonedGame.executeMove(move);
             int score = minmax(clonedGame, depthLimit - 1, alpha, beta);
 
             logger.replace().debug("Move " + move + " has a score of " + score);
@@ -100,7 +99,7 @@ public class OptimizedParanoidClient extends Client {
             stats_cloningTime += System.nanoTime() - stats_startTime;
 
             stats_startTime = System.nanoTime();
-            MoveExecutor.executeMove(clonedGame, move);
+            clonedGame.executeMove(move);
             stats_executionTime += System.nanoTime() - stats_startTime;
 
             int score = minmax(clonedGame, depth - 1, alpha, beta);
