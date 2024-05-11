@@ -56,7 +56,6 @@ public class Logger {
 
     public Logger(String name) {
         this.name = name;
-        lastTimeActive = System.nanoTime();
     }
 
     /*
@@ -68,11 +67,6 @@ public class Logger {
     */
 
     private final String name;
-
-    /**
-     * Stores the last time the logger was active in nanoseconds.
-     */
-    private long lastTimeActive;
 
     public static boolean useColors = true;
 
@@ -95,7 +89,7 @@ public class Logger {
      * 4 = ERROR,
      * 5 = FATAL.
      */
-    private static Map<String, Integer> priorities = new HashMap<>();
+    private static final Map<String, Integer> priorities = new HashMap<>();
 
     public static void setPriority(String name, int priority) {
         priorities.put(name, priority);
@@ -129,7 +123,7 @@ public class Logger {
     /**
      * Actual printing logic
      */
-    private void console(String color, String type, String message, int priority) {
+    private void print(String color, String type, String message, int priority) {
 
         if (priority < priorities.getOrDefault(this.name, defaultPriority)) {
             return;
@@ -144,15 +138,6 @@ public class Logger {
                 caller.getClassName().substring(caller.getClassName().lastIndexOf('.') + 1);
         String callerMethodName = caller.getMethodName();
 
-        // Get date
-        // Date currentDate = new Date();
-
-        // Get elapsed time
-        // long currentTime = System.nanoTime();
-        // long timeElapsed = currentTime - lastTimeActive;
-        // int timeElapsedMs = (int) (timeElapsed / 1_000_000);
-        // lastTimeActive = currentTime;
-
         String terminator = replace ? "\r" : "\n";
 
         // Print
@@ -163,7 +148,6 @@ public class Logger {
 
         replace = false;
     }
-
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -187,7 +171,7 @@ public class Logger {
      * @param message The error message.
      */
     public void error(String message) {
-        console(ANSI_RED, "  ERROR", message, 4);
+        print(ANSI_RED, "  ERROR", message, 4);
     }
 
     /**
@@ -196,7 +180,7 @@ public class Logger {
      * @param message The warning message.
      */
     public void warn(String message) {
-        console(ANSI_YELLOW, "   WARN", message, 3);
+        print(ANSI_YELLOW, "   WARN", message, 3);
     }
 
     /**
@@ -205,7 +189,7 @@ public class Logger {
      * @param message The message.
      */
     public void log(String message) {
-        console(ANSI_GREEN, "    LOG", message, 2);
+        print(ANSI_GREEN, "    LOG", message, 2);
     }
 
     /**
@@ -214,7 +198,7 @@ public class Logger {
      * @param message The message.
      */
     public void verbose(String message) {
-        console(ANSI_CYAN, "VERBOSE", message, 1);
+        print(ANSI_CYAN, "VERBOSE", message, 1);
     }
 
     /**
@@ -223,6 +207,6 @@ public class Logger {
      * @param message The message.
      */
     public void debug(String message) {
-        console(ANSI_PURPLE, "  DEBUG", message, 0);
+        print(ANSI_PURPLE, "  DEBUG", message, 0);
     }
 }
