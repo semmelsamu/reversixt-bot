@@ -69,9 +69,9 @@ public class Game implements Cloneable {
 
         // Initialize players
         players = new Player[initialPlayers];
-        for (int i = 1; i <= initialPlayers; i++) {
+        for (int i = 0; i < initialPlayers; i++) {
             players[i] =
-                    new Player(Tile.getTileForPlayerNumber(i), initialOverwriteStones, initialBombs);
+                    new Player(Tile.getTileForPlayerNumber(i + 1), initialOverwriteStones, initialBombs);
         }
 
         // Create static game stats
