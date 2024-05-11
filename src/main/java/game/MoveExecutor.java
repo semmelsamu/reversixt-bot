@@ -189,7 +189,7 @@ public final class MoveExecutor {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public static void executeBombMove(Game game, BombMove move) {
+    private static void executeBombMove(Game game, BombMove move) {
         if (game.getPlayer(move.getPlayerNumber()).getBombs() == 0) {
             throw new RuntimeException("No bombs available :(");
         }
