@@ -19,17 +19,11 @@ public final class MoveExecutor {
 
         logger.verbose("Executing move " + move);
 
-        if (move.getPlayerNumber() != game.getCurrentPlayerNumber()) {
-            logger.warn("Executing move of player who is currently not their turn");
-        }
-
         if (!(move instanceof BombMove)) {
             executeColoringMove(game, move);
         } else {
             executeBombMove(game, (BombMove) move);
         }
-
-        game.nextPlayer();
 
         logger.debug("Game after move execution: " + game);
     }
