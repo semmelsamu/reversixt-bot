@@ -115,7 +115,7 @@ public enum Tile {
         if(player  > 8){
             throw new IllegalArgumentException("Player number is higher than 8");
         }
-        return Tile.values()[player - 1];
+        return Tile.values()[player];
     }
 
     /*
