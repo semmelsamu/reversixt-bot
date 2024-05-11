@@ -30,6 +30,9 @@ public final class GameEvaluator {
         }
     }
 
+    /** Evaluation in phase 1 includes different criteria like rating of occupied tiles, mobility,
+       number of own overwrite stones / bombs ...
+     */
     private static int evaluatePhase1(Game game, int player) {
         tileRatings = game.staticGameStats.getTileRatings();
         double rating = 0;
@@ -41,11 +44,13 @@ public final class GameEvaluator {
         return (int) rating;
     }
 
+    // Evaluation in bomb phase just counts the occupied tiles
     private static int evaluatePhase2(Game game, int player) {
         Tile playerTile = Tile.getTileForPlayerNumber(player);
         return game.getAllCoordinatesWhereTileIs(playerTile).size();
     }
 
+    // Evaluation of an end game returns max int, if game is won. Otherwise same as phase 2
     private static int evaluateEnd(Game game, int player) {
         int numberOfOwnTiles = 0;
         int maxNumberOfEnemyTiles = Integer.MIN_VALUE;
