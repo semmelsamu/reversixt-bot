@@ -6,11 +6,13 @@ import board.Tile;
 import board.TransitionPart;
 import evaluation.StaticGameStats;
 import exceptions.GamePhaseNotValidException;
+import move.Move;
 import util.Logger;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Game implements Cloneable {
@@ -49,6 +51,8 @@ public class Game implements Cloneable {
 
     private GamePhase gamePhase;
 
+    private Set<Move> validMovesForCurrentPlayer;
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -76,14 +80,16 @@ public class Game implements Cloneable {
         }
 
         // Create static game stats
-        staticGameStats = new StaticGameStats(this, initialPlayers,
-                                            initialOverwriteStones, initialBombs, bombRadius);
+        staticGameStats =
+                new StaticGameStats(this, initialPlayers, initialOverwriteStones, initialBombs,
+                        bombRadius);
 
         gameStats = new GameStats(this);
 
-        currentPlayer = 1;
-
         gamePhase = GamePhase.PHASE_1;
+
+        currentPlayer = 1;
+        validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
     }
 
     /*
@@ -96,6 +102,7 @@ public class Game implements Cloneable {
 
     private void rotateCurrentPlayer() {
         currentPlayer = (currentPlayer % players.length) + 1;
+        validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
     }
 
     public void nextPlayer() {
@@ -108,8 +115,7 @@ public class Game implements Cloneable {
         do {
             rotateCurrentPlayer();
 
-            if (oldPlayer == currentPlayer &&
-                    MoveCalculator.getValidMovesForPlayer(this, currentPlayer).isEmpty()) {
+            if (oldPlayer == currentPlayer && validMovesForCurrentPlayer.isEmpty()) {
                 if (gamePhase == GamePhase.PHASE_1) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
@@ -126,9 +132,7 @@ public class Game implements Cloneable {
                 }
             }
 
-            // TODO: As we do it here anyway, cache validMovesForPlayer!!!!!!
-        } while (MoveCalculator.getValidMovesForPlayer(this, getCurrentPlayerNumber())
-                .isEmpty() || getCurrentPlayer().isDisqualified());
+        } while (validMovesForCurrentPlayer.isEmpty() || getCurrentPlayer().isDisqualified());
 
         logger.verbose("Current player is now " + currentPlayer);
     }
@@ -143,7 +147,7 @@ public class Game implements Cloneable {
 
     public void disqualifyPlayer(int player) {
         getPlayer(player).disqualify();
-        if(getCurrentPlayer().isDisqualified()) {
+        if (getCurrentPlayer().isDisqualified()) {
             nextPlayer();
         }
     }
