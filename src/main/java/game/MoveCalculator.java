@@ -161,7 +161,7 @@ public final class MoveCalculator {
         // If necessary create special move
         switch (currentTile) {
             case CHOICE -> {
-                for (int playerToSwapWith = 1; playerToSwapWith < game.getPlayers().length;
+                for (int playerToSwapWith = 1; playerToSwapWith <= game.getPlayers().length;
                      playerToSwapWith++) {
                     movesPerDirection.add(
                             new ChoiceMove(playerNumber, currentCoordinates, playerToSwapWith));
