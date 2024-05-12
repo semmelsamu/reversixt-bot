@@ -35,9 +35,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                     "Move was requested but we think the game already ended");
         }
 
-        int maxScore = Integer.MIN_VALUE;
         Move bestMove = null;
-
         for (int depth = 1; depth <= depthLimit; depth++) {
             initializeStats();
             if (System.currentTimeMillis() - startTime > this.timeLimit) {
@@ -48,10 +46,9 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
             logger.debug("There are " + game.getValidMovesForCurrentPlayer().size() +
                     " possible moves, calculating the best scoring one\n");
 
-            Tuple<Integer, Move> result = alphaBetaSearch(depth);
-            if (result.a > maxScore) {
-                maxScore = result.a;
-                bestMove = result.b;
+            Move move = alphaBetaSearch(depth);
+            if (move != null) {
+                bestMove = move;
             }
             stats_depth = depth;
             logStats();
@@ -59,99 +56,62 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         assert bestMove != null;
         logger.log("Responding with " + bestMove.getClass().getSimpleName() +
-                bestMove.getCoordinates() + " which has a score of " + maxScore);
+                bestMove.getCoordinates());
 
         return bestMove;
 
     }
 
-    private Tuple<Integer, Move> alphaBetaSearch(int depthLimit) {
+    private Move alphaBetaSearch(int depthLimit) {
         int resultScore = Integer.MIN_VALUE;
         Move resultMove = null;
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
         int i = 0;
 
-        if (moveSorting && depthLimit > 1) {
-            Set<Triplet<Game, Integer, Move>> nextGameScores = new LinkedHashSet<>();
-            for (Move move : game.getValidMovesForCurrentPlayer()) {
-                Game clonedGame = game.clone();
-                clonedGame.executeMove(move);
-                nextGameScores.add(
-                        new Triplet<>(clonedGame, GameEvaluator.evaluate(clonedGame, ME), move));
-            }
-            LinkedHashSet<Tuple<Game, Move>> gamesWithMoves = nextGameScores.stream()
+        Set<Triplet<Game, Integer, Move>> nextGameScores = getFirstValidMoves();
+        Set<Tuple<Game, Move>> gamesWithMoves;
+        if (moveSorting) {
+            gamesWithMoves = nextGameScores.stream()
                     .sorted(Comparator.comparing(Triplet::b, Comparator.reverseOrder()))
                     .map(t -> new Tuple<>(t.a, t.c))
                     .collect(Collectors.toCollection(LinkedHashSet::new));
-
-            for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
-                int score;
-                try {
-                    score = minmaxWithDepth(gamesWithMove.a, depthLimit - 1, alpha, beta);
-                    logger.replace().debug("Move " + gamesWithMove.b + " has a score of " + score);
-                    if (score > resultScore) {
-                        resultScore = score;
-                        resultMove = gamesWithMove.b;
-                    }
-                    alpha = Math.max(alpha, score);  // Update alpha for the maximizer
-                    i++;
-                    int progressPercentage =
-                            (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() *
-                                    100);
-                    logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
-                } catch (OutOfTimeException e) {
-                    score = e.getResult();
-                    logger.replace().debug("Move " + gamesWithMove.b + " has a score of " + score);
-                    if (score > resultScore) {
-                        resultScore = score;
-                        resultMove = gamesWithMove.b;
-                    }
-                    i++;
-                    int progressPercentage =
-                            (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() *
-                                    100);
-                    logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
-                    break;
-                }
-            }
         } else {
-            for (Move move : game.getValidMovesForCurrentPlayer()) {
-                Game clonedGame = game.clone();
-                clonedGame.executeMove(move);
-
-                int score;
-                try {
-                    score = minmaxWithDepth(clonedGame, depthLimit - 1, alpha, beta);
-                    logger.replace().debug("Move " + move + " has a score of " + score);
-                    if (score > resultScore) {
-                        resultScore = score;
-                        resultMove = move;
-                    }
-                    alpha = Math.max(alpha, score);  // Update alpha for the maximizer
-                    i++;
-                    int progressPercentage =
-                            (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() *
-                                    100);
-                    logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
-                } catch (OutOfTimeException e) {
-                    score = e.getResult();
-                    logger.replace().debug("Move " + move + " has a score of " + score);
-                    if (score > resultScore) {
-                        resultScore = score;
-                        resultMove = move;
-                    }
-                    i++;
-                    int progressPercentage =
-                            (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() *
-                                    100);
-                    logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
-                    break;
-                }
-            }
+            gamesWithMoves = nextGameScores.stream().map(t -> new Tuple<>(t.a, t.c))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
         }
 
-        return new Tuple<>(resultScore, resultMove);
+        for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
+            int score;
+            try {
+                score = minmaxWithDepth(gamesWithMove.a, depthLimit - 1, alpha, beta);
+                logger.replace().debug("Move " + gamesWithMove.b + " has a score of " + score);
+                if (score > resultScore) {
+                    resultScore = score;
+                    resultMove = gamesWithMove.b;
+                }
+                alpha = Math.max(alpha, score);  // Update alpha for the maximizer
+                i++;
+                int progressPercentage =
+                        (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() *
+                                100);
+                logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
+            } catch (OutOfTimeException e) {
+                return null;
+            }
+        }
+        return resultMove;
+    }
+
+    private Set<Triplet<Game, Integer, Move>> getFirstValidMoves() {
+        Set<Triplet<Game, Integer, Move>> nextGameScores = new LinkedHashSet<>();
+        for (Move move : game.getValidMovesForCurrentPlayer()) {
+            Game clonedGame = game.clone();
+            clonedGame.executeMove(move);
+            nextGameScores.add(
+                    new Triplet<>(clonedGame, GameEvaluator.evaluate(clonedGame, ME), move));
+        }
+        return nextGameScores;
     }
 
     /**
@@ -208,7 +168,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         }
 
         if (System.currentTimeMillis() - startTime > timeLimit) {
-            throw new OutOfTimeException("Out of time", result);
+            throw new OutOfTimeException("Out of time");
         }
         return result;
     }
