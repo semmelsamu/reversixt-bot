@@ -92,7 +92,10 @@ public final class MoveExecutor {
                     if(currentTile.isUnoccupied()) {
                         break;
                     }
-                    if(currentTile == playerValue || tileReader.getCoordinates().equals(position)) {
+                    if(tileReader.getCoordinates().equals(position)) {
+                        break;
+                    }
+                    if(currentTile == playerValue) {
                         result.addAll(buffer);
                         break;
                     }
