@@ -46,7 +46,8 @@ public class Main {
             case 2 -> Exercise02.aufgabe3();
             case 4 -> Exercise04.abnahme(ip, port);
             case 5 -> Exercise05.abnahme(ip, port);
-            default -> Exercise06.abnahme(ip, port);
+            case 6 -> Exercise06.abnahme(ip, port);
+            default -> Exercise07.abnahme(ip, port, (Boolean) parsedArguments.get("n"));
         }
     }
 }
