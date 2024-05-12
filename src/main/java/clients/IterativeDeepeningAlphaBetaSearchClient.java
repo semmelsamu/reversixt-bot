@@ -36,23 +36,26 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         }
 
         Move bestMove = null;
-        for (int depth = 1; depth <= depthLimit; depth++) {
-            initializeStats();
-            if (System.currentTimeMillis() - startTime > this.timeLimit) {
-                break;
-            }
-            logger.log("Calculating new move with time limit " + timeLimit + "ms and depth limit " +
-                    depth + " layers");
-            logger.debug("There are " + game.getValidMovesForCurrentPlayer().size() +
-                    " possible moves, calculating the best scoring one\n");
+        try {
+            for (int depth = 1; depth <= depthLimit; depth++) {
+                initializeStats();
+                if (System.currentTimeMillis() - startTime > this.timeLimit) {
+                    throw new OutOfTimeException("Out of time");
+                }
+                logger.log("Calculating new move with time limit " + timeLimit +
+                        "ms and depth limit " + depth + " layers");
+                logger.debug("There are " + game.getValidMovesForCurrentPlayer().size() +
+                        " possible moves, calculating the best scoring one\n");
 
-            Move move = alphaBetaSearch(depth);
-            if (move != null) {
-                bestMove = move;
+                bestMove = alphaBetaSearch(depth);
+
+                stats_depth = depth;
+                logStats();
             }
-            stats_depth = depth;
-            logStats();
+        } catch (OutOfTimeException e) {
+            Logger.get().log(e.getMessage());
         }
+
 
         assert bestMove != null;
         logger.log("Responding with " + bestMove.getClass().getSimpleName() +
@@ -82,23 +85,18 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         }
 
         for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
-            int score;
-            try {
-                score = minmaxWithDepth(gamesWithMove.a, depthLimit - 1, alpha, beta);
-                logger.replace().debug("Move " + gamesWithMove.b + " has a score of " + score);
-                if (score > resultScore) {
-                    resultScore = score;
-                    resultMove = gamesWithMove.b;
-                }
-                alpha = Math.max(alpha, score);  // Update alpha for the maximizer
-                i++;
-                int progressPercentage =
-                        (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() *
-                                100);
-                logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
-            } catch (OutOfTimeException e) {
-                return null;
+            int score = minmaxWithDepth(gamesWithMove.a, depthLimit - 1, alpha, beta);
+            logger.replace().debug("Move " + gamesWithMove.b + " has a score of " + score);
+            if (score > resultScore) {
+                resultScore = score;
+                resultMove = gamesWithMove.b;
             }
+            alpha = Math.max(alpha, score);  // Update alpha for the maximizer
+            i++;
+            int progressPercentage =
+                    (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() * 100);
+            logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
+
         }
         return resultMove;
     }
@@ -122,6 +120,11 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
      */
     private int minmaxWithDepth(Game game, int depth, int alpha, int beta) {
         long stats_startTime;
+
+        if (System.currentTimeMillis() - startTime > timeLimit) {
+            throw new OutOfTimeException("Out of time");
+        }
+
         if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
             stats_gamesEvaluated++;
             stats_startTime = System.currentTimeMillis();
@@ -165,10 +168,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                     break;  // Alpha cutoff
                 }
             }
-        }
-
-        if (System.currentTimeMillis() - startTime > timeLimit) {
-            throw new OutOfTimeException("Out of time");
         }
         return result;
     }
