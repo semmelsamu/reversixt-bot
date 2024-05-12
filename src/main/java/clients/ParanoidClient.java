@@ -3,8 +3,12 @@ package clients;
 import evaluation.GameEvaluator;
 import game.Game;
 import game.GamePhase;
+import game.MoveCalculator;
+import game.MoveExecutor;
 import move.Move;
 import util.Logger;
+
+import java.util.Set;
 
 public class ParanoidClient extends Client {
 
@@ -21,19 +25,21 @@ public class ParanoidClient extends Client {
             throw new RuntimeException("Move was requested but we think the game already ended");
         }
 
-        if (game.getValidMovesForCurrentPlayer().isEmpty()) {
+        Set<Move> possibleMoves = MoveCalculator.getValidMovesForPlayer(game, ME);
+
+        if (possibleMoves.isEmpty()) {
             throw new RuntimeException("Could not calculate any possible moves");
         }
 
-        logger.debug(game.getValidMovesForCurrentPlayer().size() + " possible moves");
+        logger.debug(possibleMoves.size() + " possible moves");
 
         int resultScore = Integer.MIN_VALUE;
         Move resultMove = null;
 
-        for (Move move : game.getValidMovesForCurrentPlayer()) {
+        for (Move move : possibleMoves) {
 
             Game clonedGame = game.clone();
-            clonedGame.executeMove(move);
+            MoveExecutor.executeMove(clonedGame, move);
             int score = minmax(clonedGame, depthLimit);
 
             if (score > resultScore) {
@@ -58,9 +64,9 @@ public class ParanoidClient extends Client {
         boolean isMaximizer = currentPlayerNumber == ME;
         int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        for (Move move : game.getValidMovesForCurrentPlayer()) {
+        for (Move move : MoveCalculator.getValidMovesForPlayer(game, currentPlayerNumber)) {
             Game clonedGame = game.clone();
-            clonedGame.executeMove(move);
+            MoveExecutor.executeMove(clonedGame, move);
             int score = minmax(clonedGame, depth - 1);
             result = isMaximizer ? Math.max(result, score) : Math.min(result, score);
 

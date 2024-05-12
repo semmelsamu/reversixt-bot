@@ -75,28 +75,22 @@ public class NetworkClientAdapter implements NetworkClient {
 
         Coordinates coordinates = new Coordinates(x, y);
 
-        Move move = null;
-
         if (game.getPhase() == GamePhase.PHASE_1) {
             if (type == 0) {
-                if (game.getTile(coordinates) == Tile.INVERSION) {
-                    move = new InversionMove(playerNumber, coordinates);
-                } else if(game.getTile(coordinates) == Tile.EMPTY) {
-                    move = new NormalMove(playerNumber, coordinates);
+                if (game.getTile(coordinates) != Tile.INVERSION) {
+                    MoveExecutor.executeMove(game, new NormalMove(playerNumber, coordinates));
                 } else {
-                    move = new OverwriteMove(playerNumber, coordinates);
+                    MoveExecutor.executeMove(game, new InversionMove(playerNumber, coordinates));
                 }
             } else if (type == 20 || type == 21) {
                 Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
-                move = new BonusMove(playerNumber, coordinates, bonus);
+                MoveExecutor.executeMove(game, new BonusMove(playerNumber, coordinates, bonus));
             } else {
-                move = new ChoiceMove(playerNumber, coordinates, type);
+                MoveExecutor.executeMove(game, new ChoiceMove(playerNumber, coordinates, type));
             }
         } else {
-            move = new BombMove(playerNumber, coordinates);
+            MoveExecutor.executeMove(game, new BombMove(playerNumber, coordinates));
         }
-
-        game.executeMove(move);
 
         logger.verbose(game.toString());
     }
