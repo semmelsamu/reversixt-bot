@@ -82,9 +82,9 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
             stats_gamesEvaluated++;
-            stats_startTime = System.nanoTime();
+            stats_startTime = System.currentTimeMillis();
             int score = GameEvaluator.evaluate(game, ME);
-            stats_evaluationTime += System.nanoTime() - stats_startTime;
+            stats_evaluationTime += System.currentTimeMillis() - stats_startTime;
             return score;
         }
 
@@ -98,13 +98,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
             stats_gamesCalculated++;
 
-            stats_startTime = System.nanoTime();
+            stats_startTime = System.currentTimeMillis();
             Game clonedGame = game.clone();
-            stats_cloningTime += System.nanoTime() - stats_startTime;
+            stats_cloningTime += System.currentTimeMillis() - stats_startTime;
 
-            stats_startTime = System.nanoTime();
+            stats_startTime = System.currentTimeMillis();
             clonedGame.executeMove(move);
-            stats_executionTime += System.nanoTime() - stats_startTime;
+            stats_executionTime += System.currentTimeMillis() - stats_startTime;
 
             int score = minmax(clonedGame, depth - 1, alpha, beta);
 
@@ -147,12 +147,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
     private long stats_cutoffs;
 
-    private String ms(long nanoseconds) {
-        return nanoseconds / 1_000_000 + "ms";
-    }
-
     private void initializeStats() {
-        stats_totalTime = System.nanoTime();
+        stats_totalTime = System.currentTimeMillis();
         stats_gamesCalculated = 0;
         stats_cloningTime = 0;
         stats_executionTime = 0;
@@ -163,17 +159,16 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
     private void logStats() {
 
-        logger.verbose("Total time: " + ms(System.nanoTime() - stats_totalTime));
+        logger.verbose("Total time: " + (System.currentTimeMillis() - stats_totalTime));
 
         logger.verbose("Visited " + stats_gamesCalculated + " Games in " +
-                ms(stats_cloningTime + stats_executionTime));
-        logger.verbose("Cloning time: " + ms(stats_cloningTime));
-        logger.verbose("Execution time: " + ms(stats_executionTime));
+                (stats_cloningTime + stats_executionTime));
+        logger.verbose("Cloning time: " + (stats_cloningTime));
+        logger.verbose("Execution time: " + (stats_executionTime));
 
         logger.verbose("Cutoffs: " + stats_cutoffs);
 
-        logger.verbose(
-                "Evaluated " + stats_gamesEvaluated + " Games in " + ms(stats_evaluationTime));
+        logger.verbose("Evaluated " + stats_gamesEvaluated + " Games in " + (stats_evaluationTime));
     }
 
 }
