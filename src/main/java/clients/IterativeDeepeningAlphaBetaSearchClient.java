@@ -131,17 +131,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
         if (moveSorting && depth > 1) {
-            Set<Triplet<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
-            Set<Game> gamesWithMoves;
-            if (isMaximizer) {
-                gamesWithMoves = nextGameScores.stream()
-                        .sorted(Comparator.comparing(Triplet::b, Comparator.reverseOrder()))
-                        .map(Triplet::a).collect(Collectors.toCollection(LinkedHashSet::new));
-            } else {
-                gamesWithMoves = nextGameScores.stream()
-                        .sorted(Comparator.comparing(Triplet::b, Comparator.naturalOrder()))
-                        .map(Triplet::a).collect(Collectors.toCollection(LinkedHashSet::new));
-            }
+            Comparator<Integer> comparator =
+                    isMaximizer ? Comparator.reverseOrder() : Comparator.naturalOrder();
+
+            Set<Game> gamesWithMoves = getGamesWithMoveAndEvaluation(game).stream()
+                    .sorted(Comparator.comparing(Triplet::b, comparator)).map(Triplet::a)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
             stats_gamesVisited += gamesWithMoves.size();
             for (Game clonedGame : gamesWithMoves) {
                 int score = minmaxWithDepth(clonedGame, depth - 1, alpha, beta);
