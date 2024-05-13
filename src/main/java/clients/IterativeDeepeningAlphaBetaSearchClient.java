@@ -37,8 +37,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                     "Move was requested but we think the game already ended");
         }
 
-        logger.log("Calculating new move with time limit " + timeLimit +
-                "ms and depth limit " + depthLimit + " layers");
+        logger.log("Calculating new move with time limit " + timeLimit + "ms and depth limit " +
+                depthLimit + " layers");
         Move bestMove = null;
         try {
             for (int depth = 1; depth <= depthLimit; depth++) {
@@ -80,7 +80,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                     .collect(Collectors.toCollection(LinkedHashSet::new));
         } else {
             gamesWithMoves = nextGameScores.stream().map(t -> new Tuple<>(t.a, t.c))
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+                    .collect(Collectors.toSet());
         }
         stats_gamesVisited += gamesWithMoves.size();
         for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
