@@ -1,3 +1,4 @@
+import clients.IterativeDeepeningAlphaBetaSearchClient;
 import clients.OptimizedParanoidClient;
 import clients.ParanoidClient;
 import exercises.*;
@@ -32,6 +33,7 @@ public class Main {
             Logger.setPriority(Game.class.getName(), 3);
             Logger.setPriority(ParanoidClient.class.getName(), 1);
             Logger.setPriority(OptimizedParanoidClient.class.getName(), 0);
+            Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), 1);
 
             Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
         }
@@ -46,7 +48,8 @@ public class Main {
             case 2 -> Exercise02.aufgabe3();
             case 4 -> Exercise04.abnahme(ip, port);
             case 5 -> Exercise05.abnahme(ip, port);
-            default -> Exercise06.abnahme(ip, port);
+            case 6 -> Exercise06.abnahme(ip, port);
+            default -> Exercise07.abnahme(ip, port, (Boolean) parsedArguments.get("n"));
         }
     }
 }
