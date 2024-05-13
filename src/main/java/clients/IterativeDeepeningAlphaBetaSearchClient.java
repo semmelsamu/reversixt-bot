@@ -72,7 +72,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         int beta = Integer.MAX_VALUE;
         int i = 0;
 
-        Set<Triplet<Game, Integer, Move>> nextGameScores = getFirstValidMoves();
+        Set<Triplet<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation();
         Set<Tuple<Game, Move>> gamesWithMoves;
         if (moveSorting) {
             gamesWithMoves = nextGameScores.stream()
@@ -101,7 +101,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         return resultMove;
     }
 
-    private Set<Triplet<Game, Integer, Move>> getFirstValidMoves() {
+    private Set<Triplet<Game, Integer, Move>> getGamesWithMoveAndEvaluation() {
         Set<Triplet<Game, Integer, Move>> nextGameScores = new LinkedHashSet<>();
         for (Move move : game.getValidMovesForCurrentPlayer()) {
             Game clonedGame = game.clone();
@@ -139,33 +139,65 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         boolean isMaximizer = currentPlayerNumber == ME;
         int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        for (Move move : game.getValidMovesForCurrentPlayer()) {
-            stats_gamesCalculated++;
-            stats_startTime = System.currentTimeMillis();
-
-            Game clonedGame = game.clone();
-
-            stats_cloningTime += System.currentTimeMillis() - stats_startTime;
-            stats_startTime = System.currentTimeMillis();
-
-            clonedGame.executeMove(move);
-
-            stats_executionTime += System.currentTimeMillis() - stats_startTime;
-
-            int score = minmaxWithDepth(clonedGame, depth - 1, alpha, beta);
+        if (moveSorting && depth > 1) {
+            Set<Triplet<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation();
+            Set<Game> gamesWithMoves;
             if (isMaximizer) {
-                result = Math.max(result, score);
-                alpha = Math.max(alpha, result);
-                if (beta <= alpha) {
-                    stats_cutoffs++;
-                    break;  // Beta cutoff
-                }
+                gamesWithMoves = nextGameScores.stream()
+                        .sorted(Comparator.comparing(Triplet::b, Comparator.reverseOrder()))
+                        .map(Triplet::a).collect(Collectors.toCollection(LinkedHashSet::new));
             } else {
-                result = Math.min(result, score);
-                beta = Math.min(beta, result);
-                if (beta <= alpha) {
-                    stats_cutoffs++;
-                    break;  // Alpha cutoff
+                gamesWithMoves = nextGameScores.stream()
+                        .sorted(Comparator.comparing(Triplet::b, Comparator.naturalOrder()))
+                        .map(Triplet::a).collect(Collectors.toCollection(LinkedHashSet::new));
+            }
+            for (Game clonedGame : gamesWithMoves) {
+                int score = minmaxWithDepth(clonedGame, depth - 1, alpha, beta);
+                if (isMaximizer) {
+                    result = Math.max(result, score);
+                    alpha = Math.max(alpha, result);
+                    if (beta <= alpha) {
+                        stats_cutoffs++;
+                        break;  // Beta cutoff
+                    }
+                } else {
+                    result = Math.min(result, score);
+                    beta = Math.min(beta, result);
+                    if (beta <= alpha) {
+                        stats_cutoffs++;
+                        break;  // Alpha cutoff
+                    }
+                }
+            }
+        } else {
+            for (Move move : game.getValidMovesForCurrentPlayer()) {
+                stats_gamesCalculated++;
+                stats_startTime = System.currentTimeMillis();
+
+                Game clonedGame = game.clone();
+
+                stats_cloningTime += System.currentTimeMillis() - stats_startTime;
+                stats_startTime = System.currentTimeMillis();
+
+                clonedGame.executeMove(move);
+
+                stats_executionTime += System.currentTimeMillis() - stats_startTime;
+
+                int score = minmaxWithDepth(clonedGame, depth - 1, alpha, beta);
+                if (isMaximizer) {
+                    result = Math.max(result, score);
+                    alpha = Math.max(alpha, result);
+                    if (beta <= alpha) {
+                        stats_cutoffs++;
+                        break;  // Beta cutoff
+                    }
+                } else {
+                    result = Math.min(result, score);
+                    beta = Math.min(beta, result);
+                    if (beta <= alpha) {
+                        stats_cutoffs++;
+                        break;  // Alpha cutoff
+                    }
                 }
             }
         }
