@@ -111,8 +111,11 @@ public enum Tile {
     /**
      * Returns all values for Players in ascending order.
      */
-    public static Tile[] getAllPlayerTiles() {
-        return new Tile[]{PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5, PLAYER6, PLAYER7, PLAYER8};
+    public static Tile getTileForPlayerNumber(int player) {
+        if(player  > 8){
+            throw new IllegalArgumentException("Player number is higher than 8");
+        }
+        return Tile.values()[player];
     }
 
     /*
