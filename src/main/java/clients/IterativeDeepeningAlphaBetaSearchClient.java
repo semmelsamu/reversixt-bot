@@ -21,6 +21,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     private long startTime;
     private int timeLimit;
 
+    private static final int PUFFER = 60;
+
     public IterativeDeepeningAlphaBetaSearchClient(boolean moveSorting) {
         this.moveSorting = moveSorting;
         logger.log("Launching IterativeDeepeningAlphaBetaSearchClient");
@@ -29,7 +31,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     @Override
     public Move sendMove(int timeLimit, int depthLimit) {
         this.startTime = System.currentTimeMillis();
-        this.timeLimit = timeLimit - 100;
+        this.timeLimit = timeLimit - PUFFER;
         if (game.getPhase() == GamePhase.END) {
             throw new GamePhaseNotValidException(
                     "Move was requested but we think the game already ended");
@@ -53,7 +55,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         } catch (OutOfTimeException e) {
             Logger.get().log(e.getMessage());
         }
-
 
         assert bestMove != null;
         logger.log("Responding with " + bestMove.getClass().getSimpleName() +
@@ -212,7 +213,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     }
 
     private void logStats() {
-
         logger.verbose("Actual depth: " + stats_depth);
 
         logger.verbose("Total time: " + (System.currentTimeMillis() - stats_totalTime) + " ms");
@@ -222,7 +222,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         logger.verbose("Cutoffs: " + stats_cutoffs);
 
         logger.verbose("");
-
     }
 
     record Tuple<A, B>(
