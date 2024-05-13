@@ -21,7 +21,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     private long startTime;
     private int timeLimit;
 
-    private static final int PUFFER = 60;
+    private static final int TIME_BUFFER = 60;
 
     public IterativeDeepeningAlphaBetaSearchClient(boolean moveSorting) {
         this.moveSorting = moveSorting;
@@ -31,7 +31,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     @Override
     public Move sendMove(int timeLimit, int depthLimit) {
         this.startTime = System.currentTimeMillis();
-        this.timeLimit = timeLimit - PUFFER;
+        this.timeLimit = timeLimit - TIME_BUFFER;
         if (game.getPhase() == GamePhase.END) {
             throw new GamePhaseNotValidException(
                     "Move was requested but we think the game already ended");
