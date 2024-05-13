@@ -53,7 +53,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                 logStats();
             }
         } catch (OutOfTimeException e) {
-            Logger.get().log(e.getMessage());
+            logger.log(e.getMessage());
         }
 
         assert bestMove != null;
