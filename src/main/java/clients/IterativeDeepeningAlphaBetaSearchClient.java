@@ -35,6 +35,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                     "Move was requested but we think the game already ended");
         }
 
+        logger.log("Calculating new move with time limit " + timeLimit +
+                "ms and depth limit " + depthLimit + " layers");
         Move bestMove = null;
         try {
             for (int depth = 1; depth <= depthLimit; depth++) {
@@ -42,10 +44,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                 if (System.currentTimeMillis() - startTime > this.timeLimit) {
                     throw new OutOfTimeException("Out of time");
                 }
-                logger.log("Calculating new move with time limit " + timeLimit +
-                        "ms and depth limit " + depth + " layers");
-                logger.debug("There are " + game.getValidMovesForCurrentPlayer().size() +
-                        " possible moves, calculating the best scoring one\n");
 
                 bestMove = alphaBetaSearch(depth);
 
@@ -72,7 +70,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         int beta = Integer.MAX_VALUE;
         int i = 0;
 
-        Set<Triplet<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation();
+        Set<Triplet<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
         Set<Tuple<Game, Move>> gamesWithMoves;
         if (moveSorting) {
             gamesWithMoves = nextGameScores.stream()
@@ -83,7 +81,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
             gamesWithMoves = nextGameScores.stream().map(t -> new Tuple<>(t.a, t.c))
                     .collect(Collectors.toCollection(LinkedHashSet::new));
         }
-
+        stats_gamesVisited += gamesWithMoves.size();
         for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
             int score = minmaxWithDepth(gamesWithMove.a, depthLimit - 1, alpha, beta);
             logger.replace().debug("Move " + gamesWithMove.b + " has a score of " + score);
@@ -101,7 +99,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         return resultMove;
     }
 
-    private Set<Triplet<Game, Integer, Move>> getGamesWithMoveAndEvaluation() {
+    private Set<Triplet<Game, Integer, Move>> getGamesWithMoveAndEvaluation(Game game) {
         Set<Triplet<Game, Integer, Move>> nextGameScores = new LinkedHashSet<>();
         for (Move move : game.getValidMovesForCurrentPlayer()) {
             Game clonedGame = game.clone();
@@ -119,28 +117,20 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
      * @return Best move with the belonging score
      */
     private int minmaxWithDepth(Game game, int depth, int alpha, int beta) {
-        long stats_startTime;
 
         if (System.currentTimeMillis() - startTime > timeLimit) {
             throw new OutOfTimeException("Out of time");
         }
 
         if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
-            stats_gamesEvaluated++;
-            stats_startTime = System.currentTimeMillis();
-
-            int score = GameEvaluator.evaluate(game, ME);
-
-            stats_evaluationTime += System.currentTimeMillis() - stats_startTime;
-
-            return score;
+            return GameEvaluator.evaluate(game, ME);
         }
         int currentPlayerNumber = game.getCurrentPlayerNumber();
         boolean isMaximizer = currentPlayerNumber == ME;
         int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
         if (moveSorting && depth > 1) {
-            Set<Triplet<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation();
+            Set<Triplet<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
             Set<Game> gamesWithMoves;
             if (isMaximizer) {
                 gamesWithMoves = nextGameScores.stream()
@@ -151,6 +141,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                         .sorted(Comparator.comparing(Triplet::b, Comparator.naturalOrder()))
                         .map(Triplet::a).collect(Collectors.toCollection(LinkedHashSet::new));
             }
+            stats_gamesVisited += gamesWithMoves.size();
             for (Game clonedGame : gamesWithMoves) {
                 int score = minmaxWithDepth(clonedGame, depth - 1, alpha, beta);
                 if (isMaximizer) {
@@ -171,17 +162,11 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
             }
         } else {
             for (Move move : game.getValidMovesForCurrentPlayer()) {
-                stats_gamesCalculated++;
-                stats_startTime = System.currentTimeMillis();
+                stats_gamesVisited++;
 
                 Game clonedGame = game.clone();
 
-                stats_cloningTime += System.currentTimeMillis() - stats_startTime;
-                stats_startTime = System.currentTimeMillis();
-
                 clonedGame.executeMove(move);
-
-                stats_executionTime += System.currentTimeMillis() - stats_startTime;
 
                 int score = minmaxWithDepth(clonedGame, depth - 1, alpha, beta);
                 if (isMaximizer) {
@@ -216,22 +201,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     private long stats_depth;
 
 
-    private int stats_gamesCalculated;
-    private long stats_cloningTime;
-    private long stats_executionTime;
-
-    private int stats_gamesEvaluated;
-    private long stats_evaluationTime;
+    private int stats_gamesVisited;
 
     private long stats_cutoffs;
 
     private void initializeStats() {
         stats_totalTime = System.currentTimeMillis();
-        stats_gamesCalculated = 0;
-        stats_cloningTime = 0;
-        stats_executionTime = 0;
-        stats_gamesEvaluated = 0;
-        stats_evaluationTime = 0;
+        stats_gamesVisited = 0;
         stats_cutoffs = 0;
     }
 
@@ -239,17 +215,11 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         logger.verbose("Actual depth: " + stats_depth);
 
+        logger.verbose("Total time: " + (System.currentTimeMillis() - stats_totalTime) + " ms");
 
-        logger.verbose("Total time: " + (System.currentTimeMillis() - stats_totalTime));
-
-        logger.verbose("Visited " + stats_gamesCalculated + " Games in " +
-                (stats_cloningTime + stats_executionTime));
-        logger.verbose("Cloning time: " + (stats_cloningTime));
-        logger.verbose("Execution time: " + (stats_executionTime));
+        logger.verbose("Visited Games: " + stats_gamesVisited);
 
         logger.verbose("Cutoffs: " + stats_cutoffs);
-
-        logger.verbose("Evaluated " + stats_gamesEvaluated + " Games in " + (stats_evaluationTime));
 
         logger.verbose("");
 
