@@ -56,6 +56,11 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
                 logger.verbose("Stats for depth " + depth + ":");
                 logStats();
+
+                // Only the first phase requires searching deeper than 1
+                if(!game.getPhase().equals(GamePhase.PHASE_1)) {
+                    break;
+                }
             }
         } catch (OutOfTimeException e) {
             logger.log(e.getMessage());
