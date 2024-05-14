@@ -30,6 +30,10 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
     @Override
     public Move sendMove(int timeLimit, int depthLimit) {
+        if(timeLimit > 0){
+            depthLimit = 100;
+        }
+
         this.startTime = System.currentTimeMillis();
         this.timeLimit = timeLimit - TIME_BUFFER;
         if (game.getPhase() == GamePhase.END) {
