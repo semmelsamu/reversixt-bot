@@ -4,12 +4,8 @@ import evaluation.GameEvaluator;
 import exceptions.GamePhaseNotValidException;
 import game.Game;
 import game.GamePhase;
-import game.MoveCalculator;
-import game.MoveExecutor;
 import move.Move;
 import util.Logger;
-
-import java.util.Set;
 
 public class OptimizedParanoidClient extends Client {
 
@@ -32,9 +28,7 @@ public class OptimizedParanoidClient extends Client {
         logger.log("Calculating new move with time limit " + timeLimit + "ms and depth limit " +
                 depthLimit + " layers");
 
-        Set<Move> possibleMoves = MoveCalculator.getValidMovesForPlayer(game, ME);
-
-        logger.debug("There are " + possibleMoves.size() +
+        logger.debug("There are " + game.getValidMovesForCurrentPlayer().size() +
                 " possible moves, calculating the best scoring one\n");
 
         int resultScore = Integer.MIN_VALUE;
@@ -44,10 +38,10 @@ public class OptimizedParanoidClient extends Client {
         int beta = Integer.MAX_VALUE;
 
         int i = 0;
-        for (Move move : possibleMoves) {
+        for (Move move : game.getValidMovesForCurrentPlayer()) {
 
             Game clonedGame = game.clone();
-            MoveExecutor.executeMove(clonedGame, move);
+            clonedGame.executeMove(move);
             int score = minmax(clonedGame, depthLimit - 1, alpha, beta);
 
             logger.replace().debug("Move " + move + " has a score of " + score);
@@ -60,7 +54,7 @@ public class OptimizedParanoidClient extends Client {
             alpha = Math.max(alpha, score);  // Update alpha for the maximizer
 
             i++;
-            int progressPercentage = (int) ((float) i / (float) possibleMoves.size() * 100);
+            int progressPercentage = (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() * 100);
             logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
         }
 
@@ -96,11 +90,7 @@ public class OptimizedParanoidClient extends Client {
 
         int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        stats_startTime = System.nanoTime();
-        Set<Move> possibleMoves = MoveCalculator.getValidMovesForPlayer(game, currentPlayerNumber);
-        stats_calculationTime += System.nanoTime() - stats_startTime;
-
-        for (Move move : possibleMoves) {
+        for (Move move : game.getValidMovesForCurrentPlayer()) {
 
             stats_gamesCalculated++;
 
@@ -109,7 +99,7 @@ public class OptimizedParanoidClient extends Client {
             stats_cloningTime += System.nanoTime() - stats_startTime;
 
             stats_startTime = System.nanoTime();
-            MoveExecutor.executeMove(clonedGame, move);
+            clonedGame.executeMove(move);
             stats_executionTime += System.nanoTime() - stats_startTime;
 
             int score = minmax(clonedGame, depth - 1, alpha, beta);
@@ -142,8 +132,9 @@ public class OptimizedParanoidClient extends Client {
     |-----------------------------------------------------------------------------------------------
     */
 
+    private long stats_totalTime;
+
     private int stats_gamesCalculated;
-    private long stats_calculationTime;
     private long stats_cloningTime;
     private long stats_executionTime;
 
@@ -157,8 +148,8 @@ public class OptimizedParanoidClient extends Client {
     }
 
     private void initializeStats() {
+        stats_totalTime = System.nanoTime();
         stats_gamesCalculated = 0;
-        stats_calculationTime = 0;
         stats_cloningTime = 0;
         stats_executionTime = 0;
         stats_gamesEvaluated = 0;
@@ -168,9 +159,10 @@ public class OptimizedParanoidClient extends Client {
 
     private void logStats() {
 
+        logger.verbose("Total time: " + ms(System.nanoTime() - stats_totalTime));
+
         logger.verbose("Visited " + stats_gamesCalculated + " Games in " +
-                ms(stats_calculationTime + stats_cloningTime + stats_executionTime));
-        logger.verbose("Calculation time: " + ms(stats_calculationTime));
+                ms(stats_cloningTime + stats_executionTime));
         logger.verbose("Cloning time: " + ms(stats_cloningTime));
         logger.verbose("Execution time: " + ms(stats_executionTime));
 
