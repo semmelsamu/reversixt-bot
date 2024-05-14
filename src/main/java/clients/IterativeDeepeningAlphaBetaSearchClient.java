@@ -49,14 +49,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         try {
             for (int depth = 1; timeLimit > 0 || depth <= depthLimit; depth++) {
+
                 initializeStats();
-                if (System.currentTimeMillis() - startTime > this.timeLimit) {
-                    throw new OutOfTimeException("Out of time");
-                }
 
                 bestMove = alphaBetaSearch(depth);
 
                 stats_depth = depth;
+
                 logStats();
             }
         } catch (OutOfTimeException e) {
@@ -70,38 +69,55 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     }
 
     private Move alphaBetaSearch(int depthLimit) {
+
         int resultScore = Integer.MIN_VALUE;
         Move resultMove = null;
+
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
-        int i = 0;
 
         Set<Triplet<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
         Set<Tuple<Game, Move>> gamesWithMoves;
+
         if (enableMoveSorting) {
+            // TODO: Performance -> No Streams!
             gamesWithMoves = nextGameScores.stream()
                     .sorted(Comparator.comparing(Triplet::b, Comparator.reverseOrder()))
                     .map(t -> new Tuple<>(t.a, t.c))
                     .collect(Collectors.toCollection(LinkedHashSet::new));
         } else {
+            // TODO: Performance -> No Streams!
             gamesWithMoves = nextGameScores.stream().map(t -> new Tuple<>(t.a, t.c))
                     .collect(Collectors.toSet());
         }
+
         stats_gamesVisited += gamesWithMoves.size();
+
+        // For logging progress percentage
+        int i = 0;
+
         for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
+
             int score = minmaxWithDepth(gamesWithMove.a, depthLimit - 1, alpha, beta);
+
             logger.replace().debug("Move " + gamesWithMove.b + " has a score of " + score);
+
             if (score > resultScore) {
                 resultScore = score;
                 resultMove = gamesWithMove.b;
             }
-            alpha = Math.max(alpha, score);  // Update alpha for the maximizer
+
+            // Update alpha for the maximizer
+            alpha = Math.max(alpha, score);
+
+
+            // Logging progress percentage
             i++;
             int progressPercentage =
                     (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() * 100);
             logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
-
         }
+
         return resultMove;
     }
 
@@ -131,21 +147,29 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
             return GameEvaluator.evaluate(game, ME);
         }
+
         int currentPlayerNumber = game.getCurrentPlayerNumber();
         boolean isMaximizer = currentPlayerNumber == ME;
+
         int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
         if (enableMoveSorting && depth > 1) {
+
             Comparator<Integer> comparator =
                     isMaximizer ? Comparator.reverseOrder() : Comparator.naturalOrder();
 
+            // TODO: Performance -> No Streams!
             Set<Game> gamesWithMoves = getGamesWithMoveAndEvaluation(game).stream()
                     .sorted(Comparator.comparing(Triplet::b, comparator)).map(Triplet::a)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
             stats_gamesVisited += gamesWithMoves.size();
+
             for (Game clonedGame : gamesWithMoves) {
+
                 int score = minmaxWithDepth(clonedGame, depth - 1, alpha, beta);
+
+                // Alpha-Beta-Pruning
                 if (isMaximizer) {
                     result = Math.max(result, score);
                     alpha = Math.max(alpha, result);
@@ -153,7 +177,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                         stats_cutoffs++;
                         break;  // Beta cutoff
                     }
-                } else {
+                }
+                else {
                     result = Math.min(result, score);
                     beta = Math.min(beta, result);
                     if (beta <= alpha) {
@@ -164,13 +189,15 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
             }
         } else {
             for (Move move : game.getValidMovesForCurrentPlayer()) {
+
                 stats_gamesVisited++;
 
                 Game clonedGame = game.clone();
-
                 clonedGame.executeMove(move);
 
                 int score = minmaxWithDepth(clonedGame, depth - 1, alpha, beta);
+
+                // Alpha-Beta-Pruning
                 if (isMaximizer) {
                     result = Math.max(result, score);
                     alpha = Math.max(alpha, result);
@@ -178,7 +205,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                         stats_cutoffs++;
                         break;  // Beta cutoff
                     }
-                } else {
+                }
+                else {
                     result = Math.min(result, score);
                     beta = Math.min(beta, result);
                     if (beta <= alpha) {
@@ -188,6 +216,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                 }
             }
         }
+
         return result;
     }
 
@@ -215,14 +244,9 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
     private void logStats() {
         logger.verbose("Actual depth: " + stats_depth);
-
         logger.verbose("Total time: " + (System.currentTimeMillis() - stats_totalTime) + " ms");
-
         logger.verbose("Visited Games: " + stats_gamesVisited);
-
         logger.verbose("Cutoffs: " + stats_cutoffs);
-
-        logger.verbose("");
     }
 
     record Tuple<A, B>(
