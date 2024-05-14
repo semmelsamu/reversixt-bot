@@ -17,35 +17,37 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
     Logger logger = new Logger(this.getClass().getName());
 
-    private final boolean moveSorting;
+    private final boolean enableMoveSorting;
     private long startTime;
     private int timeLimit;
 
     private static final int TIME_BUFFER = 80;
 
-    public IterativeDeepeningAlphaBetaSearchClient(boolean moveSorting) {
-        this.moveSorting = moveSorting;
-        logger.log("Launching IterativeDeepeningAlphaBetaSearchClient");
+    public IterativeDeepeningAlphaBetaSearchClient(boolean enableMoveSorting) {
+        this.enableMoveSorting = enableMoveSorting;
+        logger.log("Launching IterativeDeepeningAlphaBetaSearchClient with move sorting " +
+                (enableMoveSorting ? "enabled" : "disabled"));
     }
 
     @Override
     public Move sendMove(int timeLimit, int depthLimit) {
-        if(timeLimit > 0){
-            depthLimit = 100;
-        }
 
         this.startTime = System.currentTimeMillis();
         this.timeLimit = timeLimit - TIME_BUFFER;
+
         if (game.getPhase() == GamePhase.END) {
             throw new GamePhaseNotValidException(
                     "Move was requested but we think the game already ended");
         }
 
-        logger.log("Calculating new move with time limit " + timeLimit + "ms and depth limit " +
-                depthLimit + " layers");
+        logger.log("Calculating new move with " +
+                (timeLimit > 0 ? "time limit " + timeLimit + "ms" :
+                        "depth limit " + depthLimit + " layers"));
+
         Move bestMove = null;
+
         try {
-            for (int depth = 1; depth <= depthLimit; depth++) {
+            for (int depth = 1; timeLimit > 0 || depth <= depthLimit; depth++) {
                 initializeStats();
                 if (System.currentTimeMillis() - startTime > this.timeLimit) {
                     throw new OutOfTimeException("Out of time");
@@ -77,7 +79,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         Set<Triplet<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
         Set<Tuple<Game, Move>> gamesWithMoves;
-        if (moveSorting) {
+        if (enableMoveSorting) {
             gamesWithMoves = nextGameScores.stream()
                     .sorted(Comparator.comparing(Triplet::b, Comparator.reverseOrder()))
                     .map(t -> new Tuple<>(t.a, t.c))
@@ -134,7 +136,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         boolean isMaximizer = currentPlayerNumber == ME;
         int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        if (moveSorting && depth > 1) {
+        if (enableMoveSorting && depth > 1) {
             Comparator<Integer> comparator =
                     isMaximizer ? Comparator.reverseOrder() : Comparator.naturalOrder();
 
