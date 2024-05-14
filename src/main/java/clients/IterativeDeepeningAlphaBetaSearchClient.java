@@ -21,7 +21,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     private long startTime;
     private int timeLimit;
 
-    private static final int TIME_BUFFER = 60;
+    private static final int TIME_BUFFER = 80;
 
     public IterativeDeepeningAlphaBetaSearchClient(boolean moveSorting) {
         this.moveSorting = moveSorting;
