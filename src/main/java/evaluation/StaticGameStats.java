@@ -2,8 +2,10 @@ package evaluation;
 
 import board.*;
 import game.Game;
+import game.GamePhase;
+import move.Move;
 
-import java.util.Arrays;
+import java.util.*;
 
 public class StaticGameStats {
     /**
@@ -25,32 +27,80 @@ public class StaticGameStats {
      * The amount of steps from the center of the explosion a bomb blows tiles up.
      */
     private final int bombRadius;
+    /**
+     * Width of board
+     */
+    private final int width;
+    /**
+     * Width of board
+     */
+    private final int height;
 
     private final int[][] tileRatings;
 
-    public StaticGameStats(Game game, int initialPlayers, int initialOverwriteStones,
+    private BitSet reachableTiles;
+
+    public StaticGameStats(Game initialGame, int initialPlayers, int initialOverwriteStones,
                            int initialBombs, int bombRadius) {
         this.initialPlayers = initialPlayers;
         this.initialOverwriteStones = initialOverwriteStones;
         this.initialBombs = initialBombs;
         this.bombRadius = bombRadius;
-        tileRatings = calculateTileRatings(game);
+        width = initialGame.getWidth();
+        height = initialGame.getHeight();
+        tileRatings = calculateTileRatings(initialGame);
+        reachableTiles = new BitSet(height * width);
     }
 
     private int[][] calculateTileRatings(Game game) {
-        int width = game.getWidth();
-        int height = game.getHeight();
         int[][] tileRatings = new int[height][width];
-        for(int i = 0; i < height; i++) {
-            for(int j = 0; j < width; j++) {
-                if(game.getTile(new Coordinates(j, i)) == Tile.WALL){
-                    tileRatings[i][j] = 0;
+        for(int y = 0; y < height; y++) {
+            for(int x = 0; x < width; x++) {
+                if(game.getTile(new Coordinates(x, y)) == Tile.WALL){
+                    tileRatings[y][x] = 0;
                     continue;
                 }
-                tileRatings[i][j] = calculateParicularTileRating(j, i, game);
+                tileRatings[y][x] = calculateParicularTileRating(x, y, game);
             }
         }
         return tileRatings;
+    }
+
+    public void initializeReachableTiles(Game initialGame) {
+        Game purposeGame = initialGame.clone();
+        while(purposeGame.getPhase() != GamePhase.PHASE_2){
+            Set<Move> validMovesForCurrentPlayer = purposeGame.getValidMovesForCurrentPlayer();
+            List<Move> ListofvalidMoves = new ArrayList<>(validMovesForCurrentPlayer);
+            int randomIndex = (int) (Math.random() * validMovesForCurrentPlayer.size());
+            if(!validMovesForCurrentPlayer.isEmpty()){
+                Move randomMove = ListofvalidMoves.get(randomIndex);
+                purposeGame.executeMove(randomMove);
+            }
+            else{
+                break;
+            }
+        }
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if(purposeGame.getTile(new Coordinates(x,y)).isPlayer()){
+                    reachableTiles.set(y * width + x);
+                }
+            }
+        }
+    }
+
+    public void printReachableTiles(){
+        for(int y = 0; y < height; y++) {
+            for(int x = 0; x < width; x++) {
+                if(reachableTiles.get(y * width + x)){
+                    System.out.print("1 ");
+                }
+                else{
+                    System.out.print("0 ");
+                }
+            }
+            System.out.println();
+        }
     }
 
     /**
