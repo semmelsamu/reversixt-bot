@@ -68,7 +68,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
     }
 
-    private Move alphaBetaSearch(int depthLimit) {
+    private Move alphaBetaSearch(int depthLimit) throws OutOfTimeException {
 
         int resultScore = Integer.MIN_VALUE;
         Move resultMove = null;
@@ -138,7 +138,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
      * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
-    private int minmaxWithDepth(Game game, int depth, int alpha, int beta) {
+    private int minmaxWithDepth(Game game, int depth, int alpha, int beta)
+            throws OutOfTimeException {
 
         if (System.currentTimeMillis() - startTime > timeLimit) {
             throw new OutOfTimeException("Out of time");
