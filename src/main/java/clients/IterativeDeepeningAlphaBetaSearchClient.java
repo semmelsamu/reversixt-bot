@@ -54,8 +54,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
                 bestMove = alphaBetaSearch(depth);
 
-                stats_depth = depth;
-
+                logger.verbose("Stats for depth " + depth + ":");
                 logStats();
             }
         } catch (OutOfTimeException e) {
@@ -95,6 +94,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         // For logging progress percentage
         int i = 0;
+        logger.log("Starting Alpha-Beta-Search with depth limit " + depthLimit);
 
         for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
 
@@ -230,7 +230,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     */
 
     private long stats_totalTime;
-    private long stats_depth;
 
 
     private int stats_gamesVisited;
@@ -244,7 +243,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     }
 
     private void logStats() {
-        logger.verbose("Actual depth: " + stats_depth);
         logger.verbose("Total time: " + (System.currentTimeMillis() - stats_totalTime) + " ms");
         logger.verbose("Visited Games: " + stats_gamesVisited);
         logger.verbose("Cutoffs: " + stats_cutoffs);
