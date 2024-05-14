@@ -44,7 +44,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                 (timeLimit > 0 ? "time limit " + timeLimit + "ms" :
                         "depth limit " + depthLimit + " layers"));
 
-        Move bestMove = null;
+        // Fallback if we can't calculate any depth
+        Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Any valid move
 
         try {
             for (int depth = 1; timeLimit > 0 || depth <= depthLimit; depth++) {
@@ -62,9 +63,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
             logger.log(e.getMessage());
         }
 
-        assert bestMove != null;
-        logger.log("Responding with " + bestMove.getClass().getSimpleName() +
-                bestMove.getCoordinates());
+        logger.log("Responding with " + bestMove);
 
         return bestMove;
 
