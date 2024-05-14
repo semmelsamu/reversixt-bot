@@ -89,6 +89,7 @@ public class TileReader {
             return true;
         } else {
             // Check transition
+            // TODO: Performance -> No Streams!
             return game.getTransitions().keySet().stream().anyMatch(
                     transitionPart -> transitionPart.coordinates().equals(coordinates) &&
                             transitionPart.direction().equals(direction));
@@ -111,6 +112,7 @@ public class TileReader {
             coordinates = newCoordinates;
         } else {
             // Could be a transition
+            // TODO: Performance -> No Streams!
             Optional<TransitionPart> transition = game.getTransitions().keySet().stream()
                     .filter(transitionPart -> transitionPart.coordinates().equals(coordinates) &&
                             transitionPart.direction().equals(direction)).findAny();
