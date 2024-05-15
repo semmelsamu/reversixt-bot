@@ -77,6 +77,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
     private Move alphaBetaSearch(int depthLimit) throws OutOfTimeException {
 
+        logger.log("Starting Alpha/Beta-Search with search depth " + depthLimit);
+
         int resultScore = Integer.MIN_VALUE;
         Move resultMove = null;
 
@@ -102,9 +104,12 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         // For logging progress percentage
         int i = 0;
-        logger.log("Starting Alpha-Beta-Search with depth limit " + depthLimit);
 
         for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
+
+            int progressPercentage =
+                    (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() * 100);
+            logger.debug(progressPercentage + "%");
 
             int score = minmaxWithDepth(gamesWithMove.a(), depthLimit - 1, alpha, beta);
 
@@ -118,11 +123,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
             // Update alpha for the maximizer
             alpha = Math.max(alpha, score);
 
-            // Logging progress percentage
             i++;
-            int progressPercentage =
-                    (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() * 100);
-            logger.debug(progressPercentage < 100 ? progressPercentage + "%" : "Done");
         }
 
         return resultMove;

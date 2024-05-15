@@ -33,7 +33,7 @@ public class Main {
             Logger.setPriority(Game.class.getName(), 3);
             Logger.setPriority(ParanoidClient.class.getName(), 1);
             Logger.setPriority(OptimizedParanoidClient.class.getName(), 0);
-            Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), 1);
+            Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), 0);
 
             Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
         }

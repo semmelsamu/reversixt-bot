@@ -141,10 +141,10 @@ public class Logger {
         String terminator = replace ? "\r" : "\n";
 
         // Print
-        System.out.print(terminator + fillString(
-                "[" + trimString(callerClassName, 12) + ":" + trimString(callerMethodName, 10) + "]",
-                25) + "  " + (useColors ? color : "") + type + "  " + message +
-                (useColors ? ANSI_RESET : ""));
+        System.out.print(
+                terminator + (useColors ? color : "") + fillString(type, 7) + (useColors ? ANSI_RESET : "") +
+                        "  [" + callerMethodName + "]  " + (useColors ? color : "") + message +
+                        (useColors ? ANSI_RESET : ""));
 
         replace = false;
     }
@@ -171,7 +171,7 @@ public class Logger {
      * @param message The error message.
      */
     public void error(String message) {
-        print(ANSI_RED, "  ERROR", message, 4);
+        print(ANSI_RED, "ERROR", message, 4);
     }
 
     /**
@@ -180,7 +180,7 @@ public class Logger {
      * @param message The warning message.
      */
     public void warn(String message) {
-        print(ANSI_YELLOW, "   WARN", message, 3);
+        print(ANSI_YELLOW, "WARN", message, 3);
     }
 
     /**
@@ -189,7 +189,7 @@ public class Logger {
      * @param message The message.
      */
     public void log(String message) {
-        print(ANSI_GREEN, "    LOG", message, 2);
+        print(ANSI_GREEN, "LOG", message, 2);
     }
 
     /**
@@ -207,6 +207,6 @@ public class Logger {
      * @param message The message.
      */
     public void debug(String message) {
-        print(ANSI_PURPLE, "  DEBUG", message, 0);
+        print(ANSI_PURPLE, "DEBUG", message, 0);
     }
 }
