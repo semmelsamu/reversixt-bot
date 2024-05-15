@@ -7,6 +7,8 @@ import game.Game;
 import game.GamePhase;
 import move.Move;
 import util.Logger;
+import util.Triple;
+import util.Tuple;
 
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -80,18 +82,18 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        Set<Triplet<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
+        Set<Triple<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
         Set<Tuple<Game, Move>> gamesWithMoves;
 
         if (enableMoveSorting) {
             // TODO: Performance -> No Streams!
             gamesWithMoves = nextGameScores.stream()
-                    .sorted(Comparator.comparing(Triplet::b, Comparator.reverseOrder()))
-                    .map(t -> new Tuple<>(t.a, t.c))
+                    .sorted(Comparator.comparing(Triple::b, Comparator.reverseOrder()))
+                    .map(t -> new Tuple<>(t.a(), t.c()))
                     .collect(Collectors.toCollection(LinkedHashSet::new));
         } else {
             // TODO: Performance -> No Streams!
-            gamesWithMoves = nextGameScores.stream().map(t -> new Tuple<>(t.a, t.c))
+            gamesWithMoves = nextGameScores.stream().map(t -> new Tuple<>(t.a(), t.c()))
                     .collect(Collectors.toSet());
         }
 
@@ -103,13 +105,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
 
-            int score = minmaxWithDepth(gamesWithMove.a, depthLimit - 1, alpha, beta);
+            int score = minmaxWithDepth(gamesWithMove.a(), depthLimit - 1, alpha, beta);
 
-            logger.replace().debug("Move " + gamesWithMove.b + " has a score of " + score);
+            logger.replace().debug("Move " + gamesWithMove.b() + " has a score of " + score);
 
             if (score > resultScore) {
                 resultScore = score;
-                resultMove = gamesWithMove.b;
+                resultMove = gamesWithMove.b();
             }
 
             // Update alpha for the maximizer
@@ -126,13 +128,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         return resultMove;
     }
 
-    private Set<Triplet<Game, Integer, Move>> getGamesWithMoveAndEvaluation(Game game) {
-        Set<Triplet<Game, Integer, Move>> nextGameScores = new LinkedHashSet<>();
+    private Set<Triple<Game, Integer, Move>> getGamesWithMoveAndEvaluation(Game game) {
+        Set<Triple<Game, Integer, Move>> nextGameScores = new LinkedHashSet<>();
         for (Move move : game.getValidMovesForCurrentPlayer()) {
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
             nextGameScores.add(
-                    new Triplet<>(clonedGame, GameEvaluator.evaluate(clonedGame, ME), move));
+                    new Triple<>(clonedGame, GameEvaluator.evaluate(clonedGame, ME), move));
         }
         return nextGameScores;
     }
@@ -166,7 +168,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
             // TODO: Performance -> No Streams!
             Set<Game> gamesWithMoves = getGamesWithMoveAndEvaluation(game).stream()
-                    .sorted(Comparator.comparing(Triplet::b, comparator)).map(Triplet::a)
+                    .sorted(Comparator.comparing(Triple::b, comparator)).map(Triple::a)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
             stats_gamesVisited += gamesWithMoves.size();
@@ -253,19 +255,5 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         logger.verbose("Cutoffs: " + stats_cutoffs);
     }
 
-    record Tuple<A, B>(
-            A a,
-            B b
-    ) {
-
-    }
-
-    record Triplet<A, B, C>(
-            A a,
-            B b,
-            C c
-    ) {
-
-    }
 
 }
