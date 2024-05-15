@@ -41,7 +41,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         }
 
         logger.log("Calculating new move with " +
-                (timeLimit > 0 ? "time limit " + timeLimit + "ms" :
+                (timeLimit > 0 ? "time limit " + timeLimit + " ms" :
                         "depth limit " + depthLimit + " layers"));
 
         // Fallback if we can't calculate any depth
@@ -54,16 +54,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
                 bestMove = alphaBetaSearch(depth);
 
-                logger.verbose("- - - Stats for depth " + depth + " - - -");
-                logStats();
-
                 // Only the first phase requires searching deeper than 1
                 if (!game.getPhase().equals(GamePhase.PHASE_1)) {
                     break;
                 }
 
                 // Exit if we don't have the estimated time left
-                if (!checkIfTimeIsLeftForLayer(depth+1)) {
+                if (evaluateStats(depth)) {
                     logger.log("Estimated more time for the next depth than what's left");
                     break;
                 }
@@ -86,6 +83,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
+        stats_branchingFactors.add(game.getValidMovesForCurrentPlayer().size());
+
         Set<Triple<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
         Set<Tuple<Game, Move>> gamesWithMoves;
 
@@ -107,8 +106,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
 
-            stats_gamesVisited++;
-
             int score = minmaxWithDepth(gamesWithMove.a(), depthLimit - 1, alpha, beta);
 
             logger.replace().debug("Move " + gamesWithMove.b() + " has a score of " + score);
@@ -120,7 +117,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
             // Update alpha for the maximizer
             alpha = Math.max(alpha, score);
-
 
             // Logging progress percentage
             i++;
@@ -153,6 +149,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         boolean isMaximizer = currentPlayerNumber == ME;
 
         int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        stats_branchingFactors.add(game.getValidMovesForCurrentPlayer().size());
 
         if (enableMoveSorting && depth > 1) {
 
@@ -228,19 +226,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         return nextGameScores;
     }
 
-    private boolean checkIfTimeIsLeftForLayer(int depth) {
-        logger.verbose("- - - Estimation for depth " + depth + " - - -");
-
-        int timePassed = (int) (System.currentTimeMillis() - this.startTime);
-        logger.verbose("Time passed: " + timePassed + "ms");
-
-        int timeLeft = this.timeLimit - timePassed;
-        logger.verbose("Time left: " + timeLeft + "ms");
-
-
-        return false;
-    }
-
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -249,26 +234,52 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     |-----------------------------------------------------------------------------------------------
     */
 
-    private long stats_totalTime;
-
-
+    private long stats_startTime;
     private int stats_gamesVisited;
-
     private long stats_cutoffs;
-
     private List<Integer> stats_branchingFactors;
 
     private void resetStats() {
-        stats_totalTime = System.currentTimeMillis();
+        stats_startTime = System.currentTimeMillis();
         stats_gamesVisited = 0;
         stats_cutoffs = 0;
         stats_branchingFactors = new LinkedList<>();
     }
 
-    private void logStats() {
-        logger.verbose("Total time: " + (System.currentTimeMillis() - stats_totalTime) + " ms");
+    private boolean evaluateStats(int depth) {
+
+        logger.verbose("- - - Stats for depth " + depth + " - - -");
+
+        double totalTime = System.currentTimeMillis() - stats_startTime;
+        logger.verbose("Total time: " + totalTime + " ms");
+
         logger.verbose("Visited Games: " + stats_gamesVisited);
+
+        double timePerGame = totalTime / stats_gamesVisited;
+        logger.verbose("Time per game: " + timePerGame + " ms");
+
         logger.verbose("Cutoffs: " + stats_cutoffs);
+
+        double averageBranchingFactor = stats_branchingFactors.stream()
+                .mapToInt(Integer::intValue)
+                .average()
+                .orElse(0);
+        logger.verbose("Average branching factor: " + averageBranchingFactor);
+
+        int newDepth = depth + 1;
+
+        logger.verbose("- - - Estimation for depth " + newDepth + " - - -");
+
+        int timePassed = (int) (System.currentTimeMillis() - this.startTime);
+        logger.verbose("Time passed: " + timePassed + " ms");
+
+        int timeLeft = this.timeLimit - timePassed;
+        logger.verbose("Time left: " + timeLeft + " ms");
+
+        double timeEstimated = Math.pow(averageBranchingFactor, newDepth) * timePerGame;
+        logger.verbose("Time estimated: " + timeEstimated + " ms");
+
+        return timeEstimated > timeLeft;
     }
 
 
