@@ -1,16 +1,9 @@
 plugins {
     id 'application'
-    id 'java-library'
 }
 
 application {
     mainClass = 'Main'
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
 }
 
 sourceSets {
