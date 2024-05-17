@@ -1,5 +1,6 @@
 package boeseMaps;
 
+import clients.IterativeDeepeningAlphaBetaSearchClient;
 import clients.ParanoidClient;
 import clients.RandomMoveClient;
 import org.junit.jupiter.api.AfterEach;
@@ -18,17 +19,13 @@ public class boeseMap06NetworkTest {
     public void setUp()
             throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
         server = new NetworkServerHelper();
-        server.startServer("maps/boeseMaps/boeseMap06.map", 3);
+        server.startServer("maps/boeseMaps/boeseMap06.map", 2);
     }
 
     @Test
-    public void randomClient_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new RandomMoveClient(), 2);
-    }
-
-    @Test
-    public void paranoidClient_depth3_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new ParanoidClient(), 2);
+    public void time_2_test() throws InterruptedException {
+        NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
+                1, 1);
     }
 
     @AfterEach
