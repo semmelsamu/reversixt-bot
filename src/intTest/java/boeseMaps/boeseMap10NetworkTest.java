@@ -23,7 +23,7 @@ public class boeseMap10NetworkTest {
     }
 
     @Test
-    public void time_2_test() throws InterruptedException {
+    public void time_2_test() throws InterruptedException, IOException {
         NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
                 1, 2);
         NetworkClientHelper.validateMove(new InversionMove(1, new Coordinates(4, 4)));

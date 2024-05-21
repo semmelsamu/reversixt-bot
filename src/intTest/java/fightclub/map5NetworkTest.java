@@ -28,7 +28,7 @@ public class map5NetworkTest {
 
 
     @Test
-    public void time_2_test() throws InterruptedException {
+    public void time_2_test() throws InterruptedException, IOException {
         NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
                 1, 1);
     }

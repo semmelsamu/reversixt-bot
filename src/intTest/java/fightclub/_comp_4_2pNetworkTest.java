@@ -22,7 +22,7 @@ public class _comp_4_2pNetworkTest {
 
 
     @Test
-    public void time_2_test() throws InterruptedException {
+    public void time_2_test() throws InterruptedException, IOException {
         NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
                 1, 1);
     }

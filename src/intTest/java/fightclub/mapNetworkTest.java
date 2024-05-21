@@ -22,7 +22,7 @@ public class mapNetworkTest {
 
 
     @Test
-    public void paranoidClient_depth1_test() throws InterruptedException {
+    public void paranoidClient_depth1_test() throws InterruptedException, IOException {
         NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
                 1, 3);
     }

@@ -10,6 +10,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -20,43 +23,47 @@ public class NetworkClientHelper {
     private static final String arch = System.getProperty("os.arch");
 
     public static void createNetworkClients(Client client, int numOwnClients, int numAiClients)
-            throws InterruptedException {
-        List<Thread> threads = new ArrayList<>();
+            throws InterruptedException, IOException {
+
+        ExecutorService executorService =
+                Executors.newFixedThreadPool(numAiClients + numOwnClients);
 
         for (int i = 0; i < numOwnClients; i++) {
-            Thread clientThread = new Thread(() -> {
+            executorService.execute(() -> {
                 try {
                     Client spy = spy(client);
                     clients.add(spy);
-                    Logger.defaultPriority = 3;
+                    Logger.defaultPriority = 2;
                     Launcher.launchClientOnNetwork(spy, "127.0.0.1", 7777);
                 } catch (Exception e) {
                     fail(e.getMessage());
                 }
 
             });
-            threads.add(clientThread);
         }
 
 
         Path currentDirectory = getUserDirPath();
-        for(int i = 0; i < numAiClients; i++) {
-            Thread clientThread = new Thread(() -> {
-                try {
-                    startProcess(currentDirectory);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            threads.add(clientThread);
+        ProcessBuilder processBuilder;
+        if (arch != null && arch.contains("aarch64")) {
+            Path serverBinaryPath =
+                    currentDirectory.resolve("binaries/arm/ai_trivial").toAbsolutePath();
+            processBuilder = new ProcessBuilder(serverBinaryPath.toString());
+        } else {
+            Path serverBinaryPath =
+                    currentDirectory.resolve("binaries/x86/ai_trivial").toAbsolutePath();
+            // Start the server process in WSL
+            processBuilder =
+                    new ProcessBuilder("wsl", convertWindowsPathToWSL(serverBinaryPath.toString()));
+        }
+        Process start = processBuilder.start();
+        if(start.isAlive()){
+            System.out.println("Waiting for client to become alive");
         }
 
-        for (Thread thread : threads) {
-            thread.start();
-        }
-
-        for (Thread thread : threads) {
-            thread.join();
+        executorService.shutdown();
+        while (!executorService.isTerminated()) {
+            Thread.sleep(100);
         }
     }
 
@@ -70,21 +77,6 @@ public class NetworkClientHelper {
         }
     }
 
-    private static void startProcess(Path currentDirectory) throws IOException {
-        ProcessBuilder processBuilder;
-        if (arch != null && arch.contains("aarch64")) {
-            Path serverBinaryPath =
-                    currentDirectory.resolve("binaries/arm/ai_trivial").toAbsolutePath();
-            processBuilder = new ProcessBuilder(serverBinaryPath.toString());
-        } else {
-            Path serverBinaryPath =
-                    currentDirectory.resolve("binaries/x86/ai_trivial").toAbsolutePath();
-            // Start the server process in WSL
-            processBuilder =
-                    new ProcessBuilder("wsl", convertWindowsPathToWSL(serverBinaryPath.toString()));
-        }
-        processBuilder.start();
-    }
 
     private static Path getUserDirPath() {
         String userDir = System.getProperty("user.dir");

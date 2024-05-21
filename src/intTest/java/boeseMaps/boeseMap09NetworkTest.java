@@ -21,7 +21,7 @@ public class boeseMap09NetworkTest {
     }
 
     @Test
-    public void paranoidClient_depth3_test() throws InterruptedException {
+    public void paranoidClient_depth3_test() throws InterruptedException, IOException {
         NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
                 1, 1);
     }
