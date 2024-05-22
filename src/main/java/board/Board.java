@@ -64,8 +64,8 @@ public class Board implements Cloneable {
 
         this.board = new byte[(int) Math.ceil((double) (width * height) / 2)];
 
-        for(int y = 0; y < height; y++) {
-            for(int x= 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 this.setTile(new Coordinates(x, y), tiles[x][y]);
             }
         }
@@ -83,10 +83,9 @@ public class Board implements Cloneable {
         var position = getPosition(coordinates);
 
         // If isFirst4Bits
-        if(position.b()) {
+        if (position.b()) {
             return Tile.fromByte((byte) (board[position.a()] & 0x0F));
-        }
-        else {
+        } else {
             return Tile.fromByte((byte) ((board[position.a()] >> 4) & 0x0F));
         }
     }
@@ -95,18 +94,19 @@ public class Board implements Cloneable {
         var position = getPosition(coordinates);
 
         // If isFirst4Bits
-        if(position.b()) {
+        if (position.b()) {
             board[position.a()] = (byte) ((board[position.a()] & 0xF0) | (tile.toByte() & 0x0F));
-        }
-        else {
-            board[position.a()] = (byte) ((board[position.a()] & 0x0F) | ((tile.toByte() << 4) & 0xF0));
+        } else {
+            board[position.a()] =
+                    (byte) ((board[position.a()] & 0x0F) | ((tile.toByte() << 4) & 0xF0));
         }
     }
 
     public Tuple<Integer, Boolean> getPosition(Coordinates coordinates) {
 
         if (!coordinatesLayInBoard(coordinates)) {
-            throw new CoordinatesOutOfBoundsException("Tried to access coordinates the board doesn't have: " + coordinates);
+            throw new CoordinatesOutOfBoundsException(
+                    "Tried to access coordinates the board doesn't have: " + coordinates);
         }
 
         int tileNumber = coordinates.y * width + coordinates.x;
@@ -180,13 +180,20 @@ public class Board implements Cloneable {
 
         for (int y = 0; y < height; y++) {
             result.append(formatIntToFitLength(y, 4));
-            for(int x = 0; x < width; x++) {
+            for (int x = 0; x < width; x++) {
                 result.append(getTile(new Coordinates(x, y)).toString(true));
             }
             result.append("\n");
         }
         result.append("(Width: ").append(width).append(", height: ").append(height).append(")");
-        return "Board" + "\n" + "\u001B[0m" + result;
+
+        StringBuilder raw = new StringBuilder("Raw: ");
+
+        for (byte b : board) {
+            raw.append(Integer.toHexString(b & 0x0F)).append(Integer.toHexString((b >> 4) & 0x0F));
+        }
+
+        return "Board" + "\n" + "\u001B[0m" + result + "\n" + raw;
     }
 
     @Override
