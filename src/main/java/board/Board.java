@@ -2,8 +2,8 @@ package board;
 
 import exceptions.CoordinatesOutOfBoundsException;
 import util.Logger;
+import util.Tuple;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -57,11 +57,18 @@ public class Board implements Cloneable {
     */
 
     public Board(Tile[][] tiles, Map<TransitionPart, TransitionPart> transitions) {
-        this.tiles = tiles;
         this.transitions = transitions;
 
         this.height = tiles.length;
         this.width = tiles[0].length;
+
+        this.board = new byte[(int) Math.ceil((double) (width * height) / 2)];
+
+        for(int y = 0; y < height; y++) {
+            for(int x= 0; x < width; x++) {
+                this.setTile(new Coordinates(x, y), tiles[x][y]);
+            }
+        }
     }
 
     /*
@@ -72,22 +79,42 @@ public class Board implements Cloneable {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public Tile getTile(Coordinates position) {
+    public Tile getTile(Coordinates coordinates) {
+        var position = getPosition(coordinates);
 
-        if (!coordinatesLayInBoard(position)) {
-            throw new CoordinatesOutOfBoundsException("Tried to get a tile on coordinates the board doesn't have: " + position);
+        // If isFirst4Bits
+        if(position.b()) {
+            return Tile.fromByte((byte) (board[position.a()] & 0x0F));
         }
-
-        return this.tiles[position.y][position.x];
+        else {
+            return Tile.fromByte((byte) ((board[position.a()] >> 4) & 0x0F));
+        }
     }
 
     public void setTile(Coordinates coordinates, Tile tile) {
+        var position = getPosition(coordinates);
+
+        // If isFirst4Bits
+        if(position.b()) {
+            board[position.a()] = (byte) ((board[position.a()] & 0xF0) | (tile.toByte() & 0x0F));
+        }
+        else {
+            board[position.a()] = (byte) ((board[position.a()] & 0x0F) | ((tile.toByte() << 4) & 0xF0));
+        }
+    }
+
+    public Tuple<Integer, Boolean> getPosition(Coordinates coordinates) {
 
         if (!coordinatesLayInBoard(coordinates)) {
-            throw new CoordinatesOutOfBoundsException("Tried to set a tile on coordinates the board doesn't have: " + coordinates);
+            throw new CoordinatesOutOfBoundsException("Tried to access coordinates the board doesn't have: " + coordinates);
         }
 
-        this.tiles[coordinates.y][coordinates.x] = tile;
+        int tileNumber = coordinates.y * width + coordinates.x;
+
+        int arrayIndex = (int) Math.floor((double) tileNumber / 2);
+        boolean isFirst4Bits = tileNumber % 2 == 0;
+
+        return new Tuple<>(arrayIndex, isFirst4Bits);
     }
 
     public Map<TransitionPart, TransitionPart> getTransitions() {
@@ -104,7 +131,7 @@ public class Board implements Cloneable {
 
     public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
         List<Coordinates> result = new LinkedList<>();
-
+        /* TODO
         for (int y = 0; y < height; y++) {
             Tile[] currentRow = tiles[y];
             for (int x = 0; x < width; x++) {
@@ -114,7 +141,7 @@ public class Board implements Cloneable {
                 }
             }
         }
-
+        */
         return result;
     }
 
@@ -146,15 +173,15 @@ public class Board implements Cloneable {
         StringBuilder result = new StringBuilder("    ");
 
         // Draw x coordinates
-        for (int x = 0; x < tiles[0].length; x++) {
+        for (int x = 0; x < width; x++) {
             result.append(formatIntToFitLength(x, 3));
         }
         result.append("\n");
 
-        for (int y = 0; y < tiles.length; y++) {
+        for (int y = 0; y < height; y++) {
             result.append(formatIntToFitLength(y, 4));
-            for (Tile tile : tiles[y]) {
-                result.append(tile.toString(true));
+            for(int x = 0; x < width; x++) {
+                result.append(getTile(new Coordinates(x, y)).toString(true));
             }
             result.append("\n");
         }
@@ -164,6 +191,7 @@ public class Board implements Cloneable {
 
     @Override
     public Board clone() {
+        /* TODO
         try {
             Board clone = (Board) super.clone();
 
@@ -180,5 +208,7 @@ public class Board implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+         */
+        return null;
     }
 }
