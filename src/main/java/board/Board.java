@@ -32,10 +32,13 @@ public class Board implements Cloneable {
 
     /**
      * The game board.
-     * First dimension is the lines (y-direction), second one is columns (x-direction).
-     * Starts at the top left with (0/0).
+     * Consisting of bytes, where every byte represents two Tiles, one by the first 4 bits and one
+     * by the last 4 bits. We start with the first 4 bits at the top left (0/0), the next 4 bits are
+     * one to the right (0/1) and so on. If we are at the end of a line, the next 4 bits represent
+     * the first Tile on the next line. If the number of  Tiles on the board is odd, the last 4 bits
+     * of the last byte may be ignored as they then won't hold any information.
      */
-    private Tile[][] tiles;
+    private byte[] board;
 
     /**
      * Every transition is stored twice, for every direction once.
