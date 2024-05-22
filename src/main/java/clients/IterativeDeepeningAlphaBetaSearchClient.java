@@ -249,10 +249,6 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
     private boolean evaluateStats(int depth) {
 
-        if(!(timeLimit > 0)) {
-            return false;
-        }
-
         logger.verbose("- - - Stats for depth " + depth + " - - -");
 
         double totalTime = System.currentTimeMillis() - stats_startTime;
@@ -283,6 +279,10 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         double timeEstimated = Math.pow(averageBranchingFactor, newDepth) * timePerGame;
         logger.verbose("Time estimated: " + timeEstimated + " ms");
+
+        if(!(timeLimit > 0)) {
+            return false;
+        }
 
         return timeEstimated > timeLeft;
     }
