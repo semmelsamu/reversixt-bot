@@ -35,6 +35,7 @@ public class Main {
             Logger.setPriority(OptimizedParanoidClient.class.getName(), 0);
             Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), 0);
 
+            Logger.get().log("Team members: Kroiß, Schmidt, Strauß\n");
             Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
         }
 
