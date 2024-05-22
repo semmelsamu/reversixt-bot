@@ -138,7 +138,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     private int minmaxWithDepth(Game game, int depth, int alpha, int beta)
             throws OutOfTimeException {
 
-        if (System.currentTimeMillis() - startTime > timeLimit) {
+        if (System.currentTimeMillis() - startTime > timeLimit && timeLimit > 0) {
             throw new OutOfTimeException("Out of time");
         }
 
@@ -248,6 +248,10 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     }
 
     private boolean evaluateStats(int depth) {
+
+        if(!(timeLimit > 0)) {
+            return false;
+        }
 
         logger.verbose("- - - Stats for depth " + depth + " - - -");
 
