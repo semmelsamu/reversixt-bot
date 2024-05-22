@@ -66,7 +66,7 @@ public class Board implements Cloneable {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                this.setTile(new Coordinates(x, y), tiles[x][y]);
+                this.setTile(new Coordinates(x, y), tiles[y][x]);
             }
         }
     }
