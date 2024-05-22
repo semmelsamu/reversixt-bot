@@ -4,6 +4,7 @@ import exceptions.CoordinatesOutOfBoundsException;
 import util.Logger;
 import util.Tuple;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -131,17 +132,13 @@ public class Board implements Cloneable {
 
     public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
         List<Coordinates> result = new LinkedList<>();
-        /* TODO
         for (int y = 0; y < height; y++) {
-            Tile[] currentRow = tiles[y];
             for (int x = 0; x < width; x++) {
-                Tile currentTile = currentRow[x];
-                if (currentTile == tile) {
+                if (getTile(new Coordinates(x, y)) == tile) {
                     result.add(new Coordinates(x, y));
                 }
             }
         }
-        */
         return result;
     }
 
@@ -198,24 +195,20 @@ public class Board implements Cloneable {
 
     @Override
     public Board clone() {
-        /* TODO
         try {
             Board clone = (Board) super.clone();
 
-            clone.tiles = new Tile[height][width];
-            for (int y = 0; y < height; y++) {
-                System.arraycopy(tiles[y], 0, clone.tiles[y], 0, width);
-            }
+            clone.board = this.board.clone();
 
             clone.transitions = new HashMap<>();
             for (Map.Entry<TransitionPart, TransitionPart> entry : transitions.entrySet()) {
                 clone.transitions.put(entry.getKey().clone(), entry.getValue().clone());
             }
+
             return clone;
+
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
-         */
-        return null;
     }
 }
