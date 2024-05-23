@@ -2,7 +2,6 @@ package board;
 
 import exceptions.CoordinatesOutOfBoundsException;
 import util.Logger;
-import util.Tuple;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -81,30 +80,6 @@ public class Board implements Cloneable {
     */
 
     public Tile getTile(Coordinates coordinates) {
-        var position = getPosition(coordinates);
-
-        // If isFirst4Bits
-        if (position.b()) {
-            return Tile.fromByte((byte) (board[position.a()] & 0x0F));
-        } else {
-            return Tile.fromByte((byte) ((board[position.a()] >> 4) & 0x0F));
-        }
-    }
-
-    public void setTile(Coordinates coordinates, Tile tile) {
-        var position = getPosition(coordinates);
-
-        // If isFirst4Bits
-        if (position.b()) {
-            board[position.a()] = (byte) ((board[position.a()] & 0xF0) | (tile.toByte() & 0x0F));
-        } else {
-            board[position.a()] =
-                    (byte) ((board[position.a()] & 0x0F) | ((tile.toByte() << 4) & 0xF0));
-        }
-    }
-
-    public Tuple<Integer, Boolean> getPosition(Coordinates coordinates) {
-
         if (!coordinatesLayInBoard(coordinates)) {
             throw new CoordinatesOutOfBoundsException(
                     "Tried to access coordinates the board doesn't have: " + coordinates);
@@ -115,7 +90,30 @@ public class Board implements Cloneable {
         int arrayIndex = (int) Math.floor((double) tileNumber / 2);
         boolean isFirst4Bits = tileNumber % 2 == 0;
 
-        return new Tuple<>(arrayIndex, isFirst4Bits);
+        if (isFirst4Bits) {
+            return Tile.fromByte((byte) (board[arrayIndex] & 0x0F));
+        } else {
+            return Tile.fromByte((byte) ((board[arrayIndex] >> 4) & 0x0F));
+        }
+    }
+
+    public void setTile(Coordinates coordinates, Tile tile) {
+        if (!coordinatesLayInBoard(coordinates)) {
+            throw new CoordinatesOutOfBoundsException(
+                    "Tried to access coordinates the board doesn't have: " + coordinates);
+        }
+
+        int tileNumber = coordinates.y * width + coordinates.x;
+
+        int arrayIndex = (int) Math.floor((double) tileNumber / 2);
+        boolean isFirst4Bits = tileNumber % 2 == 0;
+
+        if (isFirst4Bits) {
+            board[arrayIndex] = (byte) ((board[arrayIndex] & 0xF0) | (tile.toByte() & 0x0F));
+        } else {
+            board[arrayIndex] =
+                    (byte) ((board[arrayIndex] & 0x0F) | ((tile.toByte() << 4) & 0xF0));
+        }
     }
 
     public Map<TransitionPart, TransitionPart> getTransitions() {
