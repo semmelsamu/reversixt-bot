@@ -2,12 +2,6 @@ plugins {
     id 'application'
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
 archivesBaseName = 'client04'
 
 application {
