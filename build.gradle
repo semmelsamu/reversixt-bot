@@ -38,3 +38,8 @@ tasks.register('copyJarToBin', Copy) {
 }
 
 build.finalizedBy copyJarToBin
+
+// Disable the distTar task
+tasks.named('distTar').configure {
+    enabled = false
+}
