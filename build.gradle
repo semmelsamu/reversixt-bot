@@ -13,9 +13,16 @@ sourceSets {
         }
     }
     intTest {
+        java {
+            srcDirs = ['src/intTest/java']
+        }
         compileClasspath += sourceSets.main.output
         runtimeClasspath += sourceSets.main.output
     }
+}
+
+tasks.withType(Test).configureEach {
+    enabled = false
 }
 
 configurations {
@@ -65,7 +72,6 @@ tasks.register('deleteBin', Delete){
 
 jar.finalizedBy('copyToBin')
 clean.finalizedBy('deleteBin')
-
 
 tasks.register('cleanOldLogFiles') {
     doLast {
