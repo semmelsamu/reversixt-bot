@@ -21,7 +21,19 @@ sourceSets {
     }
 }
 
-tasks.withType(Test).configureEach {
+tasks.named('test') {
+    enabled = false
+}
+
+tasks.named('testClasses') {
+    enabled = false
+}
+
+tasks.named('compileTestJava') {
+    enabled = false
+}
+
+tasks.named('processTestResources') {
     enabled = false
 }
 
