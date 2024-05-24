@@ -41,10 +41,18 @@ public class Board implements Cloneable {
     private byte[] board;
 
     /**
-     * Every transition is stored twice, for every direction once.
-     * Key: The coordinates from the outgoing field and the direction we leave the field.
-     * Value: The coordinates from the field we land on when leaving the outgoing field and the
-     * new direction we look at.
+     * A transition consists out of two Transition parts, which are linked together. Transitions can
+     * be considered "Portals": If we enter a Transition's part, we exit its counterpart.
+     * -
+     * For the sake of performance, we store each transition twice, once as is and once flipped, so
+     * we can iterate through only the keys of the Map and still meet every Transition part.
+     * -
+     * Transition Parts are stored as shorts, which can be interpreted as follows:
+     * - The first 4 Bits represent the Direction (0=North, 1=Northeast, ...)
+     * - The next 6 Bits represent the X Coordinate
+     * - The last 6 Bits represent the Y Coordinate
+     * A short provides enough space, as: We have 8 directions (less than 2^4=16) and a board's size
+     * will never exceed 50x50 (less than 2^6=64)
      */
     private Map<TransitionPart, TransitionPart> transitions;
 
