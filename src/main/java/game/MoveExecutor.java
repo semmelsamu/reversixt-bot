@@ -40,7 +40,6 @@ public final class MoveExecutor {
 
         Tile playerValue = game.getPlayer(move.getPlayerNumber()).getPlayerValue();
 
-        // Check if an overwrite stone has to be used
         if (move instanceof OverwriteMove) {
             game.getPlayer(move.getPlayerNumber()).decrementOverwriteStones();
         }
@@ -81,6 +80,7 @@ public final class MoveExecutor {
                 tileReader.next();
                 Tile currentTile = tileReader.getTile();
 
+                // Check if first neighbour is an own tile
                 if (tileReader.getTileNumber() == 1) {
                     if (currentTile == playerValue) {
                         break;
