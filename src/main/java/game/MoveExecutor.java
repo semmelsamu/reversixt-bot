@@ -67,7 +67,7 @@ public final class MoveExecutor {
 
         Set<Coordinates> result = new HashSet<>();
 
-        // Of course the Coordinates we set the stone on is colored
+        // Of course the Coordinates we set the stone on get colored
         result.add(position);
 
         // Coloring in every Direction
