@@ -82,23 +82,20 @@ public final class MoveExecutor {
                 Tile currentTile = tileReader.getTile();
 
                 if (tileReader.getTileNumber() == 1) {
-                    if (currentTile.isUnoccupied() ||
-                            currentTile == playerValue ||
-                            tileReader.getCoordinates() == position) {
+                    if (currentTile == playerValue) {
                         break;
                     }
                 }
-                else {
-                    if(currentTile.isUnoccupied()) {
-                        break;
-                    }
-                    if(tileReader.getCoordinates().equals(position)) {
-                        break;
-                    }
-                    if(currentTile == playerValue) {
-                        result.addAll(buffer);
-                        break;
-                    }
+
+                if(currentTile.isUnoccupied()) {
+                    break;
+                }
+                if(tileReader.getCoordinates().equals(position)) {
+                    break;
+                }
+                if(currentTile == playerValue) {
+                    result.addAll(buffer);
+                    break;
                 }
 
                 buffer.add(tileReader.getCoordinates());
