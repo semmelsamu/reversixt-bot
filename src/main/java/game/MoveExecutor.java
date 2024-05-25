@@ -41,7 +41,7 @@ public final class MoveExecutor {
         Tile playerValue = game.getPlayer(move.getPlayerNumber()).getPlayerValue();
 
         // Check if an overwrite stone has to be used
-        if (!(game.getTile(move.getCoordinates()).isUnoccupied())) {
+        if (move instanceof OverwriteMove) {
             game.getPlayer(move.getPlayerNumber()).decrementOverwriteStones();
         }
 
@@ -68,7 +68,7 @@ public final class MoveExecutor {
 
         Set<Coordinates> result = new HashSet<>();
 
-        // Of course the Coordinates we set the stone on get colored
+        // Of course the Coordinates we set the stone on is colored
         result.add(position);
 
         // Coloring in every Direction
