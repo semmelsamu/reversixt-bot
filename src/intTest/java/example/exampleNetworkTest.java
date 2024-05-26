@@ -17,7 +17,7 @@ public class exampleNetworkTest {
     public void setUp()
             throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
         server = new NetworkServerHelper();
-        server.startServer("maps/example.map", 2);
+        server.startServer("maps/exampleIntTest.map", 2);
     }
 
     @Test
