@@ -38,7 +38,7 @@ public class StaticGameStats {
 
     private final int[][] tileRatings;
 
-    private BitSet reachableTiles;
+    private short numberOfReachableTiles;
 
     public StaticGameStats(Game initialGame, int initialPlayers, int initialOverwriteStones,
                            int initialBombs, int bombRadius) {
@@ -49,7 +49,7 @@ public class StaticGameStats {
         width = initialGame.getWidth();
         height = initialGame.getHeight();
         tileRatings = calculateTileRatings(initialGame);
-        reachableTiles = new BitSet(height * width);
+        numberOfReachableTiles = 0;
     }
 
     private int[][] calculateTileRatings(Game game) {
@@ -83,24 +83,16 @@ public class StaticGameStats {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if(purposeGame.getTile(new Coordinates(x,y)).isPlayer()){
-                    reachableTiles.set(y * width + x);
+                    numberOfReachableTiles++;
                 }
             }
         }
+        printAmountOfReachableTiles();
     }
 
-    public void printReachableTiles(){
-        for(int y = 0; y < height; y++) {
-            for(int x = 0; x < width; x++) {
-                if(reachableTiles.get(y * width + x)){
-                    System.out.print("1 ");
-                }
-                else{
-                    System.out.print("0 ");
-                }
-            }
-            System.out.println();
-        }
+    public void printAmountOfReachableTiles(){
+        System.out.println();
+        System.out.println("\nNumber of reachable tiles: " + numberOfReachableTiles);
     }
 
     /**
