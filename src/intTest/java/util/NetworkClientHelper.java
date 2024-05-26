@@ -3,8 +3,11 @@ package util;
 import clients.Client;
 import move.Move;
 import network.Launcher;
+import network.NetworkEventHandler;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -33,7 +36,8 @@ public class NetworkClientHelper {
                 try {
                     Client spy = spy(client);
                     clients.add(spy);
-                    Logger.defaultPriority = 2;
+                    Logger.defaultPriority = 3;
+                    Logger.setPriority(NetworkEventHandler.class.getName(), 2);
                     Launcher.launchClientOnNetwork(spy, "127.0.0.1", 7777);
                 } catch (Exception e) {
                     fail(e.getMessage());
@@ -44,26 +48,45 @@ public class NetworkClientHelper {
 
 
         Path currentDirectory = getUserDirPath();
-        ProcessBuilder processBuilder;
-        if (arch != null && arch.contains("aarch64")) {
-            Path serverBinaryPath =
-                    currentDirectory.resolve("binaries/arm/ai_trivial").toAbsolutePath();
-            processBuilder = new ProcessBuilder(serverBinaryPath.toString());
-        } else {
-            Path serverBinaryPath =
-                    currentDirectory.resolve("binaries/x86/ai_trivial").toAbsolutePath();
-            // Start the server process in WSL
-            processBuilder =
-                    new ProcessBuilder("wsl", convertWindowsPathToWSL(serverBinaryPath.toString()));
-        }
-        Process start = processBuilder.start();
-        if(start.isAlive()){
-            System.out.println("Waiting for client to become alive");
+        for(int i = 0; i < numAiClients; i++) {
+
+            ProcessBuilder processBuilder;
+            if (arch != null && arch.contains("aarch64")) {
+                Path serverBinaryPath =
+                        currentDirectory.resolve("binaries/arm/ai_trivial").toAbsolutePath();
+                processBuilder = new ProcessBuilder(serverBinaryPath.toString());
+            } else {
+                Path serverBinaryPath =
+                        currentDirectory.resolve("binaries/x86/ai_trivial").toAbsolutePath();
+                // Start the server process in WSL
+                processBuilder = new ProcessBuilder("wsl",
+                        convertWindowsPathToWSL(serverBinaryPath.toString()));
+            }
+            Process serverProcess;
+            try {
+                serverProcess = processBuilder.start();
+                new Thread(() -> {
+                    try (var reader = new BufferedReader(
+                            new InputStreamReader(serverProcess.getInputStream()))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            // Don't ask me why but this works, here the AI don't time out
+                            // Optional: the print can be replaced with println(line)
+                            System.out.print("");
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         executorService.shutdown();
+
         while (!executorService.isTerminated()) {
-            Thread.sleep(100);
+            executorService.awaitTermination(1, TimeUnit.SECONDS);
         }
     }
 
