@@ -7,6 +7,26 @@ public record TransitionPart(
         Direction direction
 ) implements Cloneable {
 
+    public short toShort() {
+        int direction = this.direction().getValue();
+        int x = this.coordinates().x;
+        int y = this.coordinates().y;
+
+        // Combine the values into a short
+        return (short) ((direction << 12) | (x << 6) | y);
+    }
+
+    public static TransitionPart fromShort(short s) {
+        int directionValue = (s >> 12) & 0xF; // Extract the first 4 bits for the direction
+        int x = (s >> 6) & 0x3F; // Extract the next 6 bits for the x coordinate
+        int y = s & 0x3F; // Extract the last 6 bits for the y coordinate
+
+        Direction direction = Direction.values()[directionValue];
+        Coordinates coordinates = new Coordinates(x, y);
+
+        return new TransitionPart(coordinates, direction);
+    }
+
     @Override
     public TransitionPart clone() {
         try {
