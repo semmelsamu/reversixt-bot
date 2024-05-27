@@ -19,11 +19,11 @@ public class NetworkServerHelper {
     private static Process serverProcess;
     private static final String arch = System.getProperty("os.arch");
 
-    public void startServer(String map, int depth) throws InterruptedException, IOException {
+    public void startServer(String map, int timeLimit) throws InterruptedException, IOException {
         Semaphore semaphore = new Semaphore(0);
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-        startProcess(map, depth);
+        startProcess(map, timeLimit);
 
         // Start a thread to continuously read and print the server output
         Thread outputReaderThread = new Thread(() -> {
@@ -78,7 +78,7 @@ public class NetworkServerHelper {
         executorService.shutdown();
     }
 
-    private void startProcess(String map, int depth) throws IOException {
+    private void startProcess(String map, int timeLimit) throws IOException {
         String userDir = System.getProperty("user.dir");
         if (userDir.contains("src")) {
             userDir = userDir.substring(0, userDir.indexOf("src"));
@@ -92,15 +92,15 @@ public class NetworkServerHelper {
                     currentDirectory.resolve("binaries/arm/server_nogl").toAbsolutePath();
             processBuilder =
                     new ProcessBuilder(serverBinaryPath.toString(), serverParameterPath.toString(),
-                            "-d", String.valueOf(depth));
+                            "-t", String.valueOf(timeLimit));
         } else {
             Path serverBinaryPath =
                     currentDirectory.resolve("binaries/x86/server_nogl").toAbsolutePath();
             // Start the server process in WSL
             processBuilder =
                     new ProcessBuilder("wsl", convertWindowsPathToWSL(serverBinaryPath.toString()),
-                            convertWindowsPathToWSL(serverParameterPath.toString()), "-d",
-                            String.valueOf(depth));
+                            convertWindowsPathToWSL(serverParameterPath.toString()), "-t",
+                            String.valueOf(timeLimit));
         }
         serverProcess = processBuilder.start();
     }

@@ -1,9 +1,7 @@
 package boeseMaps;
 
 import board.Coordinates;
-import clients.OptimizedParanoidClient;
-import clients.ParanoidClient;
-import clients.RandomMoveClient;
+import clients.IterativeDeepeningAlphaBetaSearchClient;
 import move.InversionMove;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,23 +19,13 @@ public class boeseMap10NetworkTest {
     public void setUp()
             throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
         server = new NetworkServerHelper();
-        server.startServer("maps/boeseMaps/boeseMap10.map", 3);
+        server.startServer("maps/boeseMaps/boeseMap10.map", 2);
     }
 
     @Test
-    public void randomClient_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new RandomMoveClient(), 3);
-    }
-
-    @Test
-    public void paranoidClient_depth3_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new ParanoidClient(), 3);
-        NetworkClientHelper.validateMove(new InversionMove(1, new Coordinates(4, 4)));
-    }
-
-    @Test
-    public void optimizedParanoidClient_depth3_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new OptimizedParanoidClient(), 3);
+    public void time_2_test() throws InterruptedException, IOException {
+        NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
+                1, 2);
         NetworkClientHelper.validateMove(new InversionMove(1, new Coordinates(4, 4)));
     }
 

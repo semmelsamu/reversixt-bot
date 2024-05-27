@@ -50,12 +50,10 @@ public enum Direction {
     */
 
     public static Direction fromValue(int value) {
-        for (Direction direction : Direction.values()) {
-            if (direction.getValue() == value) {
-                return direction;
-            }
+        if(value >= Direction.values().length) {
+            throw new IllegalArgumentException("Not valid direction: " + value);
         }
-        throw new IllegalArgumentException("Ungültiger Wert für Direction: " + value);
+        return Direction.values()[value];
     }
 
     /*

@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="RUN LATEST" type="Application" factoryName="Application" folderName="RUN" singleton="false">
+  <configuration default="false" name="RUN" type="Application" factoryName="Application" singleton="false">
     <option name="MAIN_CLASS_NAME" value="Main" />
     <module name="revxt-ss24-g04.main" />
     <option name="PROGRAM_PARAMETERS" value="-c" />

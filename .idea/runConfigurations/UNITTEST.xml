@@ -1,12 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Integration Tests" type="JUnit" factoryName="JUnit" folderName="Junit">
-    <module name="revxt-ss24-g04.intTest" />
-    <extension name="coverage">
-      <pattern>
-        <option name="PATTERN" value="boeseMaps.*" />
-        <option name="ENABLED" value="true" />
-      </pattern>
-    </extension>
+  <configuration default="false" name="UNITTEST" type="JUnit" factoryName="JUnit">
+    <module name="revxt-ss24-g04.test" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />

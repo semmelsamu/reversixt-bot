@@ -1,5 +1,6 @@
 package fightclub;
 
+import clients.IterativeDeepeningAlphaBetaSearchClient;
 import clients.ParanoidClient;
 import game.Game;
 import game.MoveCalculator;
@@ -21,18 +22,15 @@ public class map6NetworkTest {
     @BeforeEach
     public void setUp()
             throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
-        Logger.setPriority(MoveCalculator.class.getName(), 3);
-        Logger.setPriority(MoveExecutor.class.getName(), 3);
-        Logger.setPriority(Game.class.getName(), 3);
-        Logger.setPriority(NetworkClientAdapter.class.getName(), 3);
         server = new NetworkServerHelper();
         server.startServer("maps/fightclub/map6.map", 2);
     }
 
 
     @Test
-    public void paranoidClient_depth2_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new ParanoidClient(), 2);
+    public void time_2_test() throws InterruptedException, IOException {
+        NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
+                1, 1);
     }
 
     @AfterEach

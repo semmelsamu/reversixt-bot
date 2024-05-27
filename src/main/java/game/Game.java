@@ -3,7 +3,6 @@ package game;
 import board.Board;
 import board.Coordinates;
 import board.Tile;
-import board.TransitionPart;
 import evaluation.StaticGameStats;
 import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
@@ -204,7 +203,7 @@ public class Game implements Cloneable {
         board.setTile(position, value);
     }
 
-    public Map<TransitionPart, TransitionPart> getTransitions() {
+    public Map<Short, Short> getTransitions() {
         return board.getTransitions();
     }
 

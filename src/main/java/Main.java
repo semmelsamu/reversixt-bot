@@ -1,3 +1,4 @@
+import clients.IterativeDeepeningAlphaBetaSearchClient;
 import clients.OptimizedParanoidClient;
 import clients.ParanoidClient;
 import exercises.*;
@@ -6,6 +7,13 @@ import util.ArgumentParser;
 import util.Logger;
 
 public class Main {
+
+    private static final String[] welcomeMessage = {
+            "This is Reversi++ Client",
+            "Developed as part of the FWPM \"ZOCK\" in the summer semester 2024 at OTH Regensburg",
+            "By Samuel Kroiss, Ludwig Schmidt, and Maximilian Strauss", "Use -h for help"
+    };
+
     public static void main(String[] args) {
 
         ArgumentParser argumentParser = new ArgumentParser();
@@ -18,22 +26,22 @@ public class Main {
         argumentParser.setParameter("h", new ArgumentParser.Parameter("Help", false));
         ArgumentParser.ParsedArguments parsedArguments = argumentParser.parse(args);
 
-        if((Boolean) parsedArguments.get("h")) {
+        if ((Boolean) parsedArguments.get("h")) {
             System.out.println(argumentParser);
             return;
         }
 
-        if((Boolean) parsedArguments.get("q")) {
+        if ((Boolean) parsedArguments.get("q")) {
             Logger.defaultPriority = 10;
-        }
-        else {
+        } else {
             Logger.useColors = (Boolean) parsedArguments.get("c");
             Logger.defaultPriority = 2;
             Logger.setPriority(Game.class.getName(), 3);
             Logger.setPriority(ParanoidClient.class.getName(), 1);
             Logger.setPriority(OptimizedParanoidClient.class.getName(), 0);
+            Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), 0);
 
-            Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
+            for(var line : welcomeMessage) Logger.get().log(line);
         }
 
         // Launch whatever
@@ -46,7 +54,9 @@ public class Main {
             case 2 -> Exercise02.aufgabe3();
             case 4 -> Exercise04.abnahme(ip, port);
             case 5 -> Exercise05.abnahme(ip, port);
-            default -> Exercise06.abnahme(ip, port);
+            case 6 -> Exercise06.abnahme(ip, port);
+            default -> Exercise07.abnahme(ip, port, (Boolean) parsedArguments.get("n"));
+            case 8 -> Exercise08.abnahme();
         }
     }
 }

@@ -40,8 +40,7 @@ public final class MoveExecutor {
 
         Tile playerValue = game.getPlayer(move.getPlayerNumber()).getPlayerValue();
 
-        // Check if an overwrite stone has to be used
-        if (!(game.getTile(move.getCoordinates()).isUnoccupied())) {
+        if (move instanceof OverwriteMove) {
             game.getPlayer(move.getPlayerNumber()).decrementOverwriteStones();
         }
 
@@ -81,24 +80,22 @@ public final class MoveExecutor {
                 tileReader.next();
                 Tile currentTile = tileReader.getTile();
 
+                // Check if first neighbour is an own tile
                 if (tileReader.getTileNumber() == 1) {
-                    if (currentTile.isUnoccupied() ||
-                            currentTile == playerValue ||
-                            tileReader.getCoordinates() == position) {
+                    if (currentTile == playerValue) {
                         break;
                     }
                 }
-                else {
-                    if(currentTile.isUnoccupied()) {
-                        break;
-                    }
-                    if(tileReader.getCoordinates().equals(position)) {
-                        break;
-                    }
-                    if(currentTile == playerValue) {
-                        result.addAll(buffer);
-                        break;
-                    }
+
+                if(currentTile.isUnoccupied()) {
+                    break;
+                }
+                if(tileReader.getCoordinates().equals(position)) {
+                    break;
+                }
+                if(currentTile == playerValue) {
+                    result.addAll(buffer);
+                    break;
                 }
 
                 buffer.add(tileReader.getCoordinates());

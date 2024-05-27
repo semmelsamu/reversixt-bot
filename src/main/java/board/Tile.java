@@ -140,6 +140,46 @@ public enum Tile {
         };
     }
 
+    public byte toByte() {
+        return switch (character) {
+            case '1' -> 0x1;
+            case '2' -> 0x2;
+            case '3' -> 0x3;
+            case '4' -> 0x4;
+            case '5' -> 0x5;
+            case '6' -> 0x6;
+            case '7' -> 0x7;
+            case '8' -> 0x8;
+            case '0' -> 0x9;
+            case '-' -> 0xa;
+            case 'b' -> 0xb;
+            case 'c' -> 0xc;
+            case 'i' -> 0xd;
+            case 'x' -> 0xe;
+            default -> throw new IllegalStateException("Unexpected value: " + character);
+        };
+    }
+
+    public static Tile fromByte(byte b) {
+        return switch (b) {
+            case 0x1 -> PLAYER1;
+            case 0x2 -> PLAYER2;
+            case 0x3 -> PLAYER3;
+            case 0x4 -> PLAYER4;
+            case 0x5 -> PLAYER5;
+            case 0x6 -> PLAYER6;
+            case 0x7 -> PLAYER7;
+            case 0x8 -> PLAYER8;
+            case 0x9 -> EMPTY;
+            case 0xa -> WALL;
+            case 0xb -> BONUS;
+            case 0xc -> CHOICE;
+            case 0xd -> INVERSION;
+            case 0xe -> EXPANSION;
+            default -> throw new IllegalStateException("Unexpected value: " + b);
+        };
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
