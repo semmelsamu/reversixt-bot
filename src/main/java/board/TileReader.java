@@ -2,8 +2,6 @@ package board;
 
 import game.Game;
 
-import java.util.Optional;
-
 public class TileReader {
 
     /*
@@ -89,10 +87,8 @@ public class TileReader {
             return true;
         } else {
             // Check transition
-            // TODO: Performance -> No Streams!
-            return game.getTransitions().keySet().stream().anyMatch(
-                    transitionPart -> transitionPart.coordinates().equals(coordinates) &&
-                            transitionPart.direction().equals(direction));
+            TransitionPart transitionPart = new TransitionPart(coordinates, direction);
+            return game.getTransitions().containsKey(transitionPart.toShort());
         }
 
     }
@@ -112,15 +108,14 @@ public class TileReader {
             coordinates = newCoordinates;
         } else {
             // Could be a transition
-            // TODO: Performance -> No Streams!
-            Optional<TransitionPart> transition = game.getTransitions().keySet().stream()
-                    .filter(transitionPart -> transitionPart.coordinates().equals(coordinates) &&
-                            transitionPart.direction().equals(direction)).findAny();
-            if (transition.isPresent()) {
+            TransitionPart transitionPart = new TransitionPart(coordinates, direction);
+            if (game.getTransitions().containsKey(transitionPart.toShort())) {
                 // It's a transition
-                TransitionPart incomingTransition = game.getTransitions().get(transition.get());
-                coordinates = incomingTransition.coordinates();
-                direction = incomingTransition.direction();
+                TransitionPart transitionCounterpart = TransitionPart.fromShort(
+                        game.getTransitions().get(transitionPart.toShort()));
+
+                coordinates = transitionCounterpart.coordinates();
+                direction = transitionCounterpart.direction();
             } else {
                 throw new RuntimeException(
                         "Called next() on TileReader, but there is no next Tile");
