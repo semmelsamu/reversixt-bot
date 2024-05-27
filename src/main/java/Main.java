@@ -11,7 +11,7 @@ public class Main {
     private static final String[] welcomeMessage = {
             "This is Reversi++ Client",
             "Developed as part of the FWPM \"ZOCK\" in the summer semester 2024 at OTH Regensburg",
-            "By Samuel Kroiß, Ludwig Schmidt, and Maximilian Strauß", "Use -h for help"
+            "By Samuel Kroiss, Ludwig Schmidt, and Maximilian Strauss", "Use -h for help"
     };
 
     public static void main(String[] args) {
