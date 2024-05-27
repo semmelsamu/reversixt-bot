@@ -54,7 +54,7 @@ public class Board implements Cloneable {
      * A short provides enough space, as: We have 8 directions (less than 2^4=16) and a board's size
      * will never exceed 50x50 (less than 2^6=64)
      */
-    private Map<TransitionPart, TransitionPart> transitions;
+    private Map<Short, Short> transitions;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -65,7 +65,6 @@ public class Board implements Cloneable {
     */
 
     public Board(Tile[][] tiles, Map<TransitionPart, TransitionPart> transitions) {
-        this.transitions = transitions;
 
         this.height = tiles.length;
         this.width = tiles[0].length;
@@ -76,6 +75,12 @@ public class Board implements Cloneable {
             for (int x = 0; x < width; x++) {
                 this.setTile(new Coordinates(x, y), tiles[y][x]);
             }
+        }
+
+        this.transitions = new HashMap<>();
+
+        for(var transition : transitions.entrySet()) {
+            this.transitions.put(transition.getKey().toShort(), transition.getValue().toShort());
         }
     }
 
@@ -124,7 +129,7 @@ public class Board implements Cloneable {
         }
     }
 
-    public Map<TransitionPart, TransitionPart> getTransitions() {
+    public Map<Short, Short> getTransitions() {
         return transitions;
     }
 
@@ -203,16 +208,10 @@ public class Board implements Cloneable {
     public Board clone() {
         try {
             Board clone = (Board) super.clone();
-
             clone.board = this.board.clone();
-
             clone.transitions = new HashMap<>();
-            for (Map.Entry<TransitionPart, TransitionPart> entry : transitions.entrySet()) {
-                clone.transitions.put(entry.getKey().clone(), entry.getValue().clone());
-            }
-
+            clone.transitions.putAll(transitions);
             return clone;
-
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
