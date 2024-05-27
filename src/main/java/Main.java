@@ -7,6 +7,13 @@ import util.ArgumentParser;
 import util.Logger;
 
 public class Main {
+
+    private static final String[] welcomeMessage = {
+            "This is Reversi++ Client",
+            "Developed as part of the FWPM \"ZOCK\" in the summer semester 2024 at OTH Regensburg",
+            "By Samuel Kroiß, Ludwig Schmidt, and Maximilian Strauß", "Use -h for help"
+    };
+
     public static void main(String[] args) {
 
         ArgumentParser argumentParser = new ArgumentParser();
@@ -19,15 +26,14 @@ public class Main {
         argumentParser.setParameter("h", new ArgumentParser.Parameter("Help", false));
         ArgumentParser.ParsedArguments parsedArguments = argumentParser.parse(args);
 
-        if((Boolean) parsedArguments.get("h")) {
+        if ((Boolean) parsedArguments.get("h")) {
             System.out.println(argumentParser);
             return;
         }
 
-        if((Boolean) parsedArguments.get("q")) {
+        if ((Boolean) parsedArguments.get("q")) {
             Logger.defaultPriority = 10;
-        }
-        else {
+        } else {
             Logger.useColors = (Boolean) parsedArguments.get("c");
             Logger.defaultPriority = 2;
             Logger.setPriority(Game.class.getName(), 3);
@@ -35,8 +41,7 @@ public class Main {
             Logger.setPriority(OptimizedParanoidClient.class.getName(), 0);
             Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), 0);
 
-            Logger.get().log("Team members: Kroiß, Schmidt, Strauß\n");
-            Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
+            for(var line : welcomeMessage) Logger.get().log(line);
         }
 
         // Launch whatever
