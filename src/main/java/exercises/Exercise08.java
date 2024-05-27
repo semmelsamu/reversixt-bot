@@ -1,7 +1,9 @@
 package exercises;
 
+import board.Coordinates;
 import game.Game;
 import game.GameFactory;
+import move.BombMove;
 import util.Logger;
 
 public class Exercise08 {
@@ -10,6 +12,11 @@ public class Exercise08 {
 
         // Load map
         Game game = GameFactory.createFromFile("maps/ue08-bomben/bomben01.map");
+
+        // Print board
+        Logger.get().log(game.toString());
+
+        game.executeMove(new BombMove(1, new Coordinates(4, 2)));
 
         // Print board
         Logger.get().log(game.toString());
