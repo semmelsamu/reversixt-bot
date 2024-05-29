@@ -94,7 +94,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
             int score = minmaxWithDepth(moveAndGame.second(), depthLimit - 1, alpha, beta);
 
-            logger.replace().debug("Move " + moveAndGame.second() + " has first score of " + score);
+            logger.replace().debug("Move " + moveAndGame.first() + " has first score of " + score);
 
             if (score > resultScore) {
                 resultScore = score;
@@ -175,6 +175,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
             int score = GameEvaluator.evaluate(clonedGame, ME);
+            stats_gamesVisited++;
 
             result.add(new Triple<>(move, clonedGame, score));
         }

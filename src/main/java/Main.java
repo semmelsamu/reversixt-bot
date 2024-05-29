@@ -1,3 +1,4 @@
+import clients.BestReplySearchKillerHeuristicClient;
 import clients.IterativeDeepeningAlphaBetaSearchClient;
 import clients.OptimizedParanoidClient;
 import clients.ParanoidClient;
@@ -40,6 +41,7 @@ public class Main {
             Logger.setPriority(ParanoidClient.class.getName(), 1);
             Logger.setPriority(OptimizedParanoidClient.class.getName(), 0);
             Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), 0);
+            Logger.setPriority(BestReplySearchKillerHeuristicClient.class.getName(), 0);
 
             for(var line : welcomeMessage) Logger.get().log(line);
         }
