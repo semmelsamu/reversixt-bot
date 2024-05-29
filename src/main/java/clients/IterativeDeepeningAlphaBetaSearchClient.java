@@ -93,12 +93,12 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         if (enableMoveSorting) {
             // TODO: Performance -> No Streams!
             gamesWithMoves = nextGameScores.stream()
-                    .sorted(Comparator.comparing(Triple::b, Comparator.reverseOrder()))
-                    .map(t -> new Tuple<>(t.a(), t.c()))
+                    .sorted(Comparator.comparing(Triple::second, Comparator.reverseOrder()))
+                    .map(t -> new Tuple<>(t.first(), t.third()))
                     .collect(Collectors.toCollection(LinkedHashSet::new));
         } else {
             // TODO: Performance -> No Streams!
-            gamesWithMoves = nextGameScores.stream().map(t -> new Tuple<>(t.a(), t.c()))
+            gamesWithMoves = nextGameScores.stream().map(t -> new Tuple<>(t.first(), t.third()))
                     .collect(Collectors.toSet());
         }
 
@@ -111,13 +111,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                     (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() * 100);
             logger.debug(progressPercentage + "%");
 
-            int score = minmaxWithDepth(gamesWithMove.a(), depthLimit - 1, alpha, beta);
+            int score = minmaxWithDepth(gamesWithMove.first(), depthLimit - 1, alpha, beta);
 
-            logger.replace().debug("Move " + gamesWithMove.b() + " has a score of " + score);
+            logger.replace().debug("Move " + gamesWithMove.second() + " has a score of " + score);
 
             if (score > resultScore) {
                 resultScore = score;
-                resultMove = gamesWithMove.b();
+                resultMove = gamesWithMove.second();
             }
 
             // Update alpha for the maximizer
@@ -160,7 +160,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
             // TODO: Performance -> No Streams!
             Set<Game> gamesWithMoves = getGamesWithMoveAndEvaluation(game).stream()
-                    .sorted(Comparator.comparing(Triple::b, comparator)).map(Triple::a)
+                    .sorted(Comparator.comparing(Triple::second, comparator)).map(Triple::first)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
             for (Game clonedGame : gamesWithMoves) {

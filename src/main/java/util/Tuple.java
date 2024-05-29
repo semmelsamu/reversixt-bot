@@ -1,8 +1,8 @@
 package util;
 
 public record Tuple<A, B>(
-        A a,
-        B b
+        A first,
+        B second
 ) {
 
 }
