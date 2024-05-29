@@ -27,7 +27,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         this.timeLimit = timeLimit - TIME_BUFFER;
 
         // Fallback move
-        Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Any valid move
+        Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Random valid move
 
         try {
 
@@ -63,7 +63,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
             for (int depth = 2; timeLimit > 0 || depth <= depthLimit; depth++) {
                 resetStats();
-                bestMove = alphaBetaSearch(depth, sortedMoves);
+                bestMove = initializeSearch(depth, sortedMoves);
                 evaluateStats(depth);
             }
 
@@ -76,7 +76,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     }
 
-    private Move alphaBetaSearch(int depthLimit, List<Triple<Move, Game, Integer>> sortedMoves)
+    private Move initializeSearch(int depthLimit, List<Triple<Move, Game, Integer>> sortedMoves)
             throws OutOfTimeException {
 
         logger.log("Starting Alpha/Beta-Search with search depth " + depthLimit);
@@ -92,14 +92,11 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         // For logging progress percentage
         int i = 0;
 
+        logger.debug("0%");
+
         for (var moveAndGame : sortedMoves) {
 
-            // Log progress percentage
-            logger.debug((int) ((float) i / (float) sortedMoves.size() * 100) + "%");
-
-            int score = minmaxWithDepth(moveAndGame.second(), depthLimit - 1, alpha, beta);
-
-            logger.replace().debug("Move " + moveAndGame.first() + " has a score of " + score);
+            int score = search(moveAndGame.second(), depthLimit - 1, alpha, beta, true);
 
             if (score > resultScore) {
                 resultScore = score;
@@ -109,7 +106,9 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             // Update alpha for the maximizer
             alpha = Math.max(alpha, score);
 
+            // Log progress percentage
             i++;
+            logger.replace().debug((int) ((float) i / (float) sortedMoves.size() * 100) + "%");
         }
 
         return resultMove;
@@ -121,7 +120,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
-    private int minmaxWithDepth(Game game, int depth, int alpha, int beta)
+    private int search(Game game, int depth, int alpha, int beta, boolean buildTree)
             throws OutOfTimeException {
 
         checkTime();
@@ -133,36 +132,78 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         int currentPlayerNumber = game.getCurrentPlayerNumber();
         boolean isMaximizer = currentPlayerNumber == ME;
 
-        List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, isMaximizer);
+        if (isMaximizer) {
+            int result = Integer.MIN_VALUE;
 
-        int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+            List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, true);
+            stats_branchingFactors.add(sortedMoves.size());
 
-        stats_branchingFactors.add(sortedMoves.size());
+            for (var moveAndGame : sortedMoves) {
 
-        for (var moveAndGame : sortedMoves) {
+                int score = search(moveAndGame.second(), depth - 1, alpha, beta, true);
 
-            int score = minmaxWithDepth(moveAndGame.second(), depth - 1, alpha, beta);
-
-            // Alpha-Beta-Pruning
-            if (isMaximizer) {
                 result = Math.max(result, score);
-                alpha = Math.max(alpha, result);
+
+                // Update alpha for the maximizer
+                alpha = Math.max(alpha, score);
+
+                // Beta cutoff
                 if (beta <= alpha) {
                     stats_cutoffs++;
-                    break;  // Beta cutoff
-                }
-            } else {
-                result = Math.min(result, score);
-                beta = Math.min(beta, result);
-                if (beta <= alpha) {
-                    stats_cutoffs++;
-                    break;  // Alpha cutoff
+                    break;
                 }
             }
-        }
 
-        return result;
+            return result;
+        } else if (buildTree) {
+            int result = Integer.MAX_VALUE;
+
+            Set<Move> moves = game.getValidMovesForCurrentPlayer();
+            stats_branchingFactors.add(moves.size());
+
+            // TODO: Better heuristic?
+            Move phi = moves.iterator().next(); // Random valid move
+
+            for (Move move : game.getValidMovesForCurrentPlayer()) {
+                Game clonedGame = game.clone();
+                clonedGame.executeMove(move);
+                stats_gamesVisited++;
+
+                int score = search(clonedGame, depth - 1, alpha, beta, move.equals(phi));
+
+                result = Math.min(result, score);
+
+                // Update beta for the minimizer
+                beta = Math.min(beta, result);
+
+                // Alpha cutoff
+                if (beta <= alpha) {
+                    stats_cutoffs++;
+                    break;
+                }
+            }
+
+            return result;
+        } else {
+            // TODO: Better heuristic?
+            Move move = game.getValidMovesForCurrentPlayer().iterator().next(); // Random valid move
+
+            // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
+            Game clonedGame = game.clone();
+            clonedGame.executeMove(move);
+            stats_gamesVisited++;
+
+            return search(clonedGame, depth - 1, alpha, beta, false);
+        }
     }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Utility
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
 
     /**
      * Execute all possible moves the current player has, evaluate the games after execution and
@@ -196,6 +237,11 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         return list;
     }
 
+    /**
+     * Checks if we are over the time limit
+     *
+     * @throws OutOfTimeException if we ran out of time
+     */
     private void checkTime() throws OutOfTimeException {
         if (System.currentTimeMillis() - startTime > timeLimit && timeLimit > 0) {
             throw new OutOfTimeException("Out of time");
@@ -224,33 +270,25 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     private void evaluateStats(int depth) throws OutOfTimeException {
 
-        logger.verbose("- - - Stats for depth " + depth + " - - -");
-
         double totalTime = System.currentTimeMillis() - stats_startTime;
-        logger.verbose("Total time: " + totalTime + " ms");
-
-        logger.verbose("Visited Games: " + stats_gamesVisited);
-
         double timePerGame = totalTime / stats_gamesVisited;
-        logger.verbose("Time per game: " + timePerGame + " ms");
-
-        logger.verbose("Cutoffs: " + stats_cutoffs);
-
         double averageBranchingFactor =
                 stats_branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0);
-        logger.verbose("Average branching factor: " + averageBranchingFactor);
 
         int newDepth = depth + 1;
-
-        logger.verbose("- - - Estimation for depth " + newDepth + " - - -");
-
         int timePassed = (int) (System.currentTimeMillis() - this.startTime);
-        logger.verbose("Time passed: " + timePassed + " ms");
-
         int timeLeft = this.timeLimit - timePassed;
-        logger.verbose("Time left: " + timeLeft + " ms");
-
         double timeEstimated = Math.pow(averageBranchingFactor, newDepth) * timePerGame;
+
+        logger.verbose("- - - Stats for depth " + depth + " - - -");
+        logger.verbose("Total time: " + totalTime + " ms");
+        logger.verbose("Visited Games: " + stats_gamesVisited);
+        logger.verbose("Time per game: " + timePerGame + " ms");
+        logger.verbose("Cutoffs: " + stats_cutoffs);
+        logger.verbose("Average branching factor: " + averageBranchingFactor);
+        logger.verbose("- - - Estimation for depth " + newDepth + " - - -");
+        logger.verbose("Time passed: " + timePassed + " ms");
+        logger.verbose("Time left: " + timeLeft + " ms");
         logger.verbose("Time estimated: " + timeEstimated + " ms");
 
         // Do not throw the OutOfTimeException if we don't have a time limit
@@ -261,6 +299,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         if (timeLeft < timeEstimated) {
             throw new OutOfTimeException("Estimated more time for the next depth than what's left");
         }
+
     }
 
 }
