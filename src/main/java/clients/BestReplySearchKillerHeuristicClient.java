@@ -27,53 +27,58 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     @Override
     public Move sendMove(int timeLimit, int depthLimit) {
 
-        this.startTime = System.currentTimeMillis();
         this.timeLimit = timeLimit - TIME_BUFFER;
 
-        if (game.getPhase() == GamePhase.END) {
-            throw new GamePhaseNotValidException(
-                    "Move was requested but we think the game already ended");
-        }
-
-        logger.log("Calculating new move with " +
-                (timeLimit > 0 ? "time limit " + timeLimit + " ms" :
-                        "depth limit " + depthLimit + " layers"));
-
-        // Fallback if we can't calculate any depth
+        // Fallback move
         Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Any valid move
 
-        // Cache move sorting
-        List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, true);
-
-        // As the sorted moves already contain the result for depth 1, update bestMove
-        bestMove = sortedMoves.get(0).first();
-
-        // It only makes sense to build a tree if we are in the first phase
-        if(!game.getPhase().equals(GamePhase.PHASE_1))
-            return bestMove;
-
-        // Iterative deepening search
         try {
+
+            resetStats();
+
+            if (game.getPhase() == GamePhase.END) {
+                throw new GamePhaseNotValidException(
+                        "Move was requested but we think the game already ended");
+            }
+
+            logger.log("Calculating new move with " +
+                    (timeLimit > 0 ? "time limit " + timeLimit + " ms" :
+                            "depth limit " + depthLimit + " layers"));
+
+
+            // Cache move sorting
+            List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, true);
+
+            // As the sorted moves already contain the result for depth 1, update bestMove
+            bestMove = sortedMoves.get(0).first();
+
+            // It only makes sense to build a tree if we are in the first phase
+            if (!game.getPhase().equals(GamePhase.PHASE_1)) {
+                return bestMove;
+            }
+
+            evaluateStats(1);
+
+            // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
             for (int depth = 2; timeLimit > 0 || depth <= depthLimit; depth++) {
 
+                // For each depth we calculate the average time per game visited in order to
+                // estimate a time for the next depth
                 resetStats();
 
                 bestMove = alphaBetaSearch(depth, sortedMoves);
 
                 // Exit if we don't have the estimated time left
-                if (evaluateStats(depth)) {
-                    logger.log("Estimated more time for the next depth than what's left");
-                    break;
-                }
+                evaluateStats(depth);
             }
+
+            return bestMove;
+
         } catch (OutOfTimeException e) {
             logger.log(e.getMessage());
+            return bestMove;
         }
-
-        logger.log("Responding with " + bestMove);
-
-        return bestMove;
 
     }
 
@@ -125,9 +130,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     private int minmaxWithDepth(Game game, int depth, int alpha, int beta)
             throws OutOfTimeException {
 
-        if (System.currentTimeMillis() - startTime > timeLimit && timeLimit > 0) {
-            throw new OutOfTimeException("Out of time");
-        }
+        checkTime();
 
         if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
             return GameEvaluator.evaluate(game, ME);
@@ -173,11 +176,14 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * Execute all possible moves the current player has, evaluate the games after execution and
      * sort them by their evaluation score.
      */
-    private List<Triple<Move, Game, Integer>> sortMoves(Game game, boolean descending) {
+    private List<Triple<Move, Game, Integer>> sortMoves(Game game, boolean descending)
+            throws OutOfTimeException {
         Set<Triple<Move, Game, Integer>> result = new LinkedHashSet<>();
 
         // Get data
-        for(Move move : game.getValidMovesForCurrentPlayer()) {
+        for (Move move : game.getValidMovesForCurrentPlayer()) {
+            checkTime();
+
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
             int score = GameEvaluator.evaluate(clonedGame, ME);
@@ -188,10 +194,20 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         // Sort
         List<Triple<Move, Game, Integer>> list = new LinkedList<>(result);
+        checkTime();
         list.sort(Comparator.comparingInt(Triple::third)); // Triple::third = score
-        if(descending) Collections.reverse(list);
+        checkTime();
+        if (descending) {
+            Collections.reverse(list);
+        }
 
         return list;
+    }
+
+    private void checkTime() throws OutOfTimeException {
+        if (System.currentTimeMillis() - startTime > timeLimit && timeLimit > 0) {
+            throw new OutOfTimeException("Out of time");
+        }
     }
 
     /*
@@ -214,7 +230,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         stats_branchingFactors = new LinkedList<>();
     }
 
-    private boolean evaluateStats(int depth) {
+    private void evaluateStats(int depth) throws OutOfTimeException {
 
         logger.verbose("- - - Stats for depth " + depth + " - - -");
 
@@ -228,10 +244,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         logger.verbose("Cutoffs: " + stats_cutoffs);
 
-        double averageBranchingFactor = stats_branchingFactors.stream()
-                .mapToInt(Integer::intValue)
-                .average()
-                .orElse(0);
+        double averageBranchingFactor =
+                stats_branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0);
         logger.verbose("Average branching factor: " + averageBranchingFactor);
 
         int newDepth = depth + 1;
@@ -247,12 +261,13 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         double timeEstimated = Math.pow(averageBranchingFactor, newDepth) * timePerGame;
         logger.verbose("Time estimated: " + timeEstimated + " ms");
 
-        if(!(timeLimit > 0)) {
-            return false;
+        // Do not throw the OutOfTimeException if we don't have a time limit
+        if (timeLimit == 0) {
+            return;
         }
 
-        return timeEstimated > timeLeft;
+        if(timeLeft < timeEstimated)
+            throw new OutOfTimeException("Estimated more time for the next depth than what's left");
     }
-
 
 }
