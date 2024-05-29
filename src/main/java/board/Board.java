@@ -195,13 +195,13 @@ public class Board implements Cloneable {
         }
         result.append("(Width: ").append(width).append(", height: ").append(height).append(")");
 
-        StringBuilder raw = new StringBuilder("Raw: ");
+        // StringBuilder raw = new StringBuilder("Raw: ");
 
-        for (byte b : board) {
-            raw.append(Integer.toHexString(b & 0x0F)).append(Integer.toHexString((b >> 4) & 0x0F));
-        }
+        // for (byte b : board) {
+        //     raw.append(Integer.toHexString(b & 0x0F)).append(Integer.toHexString((b >> 4) & 0x0F));
+        // }
 
-        return "Board" + "\n" + "\u001B[0m" + result + "\n" + raw;
+        return "Board" + "\n" + "\u001B[0m" + result + "\n"; //+ raw;
     }
 
     @Override
