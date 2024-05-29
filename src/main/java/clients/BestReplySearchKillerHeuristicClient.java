@@ -42,18 +42,24 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         // Fallback if we can't calculate any depth
         Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Any valid move
 
+        // Cache move sorting
+        List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, true);
+
+        // As the sorted moves already contain the result for depth 1, update bestMove
+        bestMove = sortedMoves.get(0).first();
+
+        // It only makes sense to build a tree if we are in the first phase
+        if(!game.getPhase().equals(GamePhase.PHASE_1))
+            return bestMove;
+
         // Iterative deepening search
         try {
-            for (int depth = 1; timeLimit > 0 || depth <= depthLimit; depth++) {
+            // Start with depth 2 as depth 1 is already calculated via the sorted moves
+            for (int depth = 2; timeLimit > 0 || depth <= depthLimit; depth++) {
 
                 resetStats();
 
-                bestMove = alphaBetaSearch(depth);
-
-                // Only the first phase requires searching deeper than 1
-                if (!game.getPhase().equals(GamePhase.PHASE_1)) {
-                    break;
-                }
+                bestMove = alphaBetaSearch(depth, sortedMoves);
 
                 // Exit if we don't have the estimated time left
                 if (evaluateStats(depth)) {
@@ -86,7 +92,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         // For logging progress percentage
         int i = 0;
 
-        for (var moveAndGame : sortMoves(game)) {
+        for (var moveAndGame : sortMoves(game, false)) {
 
             int progressPercentage =
                     (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() * 100);
@@ -167,7 +173,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * Execute all possible moves the current player has, evaluate the games after execution and
      * sort them by their evaluation score.
      */
-    private List<Triple<Move, Game, Integer>> sortMoves(Game game) {
+    private List<Triple<Move, Game, Integer>> sortMoves(Game game, boolean descending) {
         Set<Triple<Move, Game, Integer>> result = new LinkedHashSet<>();
 
         // Get data
@@ -183,6 +189,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         // Sort
         List<Triple<Move, Game, Integer>> list = new LinkedList<>(result);
         list.sort(Comparator.comparingInt(Triple::third)); // Triple::third = score
+        if(descending) Collections.reverse(list);
 
         return list;
     }
