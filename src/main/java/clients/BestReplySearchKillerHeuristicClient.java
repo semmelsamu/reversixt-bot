@@ -8,10 +8,8 @@ import game.GamePhase;
 import move.Move;
 import util.Logger;
 import util.Triple;
-import util.Tuple;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class BestReplySearchKillerHeuristicClient extends Client {
 
@@ -44,6 +42,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         // Fallback if we can't calculate any depth
         Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Any valid move
 
+        // Iterative deepening search
         try {
             for (int depth = 1; timeLimit > 0 || depth <= depthLimit; depth++) {
 
@@ -84,32 +83,22 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         stats_branchingFactors.add(game.getValidMovesForCurrentPlayer().size());
 
-        Set<Triple<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
-        Set<Tuple<Game, Move>> gamesWithMoves;
-
-        // Sort Moves
-        // TODO: Performance -> No Streams!
-        gamesWithMoves = nextGameScores.stream()
-                .sorted(Comparator.comparing(Triple::b, Comparator.reverseOrder()))
-                .map(t -> new Tuple<>(t.a(), t.c()))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
         // For logging progress percentage
         int i = 0;
 
-        for (Tuple<Game, Move> gamesWithMove : gamesWithMoves) {
+        for (var moveAndGame : sortMoves(game)) {
 
             int progressPercentage =
                     (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() * 100);
             logger.debug(progressPercentage + "%");
 
-            int score = minmaxWithDepth(gamesWithMove.a(), depthLimit - 1, alpha, beta);
+            int score = minmaxWithDepth(moveAndGame.second(), depthLimit - 1, alpha, beta);
 
-            logger.replace().debug("Move " + gamesWithMove.b() + " has a score of " + score);
+            logger.replace().debug("Move " + moveAndGame.second() + " has first score of " + score);
 
             if (score > resultScore) {
                 resultScore = score;
-                resultMove = gamesWithMove.b();
+                resultMove = moveAndGame.first();
             }
 
             // Update alpha for the maximizer
@@ -174,16 +163,27 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         return result;
     }
 
-    private Set<Triple<Game, Integer, Move>> getGamesWithMoveAndEvaluation(Game game) {
-        Set<Triple<Game, Integer, Move>> nextGameScores = new LinkedHashSet<>();
-        for (Move move : game.getValidMovesForCurrentPlayer()) {
+    /**
+     * Execute all possible moves the current player has, evaluate the games after execution and
+     * sort them by their evaluation score.
+     */
+    private List<Triple<Move, Game, Integer>> sortMoves(Game game) {
+        Set<Triple<Move, Game, Integer>> result = new LinkedHashSet<>();
+
+        // Get data
+        for(Move move : game.getValidMovesForCurrentPlayer()) {
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            stats_gamesVisited++;
-            nextGameScores.add(
-                    new Triple<>(clonedGame, GameEvaluator.evaluate(clonedGame, ME), move));
+            int score = GameEvaluator.evaluate(clonedGame, ME);
+
+            result.add(new Triple<>(move, clonedGame, score));
         }
-        return nextGameScores;
+
+        // Sort
+        List<Triple<Move, Game, Integer>> list = new LinkedList<>(result);
+        list.sort(Comparator.comparingInt(Triple::third)); // Triple::third = score
+
+        return list;
     }
 
     /*
