@@ -9,11 +9,9 @@ import exceptions.MoveNotValidException;
 import move.Move;
 import util.Logger;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Game implements Cloneable {
 
@@ -233,7 +231,7 @@ public class Game implements Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder("Game\n");
 
         result.append("Initial players: ").append(staticGameStats.getInitialPlayers()).append("\n");
         result.append("Initial overwrite stones: ")
@@ -256,10 +254,7 @@ public class Game implements Cloneable {
 
         result.append(board.toString());
 
-        // Indent
-        String[] lines = result.toString().split("\n");
-        return "Game\n\u001B[0m" +
-                Arrays.stream(lines).map(line -> "    " + line).collect(Collectors.joining("\n"));
+        return result.toString();
     }
 
     @Override
