@@ -20,13 +20,10 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     private static final int TIME_BUFFER = 80;
 
-    public BestReplySearchKillerHeuristicClient() {
-        logger.log("Launching BestReplySearchKillerHeuristicClient");
-    }
-
     @Override
     public Move sendMove(int timeLimit, int depthLimit) {
 
+        this.startTime = System.currentTimeMillis();
         this.timeLimit = timeLimit - TIME_BUFFER;
 
         // Fallback move
@@ -34,6 +31,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         try {
 
+            // For each depth we calculate the average time per game visited in order to
+            // estimate a time for the next depth
             resetStats();
 
             if (game.getPhase() == GamePhase.END) {
@@ -57,19 +56,14 @@ public class BestReplySearchKillerHeuristicClient extends Client {
                 return bestMove;
             }
 
+            // Exit if we don't have the estimated time left
             evaluateStats(1);
 
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
             for (int depth = 2; timeLimit > 0 || depth <= depthLimit; depth++) {
-
-                // For each depth we calculate the average time per game visited in order to
-                // estimate a time for the next depth
                 resetStats();
-
                 bestMove = alphaBetaSearch(depth, sortedMoves);
-
-                // Exit if we don't have the estimated time left
                 evaluateStats(depth);
             }
 
@@ -82,7 +76,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     }
 
-    private Move alphaBetaSearch(int depthLimit) throws OutOfTimeException {
+    private Move alphaBetaSearch(int depthLimit, List<Triple<Move, Game, Integer>> sortedMoves)
+            throws OutOfTimeException {
 
         logger.log("Starting Alpha/Beta-Search with search depth " + depthLimit);
 
@@ -92,20 +87,19 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        stats_branchingFactors.add(game.getValidMovesForCurrentPlayer().size());
+        stats_branchingFactors.add(sortedMoves.size());
 
         // For logging progress percentage
         int i = 0;
 
-        for (var moveAndGame : sortMoves(game, false)) {
+        for (var moveAndGame : sortedMoves) {
 
-            int progressPercentage =
-                    (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() * 100);
-            logger.debug(progressPercentage + "%");
+            // Log progress percentage
+            logger.debug((int) ((float) i / (float) sortedMoves.size() * 100) + "%");
 
             int score = minmaxWithDepth(moveAndGame.second(), depthLimit - 1, alpha, beta);
 
-            logger.replace().debug("Move " + moveAndGame.first() + " has first score of " + score);
+            logger.replace().debug("Move " + moveAndGame.first() + " has a score of " + score);
 
             if (score > resultScore) {
                 resultScore = score;
@@ -139,17 +133,15 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         int currentPlayerNumber = game.getCurrentPlayerNumber();
         boolean isMaximizer = currentPlayerNumber == ME;
 
+        List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, isMaximizer);
+
         int result = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 
-        stats_branchingFactors.add(game.getValidMovesForCurrentPlayer().size());
+        stats_branchingFactors.add(sortedMoves.size());
 
-        for (Move move : game.getValidMovesForCurrentPlayer()) {
+        for (var moveAndGame : sortedMoves) {
 
-            Game clonedGame = game.clone();
-            clonedGame.executeMove(move);
-            stats_gamesVisited++;
-
-            int score = minmaxWithDepth(clonedGame, depth - 1, alpha, beta);
+            int score = minmaxWithDepth(moveAndGame.second(), depth - 1, alpha, beta);
 
             // Alpha-Beta-Pruning
             if (isMaximizer) {
@@ -266,8 +258,9 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             return;
         }
 
-        if(timeLeft < timeEstimated)
+        if (timeLeft < timeEstimated) {
             throw new OutOfTimeException("Estimated more time for the next depth than what's left");
+        }
     }
 
 }
