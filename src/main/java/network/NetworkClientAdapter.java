@@ -53,6 +53,8 @@ public class NetworkClientAdapter implements NetworkClient {
 
         Move result = client.sendMove(timeLimit, depthLimit);
 
+        logger.log("Sending " + result.getClass().getSimpleName() + result.getCoordinates());
+
         short x = (short) result.getCoordinates().x;
         short y = (short) result.getCoordinates().y;
 
