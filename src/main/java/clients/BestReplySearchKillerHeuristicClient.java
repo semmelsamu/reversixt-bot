@@ -87,8 +87,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        stats_branchingFactors.add(sortedMoves.size());
-
         // For logging progress percentage
         int i = 0;
 
@@ -126,6 +124,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         checkTime();
 
         if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
+            stats_nodesVisited++;
             return GameEvaluator.evaluate(game, ME);
         }
 
@@ -136,7 +135,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             int result = Integer.MIN_VALUE;
 
             List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, true);
-            stats_branchingFactors.add(sortedMoves.size());
 
             for (var moveAndGame : sortedMoves) {
 
@@ -159,7 +157,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             int result = Integer.MAX_VALUE;
 
             Set<Move> moves = game.getValidMovesForCurrentPlayer();
-            stats_branchingFactors.add(moves.size());
 
             // TODO: Better heuristic?
             Move phi = moves.iterator().next(); // Random valid move
@@ -167,7 +164,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             for (Move move : game.getValidMovesForCurrentPlayer()) {
                 Game clonedGame = game.clone();
                 clonedGame.executeMove(move);
-                stats_gamesVisited++;
+                stats_nodesVisited++;
 
                 int score = search(clonedGame, depth - 1, alpha, beta, move.equals(phi));
 
@@ -191,7 +188,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            stats_gamesVisited++;
+            stats_nodesVisited++;
 
             return search(clonedGame, depth - 1, alpha, beta, false);
         }
@@ -220,7 +217,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
             int score = GameEvaluator.evaluate(clonedGame, ME);
-            stats_gamesVisited++;
+            stats_nodesVisited++;
 
             result.add(new Triple<>(move, clonedGame, score));
         }
@@ -257,39 +254,40 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     */
 
     private long stats_startTime;
-    private int stats_gamesVisited;
+    private int stats_nodesVisited;
     private long stats_cutoffs;
-    private List<Integer> stats_branchingFactors;
 
     private void resetStats() {
         stats_startTime = System.currentTimeMillis();
-        stats_gamesVisited = 0;
+        stats_nodesVisited = 1;
         stats_cutoffs = 0;
-        stats_branchingFactors = new LinkedList<>();
     }
 
     private void evaluateStats(int depth) throws OutOfTimeException {
 
         double totalTime = System.currentTimeMillis() - stats_startTime;
-        double timePerGame = totalTime / stats_gamesVisited;
-        double averageBranchingFactor =
-                stats_branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0);
+        double timePerGame = totalTime / stats_nodesVisited;
+
+        double branchingFactor = calculateBranchingFactor(stats_nodesVisited, depth);
 
         int newDepth = depth + 1;
         int timePassed = (int) (System.currentTimeMillis() - this.startTime);
         int timeLeft = this.timeLimit - timePassed;
-        double timeEstimated = Math.pow(averageBranchingFactor, newDepth) * timePerGame;
+        double timeEstimated = Math.pow(branchingFactor, newDepth) * timePerGame;
 
-        logger.verbose("- - - Stats for depth " + depth + " - - -");
-        logger.verbose("Total time: " + totalTime + " ms");
-        logger.verbose("Visited Games: " + stats_gamesVisited);
-        logger.verbose("Time per game: " + timePerGame + " ms");
-        logger.verbose("Cutoffs: " + stats_cutoffs);
-        logger.verbose("Average branching factor: " + averageBranchingFactor);
-        logger.verbose("- - - Estimation for depth " + newDepth + " - - -");
-        logger.verbose("Time passed: " + timePassed + " ms");
-        logger.verbose("Time left: " + timeLeft + " ms");
-        logger.verbose("Time estimated: " + timeEstimated + " ms");
+        StringBuilder stats = new StringBuilder("Stats for depth " + depth + "\n");
+        stats.append("Visited states: ").append(stats_nodesVisited).append("\n");
+        stats.append("Total time: ").append(totalTime).append(" ms\n");
+        stats.append("Time per state: ").append(timePerGame).append(" ms\n");
+        stats.append("Cutoffs: ").append(stats_cutoffs).append("\n");
+        stats.append("Average branching factor: ").append(branchingFactor);
+        logger.verbose(stats.toString());
+
+        stats = new StringBuilder("Estimation for depth " + newDepth + "\n");
+        stats.append("Time passed: ").append(timePassed).append(" ms\n");
+        stats.append("Time left: ").append(timeLeft).append(" ms\n");
+        stats.append("Time estimated: ").append(timeEstimated).append(" ms\n");
+        logger.verbose(stats.toString());
 
         // Do not throw the OutOfTimeException if we don't have a time limit
         if (timeLimit == 0) {
@@ -300,6 +298,28 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             throw new OutOfTimeException("Estimated more time for the next depth than what's left");
         }
 
+    }
+
+    public static double calculateBranchingFactor(int n, int d) {
+        double min = 1.0;
+        double max = 10.0;
+        double tolerance = 1e-10;
+        double mid = 0;
+
+        while ((max - min) > tolerance) {
+            mid = (min + max) / 2;
+            double result = Math.pow(mid, d + 1) - n * mid + (n - 1);
+
+            if (result == 0.0) {
+                break;
+            } else if (result < 0) {
+                min = mid;
+            } else {
+                max = mid;
+            }
+        }
+
+        return mid;
     }
 
 }
