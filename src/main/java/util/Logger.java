@@ -142,6 +142,10 @@ public class Logger {
 
         String terminator = replace ? "\r" : "\n";
 
+        if(!useColors) {
+            message = message.replaceAll("\u001B\\[[;\\d]*m", "");
+        }
+
         String[] lines = message.trim().split("\n");
         StringBuilder indentedMessage = new StringBuilder(lines[0]);
         for(int i = 1; i < lines.length; i++) {
