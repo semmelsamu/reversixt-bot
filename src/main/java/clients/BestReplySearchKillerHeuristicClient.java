@@ -268,12 +268,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         double totalTime = System.currentTimeMillis() - stats_startTime;
         double timePerGame = totalTime / stats_nodesVisited;
 
-        double branchingFactor = calculateBranchingFactor(stats_nodesVisited, depth);
+        int branchingFactor = (int) Math.round(calculateBranchingFactor(stats_nodesVisited, depth));
 
         int newDepth = depth + 1;
         int timePassed = (int) (System.currentTimeMillis() - this.startTime);
         int timeLeft = this.timeLimit - timePassed;
-        double timeEstimated = Math.pow(branchingFactor, newDepth) * timePerGame;
+        double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
 
         StringBuilder stats = new StringBuilder("Stats for depth " + depth + "\n");
         stats.append("Visited states: ").append(stats_nodesVisited).append("\n");
@@ -320,6 +320,17 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         }
 
         return mid;
+    }
+
+    /**
+     * Calculate the number of nodes a t-ary tree with depth d has.
+     */
+    private static int calculateNodeCountOfTree(int t, int d) {
+        int result = 0;
+        for(int i = 0; i <= d; i++) {
+            result += Math.pow(t, i);
+        }
+        return result;
     }
 
 }
