@@ -4,6 +4,7 @@ import evaluation.GameEvaluator;
 import game.Game;
 import game.GamePhase;
 import move.Move;
+import network.Limit;
 import util.Logger;
 
 public class ParanoidClient extends Client {
@@ -15,7 +16,7 @@ public class ParanoidClient extends Client {
     }
 
     @Override
-    public Move sendMove(int timeLimit, int depthLimit) {
+    public Move sendMove(Limit type, int limit) {
 
         if (game.getPhase() == GamePhase.END) {
             throw new RuntimeException("Move was requested but we think the game already ended");
@@ -34,7 +35,7 @@ public class ParanoidClient extends Client {
 
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            int score = minmax(clonedGame, depthLimit);
+            int score = minmax(clonedGame, type == Limit.DEPTH ? limit : 3);
 
             if (score > resultScore) {
                 resultScore = score;
