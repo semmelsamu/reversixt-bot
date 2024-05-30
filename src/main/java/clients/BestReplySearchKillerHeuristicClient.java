@@ -306,7 +306,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         double totalTime = System.currentTimeMillis() - stats_startTime;
         double timePerGame = totalTime / stats_nodesVisited;
 
-        int branchingFactor = (int) Math.round(calculateBranchingFactor(stats_nodesVisited, depth));
+        int branchingFactor = (int) Math.ceil(calculateBranchingFactor(stats_nodesVisited, depth));
 
         int newDepth = depth + 1;
         int timePassed = (int) (System.currentTimeMillis() - this.startTime);
