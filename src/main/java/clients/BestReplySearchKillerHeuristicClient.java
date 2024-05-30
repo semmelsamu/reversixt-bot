@@ -38,9 +38,10 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     private int timeouts = 0;
 
     /**
-     * Used for statistics.
+     * Counts how often we reached the bomb phase in the tree. Used for exiting the iterative
+     * deepening search.
      */
-    private List<Integer> depths = new LinkedList<>();
+    private int bombPhasesReached;
 
     @Override
     public Move sendMove(int timeLimit, int depthLimit) {
@@ -50,8 +51,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         // Fallback move
         Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Random valid move
-
-        int depth = 1;
 
         try {
 
@@ -83,32 +82,30 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             // Exit if we don't have the estimated time left
             evaluateStats(1);
 
+            bombPhasesReached = 0;
+
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
-            for (depth = 2; timeLimit > 0 || depth <= depthLimit; depth++) {
+            for (int depth = 2; timeLimit > 0 || depth <= depthLimit; depth++) {
                 resetStats();
                 bestMove = initializeSearch(depth, sortedMoves);
-                evaluateStats(depth);
-            }
 
-            if (game.getPhase().equals(GamePhase.PHASE_1)) {
-                depths.add(depth);
+                if (bombPhasesReached >= sortedMoves.size()) {
+                    throw new RuntimeException("Tree reached bomb phase");
+                }
+
+                evaluateStats(depth);
             }
 
             return bestMove;
 
         } catch (OutOfTimeException e) {
             timeouts++;
-            if (game.getPhase().equals(GamePhase.PHASE_1)) {
-                depths.add(depth - 1);
-            }
             logger.warn(e.getMessage());
             return bestMove;
-        } catch (NotEnoughTimeException e) {
+
+        } catch (NotEnoughTimeException | RuntimeException e) {
             logger.log(e.getMessage());
-            if (game.getPhase().equals(GamePhase.PHASE_1)) {
-                depths.add(depth);
-            }
             return bestMove;
         }
 
@@ -162,6 +159,9 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         checkTime();
 
         if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
+            if (game.getPhase() != GamePhase.PHASE_1) {
+                bombPhasesReached++;
+            }
             stats_nodesVisited++;
             return GameEvaluator.evaluate(game, ME);
         }
@@ -373,8 +373,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     }
 
     public void end() {
-        logger.verbose("End statistics\nTimeouts: " + timeouts + ((timeLimit > 0) ?
-                "\nAverage depth:" + depths.stream().mapToInt(Integer::intValue).average().orElse(0) : ""));
+        logger.verbose("Total timeouts: " + timeouts);
     }
 
 }
