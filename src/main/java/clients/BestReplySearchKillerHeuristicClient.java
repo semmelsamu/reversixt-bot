@@ -16,12 +16,30 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     Logger logger = new Logger(this.getClass().getName());
 
+    /**
+     * The timestamp in milliseconds at which we got a move request.
+     */
     private long startTime;
+
+    /**
+     * The time in milliseconds we have to calculate the current move.
+     */
     private int timeLimit;
 
+    /**
+     * The time in milliseconds by which we want to respond earlier to avoid disqualification due to
+     * network latency.
+     */
     private static final int TIME_BUFFER = 80;
 
+    /**
+     * Used for statistics.
+     */
     private int timeouts = 0;
+
+    /**
+     * Used for statistics.
+     */
     private List<Integer> depths = new LinkedList<>();
 
     @Override
