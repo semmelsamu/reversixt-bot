@@ -2,6 +2,7 @@ package clients;
 
 import evaluation.GameEvaluator;
 import exceptions.GamePhaseNotValidException;
+import exceptions.NotEnoughTimeException;
 import exceptions.OutOfTimeException;
 import game.Game;
 import game.GamePhase;
@@ -19,6 +20,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     private int timeLimit;
 
     private static final int TIME_BUFFER = 80;
+
+    public int timeouts = 0;
 
     @Override
     public Move sendMove(int timeLimit, int depthLimit) {
@@ -70,6 +73,11 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             return bestMove;
 
         } catch (OutOfTimeException e) {
+            timeouts++;
+            logger.warn(e.getMessage());
+            return bestMove;
+        }
+        catch (NotEnoughTimeException e) {
             logger.log(e.getMessage());
             return bestMove;
         }
@@ -263,7 +271,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         stats_cutoffs = 0;
     }
 
-    private void evaluateStats(int depth) throws OutOfTimeException {
+    private void evaluateStats(int depth) throws NotEnoughTimeException {
 
         double totalTime = System.currentTimeMillis() - stats_startTime;
         double timePerGame = totalTime / stats_nodesVisited;
@@ -295,7 +303,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         }
 
         if (timeLeft < timeEstimated) {
-            throw new OutOfTimeException("Estimated more time for the next depth than what's left");
+            throw new NotEnoughTimeException("Estimated more time for the next depth than what's left");
         }
 
     }
@@ -331,6 +339,10 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             result += Math.pow(t, i);
         }
         return result;
+    }
+
+    public void end() {
+        logger.verbose("End statistics\nTimeouts: " + timeouts);
     }
 
 }

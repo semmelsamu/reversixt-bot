@@ -139,6 +139,7 @@ public class NetworkClientAdapter implements NetworkClient {
             logger.warn("Server and client game phase do not match");
         }
         logger.log(game.toString());
+        client.end();
     }
 
     public Game getGame() {

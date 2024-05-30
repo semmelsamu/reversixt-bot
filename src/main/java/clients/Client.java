@@ -26,4 +26,7 @@ public abstract class Client {
 
     public abstract Move sendMove(int timeLimit, int depthLimit);
 
+    public void end() {
+    }
+
 }
