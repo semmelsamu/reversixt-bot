@@ -21,7 +21,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     private static final int TIME_BUFFER = 80;
 
-    public int timeouts = 0;
+    private int timeouts = 0;
+    private List<Integer> depths = new LinkedList<>();
 
     @Override
     public Move sendMove(int timeLimit, int depthLimit) {
@@ -31,6 +32,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         // Fallback move
         Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Random valid move
+
+        int depth = 1;
 
         try {
 
@@ -64,21 +67,30 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
-            for (int depth = 2; timeLimit > 0 || depth <= depthLimit; depth++) {
+            for (depth = 2; timeLimit > 0 || depth <= depthLimit; depth++) {
                 resetStats();
                 bestMove = initializeSearch(depth, sortedMoves);
                 evaluateStats(depth);
+            }
+
+            if (game.getPhase().equals(GamePhase.PHASE_1)) {
+                depths.add(depth);
             }
 
             return bestMove;
 
         } catch (OutOfTimeException e) {
             timeouts++;
+            if (game.getPhase().equals(GamePhase.PHASE_1)) {
+                depths.add(depth - 1);
+            }
             logger.warn(e.getMessage());
             return bestMove;
-        }
-        catch (NotEnoughTimeException e) {
+        } catch (NotEnoughTimeException e) {
             logger.log(e.getMessage());
+            if (game.getPhase().equals(GamePhase.PHASE_1)) {
+                depths.add(depth);
+            }
             return bestMove;
         }
 
@@ -303,7 +315,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         }
 
         if (timeLeft < timeEstimated) {
-            throw new NotEnoughTimeException("Estimated more time for the next depth than what's left");
+            throw new NotEnoughTimeException(
+                    "Estimated more time for the next depth than what's left");
         }
 
     }
@@ -335,14 +348,15 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      */
     private static int calculateNodeCountOfTree(int t, int d) {
         int result = 0;
-        for(int i = 0; i <= d; i++) {
+        for (int i = 0; i <= d; i++) {
             result += Math.pow(t, i);
         }
         return result;
     }
 
     public void end() {
-        logger.verbose("End statistics\nTimeouts: " + timeouts);
+        logger.verbose("End statistics\nTimeouts: " + timeouts + ((timeLimit > 0) ?
+                "\nAverage depth:" + depths.stream().mapToInt(Integer::intValue).average().orElse(0) : ""));
     }
 
 }
