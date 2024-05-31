@@ -30,7 +30,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * The time in milliseconds by which we want to respond earlier to avoid disqualification due to
      * network latency.
      */
-    private static final int TIME_BUFFER = 200;
+    private static final int TIME_BUFFER = 1000;
 
     /**
      * Used for statistics.
