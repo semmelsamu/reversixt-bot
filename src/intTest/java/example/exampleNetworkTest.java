@@ -1,6 +1,6 @@
 package example;
 
-import clients.IterativeDeepeningAlphaBetaSearchClient;
+import clients.BestReplySearchKillerHeuristicClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ public class exampleNetworkTest {
 
     @Test
     public void time_2_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
+        NetworkClientHelper.createNetworkClients(new BestReplySearchKillerHeuristicClient(),
                 1, 2);
     }
 
