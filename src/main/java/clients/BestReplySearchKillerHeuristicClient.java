@@ -281,7 +281,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * 2. The score of the game after this move is executed.
      *
      * @param game        The initial game situation
-     * @param moveCutoffs The cutoff heuristic
+     * @param moveCutoffs The killer heuristic
      */
     private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs)
             throws OutOfTimeException {
