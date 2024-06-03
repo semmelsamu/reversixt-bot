@@ -259,8 +259,9 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     /**
      * Execute all possible moves the current player has, evaluate the games after execution and
      * sort them by 1) the number of cutoffs the moves achieved on the same depth elsewhere in the
-     * tree and 2) by their evaluation score.
-     * @param game The initial game situation
+     * tree (killer heuristic) and 2) by their evaluation score.
+     *
+     * @param game        The initial game situation
      * @param moveCutoffs The number of cutoffs each move has achieved on the same depth elsewhere
      *                    in the tree
      */
@@ -318,6 +319,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         }
     }
 
+    /**
+     * Add a cutoff to the statistics.
+     *
+     * @param move  Which move achieved the cutoff
+     * @param depth On which depth the cutoff was achieved
+     */
     private void addCutoff(Move move, int depth) {
         stats_cutoffs++;
         moveCutoffs.putIfAbsent(depth, new HashMap<>());
