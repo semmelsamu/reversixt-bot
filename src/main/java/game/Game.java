@@ -7,11 +7,13 @@ import evaluation.StaticGameStats;
 import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
 import move.Move;
+import move.OverwriteMove;
 import util.Logger;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Game implements Cloneable {
 
@@ -73,8 +75,8 @@ public class Game implements Cloneable {
         // Initialize players
         players = new Player[initialPlayers];
         for (int i = 0; i < initialPlayers; i++) {
-            players[i] =
-                    new Player(Tile.getTileForPlayerNumber(i + 1), initialOverwriteStones, initialBombs);
+            players[i] = new Player(Tile.getTileForPlayerNumber(i + 1), initialOverwriteStones,
+                    initialBombs);
         }
 
         // Create static game stats
@@ -151,7 +153,7 @@ public class Game implements Cloneable {
     }
 
     public void executeMove(Move move) {
-        if(!validMovesForCurrentPlayer.contains(move)) {
+        if (!validMovesForCurrentPlayer.contains(move)) {
             logger.error(this.toString());
             logger.error(move.toString());
             throw new MoveNotValidException("Tried to execute a move that is not valid");
@@ -170,6 +172,17 @@ public class Game implements Cloneable {
 
     public Set<Move> getValidMovesForCurrentPlayer() {
         return validMovesForCurrentPlayer;
+    }
+
+    public Set<Move> getRelevantMovesForCurrentPlayer() {
+        Set<Move> movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
+                .filter((move) -> !(move instanceof OverwriteMove)).collect(Collectors.toSet());
+
+        if(movesWithoutOverwrites.isEmpty())
+            return validMovesForCurrentPlayer;
+
+        else
+            return movesWithoutOverwrites;
     }
 
     public Player[] getPlayers() {
