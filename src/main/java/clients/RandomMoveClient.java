@@ -2,8 +2,8 @@ package clients;
 
 import move.Move;
 import network.Limit;
+import util.Collection;
 import util.Logger;
-import util.SetUtils;
 
 /**
  * This client always picks a random move.
@@ -20,7 +20,7 @@ public class RandomMoveClient extends Client {
         }
 
         logger.log("Selecting random move");
-        Move chosenMove = SetUtils.getRandomElement(game.getValidMovesForCurrentPlayer());
+        Move chosenMove = Collection.getRandomElement(game.getValidMovesForCurrentPlayer());
         logger.verbose("Selected " + chosenMove);
 
         return chosenMove;
