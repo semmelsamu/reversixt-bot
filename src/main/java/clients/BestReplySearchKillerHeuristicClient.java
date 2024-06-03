@@ -61,6 +61,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     /**
      * Stores the depth limit for the current iteration for the iterative deepening search. Used to
      * determine if we reached the recursion end.
+     * TODO: Store the currentDepth in the game (like in TrivialAI "Calculating Move xxx") so the
+     *       depth can be passed in the recursive call again
      */
     private int depthLimit;
 

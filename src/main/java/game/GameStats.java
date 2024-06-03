@@ -49,6 +49,7 @@ public class GameStats implements Cloneable{
     |-----------------------------------------------------------------------------------------------
     */
 
+    // TODO: Performance?
     public void replaceTileAtCoordinates(Coordinates coordinates, Tile tile) {
         coordinatesGroupedByTile.get(
                         Collection.findKeyByValue(coordinatesGroupedByTile, coordinates))
