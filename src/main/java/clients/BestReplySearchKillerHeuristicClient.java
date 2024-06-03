@@ -283,8 +283,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * @param moveCutoffs The number of cutoffs each move has achieved on the same depth elsewhere
      *                    in the tree
      */
-    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs,
-                                              boolean descending) throws OutOfTimeException {
+    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs)
+            throws OutOfTimeException {
 
         // A dataset where every entry consists of a Move, the Game after the Move execution, the
         // score of the game and the number of cutoffs this move achieved in other branches
@@ -324,10 +324,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             tuples.add(new Tuple<>(quadruple.first(), quadruple.second()));
         }
 
-        // Invert if necessary
-        if (descending) {
-            Collections.reverse(tuples);
-        }
+        // Reverse as we want the highest scoring move first
+        Collections.reverse(tuples);
 
         return tuples;
     }
