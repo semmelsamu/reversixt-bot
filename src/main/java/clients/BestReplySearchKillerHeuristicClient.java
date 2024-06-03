@@ -44,6 +44,14 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      */
     private int bombPhasesReached;
 
+    /**
+     * Stores how many cutoffs a move on a certain depth has achieved. The first element of the List
+     * is the Cutoffs of all the moves on depth 2 (depth 2 because it is the first depth where
+     * cutoffs can be achieved) The map stores the Move as key and the number of cutoffs achieved as
+     * value.
+     */
+    private List<Map<Move, Integer>> moveCutoffs;
+
     private Limit type;
 
     @Override
@@ -54,7 +62,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         this.endTime = startTime + limit - TIME_BUFFER;
 
         // Fallback move
-        Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Random valid move
+        Move bestMove = game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
         try {
 
@@ -85,10 +93,13 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
             bombPhasesReached = 0;
 
+            moveCutoffs = new LinkedList<>();
+
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
             for (int depth = 2; type != Limit.DEPTH || depth < limit; depth++) {
                 resetStats();
+
                 bestMove = initializeSearch(depth, sortedMoves);
 
                 if (bombPhasesReached >= sortedMoves.size()) {
@@ -195,12 +206,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         } else if (buildTree) {
             int result = Integer.MAX_VALUE;
 
-            Set<Move> moves = game.getValidMovesForCurrentPlayer();
+            Set<Move> moves = game.getRelevantMovesForCurrentPlayer();
 
             // TODO: Better heuristic?
             Move phi = moves.iterator().next(); // Random valid move
 
-            for (Move move : game.getValidMovesForCurrentPlayer()) {
+            for (Move move : game.getRelevantMovesForCurrentPlayer()) {
                 Game clonedGame = game.clone();
                 clonedGame.executeMove(move);
                 stats_nodesVisited++;
@@ -222,7 +233,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             return result;
         } else {
             // TODO: Better heuristic?
-            Move move = game.getValidMovesForCurrentPlayer().iterator().next(); // Random valid move
+            Move move = game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
@@ -250,7 +261,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         Set<Triple<Move, Game, Integer>> result = new LinkedHashSet<>();
 
         // Get data
-        for (Move move : game.getValidMovesForCurrentPlayer()) {
+        for (Move move : game.getRelevantMovesForCurrentPlayer()) {
             checkTime();
 
             Game clonedGame = game.clone();
