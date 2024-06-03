@@ -85,7 +85,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             resetStats();
 
             // Cache move sorting
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>(), true);
+            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>());
 
             // As the sorted moves already contain the result for depth 1, update bestMove
             bestMove = sortedMoves.get(0).first();
@@ -203,7 +203,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             int result = Integer.MIN_VALUE;
 
             List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
-                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
+                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()));
 
             for (var moveAndGame : sortedMoves) {
 
@@ -275,13 +275,13 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     */
 
     /**
-     * Execute all possible moves the current player has, evaluate the games after execution and
-     * sort them by 1) the number of cutoffs the moves achieved on the same depth elsewhere in the
-     * tree (killer heuristic) and 2) by their evaluation score.
+     * Sort all possible moves the current player has by
+     * 1. The number of cutoffs the same moves achieved in other branches on the same height of the
+     * tree (killer heuristic)
+     * 2. The score of the game after this move is executed.
      *
      * @param game        The initial game situation
-     * @param moveCutoffs The number of cutoffs each move has achieved on the same depth elsewhere
-     *                    in the tree
+     * @param moveCutoffs The cutoff heuristic
      */
     private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs)
             throws OutOfTimeException {
