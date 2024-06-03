@@ -45,12 +45,9 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     private int bombPhasesReached;
 
     /**
-     * Stores how many cutoffs a move on a certain depth has achieved. The first element of the List
-     * is the Cutoffs of all the moves on depth 2 (depth 2 because it is the first depth where
-     * cutoffs can be achieved) The map stores the Move as key and the number of cutoffs achieved as
-     * value.
+     * Stores how many cutoffs a move on a certain depth has achieved.
      */
-    private List<Map<Move, Integer>> moveCutoffs;
+    private Map<Integer, Map<Move, Integer>> moveCutoffs;
 
     private Limit type;
 
@@ -64,7 +61,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         this.endTime = startTime + limit - TIME_BUFFER;
 
         // Fallback move
-        Move bestMove = game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
+        Move bestMove =
+                game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
         try {
 
@@ -90,12 +88,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
                 return bestMove;
             }
 
+            moveCutoffs = new HashMap<>();
+
             // Exit if we don't have the estimated time left
             evaluateStats(1);
 
             bombPhasesReached = 0;
-
-            moveCutoffs = new LinkedList<>();
 
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
@@ -105,7 +103,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
                 bestMove = initializeSearch(sortedMoves);
 
                 if (bombPhasesReached >= sortedMoves.size()) {
-                    throw new RuntimeException("Tree reached bomb phase");
+                    throw new GamePhaseNotValidException("Tree reached bomb phase");
                 }
 
                 evaluateStats(depthLimit);
@@ -118,7 +116,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             logger.warn(e.getMessage());
             return bestMove;
 
-        } catch (NotEnoughTimeException | RuntimeException e) {
+        } catch (NotEnoughTimeException | GamePhaseNotValidException e) {
             logger.log(e.getMessage());
             return bestMove;
         }
@@ -163,8 +161,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     /**
      * @param currentDepth Depth of tree that is built
-     * @param alpha Lowest value that is allowed by Max
-     * @param beta  Highest value that is allowed by Min
+     * @param alpha        Lowest value that is allowed by Max
+     * @param beta         Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
     private int search(Game game, int currentDepth, int alpha, int beta, boolean buildTree)
@@ -199,7 +197,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
                 // Beta cutoff
                 if (beta <= alpha) {
-                    stats_cutoffs++;
+                    addCutoff(moveAndGame.first(), currentDepth);
                     break;
                 }
             }
@@ -227,7 +225,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
                 // Alpha cutoff
                 if (beta <= alpha) {
-                    stats_cutoffs++;
+                    addCutoff(move, currentDepth);
                     break;
                 }
             }
@@ -235,7 +233,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             return result;
         } else {
             // TODO: Better heuristic?
-            Move move = game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
+            Move move =
+                    game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
@@ -297,6 +296,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         }
     }
 
+    private void addCutoff(Move move, int depth) {
+        stats_cutoffs++;
+        moveCutoffs.putIfAbsent(depth, new HashMap<>());
+        moveCutoffs.get(depth).put(move, moveCutoffs.get(depth).getOrDefault(move, 0) + 1);
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -331,8 +336,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         stats.append("Visited states: ").append(stats_nodesVisited).append("\n");
         stats.append("Total time: ").append(totalTime).append(" ms\n");
         stats.append("Time per state: ").append(timePerGame).append(" ms\n");
+        stats.append("Average branching factor: ").append(branchingFactor).append("\n");
         stats.append("Cutoffs: ").append(stats_cutoffs).append("\n");
-        stats.append("Average branching factor: ").append(branchingFactor);
+        for (var moveCutoffsOnDepth : moveCutoffs.entrySet()) {
+            stats.append(moveCutoffsOnDepth.getKey()).append(": ")
+                    .append(moveCutoffsOnDepth.getValue().toString()).append("\n");
+        }
         logger.verbose(stats.toString());
 
         stats = new StringBuilder("Estimation for depth " + newDepth + "\n");
