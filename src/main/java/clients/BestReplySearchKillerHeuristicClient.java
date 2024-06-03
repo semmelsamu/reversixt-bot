@@ -350,7 +350,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * @param depth On which depth the cutoff was achieved
      */
     private void addCutoff(Move move, int depth) {
-        currentIterationCutoffs++;
         moveCutoffs.putIfAbsent(depth, new HashMap<>());
         moveCutoffs.get(depth).put(move, moveCutoffs.get(depth).getOrDefault(move, 0) + 1);
     }
@@ -374,16 +373,9 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      */
     private int currentIterationNodesVisited;
 
-    /**
-     * Stores the total number of cutoffs achieved in the current iteration of the iterative
-     * deepening search.
-     */
-    private long currentIterationCutoffs;
-
     private void resetStats() {
         currentIterationStartTime = System.currentTimeMillis();
         currentIterationNodesVisited = 1;
-        currentIterationCutoffs = 0;
     }
 
     private void evaluateStats(int depth) throws NotEnoughTimeException {
@@ -404,7 +396,14 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         stats.append("Total time: ").append(totalTime).append(" ms\n");
         stats.append("Time per state: ").append(timePerGame).append(" ms\n");
         stats.append("Average branching factor: ").append(branchingFactor).append("\n");
-        stats.append("Cutoffs: ").append(currentIterationCutoffs).append("\n");
+        stats.append("Cutoffs: ").append(moveCutoffs.values().stream()
+                        .mapToInt(map -> map.values().stream().mapToInt(Integer::intValue).sum()).sum())
+                .append("\n");
+        for (var cutoffs : moveCutoffs.entrySet()) {
+            int count = cutoffs.getValue().values().stream().mapToInt(Integer::intValue).sum();
+            stats.append("- ").append(count).append(" cutoffs on move ").append(cutoffs.getKey())
+                    .append("\n");
+        }
         logger.verbose(stats.toString());
 
         stats = new StringBuilder("Estimation for depth " + newDepth + "\n");
