@@ -14,6 +14,9 @@ import util.Tuple;
 
 import java.util.*;
 
+import static util.Tree.calculateBranchingFactor;
+import static util.Tree.calculateNodeCountOfTree;
+
 public class BestReplySearchKillerHeuristicClient extends Client {
 
     Logger logger = new Logger(this.getClass().getName());
@@ -380,39 +383,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
                     "Estimated more time for the next depth than what's left");
         }
 
-    }
-
-    public static double calculateBranchingFactor(int n, int d) {
-        double min = 1.0;
-        double max = 10.0;
-        double tolerance = 1e-10;
-        double mid = 0;
-
-        while ((max - min) > tolerance) {
-            mid = (min + max) / 2;
-            double result = Math.pow(mid, d + 1) - n * mid + (n - 1);
-
-            if (result == 0.0) {
-                break;
-            } else if (result < 0) {
-                min = mid;
-            } else {
-                max = mid;
-            }
-        }
-
-        return mid;
-    }
-
-    /**
-     * Calculate the number of nodes a t-ary tree with depth d has.
-     */
-    private static int calculateNodeCountOfTree(int t, int d) {
-        int result = 0;
-        for (int i = 0; i <= d; i++) {
-            result += Math.pow(t, i);
-        }
-        return result;
     }
 
     public void end() {
