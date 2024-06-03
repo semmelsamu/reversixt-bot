@@ -51,7 +51,18 @@ public class NetworkClientAdapter implements NetworkClient {
     public MoveAnswer sendMoveAnswer(int timeLimit, byte depthLimit) {
         checkPhase();
 
-        Move result = client.sendMove(timeLimit, depthLimit);
+        Limit limitType;
+        int limit;
+
+        if (timeLimit > 0) {
+            limitType = Limit.TIME;
+            limit = timeLimit;
+        } else {
+            limitType = Limit.DEPTH;
+            limit = depthLimit;
+        }
+
+        Move result = client.sendMove(limitType, limit);
 
         logger.log("Sending " + result.getClass().getSimpleName() + result.getCoordinates());
 
@@ -83,7 +94,7 @@ public class NetworkClientAdapter implements NetworkClient {
             if (type == 0) {
                 if (game.getTile(coordinates) == Tile.INVERSION) {
                     move = new InversionMove(playerNumber, coordinates);
-                } else if(game.getTile(coordinates) == Tile.EMPTY) {
+                } else if (game.getTile(coordinates) == Tile.EMPTY) {
                     move = new NormalMove(playerNumber, coordinates);
                 } else {
                     move = new OverwriteMove(playerNumber, coordinates);
@@ -126,8 +137,9 @@ public class NetworkClientAdapter implements NetworkClient {
      * matches the server phase.
      */
     private boolean checkPhase = false;
+
     private void checkPhase() {
-        if(checkPhase) {
+        if (checkPhase) {
             logger.warn("Server and client game phase do not match.");
         }
     }

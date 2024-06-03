@@ -1,6 +1,7 @@
 package clients;
 
 import move.Move;
+import network.Limit;
 import util.Logger;
 import util.SetUtils;
 
@@ -12,7 +13,7 @@ public class RandomMoveClient extends Client {
     Logger logger = new Logger(this.getClass().getName());
 
     @Override
-    public Move sendMove(int timeLimit, int depthLimit) {
+    public Move sendMove(Limit type, int limit) {
 
         if (game.getValidMovesForCurrentPlayer().isEmpty()) {
             throw new RuntimeException("Could not calculate any possible moves :(");

@@ -6,6 +6,7 @@ import exceptions.OutOfTimeException;
 import game.Game;
 import game.GamePhase;
 import move.Move;
+import network.Limit;
 import util.Logger;
 import util.Triple;
 import util.Tuple;
@@ -30,7 +31,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     }
 
     @Override
-    public Move sendMove(int timeLimit, int depthLimit) {
+    public Move sendMove(Limit type, int limit) {
 
         this.startTime = System.currentTimeMillis();
         this.timeLimit = timeLimit - TIME_BUFFER;
@@ -40,15 +41,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                     "Move was requested but we think the game already ended");
         }
 
-        logger.log("Calculating new move with " +
-                (timeLimit > 0 ? "time limit " + timeLimit + " ms" :
-                        "depth limit " + depthLimit + " layers"));
+        logger.log("Calculating new move with " + type + " limit " + limit);
 
         // Fallback if we can't calculate any depth
         Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Any valid move
 
         try {
-            for (int depth = 1; timeLimit > 0 || depth <= depthLimit; depth++) {
+            for (int depth = 1; timeLimit > 0 || depth <= (type == Limit.DEPTH ? limit : 3); depth++) {
 
                 resetStats();
 

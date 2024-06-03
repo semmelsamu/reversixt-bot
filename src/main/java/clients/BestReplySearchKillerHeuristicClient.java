@@ -7,6 +7,7 @@ import exceptions.OutOfTimeException;
 import game.Game;
 import game.GamePhase;
 import move.Move;
+import network.Limit;
 import util.Logger;
 import util.Triple;
 
@@ -17,20 +18,20 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     Logger logger = new Logger(this.getClass().getName());
 
     /**
+     * The time in milliseconds by which we want to respond earlier to avoid disqualification due to
+     * network latency.
+     */
+    private static final int TIME_BUFFER = 200;
+
+    /**
      * The timestamp in milliseconds at which we got a move request.
      */
     private long startTime;
 
     /**
-     * The time in milliseconds we have to calculate the current move.
+     * The very latest time by which we should send a move
      */
-    private int timeLimit;
-
-    /**
-     * The time in milliseconds by which we want to respond earlier to avoid disqualification due to
-     * network latency.
-     */
-    private static final int TIME_BUFFER = 1000;
+    private long endTime;
 
     /**
      * Used for statistics.
@@ -43,14 +44,25 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      */
     private int bombPhasesReached;
 
-    @Override
-    public Move sendMove(int timeLimit, int depthLimit) {
+    /**
+     * Stores how many cutoffs a move on a certain depth has achieved. The first element of the List
+     * is the Cutoffs of all the moves on depth 2 (depth 2 because it is the first depth where
+     * cutoffs can be achieved) The map stores the Move as key and the number of cutoffs achieved as
+     * value.
+     */
+    private List<Map<Move, Integer>> moveCutoffs;
 
+    private Limit type;
+
+    @Override
+    public Move sendMove(Limit type, int limit) {
+
+        this.type = type;
         this.startTime = System.currentTimeMillis();
-        this.timeLimit = timeLimit - TIME_BUFFER;
+        this.endTime = startTime + limit - TIME_BUFFER;
 
         // Fallback move
-        Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Random valid move
+        Move bestMove = game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
         try {
 
@@ -63,10 +75,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
                         "Move was requested but we think the game already ended");
             }
 
-            logger.log("Calculating new move with " +
-                    (timeLimit > 0 ? "time limit " + timeLimit + " ms" :
-                            "depth limit " + depthLimit + " layers"));
-
+            logger.log("Calculating new move with " + type + " limit " + limit);
 
             // Cache move sorting
             List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, true);
@@ -84,10 +93,13 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
             bombPhasesReached = 0;
 
+            moveCutoffs = new LinkedList<>();
+
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
-            for (int depth = 2; timeLimit > 0 || depth <= depthLimit; depth++) {
+            for (int depth = 2; type != Limit.DEPTH || depth < limit; depth++) {
                 resetStats();
+
                 bestMove = initializeSearch(depth, sortedMoves);
 
                 if (bombPhasesReached >= sortedMoves.size()) {
@@ -194,12 +206,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         } else if (buildTree) {
             int result = Integer.MAX_VALUE;
 
-            Set<Move> moves = game.getValidMovesForCurrentPlayer();
+            Set<Move> moves = game.getRelevantMovesForCurrentPlayer();
 
             // TODO: Better heuristic?
             Move phi = moves.iterator().next(); // Random valid move
 
-            for (Move move : game.getValidMovesForCurrentPlayer()) {
+            for (Move move : game.getRelevantMovesForCurrentPlayer()) {
                 Game clonedGame = game.clone();
                 clonedGame.executeMove(move);
                 stats_nodesVisited++;
@@ -221,7 +233,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             return result;
         } else {
             // TODO: Better heuristic?
-            Move move = game.getValidMovesForCurrentPlayer().iterator().next(); // Random valid move
+            Move move = game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
@@ -249,7 +261,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         Set<Triple<Move, Game, Integer>> result = new LinkedHashSet<>();
 
         // Get data
-        for (Move move : game.getValidMovesForCurrentPlayer()) {
+        for (Move move : game.getRelevantMovesForCurrentPlayer()) {
             checkTime();
 
             Game clonedGame = game.clone();
@@ -278,7 +290,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * @throws OutOfTimeException if we ran out of time
      */
     private void checkTime() throws OutOfTimeException {
-        if (System.currentTimeMillis() - startTime > timeLimit && timeLimit > 0) {
+        if (type == Limit.TIME && System.currentTimeMillis() > endTime) {
             throw new OutOfTimeException("Out of time");
         }
     }
@@ -309,8 +321,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         int branchingFactor = (int) Math.ceil(calculateBranchingFactor(stats_nodesVisited, depth));
 
         int newDepth = depth + 1;
-        int timePassed = (int) (System.currentTimeMillis() - this.startTime);
-        int timeLeft = this.timeLimit - timePassed;
+        long timePassed = System.currentTimeMillis() - this.startTime;
+        long timeLeft = this.endTime - System.currentTimeMillis();
         double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
 
         StringBuilder stats = new StringBuilder("Stats for depth " + depth + "\n");
@@ -327,12 +339,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         stats.append("Time estimated: ").append(timeEstimated).append(" ms\n");
         logger.verbose(stats.toString());
 
-        // Do not throw the OutOfTimeException if we don't have a time limit
-        if (timeLimit == 0) {
-            return;
-        }
-
-        if (timeLeft < timeEstimated) {
+        if (type == Limit.TIME && timeLeft < timeEstimated) {
             throw new NotEnoughTimeException(
                     "Estimated more time for the next depth than what's left");
         }

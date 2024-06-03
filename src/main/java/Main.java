@@ -25,6 +25,7 @@ public class Main {
         argumentParser.setParameter("n", new ArgumentParser.Parameter("Move sorting", true));
         argumentParser.setParameter("q", new ArgumentParser.Parameter("Quiet Mode", false));
         argumentParser.setParameter("h", new ArgumentParser.Parameter("Help", false));
+        argumentParser.setParameter("d", new ArgumentParser.Parameter("Debug Mode", false));
         ArgumentParser.ParsedArguments parsedArguments = argumentParser.parse(args);
 
         if ((Boolean) parsedArguments.get("h")) {
@@ -37,13 +38,20 @@ public class Main {
         } else {
             Logger.useColors = (Boolean) parsedArguments.get("c");
             Logger.defaultPriority = 2;
-            Logger.setPriority(Game.class.getName(), 3);
-            Logger.setPriority(ParanoidClient.class.getName(), 1);
-            Logger.setPriority(OptimizedParanoidClient.class.getName(), 0);
-            Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), 0);
-            Logger.setPriority(BestReplySearchKillerHeuristicClient.class.getName(), 0);
 
-            for(var line : welcomeMessage) Logger.get().log(line);
+            Logger.setPriority(Game.class.getName(), 3);
+
+            int debugPrio = (boolean) parsedArguments.get("d") ? 0 : 1;
+
+            Logger.setPriority(ParanoidClient.class.getName(), debugPrio);
+            Logger.setPriority(OptimizedParanoidClient.class.getName(), debugPrio);
+            Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), debugPrio);
+            Logger.setPriority(BestReplySearchKillerHeuristicClient.class.getName(), debugPrio);
+
+            for (var line : welcomeMessage) {
+                Logger.get().log(line);
+            }
+            Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
         }
 
         // Launch whatever

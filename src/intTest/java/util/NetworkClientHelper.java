@@ -3,6 +3,7 @@ package util;
 import clients.Client;
 import move.Move;
 import network.Launcher;
+import network.Limit;
 import network.NetworkEventHandler;
 
 import java.io.BufferedReader;
@@ -94,7 +95,7 @@ public class NetworkClientHelper {
         Optional<Client> client =
                 clients.stream().filter(c -> c.getME() == move.getPlayerNumber()).findFirst();
         if (client.isPresent()) {
-            verify(client.get(), atLeastOnce()).sendMove(anyInt(), anyInt());
+            verify(client.get(), atLeastOnce()).sendMove(Limit.TIME, anyInt());
         } else {
             fail("Client not found");
         }

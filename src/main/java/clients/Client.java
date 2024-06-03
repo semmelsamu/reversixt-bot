@@ -2,6 +2,7 @@ package clients;
 
 import game.Game;
 import move.Move;
+import network.Limit;
 
 /**
  * A client that operates with local Data structures and Types, such as Tile, Move, ...
@@ -24,7 +25,7 @@ public abstract class Client {
         return ME;
     }
 
-    public abstract Move sendMove(int timeLimit, int depthLimit);
+    public abstract Move sendMove(Limit type, int limit);
 
     public void end() {
     }
