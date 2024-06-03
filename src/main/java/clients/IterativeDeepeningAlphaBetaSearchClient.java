@@ -47,7 +47,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Any valid move
 
         try {
-            for (int depth = 1; timeLimit > 0 || depth <= (type == Limit.DEPTH ? limit : 3); depth++) {
+            for (int depth = 1; timeLimit > 0 || depth <= (type == Limit.DEPTH ? limit : 3);
+                 depth++) {
 
                 resetStats();
 
@@ -159,10 +160,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
             Comparator<Integer> comparator =
                     isMaximizer ? Comparator.reverseOrder() : Comparator.naturalOrder();
 
-            // TODO: Performance -> No Streams!
-            Set<Game> gamesWithMoves = getGamesWithMoveAndEvaluation(game).stream()
-                    .sorted(Comparator.comparing(Triple::second, comparator)).map(Triple::first)
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            List<Triple<Game, Integer, Move>> sortedList =
+                    new ArrayList<>(getGamesWithMoveAndEvaluation(game));
+            sortedList.sort(Comparator.comparing(Triple::second, comparator));
+            Set<Game> gamesWithMoves = new LinkedHashSet<>();
+            for (Triple<Game, Integer, Move> t : sortedList) {
+                gamesWithMoves.add(t.first());
+            }
 
             for (Game clonedGame : gamesWithMoves) {
 
@@ -262,10 +266,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         logger.verbose("Cutoffs: " + stats_cutoffs);
 
-        double averageBranchingFactor = stats_branchingFactors.stream()
-                .mapToInt(Integer::intValue)
-                .average()
-                .orElse(0);
+        double averageBranchingFactor =
+                stats_branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0);
         logger.verbose("Average branching factor: " + averageBranchingFactor);
 
         int newDepth = depth + 1;
@@ -281,7 +283,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         double timeEstimated = Math.pow(averageBranchingFactor, newDepth) * timePerGame;
         logger.verbose("Time estimated: " + timeEstimated + " ms");
 
-        if(!(timeLimit > 0)) {
+        if (!(timeLimit > 0)) {
             return false;
         }
 
