@@ -9,7 +9,8 @@ import game.GamePhase;
 import move.Move;
 import network.Limit;
 import util.Logger;
-import util.Triple;
+import util.Quadruple;
+import util.Tuple;
 
 import java.util.*;
 
@@ -78,7 +79,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             logger.log("Calculating new move with " + type + " limit " + limit);
 
             // Cache move sorting
-            List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, true);
+            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>(), true);
 
             // As the sorted moves already contain the result for depth 1, update bestMove
             bestMove = sortedMoves.get(0).first();
@@ -123,8 +124,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     }
 
-    private Move initializeSearch(List<Triple<Move, Game, Integer>> sortedMoves)
-            throws OutOfTimeException {
+    private Move initializeSearch(List<Tuple<Move, Game>> sortedMoves) throws OutOfTimeException {
 
         logger.log("Starting Alpha/Beta-Search with search depth " + depthLimit);
 
@@ -184,7 +184,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         if (isMaximizer) {
             int result = Integer.MIN_VALUE;
 
-            List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, true);
+            List<Tuple<Move, Game>> sortedMoves =
+                    sortMoves(game, moveCutoffs.getOrDefault(currentDepth, new HashMap<>()), true);
 
             for (var moveAndGame : sortedMoves) {
 
@@ -203,6 +204,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             }
 
             return result;
+
         } else if (buildTree) {
             int result = Integer.MAX_VALUE;
 
@@ -231,6 +233,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             }
 
             return result;
+
         } else {
             // TODO: Better heuristic?
             Move move =
@@ -255,11 +258,18 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     /**
      * Execute all possible moves the current player has, evaluate the games after execution and
-     * sort them by their evaluation score.
+     * sort them by 1) the number of cutoffs the moves achieved on the same depth elsewhere in the
+     * tree and 2) by their evaluation score.
+     * @param game The initial game situation
+     * @param moveCutoffs The number of cutoffs each move has achieved on the same depth elsewhere
+     *                    in the tree
      */
-    private List<Triple<Move, Game, Integer>> sortMoves(Game game, boolean descending)
-            throws OutOfTimeException {
-        Set<Triple<Move, Game, Integer>> result = new LinkedHashSet<>();
+    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs,
+                                              boolean descending) throws OutOfTimeException {
+
+        // A dataset where every entry consists of a Move, the Game after the Move execution, the
+        // score of the game and the number of cutoffs this move achieved in other branches
+        List<Quadruple<Move, Game, Integer, Integer>> result = new LinkedList<>();
 
         // Get data
         for (Move move : game.getRelevantMovesForCurrentPlayer()) {
@@ -270,19 +280,31 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             int score = GameEvaluator.evaluate(clonedGame, ME);
             stats_nodesVisited++;
 
-            result.add(new Triple<>(move, clonedGame, score));
+            int cutoffs = moveCutoffs.getOrDefault(move, 0);
+
+            result.add(new Quadruple<>(move, clonedGame, score, cutoffs));
         }
 
-        // Sort
-        List<Triple<Move, Game, Integer>> list = new LinkedList<>(result);
         checkTime();
-        list.sort(Comparator.comparingInt(Triple::third)); // Triple::third = score
-        checkTime();
-        if (descending) {
-            Collections.reverse(list);
-        }
 
-        return list;
+        // Sort. third = score, fourth = cutoffs
+        result.sort((q1, q2) -> {
+            int compareCutoffs = Integer.compare(q1.fourth(), q2.fourth());
+            if (compareCutoffs != 0) {
+                return compareCutoffs;
+            } else {
+                return Integer.compare(q1.third(), q2.third());
+            }
+        });
+
+        checkTime();
+
+        // Reduce to Tuple
+        LinkedList<Tuple<Move, Game>> tuples = new LinkedList<>();
+        for (var quadruple : result) {
+            tuples.add(new Tuple<>(quadruple.first(), quadruple.second()));
+        }
+        return tuples;
     }
 
     /**
@@ -338,10 +360,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         stats.append("Time per state: ").append(timePerGame).append(" ms\n");
         stats.append("Average branching factor: ").append(branchingFactor).append("\n");
         stats.append("Cutoffs: ").append(stats_cutoffs).append("\n");
-        for (var moveCutoffsOnDepth : moveCutoffs.entrySet()) {
-            stats.append(moveCutoffsOnDepth.getKey()).append(": ")
-                    .append(moveCutoffsOnDepth.getValue().toString()).append("\n");
-        }
         logger.verbose(stats.toString());
 
         stats = new StringBuilder("Estimation for depth " + newDepth + "\n");
