@@ -178,6 +178,9 @@ public class Game implements Cloneable {
         return validMovesForCurrentPlayer;
     }
 
+    // TODO: Refactor
+    // TODO: What if we only have one non-overwrite move which gets us in a really bad situation,
+    //       but we could use an overwrite move which would help us A LOT?
     public Set<Move> getRelevantMovesForCurrentPlayer() {
         Set<Move> movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
                 .filter((move) -> !(move instanceof OverwriteMove)).collect(Collectors.toSet());
