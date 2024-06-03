@@ -27,7 +27,7 @@ public abstract class Client {
 
     public abstract Move sendMove(Limit type, int limit);
 
-    public void end() {
+    public void exit() {
     }
 
 }

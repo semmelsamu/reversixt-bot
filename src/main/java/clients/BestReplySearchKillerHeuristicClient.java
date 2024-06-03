@@ -92,13 +92,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             // estimate a time for the next depth
             resetStats();
 
-            if (game.getPhase() == GamePhase.END) {
-                throw new GamePhaseNotValidException(
-                        "Move was requested but we think the game already ended");
-            }
-
-            logger.log("Calculating new move with " + type + " limit " + limit);
-
             // Cache move sorting
             List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>(), true);
 
@@ -436,7 +429,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     }
 
-    public void end() {
+    @Override
+    public void exit() {
         logger.verbose("Total timeouts: " + timeouts);
     }
 

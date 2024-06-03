@@ -21,4 +21,6 @@ public interface NetworkClient {
 
     void receiveEndingPhase2();
 
+    void exit();
+
 }
