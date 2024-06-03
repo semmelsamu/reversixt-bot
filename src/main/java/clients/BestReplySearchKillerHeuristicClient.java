@@ -206,7 +206,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             if (game.getPhase() != GamePhase.PHASE_1) {
                 bombPhasesReached++;
             }
-            stats_nodesVisited++;
+            currentIterationNodesVisited++;
             return GameEvaluator.evaluate(game, ME);
         }
 
@@ -249,7 +249,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             for (Move move : game.getRelevantMovesForCurrentPlayer()) {
                 Game clonedGame = game.clone();
                 clonedGame.executeMove(move);
-                stats_nodesVisited++;
+                currentIterationNodesVisited++;
 
                 int score =
                         calculateScore(clonedGame, currentDepth + 1, alpha, beta, move.equals(phi));
@@ -276,7 +276,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            stats_nodesVisited++;
+            currentIterationNodesVisited++;
 
             return calculateScore(clonedGame, currentDepth + 1, alpha, beta, false);
         }
@@ -313,7 +313,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
             int score = GameEvaluator.evaluate(clonedGame, ME);
-            stats_nodesVisited++;
+            currentIterationNodesVisited++;
 
             int cutoffs = moveCutoffs.getOrDefault(move, 0);
 
@@ -339,6 +339,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         for (var quadruple : result) {
             tuples.add(new Tuple<>(quadruple.first(), quadruple.second()));
         }
+
+        // Invert if necessary
+        if(descending) {
+            Collections.reverse(tuples);
+        }
+
         return tuples;
     }
 
@@ -360,7 +366,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * @param depth On which depth the cutoff was achieved
      */
     private void addCutoff(Move move, int depth) {
-        stats_cutoffs++;
+        currentIterationCutoffs++;
         moveCutoffs.putIfAbsent(depth, new HashMap<>());
         moveCutoffs.get(depth).put(move, moveCutoffs.get(depth).getOrDefault(move, 0) + 1);
     }
@@ -373,22 +379,36 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     |-----------------------------------------------------------------------------------------------
     */
 
-    private long stats_startTime;
-    private int stats_nodesVisited;
-    private long stats_cutoffs;
+    /**
+     * Stores the start timestamp of the latest iteration in the iterative deepening search.
+     */
+    private long currentIterationStartTime;
+
+    /**
+     * Stores the number of nodes visited (moves executed and games evaluated) of the current
+     * iteration in the iterative deepening search.
+     */
+    private int currentIterationNodesVisited;
+
+    /**
+     * Stores the total number of cutoffs achieved in the current iteration of the iterative
+     * deepening search.
+     */
+    private long currentIterationCutoffs;
 
     private void resetStats() {
-        stats_startTime = System.currentTimeMillis();
-        stats_nodesVisited = 1;
-        stats_cutoffs = 0;
+        currentIterationStartTime = System.currentTimeMillis();
+        currentIterationNodesVisited = 1;
+        currentIterationCutoffs = 0;
     }
 
     private void evaluateStats(int depth) throws NotEnoughTimeException {
 
-        double totalTime = System.currentTimeMillis() - stats_startTime;
-        double timePerGame = totalTime / stats_nodesVisited;
+        double totalTime = System.currentTimeMillis() - currentIterationStartTime;
+        double timePerGame = totalTime / currentIterationNodesVisited;
 
-        int branchingFactor = (int) Math.ceil(calculateBranchingFactor(stats_nodesVisited, depth));
+        int branchingFactor =
+                (int) Math.ceil(calculateBranchingFactor(currentIterationNodesVisited, depth));
 
         int newDepth = depth + 1;
         long timePassed = System.currentTimeMillis() - this.startTime;
@@ -396,11 +416,11 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
 
         StringBuilder stats = new StringBuilder("Stats for depth " + depth + "\n");
-        stats.append("Visited states: ").append(stats_nodesVisited).append("\n");
+        stats.append("Visited states: ").append(currentIterationNodesVisited).append("\n");
         stats.append("Total time: ").append(totalTime).append(" ms\n");
         stats.append("Time per state: ").append(timePerGame).append(" ms\n");
         stats.append("Average branching factor: ").append(branchingFactor).append("\n");
-        stats.append("Cutoffs: ").append(stats_cutoffs).append("\n");
+        stats.append("Cutoffs: ").append(currentIterationCutoffs).append("\n");
         logger.verbose(stats.toString());
 
         stats = new StringBuilder("Estimation for depth " + newDepth + "\n");
