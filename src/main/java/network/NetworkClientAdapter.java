@@ -90,7 +90,7 @@ public class NetworkClientAdapter implements NetworkClient {
 
         Move move = null;
 
-        if (game.getPhase() == GamePhase.PHASE_1) {
+        if (game.getPhase() == GamePhase.BUILD) {
             if (type == 0) {
                 if (game.getTile(coordinates) == Tile.INVERSION) {
                     move = new InversionMove(playerNumber, coordinates);
@@ -122,7 +122,7 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveEndingPhase1() {
-        if (game.getPhase() != GamePhase.PHASE_2) {
+        if (game.getPhase() != GamePhase.BOMB) {
             logger.warn("Server and client game phase may not match.");
         }
         logger.log(game.toString());

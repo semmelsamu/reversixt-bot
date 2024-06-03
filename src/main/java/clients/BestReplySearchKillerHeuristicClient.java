@@ -99,7 +99,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             bestMove = sortedMoves.get(0).first();
 
             // It only makes sense to build a tree if we are in the first phase
-            if (!game.getPhase().equals(GamePhase.PHASE_1)) {
+            if (!game.getPhase().equals(GamePhase.BUILD)) {
                 return bestMove;
             }
 
@@ -195,8 +195,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         checkTime();
 
-        if (currentDepth >= depthLimit || game.getPhase() != GamePhase.PHASE_1) {
-            if (game.getPhase() != GamePhase.PHASE_1) {
+        if (currentDepth >= depthLimit || game.getPhase() != GamePhase.BUILD) {
+            if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
             currentIterationNodesVisited++;

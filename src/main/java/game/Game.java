@@ -88,7 +88,7 @@ public class Game implements Cloneable {
 
         gameStats = new GameStats(this);
 
-        gamePhase = GamePhase.PHASE_1;
+        gamePhase = GamePhase.BUILD;
 
         moveCounter = 1;
         currentPlayer = 1;
@@ -119,14 +119,14 @@ public class Game implements Cloneable {
             rotateCurrentPlayer();
 
             if (oldPlayer == currentPlayer && validMovesForCurrentPlayer.isEmpty()) {
-                if (gamePhase == GamePhase.PHASE_1) {
+                if (gamePhase == GamePhase.BUILD) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
                                     "phase");
-                    gamePhase = GamePhase.PHASE_2;
+                    gamePhase = GamePhase.BOMB;
                     rotateCurrentPlayer();
                     oldPlayer = currentPlayer;
-                } else if (gamePhase == GamePhase.PHASE_2) {
+                } else if (gamePhase == GamePhase.BOMB) {
                     logger.log("No more player has any bomb moves, entering end");
                     gamePhase = GamePhase.END;
                     // Set player to no player because the game ended
