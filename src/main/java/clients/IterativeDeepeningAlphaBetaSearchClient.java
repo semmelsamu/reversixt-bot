@@ -87,18 +87,20 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         stats_branchingFactors.add(game.getValidMovesForCurrentPlayer().size());
 
         Set<Triple<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
-        Set<Tuple<Game, Move>> gamesWithMoves;
+        Set<Tuple<Game, Move>> gamesWithMoves = new LinkedHashSet<>();
 
         if (enableMoveSorting) {
-            // TODO: Performance -> No Streams!
-            gamesWithMoves = nextGameScores.stream()
-                    .sorted(Comparator.comparing(Triple::second, Comparator.reverseOrder()))
-                    .map(t -> new Tuple<>(t.first(), t.third()))
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            List<Triple<Game, Integer, Move>> sortedList = new ArrayList<>(nextGameScores);
+            sortedList.sort(Comparator.comparing(Triple::second, Comparator.reverseOrder()));
+
+            for (Triple<Game, Integer, Move> t : nextGameScores) {
+                gamesWithMoves.add(new Tuple<>(t.first(), t.third()));
+            }
+
         } else {
-            // TODO: Performance -> No Streams!
-            gamesWithMoves = nextGameScores.stream().map(t -> new Tuple<>(t.first(), t.third()))
-                    .collect(Collectors.toSet());
+            for (Triple<Game, Integer, Move> t : nextGameScores) {
+                gamesWithMoves.add(new Tuple<>(t.first(), t.third()));
+            }
         }
 
         // For logging progress percentage
