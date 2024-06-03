@@ -59,14 +59,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     private Limit type;
 
     /**
-     * Stores the depth limit for the current iteration for the iterative deepening search. Used to
-     * determine if we reached the recursion end.
-     * TODO: Store the currentDepth in the game (like in TrivialAI "Calculating Move xxx") so the
-     *       depth can be passed in the recursive call again
-     */
-    private int depthLimit;
-
-    /**
      * This is the entry point to the search for a new move.
      *
      * @param type  The type of the limit, either depth or time.
@@ -112,10 +104,10 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
-            for (depthLimit = 2; type != Limit.DEPTH || depthLimit < limit; depthLimit++) {
+            for (int depthLimit = 2; type != Limit.DEPTH || depthLimit < limit; depthLimit++) {
                 resetStats();
 
-                bestMove = calculateBestMove(sortedMoves);
+                bestMove = calculateBestMove(sortedMoves, depthLimit);
 
                 if (bombPhasesReached >= sortedMoves.size()) {
                     throw new GamePhaseNotValidException("Tree reached bomb phase");
@@ -147,9 +139,10 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * @return The best move
      * @throws OutOfTimeException if we ran out of time
      */
-    private Move calculateBestMove(List<Tuple<Move, Game>> sortedMoves) throws OutOfTimeException {
+    private Move calculateBestMove(List<Tuple<Move, Game>> sortedMoves, int depth)
+            throws OutOfTimeException {
 
-        logger.log("Starting Alpha/Beta-Search with search depth " + depthLimit);
+        logger.log("Starting Alpha/Beta-Search with search depth " + depth);
 
         int resultScore = Integer.MIN_VALUE;
         Move resultMove = null;
@@ -164,7 +157,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         for (var moveAndGame : sortedMoves) {
 
-            int score = calculateScore(moveAndGame.second(), 1, alpha, beta, true);
+            int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
 
             if (score > resultScore) {
                 resultScore = score;
@@ -185,17 +178,17 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     /**
      * Recursive function for calculating the score of a game situation.
      *
-     * @param currentDepth Depth of tree that is built
-     * @param alpha        Lowest value that is allowed by Max
-     * @param beta         Highest value that is allowed by Min
+     * @param depth Depth of tree that is built
+     * @param alpha Lowest value that is allowed by Max
+     * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
-    private int calculateScore(Game game, int currentDepth, int alpha, int beta, boolean buildTree)
+    private int calculateScore(Game game, int depth, int alpha, int beta, boolean buildTree)
             throws OutOfTimeException {
 
         checkTime();
 
-        if (currentDepth >= depthLimit || game.getPhase() != GamePhase.BUILD) {
+        if (depth == 0 || game.getPhase() != GamePhase.BUILD) {
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
@@ -209,13 +202,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         if (isMaximizer) {
             int result = Integer.MIN_VALUE;
 
-            List<Tuple<Move, Game>> sortedMoves =
-                    sortMoves(game, moveCutoffs.getOrDefault(currentDepth, new HashMap<>()), true);
+            List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
+                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
 
             for (var moveAndGame : sortedMoves) {
 
-                int score =
-                        calculateScore(moveAndGame.second(), currentDepth + 1, alpha, beta, true);
+                int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
 
                 result = Math.max(result, score);
 
@@ -224,7 +216,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
                 // Beta cutoff
                 if (beta <= alpha) {
-                    addCutoff(moveAndGame.first(), currentDepth);
+                    addCutoff(moveAndGame.first(), game.getMoveCounter());
                     break;
                 }
             }
@@ -244,8 +236,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
                 clonedGame.executeMove(move);
                 currentIterationNodesVisited++;
 
-                int score =
-                        calculateScore(clonedGame, currentDepth + 1, alpha, beta, move.equals(phi));
+                int score = calculateScore(clonedGame, depth - 1, alpha, beta, move.equals(phi));
 
                 result = Math.min(result, score);
 
@@ -254,7 +245,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
                 // Alpha cutoff
                 if (beta <= alpha) {
-                    addCutoff(move, currentDepth);
+                    addCutoff(move, game.getMoveCounter());
                     break;
                 }
             }
@@ -271,7 +262,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             clonedGame.executeMove(move);
             currentIterationNodesVisited++;
 
-            return calculateScore(clonedGame, currentDepth + 1, alpha, beta, false);
+            return calculateScore(clonedGame, depth - 1, alpha, beta, false);
         }
     }
 
@@ -334,7 +325,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         }
 
         // Invert if necessary
-        if(descending) {
+        if (descending) {
             Collections.reverse(tuples);
         }
 
