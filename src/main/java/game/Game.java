@@ -49,6 +49,8 @@ public class Game implements Cloneable {
 
     private int currentPlayer;
 
+    private int moveCounter;
+
     private GamePhase gamePhase;
 
     private Set<Move> validMovesForCurrentPlayer;
@@ -88,6 +90,7 @@ public class Game implements Cloneable {
 
         gamePhase = GamePhase.PHASE_1;
 
+        moveCounter = 1;
         currentPlayer = 1;
         validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
     }
@@ -159,6 +162,7 @@ public class Game implements Cloneable {
             throw new MoveNotValidException("Tried to execute a move that is not valid");
         }
         MoveExecutor.executeMove(this, move);
+        moveCounter++;
         nextPlayer();
     }
 
@@ -234,6 +238,10 @@ public class Game implements Cloneable {
         return gamePhase;
     }
 
+    public int getMoveCounter() {
+        return moveCounter;
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -253,6 +261,7 @@ public class Game implements Cloneable {
         result.append("Bomb radius: ").append(staticGameStats.getBombRadius()).append("\n");
 
         result.append("Phase: ").append(gamePhase).append("\n");
+        result.append("Move: ").append(moveCounter).append("\n");
 
         result.append("Players (Overwrite Stones / Bombs)").append("\n");
         for (Player player : players) {
