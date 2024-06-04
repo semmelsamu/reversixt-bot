@@ -101,7 +101,7 @@ public class NetworkEventHandler {
 
                     playerNumber = in.readByte();
 
-                    logger.log("Receiving player number " + playerNumber);
+                    logger.log("Received player number " + playerNumber);
                     networkClient.receivePlayerNumber(playerNumber);
                     break;
 
@@ -136,7 +136,7 @@ public class NetworkEventHandler {
                     byte type = in.readByte();
                     byte player = in.readByte();
 
-                    logger.log("Receiving move (" + x + "/" + y + ") type=" + type + " player=" +
+                    logger.log("Received move (" + x + "/" + y + ") type=" + type + " player=" +
                             player);
 
                     // Pass to client
@@ -149,7 +149,7 @@ public class NetworkEventHandler {
 
                     byte disqualifiedPlayer = in.readByte();
 
-                    logger.log("Receiving disqualification of player " + disqualifiedPlayer);
+                    logger.log("Received disqualification of player " + disqualifiedPlayer);
                     networkClient.receiveDisqualification(disqualifiedPlayer);
 
                     if (disqualifiedPlayer == playerNumber) {
@@ -161,14 +161,14 @@ public class NetworkEventHandler {
 
                 case 8: // End of phase 1
 
-                    logger.log("Receiving end of phase 1");
+                    logger.log("Received end of phase 1");
                     networkClient.receiveEndingPhase1();
                     break;
 
 
                 case 9: // End of phase 2 - the end.
 
-                    logger.log("Receiving end of phase 2 - the end.");
+                    logger.log("Received end of phase 2 - the end.");
                     networkClient.receiveEndingPhase2();
                     networkClient.exit();
                     disconnect();
