@@ -85,7 +85,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             resetStats();
 
             // Cache move sorting
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>());
+            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>(), true);
 
             // As the sorted moves already contain the result for depth 1, update bestMove
             bestMove = sortedMoves.get(0).first();
@@ -203,7 +203,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             int result = Integer.MIN_VALUE;
 
             List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
-                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()));
+                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
 
             for (var moveAndGame : sortedMoves) {
 
@@ -224,19 +224,21 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             return result;
 
         } else if (buildTree) {
-            int result = Integer.MAX_VALUE;
 
-            Set<Move> moves = game.getRelevantMovesForCurrentPlayer();
+            List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
+                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), false);
 
-            // TODO: Better heuristic?
-            Move phi = moves.iterator().next(); // Random valid move
+            // Get phi move
+            // TODO: what if we have no moves?
+            Tuple<Move, Game> phi = sortedMoves.get(0); // Best move for minimizer
 
-            for (Move move : game.getRelevantMovesForCurrentPlayer()) {
-                Game clonedGame = game.clone();
-                clonedGame.executeMove(move);
-                currentIterationNodesVisited++;
+            // Evaluate phi move
+            int score = calculateScore(phi.second(), depth - 1, alpha, beta, true);
+            int result = score;
+            beta = Math.min(beta, result);
 
-                int score = calculateScore(clonedGame, depth - 1, alpha, beta, move.equals(phi));
+            for (var moveAndGame : sortedMoves) {
+                score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, false);
 
                 result = Math.min(result, score);
 
@@ -245,7 +247,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
                 // Alpha cutoff
                 if (beta <= alpha) {
-                    addCutoff(move, game.getMoveCounter());
+                    addCutoff(moveAndGame.first(), game.getMoveCounter());
                     break;
                 }
             }
@@ -254,6 +256,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         } else {
             // TODO: Better heuristic?
+            //       maybe the move which gets us the most stones
             Move move =
                     game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
@@ -283,7 +286,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * @param game        The initial game situation
      * @param moveCutoffs The killer heuristic
      */
-    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs)
+    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs, boolean descending)
             throws OutOfTimeException {
 
         // A dataset where every entry consists of a Move, the Game after the Move execution, the
@@ -324,8 +327,10 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             tuples.add(new Tuple<>(quadruple.first(), quadruple.second()));
         }
 
-        // Reverse as we want the highest scoring move first
-        Collections.reverse(tuples);
+        // Reverse if necessary
+        if(descending) {
+            Collections.reverse(tuples);
+        }
 
         return tuples;
     }
