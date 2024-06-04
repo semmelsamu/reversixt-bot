@@ -55,7 +55,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                 bestMove = alphaBetaSearch(depth);
 
                 // Only the first phase requires searching deeper than 1
-                if (!game.getPhase().equals(GamePhase.PHASE_1)) {
+                if (!game.getPhase().equals(GamePhase.BUILD)) {
                     break;
                 }
 
@@ -144,7 +144,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
             throw new OutOfTimeException("Out of time");
         }
 
-        if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
+        if (depth == 0 || game.getPhase() != GamePhase.BUILD) {
             return GameEvaluator.evaluate(game, ME);
         }
 

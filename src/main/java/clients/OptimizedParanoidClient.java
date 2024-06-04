@@ -76,7 +76,7 @@ public class OptimizedParanoidClient extends Client {
     private int minmax(Game game, int depth, int alpha, int beta) {
         long stats_startTime;
 
-        if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
+        if (depth == 0 || game.getPhase() != GamePhase.BUILD) {
             stats_gamesEvaluated++;
             stats_startTime = System.nanoTime();
             int score = GameEvaluator.evaluate(game, ME);

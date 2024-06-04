@@ -35,8 +35,8 @@ public final class MoveCalculator {
         Set<Move> result = new HashSet<>();
 
         switch (game.getPhase()) {
-            case PHASE_1 -> result.addAll(calculateAllColoringMoves(game, playerNumber));
-            case PHASE_2 -> result.addAll(getAllBombMoves(game, playerNumber));
+            case BUILD -> result.addAll(calculateAllColoringMoves(game, playerNumber));
+            case BOMB -> result.addAll(getAllBombMoves(game, playerNumber));
             default -> throw new GamePhaseNotValidException(
                     "No valid game phase to calculate moves for");
         }

@@ -36,15 +36,13 @@ public class NetworkEventHandler {
      */
     public NetworkEventHandler(NetworkClient networkClient, String ip, int port) {
 
-        logger.log("Starting network client");
-
         // Store client
         this.networkClient = networkClient;
 
         try {
 
             // Connect
-            logger.log("Trying to connect to server " + ip + " on port " + port);
+            logger.log("Attempting to connect to server " + ip + " on port " + port);
             socket = new Socket(ip, port);
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
@@ -56,6 +54,7 @@ public class NetworkEventHandler {
                 run();
             } catch(NetworkException | ClientDisqualifiedException e) {
                 logger.error(e.getMessage());
+                networkClient.exit();
                 disconnect();
             }
 
@@ -171,6 +170,7 @@ public class NetworkEventHandler {
 
                     logger.log("Receiving end of phase 2 - the end.");
                     networkClient.receiveEndingPhase2();
+                    networkClient.exit();
                     disconnect();
                     break;
 

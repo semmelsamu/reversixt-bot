@@ -51,7 +51,7 @@ public class ParanoidClient extends Client {
 
     private int minmax(Game game, int depth) {
 
-        if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
+        if (depth == 0 || game.getPhase() != GamePhase.BUILD) {
             return GameEvaluator.evaluate(game, ME);
         }
 

@@ -3,10 +3,10 @@ package network;
 import board.Coordinates;
 import board.Tile;
 import clients.Client;
+import exceptions.GamePhaseNotValidException;
 import game.Game;
 import game.GameFactory;
 import game.GamePhase;
-import game.MoveExecutor;
 import move.*;
 import util.Logger;
 
@@ -17,9 +17,6 @@ public class NetworkClientAdapter implements NetworkClient {
     private final Client client;
 
     private Game game;
-    private int player;
-
-    private MoveExecutor moveExecutor;
 
     /**
      * Adapt a Client to work with the NetworkClient aka the NetworkEventHandler, which
@@ -27,6 +24,7 @@ public class NetworkClientAdapter implements NetworkClient {
      */
     public NetworkClientAdapter(Client client) {
         this.client = client;
+        logger.log("Starting " + client.getClass().getSimpleName());
     }
 
     @Override
@@ -43,14 +41,11 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receivePlayerNumber(byte player) {
-        this.player = player;
         client.setPlayer(player);
     }
 
     @Override
     public MoveAnswer sendMoveAnswer(int timeLimit, byte depthLimit) {
-        checkPhase();
-
         Limit limitType;
         int limit;
 
@@ -61,6 +56,13 @@ public class NetworkClientAdapter implements NetworkClient {
             limitType = Limit.DEPTH;
             limit = depthLimit;
         }
+
+        if (game.getPhase() == GamePhase.END) {
+            throw new GamePhaseNotValidException(
+                    "Move was requested but we think the game already ended");
+        }
+
+        logger.log("Calculating new move with " + limitType + " limit " + limit);
 
         Move result = client.sendMove(limitType, limit);
 
@@ -84,13 +86,11 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveMove(short x, short y, byte type, byte playerNumber) {
-        checkPhase();
-
         Coordinates coordinates = new Coordinates(x, y);
 
         Move move = null;
 
-        if (game.getPhase() == GamePhase.PHASE_1) {
+        if (game.getPhase() == GamePhase.BUILD) {
             if (type == 0) {
                 if (game.getTile(coordinates) == Tile.INVERSION) {
                     move = new InversionMove(playerNumber, coordinates);
@@ -122,39 +122,27 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public void receiveEndingPhase1() {
-        if (game.getPhase() != GamePhase.PHASE_2) {
-            logger.log("Server and client game phase may not match. " +
-                    "Waiting for next server message.");
-            checkPhase = true;
+        if (game.getPhase() != GamePhase.BOMB) {
+            logger.warn("Server and client game phase may not match.");
+        }
+        logger.log(game.toString());
+    }
+
+    @Override
+    public void receiveEndingPhase2() {
+        if (game.getPhase() != GamePhase.END) {
+            logger.warn("Server and client game phase do not match.");
         }
         logger.log(game.toString());
     }
 
     /**
-     * Used to get rid of the Warning that appears in the edge case where there are no possible
-     * actions in the bomb phase, and it gets skipped. The server will then send 2 messages, first
-     * entering the bomb phase and then the end. On every message we check if the client game phase
-     * matches the server phase.
+     * Gets called if either the game is finished or the client got disconnected. This is the last
+     * time a client may execute any logic.
      */
-    private boolean checkPhase = false;
-
-    private void checkPhase() {
-        if (checkPhase) {
-            logger.warn("Server and client game phase do not match.");
-        }
-    }
-
     @Override
-    public void receiveEndingPhase2() {
-        checkPhase = false;
-        if (game.getPhase() != GamePhase.END) {
-            logger.warn("Server and client game phase do not match");
-        }
-        logger.log(game.toString());
-        client.end();
-    }
-
-    public Game getGame() {
-        return this.game;
+    public void exit() {
+        logger.log("Exiting " + client.getClass().getSimpleName());
+        client.exit();
     }
 }

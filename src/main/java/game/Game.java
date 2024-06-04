@@ -49,6 +49,8 @@ public class Game implements Cloneable {
 
     private int currentPlayer;
 
+    private int moveCounter;
+
     private GamePhase gamePhase;
 
     private Set<Move> validMovesForCurrentPlayer;
@@ -86,8 +88,9 @@ public class Game implements Cloneable {
 
         gameStats = new GameStats(this);
 
-        gamePhase = GamePhase.PHASE_1;
+        gamePhase = GamePhase.BUILD;
 
+        moveCounter = 1;
         currentPlayer = 1;
         validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
     }
@@ -116,14 +119,14 @@ public class Game implements Cloneable {
             rotateCurrentPlayer();
 
             if (oldPlayer == currentPlayer && validMovesForCurrentPlayer.isEmpty()) {
-                if (gamePhase == GamePhase.PHASE_1) {
+                if (gamePhase == GamePhase.BUILD) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
                                     "phase");
-                    gamePhase = GamePhase.PHASE_2;
+                    gamePhase = GamePhase.BOMB;
                     rotateCurrentPlayer();
                     oldPlayer = currentPlayer;
-                } else if (gamePhase == GamePhase.PHASE_2) {
+                } else if (gamePhase == GamePhase.BOMB) {
                     logger.log("No more player has any bomb moves, entering end");
                     gamePhase = GamePhase.END;
                     // Set player to no player because the game ended
@@ -159,6 +162,7 @@ public class Game implements Cloneable {
             throw new MoveNotValidException("Tried to execute a move that is not valid");
         }
         MoveExecutor.executeMove(this, move);
+        moveCounter++;
         nextPlayer();
     }
 
@@ -174,6 +178,9 @@ public class Game implements Cloneable {
         return validMovesForCurrentPlayer;
     }
 
+    // TODO: Refactor
+    // TODO: What if we only have one non-overwrite move which gets us in a really bad situation,
+    //       but we could use an overwrite move which would help us A LOT?
     public Set<Move> getRelevantMovesForCurrentPlayer() {
         Set<Move> movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
                 .filter((move) -> !(move instanceof OverwriteMove)).collect(Collectors.toSet());
@@ -234,6 +241,10 @@ public class Game implements Cloneable {
         return gamePhase;
     }
 
+    public int getMoveCounter() {
+        return moveCounter;
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -253,6 +264,7 @@ public class Game implements Cloneable {
         result.append("Bomb radius: ").append(staticGameStats.getBombRadius()).append("\n");
 
         result.append("Phase: ").append(gamePhase).append("\n");
+        result.append("Move: ").append(moveCounter).append("\n");
 
         result.append("Players (Overwrite Stones / Bombs)").append("\n");
         for (Player player : players) {

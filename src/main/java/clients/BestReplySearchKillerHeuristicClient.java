@@ -9,9 +9,13 @@ import game.GamePhase;
 import move.Move;
 import network.Limit;
 import util.Logger;
-import util.Triple;
+import util.Quadruple;
+import util.Tuple;
 
 import java.util.*;
+
+import static util.Tree.calculateBranchingFactor;
+import static util.Tree.calculateNodeCountOfTree;
 
 public class BestReplySearchKillerHeuristicClient extends Client {
 
@@ -45,15 +49,24 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     private int bombPhasesReached;
 
     /**
-     * Stores how many cutoffs a move on a certain depth has achieved. The first element of the List
-     * is the Cutoffs of all the moves on depth 2 (depth 2 because it is the first depth where
-     * cutoffs can be achieved) The map stores the Move as key and the number of cutoffs achieved as
-     * value.
+     * Stores how many cutoffs a move on a certain depth has achieved.
      */
-    private List<Map<Move, Integer>> moveCutoffs;
+    private Map<Integer, Map<Move, Integer>> moveCutoffs;
 
+    /**
+     * States if we shall use a time or a depth limit for calculating a move.
+     */
     private Limit type;
 
+    /**
+     * This is the entry point to the search for a new move.
+     *
+     * @param type  The type of the limit, either depth or time.
+     * @param limit The amount of the limit. If depth limit, specifies the maximum depth the search
+     *              tree shall be built, if time limit, specifies the maximum time the client has to
+     *              respond with a move before it gets disqualified.
+     * @return A valid move.
+     */
     @Override
     public Move sendMove(Limit type, int limit) {
 
@@ -62,7 +75,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         this.endTime = startTime + limit - TIME_BUFFER;
 
         // Fallback move
-        Move bestMove = game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
+        Move bestMove =
+                game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
         try {
 
@@ -70,43 +84,36 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             // estimate a time for the next depth
             resetStats();
 
-            if (game.getPhase() == GamePhase.END) {
-                throw new GamePhaseNotValidException(
-                        "Move was requested but we think the game already ended");
-            }
-
-            logger.log("Calculating new move with " + type + " limit " + limit);
-
             // Cache move sorting
-            List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, true);
+            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>());
 
             // As the sorted moves already contain the result for depth 1, update bestMove
             bestMove = sortedMoves.get(0).first();
 
             // It only makes sense to build a tree if we are in the first phase
-            if (!game.getPhase().equals(GamePhase.PHASE_1)) {
+            if (!game.getPhase().equals(GamePhase.BUILD)) {
                 return bestMove;
             }
+
+            moveCutoffs = new HashMap<>();
 
             // Exit if we don't have the estimated time left
             evaluateStats(1);
 
             bombPhasesReached = 0;
 
-            moveCutoffs = new LinkedList<>();
-
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
-            for (int depth = 2; type != Limit.DEPTH || depth < limit; depth++) {
+            for (int depthLimit = 2; type != Limit.DEPTH || depthLimit < limit; depthLimit++) {
                 resetStats();
 
-                bestMove = initializeSearch(depth, sortedMoves);
+                bestMove = calculateBestMove(sortedMoves, depthLimit);
 
                 if (bombPhasesReached >= sortedMoves.size()) {
-                    throw new RuntimeException("Tree reached bomb phase");
+                    throw new GamePhaseNotValidException("Tree reached bomb phase");
                 }
 
-                evaluateStats(depth);
+                evaluateStats(depthLimit);
             }
 
             return bestMove;
@@ -116,17 +123,26 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             logger.warn(e.getMessage());
             return bestMove;
 
-        } catch (NotEnoughTimeException | RuntimeException e) {
+        } catch (NotEnoughTimeException | GamePhaseNotValidException e) {
             logger.log(e.getMessage());
             return bestMove;
         }
 
     }
 
-    private Move initializeSearch(int depthLimit, List<Triple<Move, Game, Integer>> sortedMoves)
+    /**
+     * Initialize the search, and thus begin the building of a search tree. If enough time, the
+     * depth of the tree will be `depthLimit`.
+     *
+     * @param sortedMoves The list of the initial sorted moves, consisting of a Tuple of the Move
+     *                    itself and the Game after the move has been executed.
+     * @return The best move
+     * @throws OutOfTimeException if we ran out of time
+     */
+    private Move calculateBestMove(List<Tuple<Move, Game>> sortedMoves, int depth)
             throws OutOfTimeException {
 
-        logger.log("Starting Alpha/Beta-Search with search depth " + depthLimit);
+        logger.log("Starting Alpha/Beta-Search with search depth " + depth);
 
         int resultScore = Integer.MIN_VALUE;
         Move resultMove = null;
@@ -141,7 +157,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         for (var moveAndGame : sortedMoves) {
 
-            int score = search(moveAndGame.second(), depthLimit - 1, alpha, beta, true);
+            int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
 
             if (score > resultScore) {
                 resultScore = score;
@@ -160,21 +176,23 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     }
 
     /**
+     * Recursive function for calculating the score of a game situation.
+     *
      * @param depth Depth of tree that is built
      * @param alpha Lowest value that is allowed by Max
      * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
-    private int search(Game game, int depth, int alpha, int beta, boolean buildTree)
+    private int calculateScore(Game game, int depth, int alpha, int beta, boolean buildTree)
             throws OutOfTimeException {
 
         checkTime();
 
-        if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
-            if (game.getPhase() != GamePhase.PHASE_1) {
+        if (depth == 0 || game.getPhase() != GamePhase.BUILD) {
+            if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
-            stats_nodesVisited++;
+            currentIterationNodesVisited++;
             return GameEvaluator.evaluate(game, ME);
         }
 
@@ -184,11 +202,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         if (isMaximizer) {
             int result = Integer.MIN_VALUE;
 
-            List<Triple<Move, Game, Integer>> sortedMoves = sortMoves(game, true);
+            List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
+                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()));
 
             for (var moveAndGame : sortedMoves) {
 
-                int score = search(moveAndGame.second(), depth - 1, alpha, beta, true);
+                int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
 
                 result = Math.max(result, score);
 
@@ -197,12 +216,13 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
                 // Beta cutoff
                 if (beta <= alpha) {
-                    stats_cutoffs++;
+                    addCutoff(moveAndGame.first(), game.getMoveCounter());
                     break;
                 }
             }
 
             return result;
+
         } else if (buildTree) {
             int result = Integer.MAX_VALUE;
 
@@ -214,9 +234,9 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             for (Move move : game.getRelevantMovesForCurrentPlayer()) {
                 Game clonedGame = game.clone();
                 clonedGame.executeMove(move);
-                stats_nodesVisited++;
+                currentIterationNodesVisited++;
 
-                int score = search(clonedGame, depth - 1, alpha, beta, move.equals(phi));
+                int score = calculateScore(clonedGame, depth - 1, alpha, beta, move.equals(phi));
 
                 result = Math.min(result, score);
 
@@ -225,22 +245,24 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
                 // Alpha cutoff
                 if (beta <= alpha) {
-                    stats_cutoffs++;
+                    addCutoff(move, game.getMoveCounter());
                     break;
                 }
             }
 
             return result;
+
         } else {
             // TODO: Better heuristic?
-            Move move = game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
+            Move move =
+                    game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            stats_nodesVisited++;
+            currentIterationNodesVisited++;
 
-            return search(clonedGame, depth - 1, alpha, beta, false);
+            return calculateScore(clonedGame, depth - 1, alpha, beta, false);
         }
     }
 
@@ -253,12 +275,20 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     */
 
     /**
-     * Execute all possible moves the current player has, evaluate the games after execution and
-     * sort them by their evaluation score.
+     * Sort all possible moves the current player has by
+     * 1. The number of cutoffs the same moves achieved in other branches on the same height of the
+     * tree (killer heuristic)
+     * 2. The score of the game after this move is executed.
+     *
+     * @param game        The initial game situation
+     * @param moveCutoffs The killer heuristic
      */
-    private List<Triple<Move, Game, Integer>> sortMoves(Game game, boolean descending)
+    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs)
             throws OutOfTimeException {
-        Set<Triple<Move, Game, Integer>> result = new LinkedHashSet<>();
+
+        // A dataset where every entry consists of a Move, the Game after the Move execution, the
+        // score of the game and the number of cutoffs this move achieved in other branches
+        List<Quadruple<Move, Game, Integer, Integer>> result = new LinkedList<>();
 
         // Get data
         for (Move move : game.getRelevantMovesForCurrentPlayer()) {
@@ -267,21 +297,37 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
             int score = GameEvaluator.evaluate(clonedGame, ME);
-            stats_nodesVisited++;
+            currentIterationNodesVisited++;
 
-            result.add(new Triple<>(move, clonedGame, score));
+            int cutoffs = moveCutoffs.getOrDefault(move, 0);
+
+            result.add(new Quadruple<>(move, clonedGame, score, cutoffs));
         }
 
-        // Sort
-        List<Triple<Move, Game, Integer>> list = new LinkedList<>(result);
         checkTime();
-        list.sort(Comparator.comparingInt(Triple::third)); // Triple::third = score
+
+        // Sort. third = score, fourth = cutoffs
+        result.sort((q1, q2) -> {
+            int compareCutoffs = Integer.compare(q1.fourth(), q2.fourth());
+            if (compareCutoffs != 0) {
+                return compareCutoffs;
+            } else {
+                return Integer.compare(q1.third(), q2.third());
+            }
+        });
+
         checkTime();
-        if (descending) {
-            Collections.reverse(list);
+
+        // Reduce to Tuple
+        LinkedList<Tuple<Move, Game>> tuples = new LinkedList<>();
+        for (var quadruple : result) {
+            tuples.add(new Tuple<>(quadruple.first(), quadruple.second()));
         }
 
-        return list;
+        // Reverse as we want the highest scoring move first
+        Collections.reverse(tuples);
+
+        return tuples;
     }
 
     /**
@@ -295,6 +341,17 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         }
     }
 
+    /**
+     * Add a cutoff to the statistics.
+     *
+     * @param move  Which move achieved the cutoff
+     * @param depth On which depth the cutoff was achieved
+     */
+    private void addCutoff(Move move, int depth) {
+        moveCutoffs.putIfAbsent(depth, new HashMap<>());
+        moveCutoffs.get(depth).put(move, moveCutoffs.get(depth).getOrDefault(move, 0) + 1);
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -303,22 +360,29 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     |-----------------------------------------------------------------------------------------------
     */
 
-    private long stats_startTime;
-    private int stats_nodesVisited;
-    private long stats_cutoffs;
+    /**
+     * Stores the start timestamp of the latest iteration in the iterative deepening search.
+     */
+    private long currentIterationStartTime;
+
+    /**
+     * Stores the number of nodes visited (moves executed and games evaluated) of the current
+     * iteration in the iterative deepening search.
+     */
+    private int currentIterationNodesVisited;
 
     private void resetStats() {
-        stats_startTime = System.currentTimeMillis();
-        stats_nodesVisited = 1;
-        stats_cutoffs = 0;
+        currentIterationStartTime = System.currentTimeMillis();
+        currentIterationNodesVisited = 1;
     }
 
     private void evaluateStats(int depth) throws NotEnoughTimeException {
 
-        double totalTime = System.currentTimeMillis() - stats_startTime;
-        double timePerGame = totalTime / stats_nodesVisited;
+        double totalTime = System.currentTimeMillis() - currentIterationStartTime;
+        double timePerGame = totalTime / currentIterationNodesVisited;
 
-        int branchingFactor = (int) Math.ceil(calculateBranchingFactor(stats_nodesVisited, depth));
+        int branchingFactor =
+                (int) Math.ceil(calculateBranchingFactor(currentIterationNodesVisited, depth));
 
         int newDepth = depth + 1;
         long timePassed = System.currentTimeMillis() - this.startTime;
@@ -326,11 +390,18 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
 
         StringBuilder stats = new StringBuilder("Stats for depth " + depth + "\n");
-        stats.append("Visited states: ").append(stats_nodesVisited).append("\n");
+        stats.append("Visited states: ").append(currentIterationNodesVisited).append("\n");
         stats.append("Total time: ").append(totalTime).append(" ms\n");
         stats.append("Time per state: ").append(timePerGame).append(" ms\n");
-        stats.append("Cutoffs: ").append(stats_cutoffs).append("\n");
-        stats.append("Average branching factor: ").append(branchingFactor);
+        stats.append("Average branching factor: ").append(branchingFactor).append("\n");
+        stats.append("Cutoffs: ").append(moveCutoffs.values().stream()
+                        .mapToInt(map -> map.values().stream().mapToInt(Integer::intValue).sum()).sum())
+                .append("\n");
+        for (var cutoffs : moveCutoffs.entrySet()) {
+            int count = cutoffs.getValue().values().stream().mapToInt(Integer::intValue).sum();
+            stats.append("- ").append(count).append(" cutoffs on move ").append(cutoffs.getKey())
+                    .append("\n");
+        }
         logger.verbose(stats.toString());
 
         stats = new StringBuilder("Estimation for depth " + newDepth + "\n");
@@ -346,40 +417,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     }
 
-    public static double calculateBranchingFactor(int n, int d) {
-        double min = 1.0;
-        double max = 10.0;
-        double tolerance = 1e-10;
-        double mid = 0;
-
-        while ((max - min) > tolerance) {
-            mid = (min + max) / 2;
-            double result = Math.pow(mid, d + 1) - n * mid + (n - 1);
-
-            if (result == 0.0) {
-                break;
-            } else if (result < 0) {
-                min = mid;
-            } else {
-                max = mid;
-            }
-        }
-
-        return mid;
-    }
-
-    /**
-     * Calculate the number of nodes a t-ary tree with depth d has.
-     */
-    private static int calculateNodeCountOfTree(int t, int d) {
-        int result = 0;
-        for (int i = 0; i <= d; i++) {
-            result += Math.pow(t, i);
-        }
-        return result;
-    }
-
-    public void end() {
+    @Override
+    public void exit() {
         logger.verbose("Total timeouts: " + timeouts);
     }
 
