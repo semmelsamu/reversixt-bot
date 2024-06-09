@@ -1,7 +1,9 @@
 package game;
 
 import board.Coordinates;
+import board.Direction;
 import board.Tile;
+import board.TileReader;
 import util.Collection;
 
 import java.util.HashMap;
@@ -9,7 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class GameStats implements Cloneable{
+public class GameStats implements Cloneable {
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -21,12 +23,30 @@ public class GameStats implements Cloneable{
 
     Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
+    Set<Community> communities;
+
     public GameStats(Game game) {
         coordinatesGroupedByTile = new HashMap<>();
+        communities = new HashSet<>();
         for (Tile tile : Tile.values()) {
             coordinatesGroupedByTile.put(tile,
                     new HashSet<>(game.getAllCoordinatesWhereTileIs(tile)));
         }
+
+        for (Tile tile : Tile.values()) {
+            if (!tile.isUnoccupied()) {
+                // all players
+                for (Coordinates coordinate : getAllCoordinatesWhereTileIs(tile)) {
+                    for (Direction direction : Direction.values()) {
+                        TileReader reader = new TileReader(game, coordinate, direction);
+                        if (reader.hasNext()) {
+
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     /*
