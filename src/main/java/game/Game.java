@@ -111,19 +111,24 @@ public class Game implements Cloneable {
 
     private void rotateCurrentPlayer() {
         currentPlayer = (currentPlayer % players.length) + 1;
-        if(isCloned) {
-            Set<Tile> relevantPlayers = new HashSet<>();
-            for (Community community : gameStats.getCommunities()) {
-                if (community.isRelevant()) {
-                    relevantPlayers.addAll(community.getAllKeys());
-                }
-            }
+        if (isCloned) {
+            Set<Tile> relevantPlayers = getAllRelevantPlayers();
             while (!relevantPlayers.contains(Tile.fromChar((char) (currentPlayer + '0')))) {
                 currentPlayer = (currentPlayer % players.length) + 1;
             }
         }
 
         validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
+    }
+
+    private Set<Tile> getAllRelevantPlayers() {
+        Set<Tile> relevantPlayers = new HashSet<>();
+        for (Community community : gameStats.getCommunities()) {
+            if (community.isRelevant()) {
+                relevantPlayers.addAll(community.getAllKeys());
+            }
+        }
+        return relevantPlayers;
     }
 
     public void nextPlayer() {
@@ -203,11 +208,11 @@ public class Game implements Cloneable {
         Set<Move> movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
                 .filter((move) -> !(move instanceof OverwriteMove)).collect(Collectors.toSet());
 
-        if(movesWithoutOverwrites.isEmpty())
+        if (movesWithoutOverwrites.isEmpty()) {
             return validMovesForCurrentPlayer;
-
-        else
+        } else {
             return movesWithoutOverwrites;
+        }
     }
 
     public Player[] getPlayers() {
@@ -239,13 +244,15 @@ public class Game implements Cloneable {
         gameStats.updateCommunityRelevance(clientPlayer);
     }
 
-    public int getClientPlayer(){
+    public int getClientPlayer() {
         return clientPlayer;
     }
 
     public void setTile(Coordinates position, Tile value) {
         gameStats.replaceTileAtCoordinates(position, value);
-        gameStats.updateCommunities(position, value, this);
+        if (getAllRelevantPlayers().size() != players.length) {
+            gameStats.updateCommunities(position, value, this);
+        }
         board.setTile(position, value);
     }
 

@@ -81,7 +81,6 @@ public class GameStats implements Cloneable {
             communities.add(community);
         }
         mergeIdenticalCommunities();
-        System.out.println(communities);
     }
 
     private void mergeIdenticalCommunities() {
