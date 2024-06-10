@@ -125,6 +125,22 @@ public class GameStats implements Cloneable {
         coordinatesGroupedByTile.get(tile).add(coordinates);
     }
 
+    public void updateCommunities(Coordinates position, Tile value) {
+        Community searchCommunity = null;
+        for (Community community : communities) {
+            if (community.getAllCoordinates().contains(position)) {
+                searchCommunity = community;
+                break;
+            }
+        }
+        if (searchCommunity == null) {
+            mergeIdenticalCommunities();
+        }
+        searchCommunity.removeCoordinate(position);
+        searchCommunity.addCoordinate(value.character, position);
+
+    }
+
     @Override
     public GameStats clone() {
         try {

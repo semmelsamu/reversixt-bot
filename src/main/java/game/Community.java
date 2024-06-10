@@ -18,9 +18,31 @@ public class Community {
     public void addCoordinate(int playerId, Coordinates coordinate) {
         Set<Coordinates> coordinatesSet =
                 tilesPlayerPair.computeIfAbsent(playerId, k -> new HashSet<>());
-
         coordinatesSet.add(coordinate);
     }
+
+    public int findKeyByValue(Coordinates coordinates) {
+        for (Map.Entry<Integer, Set<Coordinates>> integerSetEntry : tilesPlayerPair.entrySet()) {
+            for (Coordinates coordinate : integerSetEntry.getValue()) {
+                if (coordinate.equals(coordinates)) {
+                    return integerSetEntry.getKey();
+                }
+            }
+        }
+        return -1;
+    }
+
+    public void removeCoordinate(Coordinates coordinate) {
+        int playerId = findKeyByValue(coordinate);
+        Set<Coordinates> coordinatesSet = tilesPlayerPair.get(playerId);
+
+        if (coordinatesSet != null && coordinatesSet.remove(coordinate)) {
+            if (coordinatesSet.isEmpty()) {
+                tilesPlayerPair.remove(playerId);
+            }
+        }
+    }
+
 
     public void addAllCoordinates(Community other) {
         for (Map.Entry<Integer, Set<Coordinates>> entry : other.tilesPlayerPair.entrySet()) {
