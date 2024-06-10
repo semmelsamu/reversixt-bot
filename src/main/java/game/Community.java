@@ -6,17 +6,19 @@ import board.Tile;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Community {
+public class Community implements Cloneable{
 
     private Map<Tile, Set<Coordinates>> tilesPlayerPair;
     private boolean relevant;
 
-    public Community() {}
+    public Community() {
+        this.tilesPlayerPair = new HashMap<>();
+        this.relevant = false;
+    }
 
     public Community(Tile player, Set<Coordinates> tilesPlayerPair) {
-        this.tilesPlayerPair = new HashMap<>();
+        this();
         this.tilesPlayerPair.put(player, new HashSet<>(tilesPlayerPair));
-        this.relevant = false;
     }
 
     public void addCoordinate(Tile playerId, Coordinates coordinate) {
@@ -90,5 +92,36 @@ public class Community {
     @Override
     public int hashCode() {
         return Objects.hash(tilesPlayerPair);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Community{")
+                .append("relevant=").append(relevant)
+                .append(", tilesPlayerPair=");
+
+        tilesPlayerPair.forEach((player, coordinatesSet) -> {
+            sb.append("\n    Player: ").append(player)
+                    .append(", Coordinates: ").append(coordinatesSet);
+        });
+
+        sb.append("\n}");
+        return sb.toString();
+    }
+
+
+    @Override
+    public Community clone() {
+        try {
+            Community clone = (Community) super.clone();
+            clone.tilesPlayerPair = new HashMap<>();
+            for (Map.Entry<Tile, Set<Coordinates>> entry : this.tilesPlayerPair.entrySet()) {
+                clone.tilesPlayerPair.put(entry.getKey(), new HashSet<>(entry.getValue()));
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

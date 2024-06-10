@@ -167,11 +167,13 @@ public class GameStats implements Cloneable {
                 searchCommunity = communitiesToRemove.iterator().next();
             } else {
                 // merge the communities to a single one
+                System.out.println(communitiesToRemove);
                 Community newCommunity = new Community();
                 for (Community community : communitiesToRemove) {
                     newCommunity.addAllCoordinates(community);
                 }
                 communities.removeAll(communitiesToRemove);
+                communities.add(newCommunity);
                 searchCommunity = newCommunity;
             }
         } else {
@@ -183,7 +185,6 @@ public class GameStats implements Cloneable {
         if (searchCommunity.foundKey(Tile.fromChar((char) (game.getClientPlayer() + '0')))) {
             searchCommunity.setRelevant(true);
         }
-        communities.add(searchCommunity);
     }
 
     @Override
@@ -194,7 +195,11 @@ public class GameStats implements Cloneable {
             for (Map.Entry<Tile, Set<Coordinates>> entry : coordinatesGroupedByTile.entrySet()) {
                 clone.coordinatesGroupedByTile.put(entry.getKey(), new HashSet<>(entry.getValue()));
             }
-            clone.communities = new ArrayList<>(this.communities);
+
+            clone.communities = new ArrayList<>();
+            for (Community community : communities) {
+                clone.communities.add(community.clone());
+            }
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
