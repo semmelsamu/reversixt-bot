@@ -5,11 +5,9 @@ import board.Direction;
 import board.Tile;
 import board.TileReader;
 import util.Collection;
+import util.Tuple;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class GameStats implements Cloneable {
 
@@ -23,30 +21,80 @@ public class GameStats implements Cloneable {
 
     Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
-    Set<Community> communities;
+    List<Community> communities;
 
     public GameStats(Game game) {
         coordinatesGroupedByTile = new HashMap<>();
-        communities = new HashSet<>();
+        communities = new ArrayList<>();
         for (Tile tile : Tile.values()) {
             coordinatesGroupedByTile.put(tile,
                     new HashSet<>(game.getAllCoordinatesWhereTileIs(tile)));
         }
 
+        Set<Tuple<Tile, Coordinates>> tileCoordinatesPair = new HashSet<>();
         for (Tile tile : Tile.values()) {
             if (!tile.isUnoccupied()) {
                 // all players
-                for (Coordinates coordinate : getAllCoordinatesWhereTileIs(tile)) {
-                    for (Direction direction : Direction.values()) {
-                        TileReader reader = new TileReader(game, coordinate, direction);
-                        if (reader.hasNext()) {
-
-                        }
-                    }
+                for (Coordinates cor : getAllCoordinatesWhereTileIs(tile)) {
+                    tileCoordinatesPair.add(new Tuple<>(tile, cor));
                 }
             }
         }
 
+        for (Tuple<Tile, Coordinates> tileCoordinatesTuple : tileCoordinatesPair) {
+            boolean nextTuple = false;
+            for (Community community : communities) {
+                if (community.getAllCoordinates().contains(tileCoordinatesTuple.second())) {
+                    nextTuple = true;
+                    break;
+                }
+            }
+
+            if (nextTuple) {
+                continue;
+            }
+
+            Community community = new Community(tileCoordinatesTuple.first().character,
+                    Set.of(tileCoordinatesTuple.second()));
+            int newCoordinatesCounter;
+            do {
+                newCoordinatesCounter = 0;
+                for (Direction dir : Direction.values()) {
+                    TileReader reader = new TileReader(game, tileCoordinatesTuple.second(), dir);
+                    if (reader.hasNext()) {
+                        reader.next();
+                        if (reader.getTile().isUnoccupied() ||
+                                community.getAllCoordinates().contains(reader.getCoordinates())) {
+                            continue;
+                        }
+                        community.addCoordinate(reader.getTile().character,
+                                reader.getCoordinates());
+                        newCoordinatesCounter++;
+                    }
+                }
+            } while (newCoordinatesCounter > 0);
+
+        }
+
+        mergeIdenticalCommunities();
+    }
+
+    private void mergeIdenticalCommunities() {
+        List<Community> mergedCommunities = new ArrayList<>();
+        for (Community community : communities) {
+            boolean merged = false;
+            for (Community other : mergedCommunities) {
+                if (community.equals(other)) {
+                    other.addAllCoordinates(community);
+                    merged = true;
+                    break;
+                }
+            }
+            if (!merged) {
+                mergedCommunities.add(community);
+            }
+        }
+        communities = mergedCommunities;
     }
 
     /*
