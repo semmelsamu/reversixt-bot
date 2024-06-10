@@ -10,6 +10,8 @@ public class Community {
     private Map<Integer, Set<Coordinates>> tilesPlayerPair;
     private boolean relevant;
 
+    public Community() {}
+
     public Community(int player, Set<Coordinates> tilesPlayerPair) {
         this.tilesPlayerPair = new HashMap<>(Map.of(player, tilesPlayerPair));
         this.relevant = false;

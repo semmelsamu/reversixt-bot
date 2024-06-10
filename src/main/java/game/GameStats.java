@@ -33,11 +33,12 @@ public class GameStats implements Cloneable {
 
         Set<Tuple<Tile, Coordinates>> tileCoordinatesPair = new HashSet<>();
         for (Tile tile : Tile.values()) {
-            if (!tile.isUnoccupied()) {
-                // all players
-                for (Coordinates cor : getAllCoordinatesWhereTileIs(tile)) {
-                    tileCoordinatesPair.add(new Tuple<>(tile, cor));
-                }
+            if (tile.isUnoccupied()) {
+                continue;
+            }
+            // all players
+            for (Coordinates cor : getAllCoordinatesWhereTileIs(tile)) {
+                tileCoordinatesPair.add(new Tuple<>(tile, cor));
             }
         }
 
@@ -125,20 +126,52 @@ public class GameStats implements Cloneable {
         coordinatesGroupedByTile.get(tile).add(coordinates);
     }
 
-    public void updateCommunities(Coordinates position, Tile value) {
+    public void updateCommunities(Coordinates position, Tile value, Game game) {
         Community searchCommunity = null;
         for (Community community : communities) {
             if (community.getAllCoordinates().contains(position)) {
                 searchCommunity = community;
+                // Found community where tile can just easily be replaced
                 break;
             }
         }
+        Set<Community> communitiesToRemove = new HashSet<>();
+        // if new tile is added on a new field where no community is, check for merge
         if (searchCommunity == null) {
-            mergeIdenticalCommunities();
+            for (Direction dir : Direction.values()) {
+                TileReader reader = new TileReader(game, position, dir);
+                if (reader.hasNext()) {
+                    reader.next();
+                    // skip if no player is detected
+                    if (reader.getTile().isUnoccupied()) {
+                        continue;
+                    }
+                    // check the community of the neighbour
+                    for (Community community : communities) {
+                        if (community.getAllCoordinates().contains(reader.getCoordinates())) {
+                            communitiesToRemove.add(community);
+                        }
+                    }
+                }
+            }
+            // if no communities are around, it can be added to only one be found
+            if (communitiesToRemove.size() == 1) {
+                searchCommunity = communitiesToRemove.iterator().next();
+            } else {
+                // merge the communities to a single one
+                Community newCommunity = new Community();
+                for (Community community : communitiesToRemove) {
+                    newCommunity.addAllCoordinates(community);
+                }
+                communities.removeAll(communitiesToRemove);
+                searchCommunity = newCommunity;
+            }
+        } else {
+            // old position need to be removed
+            searchCommunity.removeCoordinate(position);
         }
-        searchCommunity.removeCoordinate(position);
+        //add new position
         searchCommunity.addCoordinate(value.character, position);
-
     }
 
     @Override
