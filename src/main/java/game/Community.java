@@ -57,6 +57,22 @@ public class Community {
         return tilesPlayerPair.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
     }
 
+    public Set<Integer> getAllKeys(){
+        return tilesPlayerPair.keySet();
+    }
+
+    public boolean foundKey(int playerId) {
+        return tilesPlayerPair.get(playerId) != null;
+    }
+
+    public boolean isRelevant() {
+        return relevant;
+    }
+
+    public void setRelevant(boolean relevant) {
+        this.relevant = relevant;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

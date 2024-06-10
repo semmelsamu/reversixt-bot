@@ -4,8 +4,10 @@ import evaluation.GameEvaluator;
 import exceptions.GamePhaseNotValidException;
 import exceptions.NotEnoughTimeException;
 import exceptions.OutOfTimeException;
+import game.Community;
 import game.Game;
 import game.GamePhase;
+import game.GameStats;
 import move.Move;
 import network.Limit;
 import util.Logger;
@@ -57,6 +59,11 @@ public class CommunitiesClient extends Client {
      * States if we shall use a time or a depth limit for calculating a move.
      */
     private Limit type;
+
+
+    public CommunitiesClient() {
+        game.setClientPlayer(ME);
+    }
 
     /**
      * This is the entry point to the search for a new move.

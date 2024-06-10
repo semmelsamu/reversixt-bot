@@ -10,6 +10,7 @@ import move.Move;
 import move.OverwriteMove;
 import util.Logger;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +56,10 @@ public class Game implements Cloneable {
 
     private Set<Move> validMovesForCurrentPlayer;
 
+    private boolean isCloned;
+
+    private int clientPlayer;
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -73,6 +78,7 @@ public class Game implements Cloneable {
 
         // Set board
         this.board = board;
+        this.isCloned = false;
 
         // Initialize players
         players = new Player[initialPlayers];
@@ -105,6 +111,18 @@ public class Game implements Cloneable {
 
     private void rotateCurrentPlayer() {
         currentPlayer = (currentPlayer % players.length) + 1;
+        if(isCloned) {
+            Set<Integer> relevantPlayers = new HashSet<>();
+            for (Community community : gameStats.getCommunities()) {
+                if (community.isRelevant()) {
+                    relevantPlayers.addAll(community.getAllKeys());
+                }
+            }
+            while (!relevantPlayers.contains(currentPlayer)){
+                currentPlayer = (currentPlayer % players.length) + 1;
+            }
+        }
+
         validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
     }
 
@@ -216,6 +234,14 @@ public class Game implements Cloneable {
         return board.getWidth();
     }
 
+    public void setClientPlayer(int me) {
+        clientPlayer = me;
+    }
+
+    public int getClientPlayer(){
+        return clientPlayer;
+    }
+
     public void setTile(Coordinates position, Tile value) {
         gameStats.replaceTileAtCoordinates(position, value);
         gameStats.updateCommunities(position, value, this);
@@ -287,14 +313,13 @@ public class Game implements Cloneable {
     public Game clone() {
         try {
             Game clone = (Game) super.clone();
-
             clone.board = this.board.clone();
 
             clone.players = new Player[this.players.length];
             for (int i = 0; i < this.players.length; i++) {
                 clone.players[i] = this.players[i].clone();
             }
-
+            this.isCloned = true;
             clone.gameStats = this.gameStats.clone();
             clone.staticGameStats = this.staticGameStats;
             return clone;

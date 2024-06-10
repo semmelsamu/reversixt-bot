@@ -19,9 +19,9 @@ public class GameStats implements Cloneable {
     |-----------------------------------------------------------------------------------------------
     */
 
-    Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
+    private Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
-    List<Community> communities;
+    private List<Community> communities;
 
     public GameStats(Game game) {
         coordinatesGroupedByTile = new HashMap<>();
@@ -76,8 +76,12 @@ public class GameStats implements Cloneable {
             } while (newCoordinatesCounter > 0);
 
         }
-
         mergeIdenticalCommunities();
+        for(Community community : communities) {
+            if(community.foundKey(game.getClientPlayer())){
+                community.setRelevant(true);
+            }
+        }
     }
 
     private void mergeIdenticalCommunities() {
@@ -108,6 +112,10 @@ public class GameStats implements Cloneable {
 
     public Set<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
         return coordinatesGroupedByTile.get(tile);
+    }
+
+    public List<Community> getCommunities() {
+        return communities;
     }
 
     /*
@@ -172,6 +180,10 @@ public class GameStats implements Cloneable {
         }
         //add new position
         searchCommunity.addCoordinate(value.character, position);
+        if(searchCommunity.foundKey(game.getClientPlayer())){
+            searchCommunity.setRelevant(true);
+        }
+        communities.add(searchCommunity);
     }
 
     @Override
@@ -182,6 +194,7 @@ public class GameStats implements Cloneable {
             for (Map.Entry<Tile, Set<Coordinates>> entry : coordinatesGroupedByTile.entrySet()) {
                 clone.coordinatesGroupedByTile.put(entry.getKey(), new HashSet<>(entry.getValue()));
             }
+            clone.communities = new ArrayList<>(this.communities);
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
