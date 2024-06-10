@@ -112,13 +112,13 @@ public class Game implements Cloneable {
     private void rotateCurrentPlayer() {
         currentPlayer = (currentPlayer % players.length) + 1;
         if(isCloned) {
-            Set<Integer> relevantPlayers = new HashSet<>();
+            Set<Tile> relevantPlayers = new HashSet<>();
             for (Community community : gameStats.getCommunities()) {
                 if (community.isRelevant()) {
                     relevantPlayers.addAll(community.getAllKeys());
                 }
             }
-            while (!relevantPlayers.contains(currentPlayer)){
+            while (!relevantPlayers.contains(Tile.fromChar((char) (currentPlayer + '0')))) {
                 currentPlayer = (currentPlayer % players.length) + 1;
             }
         }
@@ -236,6 +236,7 @@ public class Game implements Cloneable {
 
     public void setClientPlayer(int me) {
         clientPlayer = me;
+        gameStats.updateCommunityRelevance(clientPlayer);
     }
 
     public int getClientPlayer(){

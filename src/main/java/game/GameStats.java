@@ -33,7 +33,7 @@ public class GameStats implements Cloneable {
 
         Set<Tuple<Tile, Coordinates>> tileCoordinatesPair = new HashSet<>();
         for (Tile tile : Tile.values()) {
-            if (tile.isUnoccupied()) {
+            if (tile.isUnoccupied() || tile.equals(Tile.WALL)) {
                 continue;
             }
             // all players
@@ -55,33 +55,33 @@ public class GameStats implements Cloneable {
                 continue;
             }
 
-            Community community = new Community(tileCoordinatesTuple.first().character,
-                    Set.of(tileCoordinatesTuple.second()));
+            Community community = new Community(tileCoordinatesTuple.first(),
+                    new HashSet<>(Set.of(tileCoordinatesTuple.second())));
             int newCoordinatesCounter;
             do {
                 newCoordinatesCounter = 0;
-                for (Direction dir : Direction.values()) {
-                    TileReader reader = new TileReader(game, tileCoordinatesTuple.second(), dir);
-                    if (reader.hasNext()) {
-                        reader.next();
-                        if (reader.getTile().isUnoccupied() ||
-                                community.getAllCoordinates().contains(reader.getCoordinates())) {
-                            continue;
+                Set<Coordinates> allCoordinates = community.getAllCoordinates();
+                for (Coordinates cor : allCoordinates) {
+                    for (Direction dir : Direction.values()) {
+                        TileReader reader = new TileReader(game, cor, dir);
+                        if (reader.hasNext()) {
+                            reader.next();
+                            if (reader.getTile().isUnoccupied() ||
+                                    allCoordinates.contains(reader.getCoordinates())) {
+                                continue;
+                            }
+                            community.addCoordinate(reader.getTile(),
+                                    reader.getCoordinates());
+                            newCoordinatesCounter++;
                         }
-                        community.addCoordinate(reader.getTile().character,
-                                reader.getCoordinates());
-                        newCoordinatesCounter++;
                     }
                 }
-            } while (newCoordinatesCounter > 0);
 
+            } while (newCoordinatesCounter > 0);
+            communities.add(community);
         }
         mergeIdenticalCommunities();
-        for(Community community : communities) {
-            if(community.foundKey(game.getClientPlayer())){
-                community.setRelevant(true);
-            }
-        }
+        System.out.println(communities);
     }
 
     private void mergeIdenticalCommunities() {
@@ -179,8 +179,8 @@ public class GameStats implements Cloneable {
             searchCommunity.removeCoordinate(position);
         }
         //add new position
-        searchCommunity.addCoordinate(value.character, position);
-        if(searchCommunity.foundKey(game.getClientPlayer())){
+        searchCommunity.addCoordinate(value, position);
+        if (searchCommunity.foundKey(Tile.fromChar((char) (game.getClientPlayer() + '0')))) {
             searchCommunity.setRelevant(true);
         }
         communities.add(searchCommunity);
@@ -199,5 +199,14 @@ public class GameStats implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    public void updateCommunityRelevance(int clientPlayer) {
+        for (Community community : communities) {
+            if (community.foundKey(Tile.fromChar((char) (clientPlayer + '0')))) {
+                community.setRelevant(true);
+            }
+        }
+        System.out.println(communities);
     }
 }

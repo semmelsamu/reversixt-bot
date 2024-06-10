@@ -60,11 +60,6 @@ public class CommunitiesClient extends Client {
      */
     private Limit type;
 
-
-    public CommunitiesClient() {
-        game.setClientPlayer(ME);
-    }
-
     /**
      * This is the entry point to the search for a new move.
      *

@@ -1,41 +1,43 @@
 package game;
 
 import board.Coordinates;
+import board.Tile;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Community {
 
-    private Map<Integer, Set<Coordinates>> tilesPlayerPair;
+    private Map<Tile, Set<Coordinates>> tilesPlayerPair;
     private boolean relevant;
 
     public Community() {}
 
-    public Community(int player, Set<Coordinates> tilesPlayerPair) {
-        this.tilesPlayerPair = new HashMap<>(Map.of(player, tilesPlayerPair));
+    public Community(Tile player, Set<Coordinates> tilesPlayerPair) {
+        this.tilesPlayerPair = new HashMap<>();
+        this.tilesPlayerPair.put(player, new HashSet<>(tilesPlayerPair));
         this.relevant = false;
     }
 
-    public void addCoordinate(int playerId, Coordinates coordinate) {
+    public void addCoordinate(Tile playerId, Coordinates coordinate) {
         Set<Coordinates> coordinatesSet =
                 tilesPlayerPair.computeIfAbsent(playerId, k -> new HashSet<>());
         coordinatesSet.add(coordinate);
     }
 
-    public int findKeyByValue(Coordinates coordinates) {
-        for (Map.Entry<Integer, Set<Coordinates>> integerSetEntry : tilesPlayerPair.entrySet()) {
+    public Tile findKeyByValue(Coordinates coordinates) {
+        for (Map.Entry<Tile, Set<Coordinates>> integerSetEntry : tilesPlayerPair.entrySet()) {
             for (Coordinates coordinate : integerSetEntry.getValue()) {
                 if (coordinate.equals(coordinates)) {
                     return integerSetEntry.getKey();
                 }
             }
         }
-        return -1;
+        return null;
     }
 
     public void removeCoordinate(Coordinates coordinate) {
-        int playerId = findKeyByValue(coordinate);
+        Tile playerId = findKeyByValue(coordinate);
         Set<Coordinates> coordinatesSet = tilesPlayerPair.get(playerId);
 
         if (coordinatesSet != null && coordinatesSet.remove(coordinate)) {
@@ -47,7 +49,7 @@ public class Community {
 
 
     public void addAllCoordinates(Community other) {
-        for (Map.Entry<Integer, Set<Coordinates>> entry : other.tilesPlayerPair.entrySet()) {
+        for (Map.Entry<Tile, Set<Coordinates>> entry : other.tilesPlayerPair.entrySet()) {
             tilesPlayerPair.computeIfAbsent(entry.getKey(), k -> new HashSet<>())
                     .addAll(entry.getValue());
         }
@@ -57,11 +59,11 @@ public class Community {
         return tilesPlayerPair.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
     }
 
-    public Set<Integer> getAllKeys(){
+    public Set<Tile> getAllKeys(){
         return tilesPlayerPair.keySet();
     }
 
-    public boolean foundKey(int playerId) {
+    public boolean foundKey(Tile playerId) {
         return tilesPlayerPair.get(playerId) != null;
     }
 
