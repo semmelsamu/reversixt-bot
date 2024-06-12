@@ -1,4 +1,9 @@
+import clients.BestReplySearchKillerHeuristicClient;
+import clients.IterativeDeepeningAlphaBetaSearchClient;
+import clients.OptimizedParanoidClient;
+import clients.ParanoidClient;
 import exercises.*;
+import game.Game;
 import util.ArgumentParser;
 import util.Logger;
 
@@ -10,8 +15,6 @@ public class Main {
                         "summer semester 2024 at OTH Regensburg\nBy Samuel Kroiss, Ludwig " +
                         "Schmidt, and Maximilian Strauss\nUse -h for help");
     }
-
-    static ArgumentParser.ParsedArguments parsedArguments;
 
     static ArgumentParser.ParsedArguments parsedArguments;
 
@@ -59,6 +62,15 @@ public class Main {
         } else {
             Logger.useColors = (Boolean) parsedArguments.get("c");
             Logger.defaultPriority = 2;
+
+            Logger.setPriority(Game.class.getName(), 3);
+
+            int debugPrio = (boolean) parsedArguments.get("d") ? 0 : 1;
+
+            Logger.setPriority(ParanoidClient.class.getName(), debugPrio);
+            Logger.setPriority(OptimizedParanoidClient.class.getName(), debugPrio);
+            Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), debugPrio);
+            Logger.setPriority(BestReplySearchKillerHeuristicClient.class.getName(), debugPrio);
 
             welcome();
 
