@@ -100,7 +100,7 @@ public class NetworkClientAdapter implements NetworkClient {
         try {
             Coordinates coordinates = new Coordinates(x, y);
 
-            Move move = null;
+            Move move;
 
             if (game.getPhase() == GamePhase.BUILD) {
                 if (type == 0) {
@@ -122,8 +122,6 @@ public class NetworkClientAdapter implements NetworkClient {
             }
 
             game.executeMove(move);
-
-            logger.verbose(game.toString());
 
         } catch (Exception e) {
             logger.error(game.toString());

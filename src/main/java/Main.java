@@ -44,7 +44,7 @@ public class Main {
         argumentParser.setParameter("n", new ArgumentParser.Parameter("Move sorting", true));
         argumentParser.setParameter("q", new ArgumentParser.Parameter("Quiet Mode", false));
         argumentParser.setParameter("h", new ArgumentParser.Parameter("Help", false));
-        argumentParser.setParameter("d", new ArgumentParser.Parameter("Debug Mode", false));
+        argumentParser.setParameter("l", new ArgumentParser.Parameter("Logger priority", 1));
         parsedArguments = argumentParser.parse(args);
 
         if ((Boolean) parsedArguments.get("h")) {
@@ -56,7 +56,7 @@ public class Main {
             Logger.defaultPriority = 10;
         } else {
             Logger.useColors = (Boolean) parsedArguments.get("c");
-            Logger.defaultPriority = 2;
+            Logger.defaultPriority = (int) parsedArguments.get("l");
 
             welcome();
 

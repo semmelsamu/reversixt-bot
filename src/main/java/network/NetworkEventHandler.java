@@ -76,7 +76,7 @@ public class NetworkEventHandler {
 
         while (!socket.isClosed()) {
 
-            logger.verbose("Waiting for server");
+            logger.debug("Waiting for server");
 
             int messageType = in.readByte();
             int length = in.readInt();

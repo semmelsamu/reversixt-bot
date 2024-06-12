@@ -6,31 +6,17 @@ import board.Tile;
 import board.TileReader;
 import exceptions.GamePhaseNotValidException;
 import move.*;
-import util.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public final class MoveCalculator {
-
-    static Logger logger = new Logger(MoveCalculator.class.getName());
-
-    /*
-    |--------------------------------------------------------------------------
-    | Functions for calculating valid moves
-    |--------------------------------------------------------------------------
-    */
 
     /**
      * @param playerNumber Number of player that moves are calculated for
      * @return All valid moves for this player
      */
     public static Set<Move> getValidMovesForPlayer(Game game, int playerNumber) {
-
-        Player player = game.getPlayer(playerNumber);
-
-        logger.verbose("Searching for all valid moves for Player " + player);
 
         Set<Move> result = new HashSet<>();
 
@@ -41,14 +27,10 @@ public final class MoveCalculator {
                     "No valid game phase to calculate moves for");
         }
 
-        logger.debug(result.size() + " valid moves for Player " + player + ":\n" +
-                result.stream().map(move -> "    " + move).collect(Collectors.joining("\n")));
-
         return result;
     }
 
     private static Set<Move> calculateAllColoringMoves(Game game, int playerNumber) {
-        logger.verbose("Calculating all coloring moves");
 
         Player player = game.getPlayer(playerNumber);
 
@@ -81,7 +63,6 @@ public final class MoveCalculator {
     }
 
     private static Set<Move> getAllBombMoves(Game game, int player) {
-        logger.verbose("Calculating all bomb moves");
 
         if (game.getPlayer(player).getBombs() == 0) {
             return new HashSet<>();
