@@ -91,8 +91,9 @@ public class Game implements Cloneable {
         gamePhase = GamePhase.BUILD;
 
         moveCounter = 1;
-        currentPlayer = 1;
-        validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
+
+        currentPlayer = players.length; // Player before the first player
+        nextPlayer();
     }
 
     /*
@@ -118,16 +119,17 @@ public class Game implements Cloneable {
         do {
             rotateCurrentPlayer();
 
-            if (oldPlayer == currentPlayer && validMovesForCurrentPlayer.isEmpty()) {
+            if (validMovesForCurrentPlayer.isEmpty() && currentPlayer == oldPlayer) {
+
                 if (gamePhase == GamePhase.BUILD) {
-                    logger.log(
-                            "No more player has any moves in the coloring phase, entering bomb " +
-                                    "phase");
+                    logger.log("No valid moves in build phase, entering bomb phase");
                     gamePhase = GamePhase.BOMB;
-                    rotateCurrentPlayer();
-                    oldPlayer = currentPlayer;
+                    currentPlayer = oldPlayer;
+                    validMovesForCurrentPlayer =
+                            MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
+
                 } else if (gamePhase == GamePhase.BOMB) {
-                    logger.log("No more player has any bomb moves, entering end");
+                    logger.log("No valid moves in bomb phase, entering end");
                     gamePhase = GamePhase.END;
                     // Set player to no player because the game ended
                     currentPlayer = 0;
@@ -138,6 +140,10 @@ public class Game implements Cloneable {
         } while (validMovesForCurrentPlayer.isEmpty() || getCurrentPlayer().isDisqualified());
 
         logger.verbose("Current player is now " + currentPlayer);
+
+        if (!gamePhase.equals(GamePhase.END) && validMovesForCurrentPlayer.isEmpty()) {
+            throw new MoveNotValidException("New calculated player does noe have any valid moves");
+        }
     }
 
     public Player getCurrentPlayer() {
