@@ -15,7 +15,30 @@ public class Main {
             "By Samuel Kroiss, Ludwig Schmidt, and Maximilian Strauss", "Use -h for help"
     };
 
+    static ArgumentParser.ParsedArguments parsedArguments;
+
     public static void main(String[] args) {
+
+        try {
+            initialize(args);
+            launch();
+        }
+
+        // Log Exceptions
+        catch (Exception e) {
+            StringBuilder exception =
+                    new StringBuilder(e.getClass().getSimpleName() + ": " + e.getMessage());
+
+            for (var stackTraceElement : e.getStackTrace()) {
+                exception.append("\nat ").append(stackTraceElement.toString());
+            }
+
+            Logger.get().error(exception.toString());
+        }
+
+    }
+
+    private static void initialize(String[] args) {
 
         ArgumentParser argumentParser = new ArgumentParser();
         argumentParser.setParameter("i", new ArgumentParser.Parameter("IP", "127.0.0.1"));
@@ -26,7 +49,7 @@ public class Main {
         argumentParser.setParameter("q", new ArgumentParser.Parameter("Quiet Mode", false));
         argumentParser.setParameter("h", new ArgumentParser.Parameter("Help", false));
         argumentParser.setParameter("d", new ArgumentParser.Parameter("Debug Mode", false));
-        ArgumentParser.ParsedArguments parsedArguments = argumentParser.parse(args);
+        parsedArguments = argumentParser.parse(args);
 
         if ((Boolean) parsedArguments.get("h")) {
             System.out.println(argumentParser);
@@ -53,8 +76,9 @@ public class Main {
             }
             Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
         }
+    }
 
-        // Launch whatever
+    private static void launch() {
 
         String ip = (String) parsedArguments.get("i");
         int port = (int) parsedArguments.get("p");
@@ -69,5 +93,6 @@ public class Main {
             case 8 -> Exercise08.abnahme();
             default -> Exercise09.abnahme(ip, port);
         }
+
     }
 }
