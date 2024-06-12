@@ -13,6 +13,8 @@ public class Main {
 
     static ArgumentParser.ParsedArguments parsedArguments;
 
+    static ArgumentParser.ParsedArguments parsedArguments;
+
     public static void main(String[] args) {
 
         try {
