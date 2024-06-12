@@ -6,18 +6,13 @@ import board.Tile;
 import board.TileReader;
 import exceptions.BonusNotSpecifiedException;
 import move.*;
-import util.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public final class MoveExecutor {
 
-    static Logger logger = new Logger(MoveExecutor.class.getName());
-
     public static void executeMove(Game game, Move move) {
-
-        logger.verbose("Executing move " + move);
 
         if (!(move instanceof BombMove)) {
             executeColoringMove(game, move);
@@ -25,7 +20,6 @@ public final class MoveExecutor {
             executeBombMove(game, (BombMove) move);
         }
 
-        logger.debug("Game after move execution: " + game);
     }
 
     /*
@@ -172,7 +166,6 @@ public final class MoveExecutor {
 
             oldOwnTiles = new HashSet<>(
                     game.getGameStats().getAllCoordinatesWhereTileIs(players[i].getPlayerValue()));
-            logger.debug(oldTilesFromPred.toString());
 
             for (Coordinates coordinates : oldTilesFromPred) {
                 game.setTile(coordinates, players[i].getPlayerValue());

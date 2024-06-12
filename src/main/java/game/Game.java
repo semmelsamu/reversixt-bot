@@ -159,7 +159,7 @@ public class Game implements Cloneable {
 
         } while (validMovesForCurrentPlayer.isEmpty() || getCurrentPlayer().isDisqualified());
 
-        logger.verbose("Current player is now " + currentPlayer);
+        logger.debug("Current player is now " + currentPlayer);
     }
 
     public Player getCurrentPlayer() {
