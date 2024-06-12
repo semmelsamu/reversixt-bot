@@ -4,6 +4,7 @@ import board.Coordinates;
 import board.Tile;
 import clients.Client;
 import exceptions.GamePhaseNotValidException;
+import exceptions.MoveNotValidException;
 import game.Game;
 import game.GameFactory;
 import game.GamePhase;
@@ -55,6 +56,10 @@ public class NetworkClientAdapter implements NetworkClient {
         } else {
             limitType = Limit.DEPTH;
             limit = depthLimit;
+        }
+
+        if(game.getValidMovesForCurrentPlayer().isEmpty()) {
+            throw new MoveNotValidException("No valid moves!");
         }
 
         if (game.getPhase() == GamePhase.END) {
