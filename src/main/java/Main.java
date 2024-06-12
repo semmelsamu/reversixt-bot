@@ -6,11 +6,12 @@ import util.Logger;
 
 public class Main {
 
-    private static final String[] welcomeMessage = {
-            "This is Reversi++ Client",
-            "Developed as part of the FWPM \"ZOCK\" in the summer semester 2024 at OTH Regensburg",
-            "By Samuel Kroiss, Ludwig Schmidt, and Maximilian Strauss", "Use -h for help"
-    };
+    private static void welcome() {
+        Logger.get()
+                .log("This is Reversi++ Client\nDeveloped as part of the FWPM \"ZOCK\" in the " +
+                        "summer semester 2024 at OTH Regensburg\nBy Samuel Kroiss, Ludwig " +
+                        "Schmidt, and Maximilian Strauss\nUse -h for help");
+    }
 
     static ArgumentParser.ParsedArguments parsedArguments;
 
@@ -69,9 +70,8 @@ public class Main {
             Logger.setPriority(BestReplySearchKillerHeuristicClient.class.getName(), debugPrio);
             Logger.setPriority(CommunitiesClient.class.getName(), debugPrio);
 
-            for (var line : welcomeMessage) {
-                Logger.get().log(line);
-            }
+            welcome();
+
             Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
         }
     }
