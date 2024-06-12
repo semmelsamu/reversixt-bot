@@ -127,6 +127,9 @@ public class Logger {
      */
     private void print(String color, String type, String message, int priority) {
 
+        String terminator = replace ? "\r" : "\n";
+        replace = false;
+
         if (priority < priorities.getOrDefault(this.name, defaultPriority)) {
             return;
         }
@@ -140,7 +143,6 @@ public class Logger {
                 caller.getClassName().substring(caller.getClassName().lastIndexOf('.') + 1);
         String callerMethodName = caller.getMethodName();
 
-        String terminator = replace ? "\r" : "\n";
 
         if(!useColors) {
             message = message.replaceAll("\u001B\\[[;\\d]*m", "");
@@ -158,7 +160,6 @@ public class Logger {
                         "  [" + callerMethodName + "]  " + (useColors ? color : "") + indentedMessage +
                         (useColors ? ANSI_RESET : ""));
 
-        replace = false;
     }
 
     /*
