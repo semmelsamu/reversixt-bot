@@ -9,7 +9,6 @@ import exceptions.MoveNotValidException;
 import move.Move;
 import move.OverwriteMove;
 import util.Logger;
-import util.NullLogger;
 
 import java.util.List;
 import java.util.Map;
@@ -93,28 +92,8 @@ public class Game implements Cloneable {
 
         moveCounter = 1;
 
-        currentPlayer = 0;
-        do {
-            rotateCurrentPlayer();
-
-            // Last player also has no valid moves
-            if (currentPlayer == players.length && validMovesForCurrentPlayer.isEmpty()) {
-
-                // No valid moves in build phase
-                if (gamePhase == GamePhase.BUILD) {
-                    logger.log("No player has valid moves in build phase, entering bomb phase");
-                    gamePhase = GamePhase.BOMB;
-                    // Set player again to first player
-                    rotateCurrentPlayer();
-                }
-
-                // Also no valid moves in bomb phase. weird.
-                else {
-                    logger.warn("Map is not playable as there are no valid moves in any phase");
-                    break;
-                }
-            }
-        } while (validMovesForCurrentPlayer.isEmpty());
+        currentPlayer = players.length; // Player before the first player
+        nextPlayer();
     }
 
     /*
@@ -140,16 +119,17 @@ public class Game implements Cloneable {
         do {
             rotateCurrentPlayer();
 
-            if (oldPlayer == currentPlayer && validMovesForCurrentPlayer.isEmpty()) {
+            if (validMovesForCurrentPlayer.isEmpty() && currentPlayer == oldPlayer) {
+
                 if (gamePhase == GamePhase.BUILD) {
-                    logger.log(
-                            "No more player has any moves in the coloring phase, entering bomb " +
-                                    "phase");
+                    logger.log("No valid moves in build phase, entering bomb phase");
                     gamePhase = GamePhase.BOMB;
-                    rotateCurrentPlayer();
-                    oldPlayer = currentPlayer;
+                    currentPlayer = oldPlayer;
+                    validMovesForCurrentPlayer =
+                            MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
+
                 } else if (gamePhase == GamePhase.BOMB) {
-                    logger.log("No more player has any bomb moves, entering end");
+                    logger.log("No valid moves in bomb phase, entering end");
                     gamePhase = GamePhase.END;
                     // Set player to no player because the game ended
                     currentPlayer = 0;
@@ -160,6 +140,10 @@ public class Game implements Cloneable {
         } while (validMovesForCurrentPlayer.isEmpty() || getCurrentPlayer().isDisqualified());
 
         logger.verbose("Current player is now " + currentPlayer);
+
+        if (!gamePhase.equals(GamePhase.END) && validMovesForCurrentPlayer.isEmpty()) {
+            throw new MoveNotValidException("New calculated player does noe have any valid moves");
+        }
     }
 
     public Player getCurrentPlayer() {
@@ -179,7 +163,9 @@ public class Game implements Cloneable {
 
     public void executeMove(Move move) {
         if (!validMovesForCurrentPlayer.contains(move)) {
-            throw new MoveNotValidException("Tried to execute a move that is not valid: " + move);
+            logger.error(this.toString());
+            logger.error(move.toString());
+            throw new MoveNotValidException("Tried to execute a move that is not valid");
         }
         MoveExecutor.executeMove(this, move);
         moveCounter++;
@@ -312,10 +298,6 @@ public class Game implements Cloneable {
             clone.players = new Player[this.players.length];
             for (int i = 0; i < this.players.length; i++) {
                 clone.players[i] = this.players[i].clone();
-            }
-
-            if (!(clone.logger instanceof NullLogger)) {
-                clone.logger = new NullLogger("");
             }
 
             clone.gameStats = this.gameStats.clone();
