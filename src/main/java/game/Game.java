@@ -163,9 +163,7 @@ public class Game implements Cloneable {
 
     public void executeMove(Move move) {
         if (!validMovesForCurrentPlayer.contains(move)) {
-            logger.error(this.toString());
-            logger.error(move.toString());
-            throw new MoveNotValidException("Tried to execute a move that is not valid");
+            throw new MoveNotValidException("Tried to execute a move that is not valid: " + move);
         }
         MoveExecutor.executeMove(this, move);
         moveCounter++;
