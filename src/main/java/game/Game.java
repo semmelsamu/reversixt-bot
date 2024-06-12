@@ -9,6 +9,7 @@ import exceptions.MoveNotValidException;
 import move.Move;
 import move.OverwriteMove;
 import util.Logger;
+import util.NullLogger;
 
 import java.util.List;
 import java.util.Map;
@@ -311,6 +312,10 @@ public class Game implements Cloneable {
             clone.players = new Player[this.players.length];
             for (int i = 0; i < this.players.length; i++) {
                 clone.players[i] = this.players[i].clone();
+            }
+
+            if (!(clone.logger instanceof NullLogger)) {
+                clone.logger = new NullLogger("");
             }
 
             clone.gameStats = this.gameStats.clone();
