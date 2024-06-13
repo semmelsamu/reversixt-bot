@@ -18,7 +18,6 @@ public abstract class Client {
     }
 
     public void setPlayer(int player) {
-        game.setClientPlayer(player);
         this.ME = player;
     }
 

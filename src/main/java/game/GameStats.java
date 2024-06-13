@@ -181,9 +181,6 @@ public class GameStats implements Cloneable {
         }
         //add new position
         searchCommunity.addCoordinate(value, position);
-        if (searchCommunity.foundKey(Tile.fromChar((char) (game.getClientPlayer() + '0')))) {
-            searchCommunity.setRelevant(true);
-        }
     }
 
     @Override
@@ -203,14 +200,5 @@ public class GameStats implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
-    }
-
-    public void updateCommunityRelevance(int clientPlayer) {
-        for (Community community : communities) {
-            if (community.foundKey(Tile.fromChar((char) (clientPlayer + '0')))) {
-                community.setRelevant(true);
-            }
-        }
-        System.out.println(communities);
     }
 }

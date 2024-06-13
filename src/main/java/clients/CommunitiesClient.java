@@ -1,5 +1,8 @@
 package clients;
 
+import board.Direction;
+import board.Tile;
+import board.TileReader;
 import evaluation.GameEvaluator;
 import exceptions.GamePhaseNotValidException;
 import exceptions.NotEnoughTimeException;
@@ -7,7 +10,6 @@ import exceptions.OutOfTimeException;
 import game.Community;
 import game.Game;
 import game.GamePhase;
-import game.GameStats;
 import move.Move;
 import network.Limit;
 import util.Logger;
@@ -60,6 +62,8 @@ public class CommunitiesClient extends Client {
      */
     private Limit type;
 
+    private Community currentCommunity;
+
     /**
      * This is the entry point to the search for a new move.
      *
@@ -106,16 +110,28 @@ public class CommunitiesClient extends Client {
 
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
-            for (int depthLimit = 2; type != Limit.DEPTH || depthLimit < limit; depthLimit++) {
-                resetStats();
-
-                bestMove = calculateBestMove(sortedMoves, depthLimit);
-
-                if (bombPhasesReached >= sortedMoves.size()) {
-                    throw new GamePhaseNotValidException("Tree reached bomb phase");
+            List<Community> communities =
+                    game.getGameStats().getCommunities().stream().filter(Community::isRelevant)
+                            .toList();
+            for (Community community : communities) {
+                if (community.getAllKeys().contains(Tile.fromChar((char) (ME + '0')))) {
+                    community.setRelevant(true);
                 }
+            }
 
-                evaluateStats(depthLimit);
+            for (Community community : communities) {
+                this.currentCommunity = community;
+                for (int depthLimit = 2; type != Limit.DEPTH || depthLimit < limit; depthLimit++) {
+                    resetStats();
+
+                    bestMove = calculateBestMove(sortedMoves, depthLimit);
+
+                    if (bombPhasesReached >= sortedMoves.size()) {
+                        throw new GamePhaseNotValidException("Tree reached bomb phase");
+                    }
+
+                    evaluateStats(depthLimit);
+                }
             }
 
             return bestMove;
@@ -259,15 +275,43 @@ public class CommunitiesClient extends Client {
         } else {
             // TODO: Better heuristic?
             //       maybe the move which gets us the most stones
-            Move move =
-                    game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
+            Move move = getMovesInCommunity(game).iterator().next(); // Random valid move
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
+            nextPlayerInCommunity(clonedGame);
+
             currentIterationNodesVisited++;
 
             return calculateScore(clonedGame, depth - 1, alpha, beta, false);
+        }
+    }
+
+    private Set<Move> getMovesInCommunity(Game game) {
+        Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
+        Set<Move> filteredMove = new HashSet<>();
+        for (Move move : relevantMovesForCurrentPlayer) {
+            for (Direction dir : Direction.values()) {
+                TileReader reader = new TileReader(game, move.getCoordinates(), dir);
+                if (reader.hasNext()) {
+                    reader.next();
+                    if (currentCommunity.getAllCoordinates().contains(reader.getCoordinates())) {
+                        filteredMove.add(move);
+                    }
+                }
+            }
+        }
+        return filteredMove;
+    }
+
+    private void nextPlayerInCommunity(Game clonedGame) {
+        while (true) {
+            Tile playerTile = Tile.fromChar((char) (clonedGame.getCurrentPlayerNumber() + '0'));
+            if (!currentCommunity.getAllKeys().contains(playerTile)) {
+                break;
+            }
+            clonedGame.nextPlayer();
         }
     }
 
@@ -288,19 +332,20 @@ public class CommunitiesClient extends Client {
      * @param game        The initial game situation
      * @param moveCutoffs The killer heuristic
      */
-    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs, boolean descending)
-            throws OutOfTimeException {
+    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs,
+                                              boolean descending) throws OutOfTimeException {
 
         // A dataset where every entry consists of a Move, the Game after the Move execution, the
         // score of the game and the number of cutoffs this move achieved in other branches
         List<Quadruple<Move, Game, Integer, Integer>> result = new LinkedList<>();
 
         // Get data
-        for (Move move : game.getRelevantMovesForCurrentPlayer()) {
+        for (Move move : getMovesInCommunity(game)) {
             checkTime();
 
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
+            nextPlayerInCommunity(clonedGame);
             int score = GameEvaluator.evaluate(clonedGame, ME);
             currentIterationNodesVisited++;
 
@@ -330,7 +375,7 @@ public class CommunitiesClient extends Client {
         }
 
         // Reverse if necessary
-        if(descending) {
+        if (descending) {
             Collections.reverse(tuples);
         }
 

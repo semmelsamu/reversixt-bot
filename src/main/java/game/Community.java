@@ -61,6 +61,10 @@ public class Community implements Cloneable{
         return tilesPlayerPair.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
     }
 
+    public Set<Coordinates> getAllCoordinatesByKey(Tile tile) {
+        return tilesPlayerPair.get(tile);
+    }
+
     public Set<Tile> getAllKeys(){
         return tilesPlayerPair.keySet();
     }
