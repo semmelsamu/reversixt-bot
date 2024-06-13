@@ -1,8 +1,8 @@
 package clients;
 
-import board.Direction;
+import board.Coordinates;
+import board.CoordinatesExpander;
 import board.Tile;
-import board.TileReader;
 import evaluation.GameEvaluator;
 import exceptions.GamePhaseNotValidException;
 import exceptions.NotEnoughTimeException;
@@ -283,31 +283,33 @@ public class CommunitiesClient extends Client {
     }
 
     private Set<Move> getMovesInCommunity(Game game) {
-//        Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
-//        Set<Move> filteredMove = new HashSet<>();
-//        for (Move move : relevantMovesForCurrentPlayer) {
-//            for (Direction dir : Direction.values()) {
-//                TileReader reader = new TileReader(game, move.getCoordinates(), dir);
-//                if (reader.hasNext()) {
-//                    reader.next();
-//                    if (currentCommunity.getAllCoordinates().contains(reader.getCoordinates())) {
-//                        filteredMove.add(move);
-//                    }
-//                }
-//            }
-//        }
-        return null;
+        Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
+        for (Move move : relevantMovesForCurrentPlayer) {
+            Set<Coordinates> neighbourCoordinates =
+                    CoordinatesExpander.expandCoordinates(game, Set.of(move.getCoordinates()), 1);
+            neighbourCoordinates.removeIf(coordinate -> game.getTile(coordinate).isUnoccupied());
+            boolean remove = true;
+            for (Coordinates neighbourCoordinate : neighbourCoordinates) {
+                if (currentCommunity.getCoordinates().contains(neighbourCoordinate)) {
+                    remove = false;
+                    break;
+                }
+            }
+            if (remove) {
+                relevantMovesForCurrentPlayer.remove(move);
+            }
+        }
+        return relevantMovesForCurrentPlayer;
     }
 
     private void nextPlayerInCommunity(Game clonedGame) {
-        int tileAmountByPlayer;
-        do {
-            Tile playerTile = game.getCurrentPlayer().getPlayerValue();
+        Tile playerTile = clonedGame.getCurrentPlayer().getPlayerValue();
+        int tileAmountByPlayer = currentCommunity.getTileAmountByPlayer(playerTile);
+        while (tileAmountByPlayer <= 0) {
+            clonedGame.nextPlayer();
+            playerTile = clonedGame.getCurrentPlayer().getPlayerValue();
             tileAmountByPlayer = currentCommunity.getTileAmountByPlayer(playerTile);
-            if (tileAmountByPlayer <= 0) {
-                clonedGame.nextPlayer();
-            }
-        } while (tileAmountByPlayer <= 0);
+        }
     }
 
     /*

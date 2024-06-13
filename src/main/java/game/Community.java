@@ -3,7 +3,10 @@ package game;
 import board.Coordinates;
 import board.Tile;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class Community implements Cloneable {
 
@@ -93,12 +96,14 @@ public class Community implements Cloneable {
         }
         Community community = (Community) o;
         return Objects.equals(coordinates, community.coordinates) &&
-                Objects.equals(playerTileAmountContainers, community.playerTileAmountContainers);
+                Arrays.equals(playerTileAmountContainers, community.playerTileAmountContainers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(coordinates, playerTileAmountContainers);
+        int result = Objects.hash(coordinates);
+        result = 31 * result + Arrays.hashCode(playerTileAmountContainers);
+        return result;
     }
 
     @Override
