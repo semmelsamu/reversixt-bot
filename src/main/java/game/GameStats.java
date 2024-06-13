@@ -1,8 +1,9 @@
 package game;
 
-import board.*;
+import board.Coordinates;
+import board.CoordinatesExpander;
+import board.Tile;
 import util.Collection;
-import util.Tuple;
 
 import java.util.*;
 
@@ -28,46 +29,40 @@ public class GameStats implements Cloneable {
                     new HashSet<>(game.getAllCoordinatesWhereTileIs(tile)));
         }
 
-        Set<Tuple<Tile, Coordinates>> tileCoordinatesPair = new HashSet<>();
+        Set<Coordinates> allOccupiedCoordinates = new HashSet<>();
         for (Tile tile : Tile.values()) {
             if (tile.isUnoccupied() || tile.equals(Tile.WALL)) {
                 continue;
             }
             // all players
-            for (Coordinates cor : getAllCoordinatesWhereTileIs(tile)) {
-                tileCoordinatesPair.add(new Tuple<>(tile, cor));
-            }
+            allOccupiedCoordinates.addAll(getAllCoordinatesWhereTileIs(tile));
         }
 
-        for (Tuple<Tile, Coordinates> tileCoordinatesTuple : tileCoordinatesPair) {
-            boolean nextTuple = false;
+        for (Coordinates coordinate : allOccupiedCoordinates) {
+            boolean nextV = false;
             for (Community community : communities) {
-                if (community.getCoordinates().contains(tileCoordinatesTuple.second())) {
-                    nextTuple = true;
+                if (community.getCoordinates().contains(coordinate)) {
+                    nextV = true;
                     break;
                 }
             }
 
-            if (nextTuple) {
+            if (nextV) {
                 continue;
             }
 
             Community community = new Community(game);
-            int newCoordinatesCounter;
-            Set<Coordinates> coordinatesInCommunity = new HashSet<>();
+            community.addCoordinate(coordinate);
+            int oldCoordinatesCounter;
             do {
-                newCoordinatesCounter = coordinatesInCommunity.size();
-                coordinatesInCommunity = CoordinatesExpander.expandCoordinates(game,
-                        Set.of(tileCoordinatesTuple.second()), 1);
-                coordinatesInCommunity.removeIf(
-                        coordinate -> game.getTile(coordinate).isUnoccupied());
-
-
-            } while (newCoordinatesCounter != coordinatesInCommunity.size());
-            community.addAllCoordinates(coordinatesInCommunity);
+                oldCoordinatesCounter = community.getCoordinates().size();
+                Set<Coordinates> coordinatesInCommunity =
+                        CoordinatesExpander.expandCoordinates(game, community.getCoordinates(), 1);
+                coordinatesInCommunity.removeIf(cor -> game.getTile(cor).isUnoccupied());
+                community.addAllCoordinates(coordinatesInCommunity);
+            } while (oldCoordinatesCounter != community.getCoordinates().size());
             communities.add(community);
         }
-        mergeIdenticalCommunities();
     }
 
     private void mergeIdenticalCommunities() {

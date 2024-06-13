@@ -91,7 +91,8 @@ public class CommunitiesClient extends Client {
             resetStats();
 
             // Cache move sorting
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>(), true);
+            List<Tuple<Move, Game>> sortedMoves =
+                    sortMoves(game, game.getValidMovesForCurrentPlayer(), new HashMap<>(), true);
 
             // As the sorted moves already contain the result for depth 1, update bestMove
             bestMove = sortedMoves.get(0).first();
@@ -124,19 +125,24 @@ public class CommunitiesClient extends Client {
                         throw new GamePhaseNotValidException("Tree reached bomb phase");
                     }
 
-                    evaluateStats(depthLimit);
                 }
+                evaluateStats(depthLimit);
             }
+            System.out.println(game.getGameStats().getCommunities());
 
             return bestMove;
 
         } catch (OutOfTimeException e) {
             timeouts++;
             logger.warn(e.getMessage());
+            System.out.println(game.getGameStats().getCommunities());
+
             return bestMove;
 
         } catch (NotEnoughTimeException | GamePhaseNotValidException e) {
             logger.log(e.getMessage());
+            System.out.println(game.getGameStats().getCommunities());
+
             return bestMove;
         }
 
@@ -214,7 +220,7 @@ public class CommunitiesClient extends Client {
         if (isMaximizer) {
             int result = Integer.MIN_VALUE;
 
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
+            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, getMovesInCommunity(game),
                     moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
 
             for (var moveAndGame : sortedMoves) {
@@ -237,7 +243,7 @@ public class CommunitiesClient extends Client {
 
         } else if (buildTree) {
 
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
+            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, getMovesInCommunity(game),
                     moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), false);
 
             // Get phi move
@@ -284,6 +290,7 @@ public class CommunitiesClient extends Client {
 
     private Set<Move> getMovesInCommunity(Game game) {
         Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
+        Set<Move> movesToRemove = new HashSet<>();
         for (Move move : relevantMovesForCurrentPlayer) {
             Set<Coordinates> neighbourCoordinates =
                     CoordinatesExpander.expandCoordinates(game, Set.of(move.getCoordinates()), 1);
@@ -296,13 +303,19 @@ public class CommunitiesClient extends Client {
                 }
             }
             if (remove) {
-                relevantMovesForCurrentPlayer.remove(move);
+                movesToRemove.add(move);
             }
         }
+        relevantMovesForCurrentPlayer.removeAll(movesToRemove);
         return relevantMovesForCurrentPlayer;
     }
 
     private void nextPlayerInCommunity(Game clonedGame) {
+
+        if (currentCommunity == null) {
+            return;
+        }
+
         Tile playerTile = clonedGame.getCurrentPlayer().getPlayerValue();
         int tileAmountByPlayer = currentCommunity.getTileAmountByPlayer(playerTile);
         while (tileAmountByPlayer <= 0) {
@@ -329,15 +342,16 @@ public class CommunitiesClient extends Client {
      * @param game        The initial game situation
      * @param moveCutoffs The killer heuristic
      */
-    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs,
-                                              boolean descending) throws OutOfTimeException {
+    private List<Tuple<Move, Game>> sortMoves(Game game, Set<Move> movesToBeSorted,
+                                              Map<Move, Integer> moveCutoffs, boolean descending)
+            throws OutOfTimeException {
 
         // A dataset where every entry consists of a Move, the Game after the Move execution, the
         // score of the game and the number of cutoffs this move achieved in other branches
         List<Quadruple<Move, Game, Integer, Integer>> result = new LinkedList<>();
 
         // Get data
-        for (Move move : getMovesInCommunity(game)) {
+        for (Move move : movesToBeSorted) {
             checkTime();
 
             Game clonedGame = game.clone();
