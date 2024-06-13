@@ -1,9 +1,6 @@
 package game;
 
-import board.Coordinates;
-import board.Direction;
-import board.Tile;
-import board.TileReader;
+import board.*;
 import exceptions.BonusNotSpecifiedException;
 import move.*;
 
@@ -183,38 +180,19 @@ public final class MoveExecutor {
     */
 
     private static void executeBombMove(Game game, BombMove move) {
+
         if (game.getPlayer(move.getPlayerNumber()).getBombs() == 0) {
             throw new RuntimeException("No bombs available :(");
         }
 
-        for (Coordinates bombedTile : getAllTilesToBeBombed(game, move.getCoordinates())) {
-            game.setTile(bombedTile, Tile.WALL);
+        int radius = game.getBombRadius();
+        Set<Coordinates> coordinates = new HashSet<>();
+        coordinates.add(move.getCoordinates());
+
+        for (Coordinates c : CoordinatesExpander.expandCoordinates(game, coordinates, radius)) {
+            game.setTile(c, Tile.WALL);
         }
 
         game.getPlayer(move.getPlayerNumber()).decrementBombs();
-    }
-
-    private static Set<Coordinates> getAllTilesToBeBombed(Game game, Coordinates coordinates) {
-        int radius = game.getBombRadius();
-        Set<Coordinates> allDestroyedTiles = new HashSet<>();
-        Set<Coordinates> allDestroyedTilesTemp = new HashSet<>();
-
-        allDestroyedTiles.add(coordinates);
-        for (int i = 0; i < radius; i++) {
-            for (Coordinates allDestroyedTile : allDestroyedTiles) {
-                for (Direction direction : Direction.values()) {
-                    TileReader reader = new TileReader(game, allDestroyedTile, direction);
-                    if (reader.hasNext()) {
-                        reader.next();
-                        allDestroyedTilesTemp.add(new Coordinates(reader.getCoordinates().x,
-                                reader.getCoordinates().y));
-                    }
-                }
-            }
-            allDestroyedTiles.addAll(allDestroyedTilesTemp);
-            allDestroyedTilesTemp.clear();
-        }
-
-        return allDestroyedTiles;
     }
 }
