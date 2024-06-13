@@ -17,11 +17,15 @@ public final class MoveCalculator {
      * @return All valid moves for this player
      */
     public static Set<Move> getValidMovesForPlayer(Game game, int playerNumber) {
+        return getValidMovesForPlayer(game, playerNumber, null);
+    }
+
+    public static Set<Move> getValidMovesForPlayer(Game game, int playerNumber, Set<Coordinates> area) {
 
         Set<Move> result = new HashSet<>();
 
         switch (game.getPhase()) {
-            case BUILD -> result.addAll(calculateAllColoringMoves(game, playerNumber));
+            case BUILD -> result.addAll(calculateAllColoringMoves(game, playerNumber, area));
             case BOMB -> result.addAll(getAllBombMoves(game, playerNumber));
             default -> throw new GamePhaseNotValidException(
                     "No valid game phase to calculate moves for");
@@ -30,7 +34,7 @@ public final class MoveCalculator {
         return result;
     }
 
-    private static Set<Move> calculateAllColoringMoves(Game game, int playerNumber) {
+    private static Set<Move> calculateAllColoringMoves(Game game, int playerNumber, Set<Coordinates> area) {
 
         Player player = game.getPlayer(playerNumber);
 
@@ -38,6 +42,10 @@ public final class MoveCalculator {
 
         for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(
                 player.getPlayerValue())) {
+
+            if(!area.contains(occupiedTile))
+                continue;
+
             if (game.getTile(occupiedTile) != player.getPlayerValue()) {
                 throw new AssertionError("Wrong coordinates in Player" + player + "'s List stones");
             }
@@ -55,6 +63,10 @@ public final class MoveCalculator {
         if (player.getOverwriteStones() > 0) {
             // Add overwrite moves on expansion tiles
             for (var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
+
+                // TODO: ???
+                if(!area.contains(coordinate)) continue;
+
                 moves.add(new OverwriteMove(playerNumber, coordinate));
             }
         }
