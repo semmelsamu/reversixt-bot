@@ -291,6 +291,7 @@ public class Game implements Cloneable {
             result.append("- ").append(player.getPlayerValue().toString()).append(" (")
                     .append(player.getOverwriteStones()).append(" / ").append(player.getBombs())
                     .append(")");
+            if(player.isDisqualified()) result.append(" X");
             if (player.getPlayerValue().toPlayerIndex() + 1 == currentPlayer) {
                 result.append(" *");
             }
