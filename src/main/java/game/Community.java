@@ -4,81 +4,83 @@ import board.Coordinates;
 import board.Tile;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class Community implements Cloneable{
+public class Community implements Cloneable {
 
-    private Map<Tile, Set<Coordinates>> tilesPlayerPair;
-    private boolean relevant;
+    private final Game game;
+    private Set<Coordinates> coordinates;
+    private PlayerTileAmountContainer[] playerTileAmountContainers;
 
-    public Community() {
-        this.tilesPlayerPair = new HashMap<>();
-        this.relevant = false;
+    public Community(Game game) {
+        this.game = game;
+        this.coordinates = new HashSet<>();
+
+        int playersLength = game.getPlayers().length;
+        this.playerTileAmountContainers = new PlayerTileAmountContainer[playersLength + 1];
+        for (int i = 0; i < playersLength; i++) {
+            for (Player player : game.getPlayers()) {
+                playerTileAmountContainers[i] =
+                        new PlayerTileAmountContainer(player.getPlayerValue(), 0);
+            }
+        }
+        playerTileAmountContainers[playersLength] =
+                new PlayerTileAmountContainer(Tile.EXPANSION, 0);
     }
 
-    public Community(Tile player, Set<Coordinates> tilesPlayerPair) {
-        this();
-        this.tilesPlayerPair.put(player, new HashSet<>(tilesPlayerPair));
+    public void addCoordinate(Coordinates coordinate) {
+        coordinates.add(coordinate);
+        for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
+            if (playerTileAmountContainer.getPlayer() == game.getTile(coordinate)) {
+                playerTileAmountContainer.incrementTileAmount();
+            }
+        }
     }
 
-    public void addCoordinate(Tile playerId, Coordinates coordinate) {
-        Set<Coordinates> coordinatesSet =
-                tilesPlayerPair.computeIfAbsent(playerId, k -> new HashSet<>());
-        coordinatesSet.add(coordinate);
-    }
-
-    public Tile findKeyByValue(Coordinates coordinates) {
-        for (Map.Entry<Tile, Set<Coordinates>> integerSetEntry : tilesPlayerPair.entrySet()) {
-            for (Coordinates coordinate : integerSetEntry.getValue()) {
-                if (coordinate.equals(coordinates)) {
-                    return integerSetEntry.getKey();
+    public void addAllCoordinates(Set<Coordinates> coordinates) {
+        this.coordinates.addAll(coordinates);
+        for (Coordinates coordinate : coordinates) {
+            for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
+                if (playerTileAmountContainer.getPlayer() == game.getTile(coordinate)) {
+                    playerTileAmountContainer.incrementTileAmount();
                 }
             }
         }
-        return null;
     }
 
     public void removeCoordinate(Coordinates coordinate) {
-        Tile playerId = findKeyByValue(coordinate);
-        Set<Coordinates> coordinatesSet = tilesPlayerPair.get(playerId);
-
-        if (coordinatesSet != null && coordinatesSet.remove(coordinate)) {
-            if (coordinatesSet.isEmpty()) {
-                tilesPlayerPair.remove(playerId);
+        coordinates.remove(coordinate);
+        for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
+            if (playerTileAmountContainer.getPlayer() == game.getTile(coordinate)) {
+                playerTileAmountContainer.decrementTileAmount();
             }
         }
     }
 
-
-    public void addAllCoordinates(Community other) {
-        for (Map.Entry<Tile, Set<Coordinates>> entry : other.tilesPlayerPair.entrySet()) {
-            tilesPlayerPair.computeIfAbsent(entry.getKey(), k -> new HashSet<>())
-                    .addAll(entry.getValue());
+    public void addAllCoordinatesFromCommunity(Community other) {
+        coordinates.addAll(other.coordinates);
+        for (PlayerTileAmountContainer ourPlayerTileAmountContainer : playerTileAmountContainers) {
+            for (PlayerTileAmountContainer otherPlayerTileAmountContainer :
+                    other.playerTileAmountContainers) {
+                if (ourPlayerTileAmountContainer.getPlayer() ==
+                        otherPlayerTileAmountContainer.getPlayer()) {
+                    ourPlayerTileAmountContainer.incrementTileAmountByValue(
+                            otherPlayerTileAmountContainer.getTileAmount());
+                }
+            }
         }
     }
 
-    public Set<Coordinates> getAllCoordinates() {
-        return tilesPlayerPair.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+    public Set<Coordinates> getCoordinates() {
+        return coordinates;
     }
 
-    public Set<Coordinates> getAllCoordinatesByKey(Tile tile) {
-        return tilesPlayerPair.get(tile);
-    }
-
-    public Set<Tile> getAllKeys(){
-        return tilesPlayerPair.keySet();
-    }
-
-    public boolean foundKey(Tile playerId) {
-        return tilesPlayerPair.get(playerId) != null;
-    }
-
-    public boolean isRelevant() {
-        return relevant;
-    }
-
-    public void setRelevant(boolean relevant) {
-        this.relevant = relevant;
+    public int getTileAmountByPlayer(Tile playerValue) {
+        for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
+            if (playerTileAmountContainer.player == playerValue) {
+                return playerTileAmountContainer.getTileAmount();
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -90,42 +92,85 @@ public class Community implements Cloneable{
             return false;
         }
         Community community = (Community) o;
-        return Objects.equals(tilesPlayerPair, community.tilesPlayerPair);
+        return Objects.equals(coordinates, community.coordinates) &&
+                Objects.equals(playerTileAmountContainers, community.playerTileAmountContainers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tilesPlayerPair);
+        return Objects.hash(coordinates, playerTileAmountContainers);
     }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Community{")
-                .append("relevant=").append(relevant)
-                .append(", tilesPlayerPair=");
-
-        tilesPlayerPair.forEach((player, coordinatesSet) -> {
-            sb.append("\n    Player: ").append(player)
-                    .append(", Coordinates: ").append(coordinatesSet);
-        });
-
-        sb.append("\n}");
-        return sb.toString();
-    }
-
 
     @Override
     public Community clone() {
         try {
             Community clone = (Community) super.clone();
-            clone.tilesPlayerPair = new HashMap<>();
-            for (Map.Entry<Tile, Set<Coordinates>> entry : this.tilesPlayerPair.entrySet()) {
-                clone.tilesPlayerPair.put(entry.getKey(), new HashSet<>(entry.getValue()));
+            // Deep clone the mutable state
+            clone.coordinates = new HashSet<>(this.coordinates);
+            clone.playerTileAmountContainers =
+                    new PlayerTileAmountContainer[this.playerTileAmountContainers.length];
+            for (int i = 0; i < this.playerTileAmountContainers.length; i++) {
+                clone.playerTileAmountContainers[i] = this.playerTileAmountContainers[i].clone();
             }
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
+        }
+    }
+
+    static class PlayerTileAmountContainer implements Cloneable {
+        private final Tile player;
+        private int tileAmount;
+
+        public PlayerTileAmountContainer(Tile player, int tileAmount) {
+            this.player = player;
+            this.tileAmount = tileAmount;
+        }
+
+        public Tile getPlayer() {
+            return player;
+        }
+
+        public int getTileAmount() {
+            return tileAmount;
+        }
+
+        public void incrementTileAmountByValue(int value) {
+            tileAmount += value;
+        }
+
+        public void incrementTileAmount() {
+            tileAmount++;
+        }
+
+        public void decrementTileAmount() {
+            tileAmount--;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            PlayerTileAmountContainer that = (PlayerTileAmountContainer) o;
+            return tileAmount == that.tileAmount && Objects.equals(player, that.player);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(player, tileAmount);
+        }
+
+        @Override
+        protected PlayerTileAmountContainer clone() throws CloneNotSupportedException {
+            try {
+                return (PlayerTileAmountContainer) super.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new AssertionError();
+            }
         }
     }
 }

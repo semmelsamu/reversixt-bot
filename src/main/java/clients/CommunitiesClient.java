@@ -108,22 +108,16 @@ public class CommunitiesClient extends Client {
 
             bombPhasesReached = 0;
 
+            List<Community> communities = game.getGameStats().getCommunities().stream()
+                    .filter(community -> community.getTileAmountByPlayer(Tile.fromByte((byte) ME)) >
+                            0).toList();
+
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
-            List<Community> communities =
-                    game.getGameStats().getCommunities().stream().filter(Community::isRelevant)
-                            .toList();
-            for (Community community : communities) {
-                if (community.getAllKeys().contains(Tile.fromChar((char) (ME + '0')))) {
-                    community.setRelevant(true);
-                }
-            }
-
-            for (Community community : communities) {
-                this.currentCommunity = community;
-                for (int depthLimit = 2; type != Limit.DEPTH || depthLimit < limit; depthLimit++) {
-                    resetStats();
-
+            for (int depthLimit = 2; type != Limit.DEPTH || depthLimit < limit; depthLimit++) {
+                resetStats();
+                for (Community community : communities) {
+                    this.currentCommunity = community;
                     bestMove = calculateBestMove(sortedMoves, depthLimit);
 
                     if (bombPhasesReached >= sortedMoves.size()) {
@@ -289,30 +283,31 @@ public class CommunitiesClient extends Client {
     }
 
     private Set<Move> getMovesInCommunity(Game game) {
-        Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
-        Set<Move> filteredMove = new HashSet<>();
-        for (Move move : relevantMovesForCurrentPlayer) {
-            for (Direction dir : Direction.values()) {
-                TileReader reader = new TileReader(game, move.getCoordinates(), dir);
-                if (reader.hasNext()) {
-                    reader.next();
-                    if (currentCommunity.getAllCoordinates().contains(reader.getCoordinates())) {
-                        filteredMove.add(move);
-                    }
-                }
-            }
-        }
-        return filteredMove;
+//        Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
+//        Set<Move> filteredMove = new HashSet<>();
+//        for (Move move : relevantMovesForCurrentPlayer) {
+//            for (Direction dir : Direction.values()) {
+//                TileReader reader = new TileReader(game, move.getCoordinates(), dir);
+//                if (reader.hasNext()) {
+//                    reader.next();
+//                    if (currentCommunity.getAllCoordinates().contains(reader.getCoordinates())) {
+//                        filteredMove.add(move);
+//                    }
+//                }
+//            }
+//        }
+        return null;
     }
 
     private void nextPlayerInCommunity(Game clonedGame) {
-        while (true) {
-            Tile playerTile = Tile.fromChar((char) (clonedGame.getCurrentPlayerNumber() + '0'));
-            if (!currentCommunity.getAllKeys().contains(playerTile)) {
-                break;
+        int tileAmountByPlayer;
+        do {
+            Tile playerTile = game.getCurrentPlayer().getPlayerValue();
+            tileAmountByPlayer = currentCommunity.getTileAmountByPlayer(playerTile);
+            if (tileAmountByPlayer <= 0) {
+                clonedGame.nextPlayer();
             }
-            clonedGame.nextPlayer();
-        }
+        } while (tileAmountByPlayer <= 0);
     }
 
     /*

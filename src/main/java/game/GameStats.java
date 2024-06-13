@@ -1,9 +1,6 @@
 package game;
 
-import board.Coordinates;
-import board.Direction;
-import board.Tile;
-import board.TileReader;
+import board.*;
 import util.Collection;
 import util.Tuple;
 
@@ -45,7 +42,7 @@ public class GameStats implements Cloneable {
         for (Tuple<Tile, Coordinates> tileCoordinatesTuple : tileCoordinatesPair) {
             boolean nextTuple = false;
             for (Community community : communities) {
-                if (community.getAllCoordinates().contains(tileCoordinatesTuple.second())) {
+                if (community.getCoordinates().contains(tileCoordinatesTuple.second())) {
                     nextTuple = true;
                     break;
                 }
@@ -55,29 +52,19 @@ public class GameStats implements Cloneable {
                 continue;
             }
 
-            Community community = new Community(tileCoordinatesTuple.first(),
-                    new HashSet<>(Set.of(tileCoordinatesTuple.second())));
+            Community community = new Community(game);
             int newCoordinatesCounter;
+            Set<Coordinates> coordinatesInCommunity = new HashSet<>();
             do {
-                newCoordinatesCounter = 0;
-                Set<Coordinates> allCoordinates = community.getAllCoordinates();
-                for (Coordinates cor : allCoordinates) {
-                    for (Direction dir : Direction.values()) {
-                        TileReader reader = new TileReader(game, cor, dir);
-                        if (reader.hasNext()) {
-                            reader.next();
-                            if (reader.getTile().isUnoccupied() ||
-                                    allCoordinates.contains(reader.getCoordinates())) {
-                                continue;
-                            }
-                            community.addCoordinate(reader.getTile(),
-                                    reader.getCoordinates());
-                            newCoordinatesCounter++;
-                        }
-                    }
-                }
+                newCoordinatesCounter = coordinatesInCommunity.size();
+                coordinatesInCommunity = CoordinatesExpander.expandCoordinates(game,
+                        Set.of(tileCoordinatesTuple.second()), 1);
+                coordinatesInCommunity.removeIf(
+                        coordinate -> game.getTile(coordinate).isUnoccupied());
 
-            } while (newCoordinatesCounter > 0);
+
+            } while (newCoordinatesCounter != coordinatesInCommunity.size());
+            community.addAllCoordinates(coordinatesInCommunity);
             communities.add(community);
         }
         mergeIdenticalCommunities();
@@ -89,7 +76,7 @@ public class GameStats implements Cloneable {
             boolean merged = false;
             for (Community other : mergedCommunities) {
                 if (community.equals(other)) {
-                    other.addAllCoordinates(community);
+                    other.addAllCoordinatesFromCommunity(community);
                     merged = true;
                     break;
                 }
@@ -136,7 +123,7 @@ public class GameStats implements Cloneable {
     public void updateCommunities(Coordinates position, Tile value, Game game) {
         Community searchCommunity = null;
         for (Community community : communities) {
-            if (community.getAllCoordinates().contains(position)) {
+            if (community.getCoordinates().contains(position)) {
                 searchCommunity = community;
                 // Found community where tile can just easily be replaced
                 break;
@@ -145,19 +132,16 @@ public class GameStats implements Cloneable {
         Set<Community> communitiesToRemove = new HashSet<>();
         // if new tile is added on a new field where no community is, check for merge
         if (searchCommunity == null) {
-            for (Direction dir : Direction.values()) {
-                TileReader reader = new TileReader(game, position, dir);
-                if (reader.hasNext()) {
-                    reader.next();
-                    // skip if no player is detected
-                    if (reader.getTile().isUnoccupied()) {
-                        continue;
-                    }
-                    // check the community of the neighbour
-                    for (Community community : communities) {
-                        if (community.getAllCoordinates().contains(reader.getCoordinates())) {
-                            communitiesToRemove.add(community);
-                        }
+
+            Set<Coordinates> neighbourCoordinates =
+                    CoordinatesExpander.expandCoordinates(game, Set.of(position), 1);
+            neighbourCoordinates.removeIf(coordinate -> game.getTile(coordinate).isUnoccupied());
+
+            for (Coordinates neighbourCoordinate : neighbourCoordinates) {
+                // check the community of the neighbour
+                for (Community community : communities) {
+                    if (community.getCoordinates().contains(neighbourCoordinate)) {
+                        communitiesToRemove.add(community);
                     }
                 }
             }
@@ -166,10 +150,9 @@ public class GameStats implements Cloneable {
                 searchCommunity = communitiesToRemove.iterator().next();
             } else {
                 // merge the communities to a single one
-                System.out.println(communitiesToRemove);
-                Community newCommunity = new Community();
+                Community newCommunity = new Community(game);
                 for (Community community : communitiesToRemove) {
-                    newCommunity.addAllCoordinates(community);
+                    newCommunity.addAllCoordinatesFromCommunity(community);
                 }
                 communities.removeAll(communitiesToRemove);
                 communities.add(newCommunity);
@@ -180,7 +163,7 @@ public class GameStats implements Cloneable {
             searchCommunity.removeCoordinate(position);
         }
         //add new position
-        searchCommunity.addCoordinate(value, position);
+        searchCommunity.addCoordinate(position);
     }
 
     @Override
