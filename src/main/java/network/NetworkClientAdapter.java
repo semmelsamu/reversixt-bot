@@ -11,6 +11,9 @@ import game.GamePhase;
 import move.*;
 import util.Logger;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class NetworkClientAdapter implements NetworkClient {
 
     private final Logger logger = new Logger(this.getClass().getName());
@@ -18,6 +21,8 @@ public class NetworkClientAdapter implements NetworkClient {
     private final Client client;
 
     private Game game;
+
+    private List<Game> pastGameStates;
 
     /**
      * Adapt a Client to work with the NetworkClient aka the NetworkEventHandler, which
@@ -38,6 +43,8 @@ public class NetworkClientAdapter implements NetworkClient {
         this.game = GameFactory.createFromString(map);
         logger.log(game.toString());
         client.setGame(game);
+        pastGameStates = new LinkedList<>();
+        storeGame();
     }
 
     @Override
@@ -90,13 +97,14 @@ public class NetworkClientAdapter implements NetworkClient {
             return new MoveAnswer(x, y, type);
 
         } catch (Exception e) {
-            logger.error(game.toString());
+            logPastGames();
             throw e;
         }
     }
 
     @Override
     public void receiveMove(short x, short y, byte type, byte playerNumber) {
+        storeGame();
         try {
             Coordinates coordinates = new Coordinates(x, y);
 
@@ -124,7 +132,7 @@ public class NetworkClientAdapter implements NetworkClient {
             game.executeMove(move);
 
         } catch (Exception e) {
-            logger.error(game.toString());
+            logPastGames();
             throw e;
         }
     }
@@ -133,18 +141,17 @@ public class NetworkClientAdapter implements NetworkClient {
     public void receiveDisqualification(byte player) {
         game.disqualifyPlayer(player);
         if (client.getME() == player) {
-            logger.error(game.toString());
-        } else {
-            logger.log(game.toString());
+            logPastGames();
+            throw new RuntimeException("Client got disqualified");
         }
     }
 
     @Override
     public void receiveEndingPhase1() {
+        logPastGames();
         if (game.getPhase() != GamePhase.BOMB) {
             logger.warn("Server and client game phase may not match.");
         }
-        logger.log(game.toString());
     }
 
     @Override
@@ -152,7 +159,6 @@ public class NetworkClientAdapter implements NetworkClient {
         if (game.getPhase() != GamePhase.END) {
             logger.warn("Server and client game phase do not match.");
         }
-        logger.log(game.toString());
     }
 
     /**
@@ -163,5 +169,24 @@ public class NetworkClientAdapter implements NetworkClient {
     public void exit() {
         logger.log("Exiting " + client.getClass().getSimpleName());
         client.exit();
+    }
+
+    /**
+     * Hold the last x game states in memory. Used for logging.
+     */
+    private void storeGame() {
+        pastGameStates.add(game.clone());
+        if (pastGameStates.size() > 10) {
+            pastGameStates.remove(0);
+        }
+    }
+
+    private void logPastGames() {
+        StringBuilder stringBuilder = new StringBuilder("Past Game states:");
+        for (Game game : pastGameStates) {
+            stringBuilder.append("\n").append(game.toString());
+        }
+        stringBuilder.append("\nCurrent Game:").append(game);
+        logger.debug(stringBuilder.toString());
     }
 }
