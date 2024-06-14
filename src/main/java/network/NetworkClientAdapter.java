@@ -187,6 +187,6 @@ public class NetworkClientAdapter implements NetworkClient {
             stringBuilder.append("\n").append(game.toString());
         }
         stringBuilder.append("\nCurrent Game:").append(game);
-        logger.debug(stringBuilder.toString());
+        logger.error(stringBuilder.toString());
     }
 }
