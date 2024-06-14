@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 
 public class Community implements Cloneable {
 
-    private final Game game;
     private Set<Coordinates> coordinates;
     private PlayerTileAmountContainer[] playerTileAmountContainers;
+    private boolean updatedCommunity;
 
     public Community(Game game) {
-        this.game = game;
         this.coordinates = new HashSet<>();
+        this.updatedCommunity = false;
 
         int playersLength = game.getPlayers().length;
         this.playerTileAmountContainers = new PlayerTileAmountContainer[playersLength + 1];
@@ -29,17 +29,22 @@ public class Community implements Cloneable {
                 new PlayerTileAmountContainer(Tile.EXPANSION, 0);
     }
 
-    public void addCoordinate(Coordinates coordinate) {
+    public void addCoordinateOfExistingField(Coordinates coordinate, Game game) {
+        addCoordinate(coordinate, game.getTile(coordinate));
+    }
+
+    public void addCoordinate(Coordinates coordinate, Tile tile) {
         if (coordinates.add(coordinate)) { // Only update if the coordinate was not already present
             for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
-                if (playerTileAmountContainer.getPlayer().equals(game.getTile(coordinate))) {
+                if (playerTileAmountContainer.getPlayer().equals(tile)) {
                     playerTileAmountContainer.incrementTileAmount();
                 }
             }
         }
+
     }
 
-    public void addAllCoordinates(Set<Coordinates> newCoordinates) {
+    public void addAllCoordinates(Set<Coordinates> newCoordinates, Game game) {
         Set<Coordinates> addedCoordinates = new HashSet<>();
         for (Coordinates coordinate : newCoordinates) {
             if (coordinates.add(coordinate)) { // Only add if it wasn't already present
@@ -56,17 +61,17 @@ public class Community implements Cloneable {
         }
     }
 
-    public void removeCoordinate(Coordinates coordinate) {
-        if (coordinates.remove(coordinate)) { // Only update if the coordinate was actually removed
-            for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
-                if (playerTileAmountContainer.getPlayer().equals(game.getTile(coordinate))) {
-                    playerTileAmountContainer.decrementTileAmount();
-                }
+    public void removeCoordinate(Coordinates coordinate, Game game) {
+        coordinates.remove(coordinate); // Only update if the coordinate was actually removed
+        for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
+            if (playerTileAmountContainer.getPlayer().equals(game.getTile(coordinate))) {
+                playerTileAmountContainer.decrementTileAmount();
             }
         }
+
     }
 
-    public void addAllCoordinatesFromCommunity(Community other) {
+    public void addAllCoordinatesFromCommunity(Community other, Game game) {
         Set<Coordinates> addedCoordinates = new HashSet<>();
         for (Coordinates coordinate : other.coordinates) {
             if (coordinates.add(coordinate)) { // Only add if it wasn't already present
@@ -96,6 +101,7 @@ public class Community implements Cloneable {
         }
         return -1;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -145,6 +151,14 @@ public class Community implements Cloneable {
 
         return "Community {\n" + "  coordinates=" + coordinatesString + ",\n" +
                 "  playerTileAmountContainers=" + playerTileAmountsString + "\n" + '}';
+    }
+
+    public void setUpdatedCommunity(boolean updatedCommunity) {
+        this.updatedCommunity = updatedCommunity;
+    }
+
+    public boolean isUpdatedCommunity() {
+        return updatedCommunity;
     }
 
     static class PlayerTileAmountContainer implements Cloneable {

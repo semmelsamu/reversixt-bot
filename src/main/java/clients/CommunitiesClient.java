@@ -119,7 +119,14 @@ public class CommunitiesClient extends Client {
                 resetStats();
                 for (Community community : communities) {
                     this.currentCommunity = community;
-                    bestMove = calculateBestMove(sortedMoves, depthLimit);
+                    List<Tuple<Move, Game>> sortedListInCommunity = new ArrayList<>();
+                    Set<Move> movesInCommunity = getMovesInCommunity(game);
+                    for (Tuple<Move, Game> move : sortedMoves) {
+                        if (movesInCommunity.contains(move.first())) {
+                            sortedListInCommunity.add(move);
+                        }
+                    }
+                    bestMove = calculateBestMove(sortedListInCommunity, depthLimit);
 
                     if (bombPhasesReached >= sortedMoves.size()) {
                         throw new GamePhaseNotValidException("Tree reached bomb phase");
@@ -128,20 +135,17 @@ public class CommunitiesClient extends Client {
                 }
                 evaluateStats(depthLimit);
             }
-            System.out.println(game.getGameStats().getCommunities());
 
             return bestMove;
 
         } catch (OutOfTimeException e) {
             timeouts++;
             logger.warn(e.getMessage());
-            System.out.println(game.getGameStats().getCommunities());
 
             return bestMove;
 
         } catch (NotEnoughTimeException | GamePhaseNotValidException e) {
             logger.log(e.getMessage());
-            System.out.println(game.getGameStats().getCommunities());
 
             return bestMove;
         }
@@ -173,8 +177,8 @@ public class CommunitiesClient extends Client {
 
         logger.debug("0%");
 
-        for (var moveAndGame : sortedMoves) {
-
+        for (Tuple<Move, Game> moveAndGame : sortedMoves) {
+            nextPlayerInCommunity(moveAndGame.second());
             int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
 
             if (score > resultScore) {
@@ -223,7 +227,7 @@ public class CommunitiesClient extends Client {
             List<Tuple<Move, Game>> sortedMoves = sortMoves(game, getMovesInCommunity(game),
                     moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
 
-            for (var moveAndGame : sortedMoves) {
+            for (Tuple<Move, Game> moveAndGame : sortedMoves) {
 
                 int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
 
@@ -247,7 +251,6 @@ public class CommunitiesClient extends Client {
                     moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), false);
 
             // Get phi move
-            // TODO: what if we have no moves?
             Tuple<Move, Game> phi = sortedMoves.get(0); // Best move for minimizer
 
             // Evaluate phi move
@@ -255,7 +258,7 @@ public class CommunitiesClient extends Client {
             int result = score;
             beta = Math.min(beta, result);
 
-            for (var moveAndGame : sortedMoves) {
+            for (Tuple<Move, Game> moveAndGame : sortedMoves) {
                 score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, false);
 
                 result = Math.min(result, score);
@@ -307,21 +310,34 @@ public class CommunitiesClient extends Client {
             }
         }
         relevantMovesForCurrentPlayer.removeAll(movesToRemove);
+        if (relevantMovesForCurrentPlayer.isEmpty()) {
+            System.out.println(game);
+        }
+        if (relevantMovesForCurrentPlayer.isEmpty()) {
+            System.out.println(game);
+        }
         return relevantMovesForCurrentPlayer;
     }
 
     private void nextPlayerInCommunity(Game clonedGame) {
-
         if (currentCommunity == null) {
             return;
         }
+        Optional<Community> interactedCommunity =
+                clonedGame.getGameStats().getCommunities().stream()
+                        .filter(Community::isUpdatedCommunity).findFirst();
+
+        if (interactedCommunity.isEmpty()) {
+            throw new RuntimeException("No community interacted with found");
+        }
+        currentCommunity = interactedCommunity.get();
 
         Tile playerTile = clonedGame.getCurrentPlayer().getPlayerValue();
-        int tileAmountByPlayer = currentCommunity.getTileAmountByPlayer(playerTile);
+        int tileAmountByPlayer = interactedCommunity.get().getTileAmountByPlayer(playerTile);
         while (tileAmountByPlayer <= 0) {
             clonedGame.nextPlayer();
             playerTile = clonedGame.getCurrentPlayer().getPlayerValue();
-            tileAmountByPlayer = currentCommunity.getTileAmountByPlayer(playerTile);
+            tileAmountByPlayer = interactedCommunity.get().getTileAmountByPlayer(playerTile);
         }
     }
 
