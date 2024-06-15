@@ -1,11 +1,17 @@
 package evaluation;
 
-import board.*;
+import board.Coordinates;
+import board.Direction;
+import board.Tile;
+import board.TileReader;
 import game.Game;
 import game.GamePhase;
 import move.Move;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 public class StaticGameStats {
     /**
@@ -68,12 +74,12 @@ public class StaticGameStats {
 
     public void initializeReachableTiles(Game initialGame) {
         Game purposeGame = initialGame.clone();
-        while(purposeGame.getPhase() != GamePhase.PHASE_2){
-            Set<Move> validMovesForCurrentPlayer = purposeGame.getValidMovesForCurrentPlayer();
-            List<Move> ListofvalidMoves = new ArrayList<>(validMovesForCurrentPlayer);
+        while(purposeGame.getPhase() != GamePhase.BOMB){
+            Set<Move> validMovesForCurrentPlayer = purposeGame.getRelevantMovesForCurrentPlayer();
+            List<Move> ListOfRelevantMoves = new ArrayList<>(validMovesForCurrentPlayer);
             int randomIndex = (int) (Math.random() * validMovesForCurrentPlayer.size());
             if(!validMovesForCurrentPlayer.isEmpty()){
-                Move randomMove = ListofvalidMoves.get(randomIndex);
+                Move randomMove = ListOfRelevantMoves.get(randomIndex);
                 purposeGame.executeMove(randomMove);
             }
             else{
