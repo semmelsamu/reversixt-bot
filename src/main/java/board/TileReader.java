@@ -87,8 +87,7 @@ public class TileReader {
             return true;
         } else {
             // Check transition
-            TransitionPart transitionPart = new TransitionPart(coordinates, direction);
-            return game.getTransitions().containsKey(transitionPart.toShort());
+            return getTransitionCounterpart(new TransitionPart(coordinates, direction)) != null;
         }
 
     }
@@ -102,18 +101,14 @@ public class TileReader {
 
         Coordinates newCoordinates = coordinates.inDirection(direction);
 
-        if (game.coordinatesLayInBoard(newCoordinates) &&
-                game.getTile(newCoordinates) != Tile.WALL) {
+        if (game.coordinatesLayInBoard(newCoordinates) && game.getTile(newCoordinates) != Tile.WALL) {
             // Regular neighbour
             coordinates = newCoordinates;
         } else {
             // Could be a transition
-            TransitionPart transitionPart = new TransitionPart(coordinates, direction);
-            if (game.getTransitions().containsKey(transitionPart.toShort())) {
-                // It's a transition
-                TransitionPart transitionCounterpart = TransitionPart.fromShort(
-                        game.getTransitions().get(transitionPart.toShort()));
-
+            TransitionPart transitionCounterpart =
+                    getTransitionCounterpart(new TransitionPart(coordinates, direction));
+            if (transitionCounterpart != null) {
                 coordinates = transitionCounterpart.coordinates();
                 direction = transitionCounterpart.direction();
             } else {
@@ -124,5 +119,25 @@ public class TileReader {
 
         tileNumber++;
 
+    }
+
+    /**
+     * Gets the transition counterpart if it is not already bombed (occupied by a wall)
+     */
+    private TransitionPart getTransitionCounterpart(TransitionPart transitionPart) {
+        // Is there a transition?
+        if (!game.getTransitions().containsKey(transitionPart.toShort())) {
+            return null;
+        }
+
+        TransitionPart transitionCounterpart =
+                TransitionPart.fromShort(game.getTransitions().get(transitionPart.toShort()));
+
+        // Is the transition blocked?
+        if (game.getTile(transitionCounterpart.coordinates()).equals(Tile.WALL)) {
+            return null;
+        }
+
+        return transitionCounterpart;
     }
 }
