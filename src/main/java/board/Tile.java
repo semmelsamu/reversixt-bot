@@ -109,7 +109,7 @@ public enum Tile {
     */
 
     /**
-     * Returns all values for Players in ascending order.
+     * Returns tile for player
      */
     public static Tile getTileForPlayerNumber(int player) {
         if(player  > 8){
