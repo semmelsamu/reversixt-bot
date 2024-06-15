@@ -40,7 +40,7 @@ public final class GameEvaluator {
         rating += sumUpAllRatingsForOccupiedTiles(game, player);
         if(game.getPhase().equals(GamePhase.BUILD))
             rating += evaluateMobility(game, player);
-        rating += evaluateOverwriteStones(game, player, 5);
+        rating += evaluateOverwriteStones(game, player, 10);
         // As there are currently only bombs with radius 0 allowed, the value of bombs is only 1
         rating += evaluateBombs(game, player, 1);
         return (int) rating;
