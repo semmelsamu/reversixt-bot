@@ -7,9 +7,10 @@ import evaluation.StaticGameStats;
 import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
 import move.Move;
+import move.OverwriteMove;
 import util.Logger;
+import util.NullLogger;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +50,8 @@ public class Game implements Cloneable {
 
     private int currentPlayer;
 
+    private int moveCounter;
+
     private GamePhase gamePhase;
 
     private Set<Move> validMovesForCurrentPlayer;
@@ -75,8 +78,8 @@ public class Game implements Cloneable {
         // Initialize players
         players = new Player[initialPlayers];
         for (int i = 0; i < initialPlayers; i++) {
-            players[i] =
-                    new Player(Tile.getTileForPlayerNumber(i + 1), initialOverwriteStones, initialBombs);
+            players[i] = new Player(Tile.getTileForPlayerNumber(i + 1), initialOverwriteStones,
+                    initialBombs);
         }
 
         // Create static game stats
@@ -86,10 +89,32 @@ public class Game implements Cloneable {
 
         gameStats = new GameStats(this);
 
-        gamePhase = GamePhase.PHASE_1;
+        gamePhase = GamePhase.BUILD;
 
-        currentPlayer = 1;
-        validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
+        moveCounter = 1;
+
+        currentPlayer = 0;
+        do {
+            rotateCurrentPlayer();
+
+            // Last player also has no valid moves
+            if (currentPlayer == players.length && validMovesForCurrentPlayer.isEmpty()) {
+
+                // No valid moves in build phase
+                if (gamePhase == GamePhase.BUILD) {
+                    logger.log("No player has valid moves in build phase, entering bomb phase");
+                    gamePhase = GamePhase.BOMB;
+                    // Set player again to first player
+                    rotateCurrentPlayer();
+                }
+
+                // Also no valid moves in bomb phase. weird.
+                else {
+                    logger.warn("Map is not playable as there are no valid moves in any phase");
+                    break;
+                }
+            }
+        } while (validMovesForCurrentPlayer.isEmpty());
     }
 
     /*
@@ -116,14 +141,14 @@ public class Game implements Cloneable {
             rotateCurrentPlayer();
 
             if (oldPlayer == currentPlayer && validMovesForCurrentPlayer.isEmpty()) {
-                if (gamePhase == GamePhase.PHASE_1) {
+                if (gamePhase == GamePhase.BUILD) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
                                     "phase");
-                    gamePhase = GamePhase.PHASE_2;
+                    gamePhase = GamePhase.BOMB;
                     rotateCurrentPlayer();
                     oldPlayer = currentPlayer;
-                } else if (gamePhase == GamePhase.PHASE_2) {
+                } else if (gamePhase == GamePhase.BOMB) {
                     logger.log("No more player has any bomb moves, entering end");
                     gamePhase = GamePhase.END;
                     // Set player to no player because the game ended
@@ -134,7 +159,7 @@ public class Game implements Cloneable {
 
         } while (validMovesForCurrentPlayer.isEmpty() || getCurrentPlayer().isDisqualified());
 
-        logger.verbose("Current player is now " + currentPlayer);
+        logger.debug("Current player is now " + currentPlayer);
     }
 
     public Player getCurrentPlayer() {
@@ -153,12 +178,11 @@ public class Game implements Cloneable {
     }
 
     public void executeMove(Move move) {
-        if(!validMovesForCurrentPlayer.contains(move)) {
-            logger.error(this.toString());
-            logger.error(move.toString());
-            throw new MoveNotValidException("Tried to execute a move that is not valid");
+        if (!validMovesForCurrentPlayer.contains(move)) {
+            throw new MoveNotValidException("Tried to execute a move that is not valid: " + move);
         }
         MoveExecutor.executeMove(this, move);
+        moveCounter++;
         nextPlayer();
     }
 
@@ -172,6 +196,20 @@ public class Game implements Cloneable {
 
     public Set<Move> getValidMovesForCurrentPlayer() {
         return validMovesForCurrentPlayer;
+    }
+
+    // TODO: Refactor
+    // TODO: What if we only have one non-overwrite move which gets us in a really bad situation,
+    //       but we could use an overwrite move which would help us A LOT?
+    public Set<Move> getRelevantMovesForCurrentPlayer() {
+        Set<Move> movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
+                .filter((move) -> !(move instanceof OverwriteMove)).collect(Collectors.toSet());
+
+        if (movesWithoutOverwrites.isEmpty()) {
+            return validMovesForCurrentPlayer;
+        } else {
+            return movesWithoutOverwrites;
+        }
     }
 
     public Player[] getPlayers() {
@@ -223,6 +261,10 @@ public class Game implements Cloneable {
         return gamePhase;
     }
 
+    public int getMoveCounter() {
+        return moveCounter;
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -233,7 +275,7 @@ public class Game implements Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder("Game\n");
 
         result.append("Initial players: ").append(staticGameStats.getInitialPlayers()).append("\n");
         result.append("Initial overwrite stones: ")
@@ -242,12 +284,14 @@ public class Game implements Cloneable {
         result.append("Bomb radius: ").append(staticGameStats.getBombRadius()).append("\n");
 
         result.append("Phase: ").append(gamePhase).append("\n");
+        result.append("Move: ").append(moveCounter).append("\n");
 
         result.append("Players (Overwrite Stones / Bombs)").append("\n");
         for (Player player : players) {
             result.append("- ").append(player.getPlayerValue().toString()).append(" (")
                     .append(player.getOverwriteStones()).append(" / ").append(player.getBombs())
                     .append(")");
+            if(player.isDisqualified()) result.append(" X");
             if (player.getPlayerValue().toPlayerIndex() + 1 == currentPlayer) {
                 result.append(" *");
             }
@@ -256,10 +300,7 @@ public class Game implements Cloneable {
 
         result.append(board.toString());
 
-        // Indent
-        String[] lines = result.toString().split("\n");
-        return "Game\n\u001B[0m" +
-                Arrays.stream(lines).map(line -> "    " + line).collect(Collectors.joining("\n"));
+        return result.toString();
     }
 
     @Override
@@ -272,6 +313,10 @@ public class Game implements Cloneable {
             clone.players = new Player[this.players.length];
             for (int i = 0; i < this.players.length; i++) {
                 clone.players[i] = this.players[i].clone();
+            }
+
+            if (!(clone.logger instanceof NullLogger)) {
+                clone.logger = new NullLogger("");
             }
 
             clone.gameStats = this.gameStats.clone();

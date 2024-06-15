@@ -17,10 +17,10 @@ public final class GameEvaluator {
      */
     public static int evaluate(Game game, int player) {
         switch (game.getPhase()){
-            case PHASE_1 -> {
+            case BUILD -> {
                 return evaluatePhase1(game, player);
             }
-            case PHASE_2 -> {
+            case BOMB -> {
                 return evaluatePhase2(game, player);
             }
             case END ->{
@@ -38,7 +38,7 @@ public final class GameEvaluator {
         tileRatings = game.staticGameStats.getTileRatings();
         double rating = 0;
         rating += sumUpAllRatingsForOccupiedTiles(game, player);
-        if(game.getPhase().equals(GamePhase.PHASE_1))
+        if(game.getPhase().equals(GamePhase.BUILD))
             rating += evaluateMobility(game, player);
         rating += evaluateOverwriteStones(game, player, 5);
         // As there are currently only bombs with radius 0 allowed, the value of bombs is only 1

@@ -1,20 +1,40 @@
-import clients.IterativeDeepeningAlphaBetaSearchClient;
-import clients.OptimizedParanoidClient;
-import clients.ParanoidClient;
 import exercises.*;
-import game.Game;
 import util.ArgumentParser;
 import util.Logger;
 
 public class Main {
 
-    private static final String[] welcomeMessage = {
-            "This is Reversi++ Client",
-            "Developed as part of the FWPM \"ZOCK\" in the summer semester 2024 at OTH Regensburg",
-            "By Samuel Kroiss, Ludwig Schmidt, and Maximilian Strauss", "Use -h for help"
-    };
+    private static void welcome() {
+        Logger.get()
+                .log("This is Reversi++ Client\nDeveloped as part of the FWPM \"ZOCK\" in the " +
+                        "summer semester 2024 at OTH Regensburg\nBy Samuel Kroiss, Ludwig " +
+                        "Schmidt, and Maximilian Strauss\nUse -h for help");
+    }
+
+    static ArgumentParser.ParsedArguments parsedArguments;
 
     public static void main(String[] args) {
+
+        try {
+            initialize(args);
+            launch();
+        }
+
+        // Log Exceptions
+        catch (Exception e) {
+            StringBuilder exception =
+                    new StringBuilder(e.getClass().getSimpleName() + ": " + e.getMessage());
+
+            for (var stackTraceElement : e.getStackTrace()) {
+                exception.append("\nat ").append(stackTraceElement.toString());
+            }
+
+            Logger.get().error(exception.toString());
+        }
+
+    }
+
+    private static void initialize(String[] args) {
 
         ArgumentParser argumentParser = new ArgumentParser();
         argumentParser.setParameter("i", new ArgumentParser.Parameter("IP", "127.0.0.1"));
@@ -24,7 +44,8 @@ public class Main {
         argumentParser.setParameter("n", new ArgumentParser.Parameter("Move sorting", true));
         argumentParser.setParameter("q", new ArgumentParser.Parameter("Quiet Mode", false));
         argumentParser.setParameter("h", new ArgumentParser.Parameter("Help", false));
-        ArgumentParser.ParsedArguments parsedArguments = argumentParser.parse(args);
+        argumentParser.setParameter("l", new ArgumentParser.Parameter("Logger priority", 1));
+        parsedArguments = argumentParser.parse(args);
 
         if ((Boolean) parsedArguments.get("h")) {
             System.out.println(argumentParser);
@@ -35,16 +56,15 @@ public class Main {
             Logger.defaultPriority = 10;
         } else {
             Logger.useColors = (Boolean) parsedArguments.get("c");
-            Logger.defaultPriority = 2;
-            Logger.setPriority(Game.class.getName(), 3);
-            Logger.setPriority(ParanoidClient.class.getName(), 1);
-            Logger.setPriority(OptimizedParanoidClient.class.getName(), 0);
-            Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), 0);
+            Logger.defaultPriority = (int) parsedArguments.get("l");
 
-            for(var line : welcomeMessage) Logger.get().log(line);
+            welcome();
+
+            Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
         }
+    }
 
-        // Launch whatever
+    private static void launch() {
 
         String ip = (String) parsedArguments.get("i");
         int port = (int) parsedArguments.get("p");
@@ -57,7 +77,8 @@ public class Main {
             case 6 -> Exercise06.abnahme(ip, port);
             case 7 -> Exercise07.abnahme(ip, port, (Boolean) parsedArguments.get("n"));
             case 8 -> Exercise08.abnahme();
-            default -> TestReachableTiles.test();
+            default -> Exercise09.abnahme(ip, port);
         }
+
     }
 }

@@ -39,11 +39,13 @@ public class Logger {
     public static final String ANSI_PURPLE = "\u001B[35m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
+    public static final String ANSI_GRAY = "\u001B[90m";
 
     /**
      * Weights
      */
     public static final String ANSI_BOLD = "\u001B[1m";
+    public static final String ANSI_ITALIC = "\u001B[3m";
 
 
     /*
@@ -125,6 +127,9 @@ public class Logger {
      */
     private void print(String color, String type, String message, int priority) {
 
+        String terminator = replace ? "\r" : "\n";
+        replace = false;
+
         if (priority < priorities.getOrDefault(this.name, defaultPriority)) {
             return;
         }
@@ -138,15 +143,23 @@ public class Logger {
                 caller.getClassName().substring(caller.getClassName().lastIndexOf('.') + 1);
         String callerMethodName = caller.getMethodName();
 
-        String terminator = replace ? "\r" : "\n";
+
+        if(!useColors) {
+            message = message.replaceAll("\u001B\\[[;\\d]*m", "");
+        }
+
+        String[] lines = message.trim().split("\n");
+        StringBuilder indentedMessage = new StringBuilder(lines[0]);
+        for(int i = 1; i < lines.length; i++) {
+            indentedMessage.append("\n").append(" ".repeat(13 + callerMethodName.length())).append(lines[i]);
+        }
 
         // Print
         System.out.print(
                 terminator + (useColors ? color : "") + fillString(type, 7) + (useColors ? ANSI_RESET : "") +
-                        "  [" + callerMethodName + "]  " + (useColors ? color : "") + message +
+                        "  [" + callerMethodName + "]  " + (useColors ? color : "") + indentedMessage +
                         (useColors ? ANSI_RESET : ""));
 
-        replace = false;
     }
 
     /*

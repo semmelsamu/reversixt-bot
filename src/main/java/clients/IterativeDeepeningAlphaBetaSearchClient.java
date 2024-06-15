@@ -6,6 +6,7 @@ import exceptions.OutOfTimeException;
 import game.Game;
 import game.GamePhase;
 import move.Move;
+import network.Limit;
 import util.Logger;
 import util.Triple;
 import util.Tuple;
@@ -30,7 +31,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
     }
 
     @Override
-    public Move sendMove(int timeLimit, int depthLimit) {
+    public Move sendMove(Limit type, int limit) {
 
         this.startTime = System.currentTimeMillis();
         this.timeLimit = timeLimit - TIME_BUFFER;
@@ -40,22 +41,21 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                     "Move was requested but we think the game already ended");
         }
 
-        logger.log("Calculating new move with " +
-                (timeLimit > 0 ? "time limit " + timeLimit + " ms" :
-                        "depth limit " + depthLimit + " layers"));
+        logger.log("Calculating new move with " + type + " limit " + limit);
 
         // Fallback if we can't calculate any depth
         Move bestMove = game.getValidMovesForCurrentPlayer().iterator().next(); // Any valid move
 
         try {
-            for (int depth = 1; timeLimit > 0 || depth <= depthLimit; depth++) {
+            for (int depth = 1; timeLimit > 0 || depth <= (type == Limit.DEPTH ? limit : 3);
+                 depth++) {
 
                 resetStats();
 
                 bestMove = alphaBetaSearch(depth);
 
                 // Only the first phase requires searching deeper than 1
-                if (!game.getPhase().equals(GamePhase.PHASE_1)) {
+                if (!game.getPhase().equals(GamePhase.BUILD)) {
                     break;
                 }
 
@@ -88,18 +88,20 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         stats_branchingFactors.add(game.getValidMovesForCurrentPlayer().size());
 
         Set<Triple<Game, Integer, Move>> nextGameScores = getGamesWithMoveAndEvaluation(game);
-        Set<Tuple<Game, Move>> gamesWithMoves;
+        Set<Tuple<Game, Move>> gamesWithMoves = new LinkedHashSet<>();
 
         if (enableMoveSorting) {
-            // TODO: Performance -> No Streams!
-            gamesWithMoves = nextGameScores.stream()
-                    .sorted(Comparator.comparing(Triple::b, Comparator.reverseOrder()))
-                    .map(t -> new Tuple<>(t.a(), t.c()))
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            List<Triple<Game, Integer, Move>> sortedList = new ArrayList<>(nextGameScores);
+            sortedList.sort(Comparator.comparing(Triple::second, Comparator.reverseOrder()));
+
+            for (Triple<Game, Integer, Move> t : nextGameScores) {
+                gamesWithMoves.add(new Tuple<>(t.first(), t.third()));
+            }
+
         } else {
-            // TODO: Performance -> No Streams!
-            gamesWithMoves = nextGameScores.stream().map(t -> new Tuple<>(t.a(), t.c()))
-                    .collect(Collectors.toSet());
+            for (Triple<Game, Integer, Move> t : nextGameScores) {
+                gamesWithMoves.add(new Tuple<>(t.first(), t.third()));
+            }
         }
 
         // For logging progress percentage
@@ -111,13 +113,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
                     (int) ((float) i / (float) game.getValidMovesForCurrentPlayer().size() * 100);
             logger.debug(progressPercentage + "%");
 
-            int score = minmaxWithDepth(gamesWithMove.a(), depthLimit - 1, alpha, beta);
+            int score = minmaxWithDepth(gamesWithMove.first(), depthLimit - 1, alpha, beta);
 
-            logger.replace().debug("Move " + gamesWithMove.b() + " has a score of " + score);
+            logger.replace().debug("Move " + gamesWithMove.second() + " has a score of " + score);
 
             if (score > resultScore) {
                 resultScore = score;
-                resultMove = gamesWithMove.b();
+                resultMove = gamesWithMove.second();
             }
 
             // Update alpha for the maximizer
@@ -142,7 +144,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
             throw new OutOfTimeException("Out of time");
         }
 
-        if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
+        if (depth == 0 || game.getPhase() != GamePhase.BUILD) {
             return GameEvaluator.evaluate(game, ME);
         }
 
@@ -158,10 +160,13 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
             Comparator<Integer> comparator =
                     isMaximizer ? Comparator.reverseOrder() : Comparator.naturalOrder();
 
-            // TODO: Performance -> No Streams!
-            Set<Game> gamesWithMoves = getGamesWithMoveAndEvaluation(game).stream()
-                    .sorted(Comparator.comparing(Triple::b, comparator)).map(Triple::a)
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            List<Triple<Game, Integer, Move>> sortedList =
+                    new ArrayList<>(getGamesWithMoveAndEvaluation(game));
+            sortedList.sort(Comparator.comparing(Triple::second, comparator));
+            Set<Game> gamesWithMoves = new LinkedHashSet<>();
+            for (Triple<Game, Integer, Move> t : sortedList) {
+                gamesWithMoves.add(t.first());
+            }
 
             for (Game clonedGame : gamesWithMoves) {
 
@@ -261,10 +266,8 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
 
         logger.verbose("Cutoffs: " + stats_cutoffs);
 
-        double averageBranchingFactor = stats_branchingFactors.stream()
-                .mapToInt(Integer::intValue)
-                .average()
-                .orElse(0);
+        double averageBranchingFactor =
+                stats_branchingFactors.stream().mapToInt(Integer::intValue).average().orElse(0);
         logger.verbose("Average branching factor: " + averageBranchingFactor);
 
         int newDepth = depth + 1;
@@ -280,7 +283,7 @@ public class IterativeDeepeningAlphaBetaSearchClient extends Client {
         double timeEstimated = Math.pow(averageBranchingFactor, newDepth) * timePerGame;
         logger.verbose("Time estimated: " + timeEstimated + " ms");
 
-        if(!(timeLimit > 0)) {
+        if (!(timeLimit > 0)) {
             return false;
         }
 

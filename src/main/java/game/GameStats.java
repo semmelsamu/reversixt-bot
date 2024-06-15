@@ -2,7 +2,7 @@ package game;
 
 import board.Coordinates;
 import board.Tile;
-import util.FindKeyByValue;
+import util.Collection;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,9 +49,10 @@ public class GameStats implements Cloneable{
     |-----------------------------------------------------------------------------------------------
     */
 
+    // TODO: Performance?
     public void replaceTileAtCoordinates(Coordinates coordinates, Tile tile) {
         coordinatesGroupedByTile.get(
-                        FindKeyByValue.findKeyByValue(coordinatesGroupedByTile, coordinates))
+                        Collection.findKeyByValue(coordinatesGroupedByTile, coordinates))
                 .remove(coordinates);
         coordinatesGroupedByTile.get(tile).add(coordinates);
     }

@@ -79,7 +79,7 @@ public class Board implements Cloneable {
 
         this.transitions = new HashMap<>();
 
-        for(var transition : transitions.entrySet()) {
+        for (var transition : transitions.entrySet()) {
             this.transitions.put(transition.getKey().toShort(), transition.getValue().toShort());
         }
     }
@@ -124,8 +124,7 @@ public class Board implements Cloneable {
         if (isFirst4Bits) {
             board[arrayIndex] = (byte) ((board[arrayIndex] & 0xF0) | (tile.toByte() & 0x0F));
         } else {
-            board[arrayIndex] =
-                    (byte) ((board[arrayIndex] & 0x0F) | ((tile.toByte() << 4) & 0xF0));
+            board[arrayIndex] = (byte) ((board[arrayIndex] & 0x0F) | ((tile.toByte() << 4) & 0xF0));
         }
     }
 
@@ -178,30 +177,29 @@ public class Board implements Cloneable {
     }
 
     public String toString() {
-        StringBuilder result = new StringBuilder("    ");
+        StringBuilder result = new StringBuilder(Logger.ANSI_RESET + "Y\\X ");
 
         // Draw x coordinates
+        result.append(Logger.ANSI_GRAY + Logger.ANSI_ITALIC);
         for (int x = 0; x < width; x++) {
             result.append(formatIntToFitLength(x, 3));
         }
         result.append("\n");
 
         for (int y = 0; y < height; y++) {
-            result.append(formatIntToFitLength(y, 4));
+            // Draw y coordinate
+            result.append(Logger.ANSI_GRAY + Logger.ANSI_ITALIC).append(formatIntToFitLength(y, 4))
+                    .append(Logger.ANSI_RESET);
+
+            // Draw tiles
             for (int x = 0; x < width; x++) {
                 result.append(getTile(new Coordinates(x, y)).toString(true));
             }
+
             result.append("\n");
         }
-        result.append("(Width: ").append(width).append(", height: ").append(height).append(")");
 
-        StringBuilder raw = new StringBuilder("Raw: ");
-
-        for (byte b : board) {
-            raw.append(Integer.toHexString(b & 0x0F)).append(Integer.toHexString((b >> 4) & 0x0F));
-        }
-
-        return "Board" + "\n" + "\u001B[0m" + result + "\n" + raw;
+        return "Board" + "\n" + "\u001B[0m" + result + "\n"; //+ raw;
     }
 
     @Override

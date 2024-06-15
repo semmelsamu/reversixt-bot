@@ -5,6 +5,7 @@ import exceptions.GamePhaseNotValidException;
 import game.Game;
 import game.GamePhase;
 import move.Move;
+import network.Limit;
 import util.Logger;
 
 public class OptimizedParanoidClient extends Client {
@@ -16,7 +17,7 @@ public class OptimizedParanoidClient extends Client {
     }
 
     @Override
-    public Move sendMove(int timeLimit, int depthLimit) {
+    public Move sendMove(Limit type, int limit) {
 
         if (game.getPhase() == GamePhase.END) {
             throw new GamePhaseNotValidException(
@@ -25,8 +26,7 @@ public class OptimizedParanoidClient extends Client {
 
         initializeStats();
 
-        logger.log("Calculating new move with time limit " + timeLimit + "ms and depth limit " +
-                depthLimit + " layers");
+        logger.log("Calculating new move with " + type + " limit " + limit);
 
         logger.debug("There are " + game.getValidMovesForCurrentPlayer().size() +
                 " possible moves, calculating the best scoring one\n");
@@ -42,7 +42,7 @@ public class OptimizedParanoidClient extends Client {
 
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            int score = minmax(clonedGame, depthLimit - 1, alpha, beta);
+            int score = minmax(clonedGame, type == Limit.DEPTH ? limit - 1 : 3, alpha, beta);
 
             logger.replace().debug("Move " + move + " has a score of " + score);
 
@@ -76,7 +76,7 @@ public class OptimizedParanoidClient extends Client {
     private int minmax(Game game, int depth, int alpha, int beta) {
         long stats_startTime;
 
-        if (depth == 0 || game.getPhase() != GamePhase.PHASE_1) {
+        if (depth == 0 || game.getPhase() != GamePhase.BUILD) {
             stats_gamesEvaluated++;
             stats_startTime = System.nanoTime();
             int score = GameEvaluator.evaluate(game, ME);
