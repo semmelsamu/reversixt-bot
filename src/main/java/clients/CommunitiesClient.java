@@ -10,6 +10,7 @@ import exceptions.OutOfTimeException;
 import game.Community;
 import game.Game;
 import game.GamePhase;
+import game.Player;
 import move.Move;
 import network.Limit;
 import util.Logger;
@@ -125,6 +126,10 @@ public class CommunitiesClient extends Client {
 
                     List<Tuple<Move, Game>> sortedListInCommunity = new ArrayList<>();
                     Set<Move> movesInCommunity = getMovesInCommunity(game);
+                    // No initial moves in community
+                    if (movesInCommunity.isEmpty()) {
+                        continue;
+                    }
                     // New moves which are only in the community
                     for (Tuple<Move, Game> move : sortedMoves) {
                         if (movesInCommunity.contains(move.first())) {
@@ -218,7 +223,8 @@ public class CommunitiesClient extends Client {
 
         checkTime();
 
-        if (depth == 0 || game.getPhase() != GamePhase.BUILD) {
+        if (depth == 0 || game.getPhase() != GamePhase.BUILD ||
+                getMovesInCommunity(game).isEmpty()) {
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
@@ -234,6 +240,10 @@ public class CommunitiesClient extends Client {
 
             List<Tuple<Move, Game>> sortedMoves = sortMoves(game, getMovesInCommunity(game),
                     moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
+
+            if (sortedMoves.isEmpty()) {
+                System.out.println(game);
+            }
 
             for (Tuple<Move, Game> moveAndGame : sortedMoves) {
 
@@ -327,14 +337,10 @@ public class CommunitiesClient extends Client {
         }
         relevantMovesForCurrentPlayer.removeAll(movesToRemove);
 
-        if (relevantMovesForCurrentPlayer.isEmpty()) {
-            System.out.println(game);
-        }
         return relevantMovesForCurrentPlayer;
     }
 
     private void nextPlayerInCommunity(Game clonedGame) {
-
         Optional<Community> interactedCommunity =
                 clonedGame.getGameStats().getCommunities().stream()
                         .filter(Community::isUpdatedCommunity).findFirst();
@@ -343,12 +349,23 @@ public class CommunitiesClient extends Client {
             throw new RuntimeException("No community interacted with found");
         }
 
-        Tile playerTile = clonedGame.getCurrentPlayer().getPlayerValue();
-        int tileAmountByPlayer = interactedCommunity.get().getTileAmountByPlayer(playerTile);
-        while (tileAmountByPlayer <= 0) {
-            clonedGame.nextPlayer();
-            playerTile = clonedGame.getCurrentPlayer().getPlayerValue();
-            tileAmountByPlayer = interactedCommunity.get().getTileAmountByPlayer(playerTile);
+        List<Player> playerInCommunity = new ArrayList<>();
+        for (Player player : clonedGame.getPlayers()) {
+            if (interactedCommunity.get().getTileAmountByPlayer(player.getPlayerValue()) != 0) {
+                playerInCommunity.add(player);
+            }
+        }
+
+        Player oldPlayer = null;
+        for (int playerCounter = 0; playerCounter < playerInCommunity.size(); playerCounter++) {
+            while (!playerInCommunity.contains(clonedGame.getCurrentPlayer()) ||
+                    Objects.equals(oldPlayer, clonedGame.getCurrentPlayer())) {
+                clonedGame.nextPlayer();
+            }
+            oldPlayer = clonedGame.getCurrentPlayer();
+            if (!getMovesInCommunity(clonedGame).isEmpty()) {
+                break;
+            }
         }
     }
 
