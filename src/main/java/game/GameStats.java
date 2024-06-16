@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class GameStats implements Cloneable{
+public class GameStats implements Cloneable {
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -19,6 +19,8 @@ public class GameStats implements Cloneable{
     |-----------------------------------------------------------------------------------------------
     */
 
+    short occupiedTilesOverall;
+
     Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
     public GameStats(Game game) {
@@ -27,18 +29,30 @@ public class GameStats implements Cloneable{
             coordinatesGroupedByTile.put(tile,
                     new HashSet<>(game.getAllCoordinatesWhereTileIs(tile)));
         }
+
+        for (Tile tile : Tile.getPlayerTiles(game.staticGameStats.getInitialPlayers())){
+            occupiedTilesOverall += (short) getAllCoordinatesWhereTileIs(tile).size();
+        }
     }
 
     /*
     |-----------------------------------------------------------------------------------------------
     |
-    |   Getters
+    |   Getters and Setters
     |
     |-----------------------------------------------------------------------------------------------
     */
 
     public Set<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
         return coordinatesGroupedByTile.get(tile);
+    }
+
+    public short getOccupiedTilesOverall() {
+        return occupiedTilesOverall;
+    }
+
+    public void incrementOccupiedTilesOverAll(){
+        occupiedTilesOverall++;
     }
 
     /*
