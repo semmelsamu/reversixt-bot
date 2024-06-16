@@ -13,6 +13,9 @@ public final class MoveExecutor {
 
         if (!(move instanceof BombMove)) {
             executeColoringMove(game, move);
+            if(!(move instanceof OverwriteMove)){
+                game.gameStats.incrementOccupiedTilesOverAll();
+            }
         } else {
             executeBombMove(game, (BombMove) move);
         }
