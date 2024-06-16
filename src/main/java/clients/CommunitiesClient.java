@@ -62,8 +62,6 @@ public class CommunitiesClient extends Client {
      */
     private Limit type;
 
-    private Community currentCommunity;
-
     /**
      * This is the entry point to the search for a new move.
      *
@@ -118,14 +116,23 @@ public class CommunitiesClient extends Client {
             for (int depthLimit = 2; type != Limit.DEPTH || depthLimit < limit; depthLimit++) {
                 resetStats();
                 for (Community community : communities) {
-                    this.currentCommunity = community;
+                    // We need to update the current community, because we don't know in which
+                    // the loop starts
+                    for (Community c : communities) {
+                        c.setUpdatedCommunity(false);
+                    }
+                    community.setUpdatedCommunity(true);
+
                     List<Tuple<Move, Game>> sortedListInCommunity = new ArrayList<>();
                     Set<Move> movesInCommunity = getMovesInCommunity(game);
+                    // New moves which are only in the community
                     for (Tuple<Move, Game> move : sortedMoves) {
                         if (movesInCommunity.contains(move.first())) {
                             sortedListInCommunity.add(move);
                         }
                     }
+
+                    // Only work with the new moves in the community
                     bestMove = calculateBestMove(sortedListInCommunity, depthLimit);
 
                     if (bombPhasesReached >= sortedMoves.size()) {
@@ -178,6 +185,7 @@ public class CommunitiesClient extends Client {
         logger.debug("0%");
 
         for (Tuple<Move, Game> moveAndGame : sortedMoves) {
+            // For every game, we need to calculate the next player in the community
             nextPlayerInCommunity(moveAndGame.second());
             int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
 
@@ -292,6 +300,14 @@ public class CommunitiesClient extends Client {
     }
 
     private Set<Move> getMovesInCommunity(Game game) {
+        Optional<Community> interactedCommunity =
+                game.getGameStats().getCommunities().stream().filter(Community::isUpdatedCommunity)
+                        .findFirst();
+
+        if (interactedCommunity.isEmpty()) {
+            throw new RuntimeException("No community interacted with found");
+        }
+
         Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
         Set<Move> movesToRemove = new HashSet<>();
         for (Move move : relevantMovesForCurrentPlayer) {
@@ -300,7 +316,7 @@ public class CommunitiesClient extends Client {
             neighbourCoordinates.removeIf(coordinate -> game.getTile(coordinate).isUnoccupied());
             boolean remove = true;
             for (Coordinates neighbourCoordinate : neighbourCoordinates) {
-                if (currentCommunity.getCoordinates().contains(neighbourCoordinate)) {
+                if (interactedCommunity.get().getCoordinates().contains(neighbourCoordinate)) {
                     remove = false;
                     break;
                 }
@@ -310,9 +326,7 @@ public class CommunitiesClient extends Client {
             }
         }
         relevantMovesForCurrentPlayer.removeAll(movesToRemove);
-        if (relevantMovesForCurrentPlayer.isEmpty()) {
-            System.out.println(game);
-        }
+
         if (relevantMovesForCurrentPlayer.isEmpty()) {
             System.out.println(game);
         }
@@ -320,9 +334,7 @@ public class CommunitiesClient extends Client {
     }
 
     private void nextPlayerInCommunity(Game clonedGame) {
-        if (currentCommunity == null) {
-            return;
-        }
+
         Optional<Community> interactedCommunity =
                 clonedGame.getGameStats().getCommunities().stream()
                         .filter(Community::isUpdatedCommunity).findFirst();
@@ -330,7 +342,6 @@ public class CommunitiesClient extends Client {
         if (interactedCommunity.isEmpty()) {
             throw new RuntimeException("No community interacted with found");
         }
-        currentCommunity = interactedCommunity.get();
 
         Tile playerTile = clonedGame.getCurrentPlayer().getPlayerValue();
         int tileAmountByPlayer = interactedCommunity.get().getTileAmountByPlayer(playerTile);
