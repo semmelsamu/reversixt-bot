@@ -9,20 +9,24 @@ import game.MoveCalculator;
  * Evaluates the current game situation for one player
  */
 public final class GameEvaluator {
+    private static final int[] evalPhaseThresholds = {0, 70, 82, 95};
+    private static final double[] mobilityFactorsPerEvalPhase = {1, 0.5, 0.25, 0};
+    private static final double[] ratedTileFactorsPerEvalPhase = {1, 1.5, 1.25, 1};
+    private static final double[] rawTileFactorsPerEvalPhase = {0, 0, 0.5, 1};
     private static int[][] tileRatings;
 
     /**
      * @return Evaluation for the current game situation
      */
     public static int evaluate(Game game, int player) {
-        switch (game.getPhase()){
+        switch (game.getPhase()) {
             case BUILD -> {
                 return evaluatePhase1(game, player);
             }
             case BOMB -> {
                 return evaluatePhase2(game, player);
             }
-            case END ->{
+            case END -> {
                 return evaluateEnd(game, player);
             }
             // Exception if game phase will be added in the future
@@ -30,14 +34,19 @@ public final class GameEvaluator {
         }
     }
 
-    /** Evaluation in phase 1 includes different criteria like rating of occupied tiles, mobility,
-       number of own overwrite stones / bombs ...
+    /**
+     * Evaluation in phase 1 includes different criteria like rating of occupied tiles, mobility,
+     * number of own overwrite stones / bombs ...
      */
     private static int evaluatePhase1(Game game, int player) {
+        int evalPhase = getEvalPhase(game);
         tileRatings = game.staticGameStats.getTileRatings();
         double rating = 0;
-        rating += sumUpAllRatingsForOccupiedTiles(game, player);
-        rating += evaluateMobility(game, player);
+        rating += ratedTileFactorsPerEvalPhase[evalPhase] *
+                sumUpAllRatingsForOccupiedTiles(game, player);
+        rating += mobilityFactorsPerEvalPhase[evalPhase] * evaluateMobility(game, player);
+        rating += rawTileFactorsPerEvalPhase[evalPhase] *
+                game.getAllCoordinatesWhereTileIs(Tile.getTileForPlayerNumber(player)).size();
         rating += evaluateOverwriteStones(game, player, 5);
         rating += evaluateBombs(game, player, 1);
         return (int) rating;
@@ -53,45 +62,56 @@ public final class GameEvaluator {
     private static int evaluateEnd(Game game, int player) {
         int numberOfOwnTiles = 0;
         int maxNumberOfEnemyTiles = Integer.MIN_VALUE;
-        for(int i = 1; i <= game.staticGameStats.getInitialPlayers(); i++){
-            if(i == player){
+        for (int i = 1; i <= game.staticGameStats.getInitialPlayers(); i++) {
+            if (i == player) {
                 numberOfOwnTiles = getNumberOfTilesForPlayer(game, player);
             }
             maxNumberOfEnemyTiles = getNumberOfTilesForPlayer(game, player);
         }
         // If game is won, return max int
-        if(numberOfOwnTiles >= maxNumberOfEnemyTiles){
+        if (numberOfOwnTiles >= maxNumberOfEnemyTiles) {
             return Integer.MAX_VALUE;
         }
         // If not return number of own tiles like in phase 2
-        else{
+        else {
             return numberOfOwnTiles;
         }
+    }
+
+    private static int getEvalPhase(Game game) {
+        int percentage = (int) ((double) game.gameStats.getOccupiedTilesOverall() /
+                game.staticGameStats.getReachableTiles() * 100 + 0.5);
+        for (int i = 1; i < evalPhaseThresholds.length; i++) {
+            if (percentage < evalPhaseThresholds[i]) {
+                return (i - 1);
+            }
+        }
+        return evalPhaseThresholds.length - 1;
     }
 
     /**
      * OverwriteStones
      */
-    private static int evaluateOverwriteStones(Game game, int player, int valueOfOneStone){
+    private static int evaluateOverwriteStones(Game game, int player, int valueOfOneStone) {
         return valueOfOneStone * game.getPlayer(player).getOverwriteStones();
     }
 
     /**
      *
      */
-    private static int evaluateBombs(Game game, int player, int valueOfOneStone){
+    private static int evaluateBombs(Game game, int player, int valueOfOneStone) {
         return valueOfOneStone * game.getPlayer(player).getBombs();
     }
 
     /**
      * Mobility
      */
-    private static double evaluateMobility(Game game, int player){
+    private static double evaluateMobility(Game game, int player) {
         int x = getNumberOfValidMoves(game, player);
         return 2 * logarithm(1.5, x + 0.5) + 0.25 * x - 3;
     }
 
-    private static int getNumberOfValidMoves(Game game, int player){
+    private static int getNumberOfValidMoves(Game game, int player) {
         return MoveCalculator.getValidMovesForPlayer(game, player).size();
     }
 
@@ -101,7 +121,8 @@ public final class GameEvaluator {
 
     private static int sumUpAllRatingsForOccupiedTiles(Game game, int player) {
         int sum = 0;
-        for (Coordinates tile : game.getAllCoordinatesWhereTileIs(game.getPlayer(player).getPlayerValue())) {
+        for (Coordinates tile : game.getAllCoordinatesWhereTileIs(
+                game.getPlayer(player).getPlayerValue())) {
             sum += tileRatings[tile.y][tile.x];
         }
         return sum;
