@@ -78,7 +78,7 @@ public class Main {
             case 7 -> Exercise07.abnahme(ip, port, (Boolean) parsedArguments.get("n"));
             case 8 -> Exercise08.abnahme();
             case 9 -> Exercise09.abnahme(ip, port);
-            default -> TestReachableTiles.test();
+            default -> Exercise11.abnahme(ip, port);
         }
 
     }
