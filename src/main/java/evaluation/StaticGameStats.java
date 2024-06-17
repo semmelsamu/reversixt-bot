@@ -44,9 +44,13 @@ public class StaticGameStats {
     private final int height;
 
     private final int[][] tileRatings;
-
+    /**
+     * Number of all tiles that are not walls
+     */
     private final short potentialReachableTiles;
-
+    /**
+     * Number of occupied tiles after one example game (heuristic!)
+     */
     private short reachableTiles;
     /**
      * Constant that is used for in initializeReachableTiles
@@ -86,6 +90,9 @@ public class StaticGameStats {
         return (short) (allTiles - allWallTiles);
     }
 
+    /**
+     * Simulates a whole game out the number of reachable tiles approximately
+     */
     public void initializeReachableTiles(Game initialGame) {
         //long time = System.currentTimeMillis();
         Game purposeGame = initialGame.clone();
