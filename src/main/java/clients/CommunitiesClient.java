@@ -323,6 +323,10 @@ public class CommunitiesClient extends Client {
     }
 
     private Set<Move> getRelevantMovesInCommunity(Game game) {
+        if (!game.getGameStats().isEnableCommunities()) {
+            return game.getRelevantMovesForCurrentPlayer();
+        }
+
         Optional<Community> interactedCommunity =
                 game.getGameStats().getCommunities().stream().filter(Community::isUpdatedCommunity)
                         .findFirst();
@@ -353,6 +357,10 @@ public class CommunitiesClient extends Client {
     }
 
     private void nextPlayerInCommunity(Game clonedGame) {
+        if (!game.getGameStats().isEnableCommunities()) {
+            return;
+        }
+
         if (!getRelevantMovesInCommunity(clonedGame).isEmpty() ||
                 clonedGame.getPhase() != GamePhase.BUILD) {
             return;

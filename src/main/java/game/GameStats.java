@@ -21,6 +21,8 @@ public class GameStats implements Cloneable {
 
     private List<Community> communities;
 
+    private boolean enableCommunities;
+
     public GameStats(Game game) {
         coordinatesGroupedByTile = new HashMap<>();
         communities = new ArrayList<>();
@@ -67,6 +69,22 @@ public class GameStats implements Cloneable {
             } while (oldCoordinatesCounter != community.getCoordinates().size());
             communities.add(community);
         }
+        checkEnableCommunities(game);
+    }
+
+    private void checkEnableCommunities(Game game) {
+        Set<Community> relevantCommunities = new HashSet<>(communities);
+        for (Community community : communities) {
+            int sumPlayers = 0;
+            for (Player player : game.getPlayers()) {
+                sumPlayers += community.getTileAmountByPlayer(player.getPlayerValue());
+            }
+            if (sumPlayers == 0) {
+                // Should be only these communities, which only contains expansion stones
+                relevantCommunities.remove(community);
+            }
+        }
+        enableCommunities = relevantCommunities.size() >= 2;
     }
 
     /*
@@ -83,6 +101,10 @@ public class GameStats implements Cloneable {
 
     public List<Community> getCommunities() {
         return communities;
+    }
+
+    public boolean isEnableCommunities() {
+        return enableCommunities;
     }
 
     /*
@@ -102,6 +124,10 @@ public class GameStats implements Cloneable {
     }
 
     public void updateCommunities(Set<Coordinates> positions, Tile value, Game game) {
+        if (!enableCommunities) {
+            return;
+        }
+
         Community searchCommunity = null;
         for (Coordinates position : positions) {
             for (Community community : communities) {
@@ -154,6 +180,8 @@ public class GameStats implements Cloneable {
         // There have to be at least one community
         assert searchCommunity != null;
         searchCommunity.setUpdatedCommunity(true);
+
+        checkEnableCommunities(game);
     }
 
     @Override
