@@ -109,8 +109,9 @@ public class CommunitiesClient extends Client {
             bombPhasesReached = 0;
 
             List<Community> communities = game.getGameStats().getCommunities().stream()
-                    .filter(community -> community.getTileAmountByPlayer(Tile.fromByte((byte) ME)) >
-                            0).toList();
+                    .filter(community ->
+                            community.getTileAmountByPlayer(Tile.fromByte((byte) ME)) > 0 ||
+                                    community.getTileAmountByPlayer(Tile.EXPANSION) > 0).toList();
 
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
@@ -123,13 +124,23 @@ public class CommunitiesClient extends Client {
                         c.setUpdatedCommunity(false);
                     }
                     community.setUpdatedCommunity(true);
+                    nextPlayerInCommunity(game);
+
+                    if (game.getCurrentPlayerNumber() != ME) {
+                        continue;
+                    }
 
                     List<Tuple<Move, Game>> sortedListInCommunity = new ArrayList<>();
                     Set<Move> movesInCommunity = getMovesInCommunity(game);
-                    // No initial moves in community
+                    // In this case no one has moves in this community
                     if (movesInCommunity.isEmpty()) {
                         continue;
                     }
+
+                    for (Tuple<Move, Game> sortedMove : sortedMoves) {
+                        nextPlayerInCommunity(sortedMove.second());
+                    }
+
                     // New moves which are only in the community
                     for (Tuple<Move, Game> move : sortedMoves) {
                         if (movesInCommunity.contains(move.first())) {
@@ -190,8 +201,6 @@ public class CommunitiesClient extends Client {
         logger.debug("0%");
 
         for (Tuple<Move, Game> moveAndGame : sortedMoves) {
-            // For every game, we need to calculate the next player in the community
-            nextPlayerInCommunity(moveAndGame.second());
             int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
 
             if (score > resultScore) {
@@ -315,7 +324,7 @@ public class CommunitiesClient extends Client {
                         .findFirst();
 
         if (interactedCommunity.isEmpty()) {
-            throw new RuntimeException("No community interacted with found");
+            return game.getRelevantMovesForCurrentPlayer();
         }
 
         Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
@@ -341,32 +350,15 @@ public class CommunitiesClient extends Client {
     }
 
     private void nextPlayerInCommunity(Game clonedGame) {
-        Optional<Community> interactedCommunity =
-                clonedGame.getGameStats().getCommunities().stream()
-                        .filter(Community::isUpdatedCommunity).findFirst();
-
-        if (interactedCommunity.isEmpty()) {
-            throw new RuntimeException("No community interacted with found");
+        if (!getMovesInCommunity(game).isEmpty()) {
+            return;
         }
 
-        List<Player> playerInCommunity = new ArrayList<>();
-        for (Player player : clonedGame.getPlayers()) {
-            if (interactedCommunity.get().getTileAmountByPlayer(player.getPlayerValue()) != 0) {
-                playerInCommunity.add(player);
-            }
-        }
+        Player oldPlayer = clonedGame.getCurrentPlayer();
+        do {
+            clonedGame.nextPlayer();
+        } while (getMovesInCommunity(game).isEmpty() && oldPlayer != clonedGame.getCurrentPlayer());
 
-        Player oldPlayer = null;
-        for (int playerCounter = 0; playerCounter < playerInCommunity.size(); playerCounter++) {
-            while (!playerInCommunity.contains(clonedGame.getCurrentPlayer()) ||
-                    Objects.equals(oldPlayer, clonedGame.getCurrentPlayer())) {
-                clonedGame.nextPlayer();
-            }
-            oldPlayer = clonedGame.getCurrentPlayer();
-            if (!getMovesInCommunity(clonedGame).isEmpty()) {
-                break;
-            }
-        }
     }
 
     /*
