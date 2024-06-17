@@ -328,11 +328,12 @@ public class CommunitiesClient extends Client {
                         .findFirst();
 
         if (interactedCommunity.isEmpty()) {
-            return game.getRelevantMovesForCurrentPlayer();
+            throw new RuntimeException("No community found to interact with");
         }
 
         Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
-        Set<Move> movesToRemove = new HashSet<>();
+        Set<Move> relevantMovesForCurrentPlayerCopy = new HashSet<>(relevantMovesForCurrentPlayer);
+
         for (Move move : relevantMovesForCurrentPlayer) {
             Set<Coordinates> neighbourCoordinates =
                     CoordinatesExpander.expandCoordinates(game, Set.of(move.getCoordinates()), 1);
@@ -345,12 +346,9 @@ public class CommunitiesClient extends Client {
                 }
             }
             if (remove) {
-                movesToRemove.add(move);
+                relevantMovesForCurrentPlayerCopy.remove(move);
             }
         }
-        Set<Move> relevantMovesForCurrentPlayerCopy = new HashSet<>(relevantMovesForCurrentPlayer);
-        relevantMovesForCurrentPlayerCopy.removeAll(movesToRemove);
-
         return relevantMovesForCurrentPlayerCopy;
     }
 

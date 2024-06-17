@@ -178,10 +178,6 @@ public class Community implements Cloneable {
             return tileAmount;
         }
 
-        public void incrementTileAmountByValue(int value) {
-            tileAmount += value;
-        }
-
         public void incrementTileAmount() {
             tileAmount++;
         }
