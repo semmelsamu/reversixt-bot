@@ -53,8 +53,11 @@ public class StaticGameStats {
      */
     private short reachableTiles;
     /**
-     * Constant that is used for in initializeReachableTiles
+     * Constant that is used for in updateReachableTiles
      */
+
+    private boolean isReachableTilesSetFinally;
+
     private final Boundaries noOverwriteTheMoveBefore = new Boundaries(0, 0);
 
     public StaticGameStats(Game initialGame, int initialPlayers, int initialOverwriteStones,
@@ -68,6 +71,7 @@ public class StaticGameStats {
         tileRatings = calculateTileRatings(initialGame);
         potentialReachableTiles = calculatePotentialReachableTiles(initialGame);
         reachableTiles = 0;
+        isReachableTilesSetFinally = false;
     }
 
     private int[][] calculateTileRatings(Game game) {
@@ -93,31 +97,35 @@ public class StaticGameStats {
     /**
      * Simulates a whole game out the number of reachable tiles approximately
      */
-    public void initializeReachableTiles(Game initialGame) {
-        //long time = System.currentTimeMillis();
-        Game purposeGame = initialGame.clone();
+    public void updateReachableTiles(Game game, int timelimit) {
+        long time = System.currentTimeMillis();
+        final int TIMECAP = Math.min(1000, timelimit);
+        Game purposeGame = game.clone();
 
         // Is used to check if only overwrite moves were played for a whole round
         Boundaries boundaries = noOverwriteTheMoveBefore;
 
-        // System.currentTimeMillis() - time < 1000 &&
-        while (purposeGame.getPhase() == GamePhase.BUILD) {
+        while (System.currentTimeMillis() - time < TIMECAP &&
+                purposeGame.getPhase() == GamePhase.BUILD) {
             Set<Move> validMovesForCurrentPlayer = purposeGame.getRelevantMovesForCurrentPlayer();
             List<Move> ListOfRelevantMoves = new ArrayList<>(validMovesForCurrentPlayer);
             if (ListOfRelevantMoves.get(0) instanceof OverwriteMove) {
                 int playerNumber = purposeGame.getCurrentPlayerNumber();
 
                 // Check if only overwrite moves were played for a whole round
-                if (!boundaries.equals(noOverwriteTheMoveBefore) && (playerNumber >= boundaries.lowerBoundary() ||
-                        playerNumber <= boundaries.upperBoundary())) {
+                if (!boundaries.equals(noOverwriteTheMoveBefore) &&
+                        (playerNumber >= boundaries.lowerBoundary() ||
+                                playerNumber <= boundaries.upperBoundary())) {
                     break;
-                }
-                else {
+                } else {
                     boundaries = updateBoundaries(boundaries, playerNumber);
                 }
-            }
-            else {
+            } else {
                 boundaries = noOverwriteTheMoveBefore;
+            }
+
+            if(System.currentTimeMillis() - time < TIMECAP){
+                isReachableTilesSetFinally = true;
             }
             int randomIndex = (int) (Math.random() * validMovesForCurrentPlayer.size());
             Move randomMove = ListOfRelevantMoves.get(randomIndex);
@@ -214,5 +222,9 @@ public class StaticGameStats {
 
     public short getPotentialReachableTiles() {
         return potentialReachableTiles;
+    }
+
+    public boolean isReachableTilesSetFinally() {
+        return isReachableTilesSetFinally;
     }
 }
