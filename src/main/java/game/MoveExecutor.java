@@ -35,10 +35,14 @@ public final class MoveExecutor {
             game.getPlayer(move.getPlayerNumber()).decrementOverwriteStones();
         }
 
+
         // Color all tiles
-        for (var coordinates : getAllTilesToColor(game, playerValue, move.getCoordinates())) {
+        Set<Coordinates> allTilesToColor =
+                getAllTilesToColor(game, playerValue, move.getCoordinates());
+        for (var coordinates : allTilesToColor) {
             game.setTile(coordinates, playerValue);
         }
+        game.updateCommunities(allTilesToColor, playerValue);
 
         if (move instanceof BonusMove) {
             executeBonusLogic(game, (BonusMove) move);

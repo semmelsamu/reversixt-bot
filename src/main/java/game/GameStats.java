@@ -29,6 +29,10 @@ public class GameStats implements Cloneable {
                     new HashSet<>(game.getAllCoordinatesWhereTileIs(tile)));
         }
 
+        initializeCommunities(game);
+    }
+
+    private void initializeCommunities(Game game) {
         Set<Coordinates> allOccupiedCoordinates = new HashSet<>();
         for (Tile tile : Tile.values()) {
             if (tile.isUnoccupied() || tile.equals(Tile.WALL)) {
@@ -97,54 +101,58 @@ public class GameStats implements Cloneable {
         coordinatesGroupedByTile.get(tile).add(coordinates);
     }
 
-    public void updateCommunities(Coordinates position, Tile value, Game game) {
+    public void updateCommunities(Set<Coordinates> positions, Tile value, Game game) {
         Community searchCommunity = null;
-        for (Community community : communities) {
-            if (community.getCoordinates().contains(position)) {
-                searchCommunity = community;
-                // Found community where tile can just easily be replaced
-                break;
+        for (Coordinates position : positions) {
+            for (Community community : communities) {
+                if (community.getCoordinates().contains(position)) {
+                    searchCommunity = community;
+                    // Found community where tile can just easily be replaced
+                    break;
+                }
             }
-        }
-        Set<Community> communitiesToRemove = new HashSet<>();
-        // if new tile is added on a new field where no community is, check for merge
-        if (searchCommunity == null) {
+            Set<Community> communitiesToRemove = new HashSet<>();
+            // If new tile is added on a new field where no community is, check for merge
+            if (searchCommunity == null) {
 
-            Set<Coordinates> neighbourCoordinates =
-                    CoordinatesExpander.expandCoordinates(game, Set.of(position), 1);
-            neighbourCoordinates.removeIf(coordinate -> game.getTile(coordinate).isUnoccupied());
+                Set<Coordinates> neighbourCoordinates =
+                        CoordinatesExpander.expandCoordinates(game, Set.of(position), 1);
+                neighbourCoordinates.removeIf(
+                        coordinate -> game.getTile(coordinate).isUnoccupied());
 
-            for (Coordinates neighbourCoordinate : neighbourCoordinates) {
-                // check the community of the neighbour
-                for (Community community : communities) {
-                    if (community.getCoordinates().contains(neighbourCoordinate)) {
-                        communitiesToRemove.add(community);
+                for (Coordinates neighbourCoordinate : neighbourCoordinates) {
+                    // check the community of the neighbour
+                    for (Community community : communities) {
+                        if (community.getCoordinates().contains(neighbourCoordinate)) {
+                            communitiesToRemove.add(community);
+                        }
                     }
                 }
-            }
-            // if no communities are around, it can be added to only one be found
-            if (communitiesToRemove.size() == 1) {
-                searchCommunity = communitiesToRemove.iterator().next();
-            } else {
-                // merge the communities to a single one
-                Community newCommunity = new Community(game);
-                for (Community community : communitiesToRemove) {
-                    newCommunity.addAllCoordinatesFromCommunity(community, game);
+                // If no communities are around, it can be added to only one be found
+                if (communitiesToRemove.size() == 1) {
+                    searchCommunity = communitiesToRemove.iterator().next();
+                } else {
+                    // Merge the communities to a single one
+                    Community newCommunity = new Community(game);
+                    for (Community community : communitiesToRemove) {
+                        newCommunity.addAllCoordinatesFromCommunity(community, game);
+                    }
+                    communities.removeAll(communitiesToRemove);
+                    communities.add(newCommunity);
+                    searchCommunity = newCommunity;
                 }
-                communities.removeAll(communitiesToRemove);
-                communities.add(newCommunity);
-                searchCommunity = newCommunity;
+            } else {
+                // Old position need to be removed
+                searchCommunity.removeCoordinate(position, game);
             }
-        } else {
-            // old position need to be removed
-            searchCommunity.removeCoordinate(position, game);
+            // Add new position
+            searchCommunity.addCoordinate(position, value);
         }
-        //add new position
-        searchCommunity.addCoordinate(position, value);
-
         for (Community community : communities) {
             community.setUpdatedCommunity(false);
         }
+        // There have to be at least one community
+        assert searchCommunity != null;
         searchCommunity.setUpdatedCommunity(true);
     }
 
