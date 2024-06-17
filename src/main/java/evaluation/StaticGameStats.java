@@ -139,8 +139,6 @@ public class StaticGameStats {
                 }
             }
         }
-        System.out.println("Potential reachable tiles: " + potentialReachableTiles);
-        printAmountOfReachableTiles();
     }
 
     private Boundaries updateBoundaries(Boundaries boundaries, int playerNumber) {
@@ -156,11 +154,6 @@ public class StaticGameStats {
 
     private int getUpperBoundary(int playerNumber) {
         return playerNumber % 8 + 1;
-    }
-
-    public void printAmountOfReachableTiles() {
-        System.out.println();
-        System.out.println("\nNumber of reachable tiles: " + reachableTiles);
     }
 
     /**
