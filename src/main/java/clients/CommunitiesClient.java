@@ -134,6 +134,8 @@ public class CommunitiesClient extends Client {
                     }
                     community.setUpdatedCommunity(true);
 
+                    nextPlayerInCommunity(game);
+
                     List<Tuple<Move, Game>> sortedListInCommunity = new ArrayList<>();
                     Set<Move> movesInCommunity = getRelevantMovesInCommunity(game);
                     // In this case no one has moves in this community
@@ -141,15 +143,32 @@ public class CommunitiesClient extends Client {
                         continue;
                     }
 
-                    for (Tuple<Move, Game> sortedMove : sortedMoves) {
-                        nextPlayerInCommunity(sortedMove.second());
-                    }
-
                     // New moves which are only in the community
                     for (Tuple<Move, Game> move : sortedMoves) {
                         if (movesInCommunity.contains(move.first())) {
                             sortedListInCommunity.add(move);
                         }
+                    }
+
+
+                    for (Tuple<Move, Game> sortedMove : sortedListInCommunity) {
+                        for (Community c : sortedMove.second().getGameStats().getCommunities()) {
+                            c.setUpdatedCommunity(false);
+                        }
+                    }
+
+                    for (Tuple<Move, Game> sortedMove : sortedListInCommunity) {
+                        for (Community c : sortedMove.second().getGameStats().getCommunities()) {
+                            if (c.getCoordinates().contains(sortedMove.first().getCoordinates())) {
+                                c.setUpdatedCommunity(true);
+                                break;
+                            }
+
+                        }
+                    }
+
+                    for (Tuple<Move, Game> sortedMove : sortedListInCommunity) {
+                        nextPlayerInCommunity(sortedMove.second());
                     }
 
                     // Only work with the new moves in the community
