@@ -109,11 +109,14 @@ public class CommunitiesClient extends Client {
 
             bombPhasesReached = 0;
 
+            // Filter for the only client relevant communities
             Set<Community> communities = new HashSet<>();
             for (Community community : game.getGameStats().getCommunities()) {
                 if (community.getTileAmountByPlayer(Tile.fromByte((byte) ME)) > 0) {
                     communities.add(community);
                 }
+                // TODO: if we have another logic than having overwrite moves only as last option
+                //  than we need to change this filter
                 if (sortedMoves.stream().allMatch(
                         moveGameTuple -> moveGameTuple.first() instanceof OverwriteMove)) {
                     if (community.getTileAmountByPlayer(Tile.EXPANSION) > 0) {
@@ -129,50 +132,40 @@ public class CommunitiesClient extends Client {
                 for (Community community : communities) {
                     // We need to update the current community, because we don't know in which
                     // the loop starts
-                    for (Community c : communities) {
-                        c.setUpdatedCommunity(false);
-                    }
-                    community.setUpdatedCommunity(true);
+                    nextPlayerInCommunity(game, community);
+                    Set<Move> movesInCommunity = getRelevantMovesInCommunity(game, community);
 
-                    nextPlayerInCommunity(game);
-
-                    List<Tuple<Move, Game>> sortedListInCommunity = new ArrayList<>();
-                    Set<Move> movesInCommunity = getRelevantMovesInCommunity(game);
                     // In this case no one has moves in this community
                     if (movesInCommunity.isEmpty()) {
                         continue;
                     }
 
                     // New moves which are only in the community
+                    List<Tuple<Move, Game>> sortedListInCommunity = new ArrayList<>();
                     for (Tuple<Move, Game> move : sortedMoves) {
                         if (movesInCommunity.contains(move.first())) {
                             sortedListInCommunity.add(move);
                         }
                     }
 
-
-                    for (Tuple<Move, Game> sortedMove : sortedListInCommunity) {
-                        for (Community c : sortedMove.second().getGameStats().getCommunities()) {
-                            c.setUpdatedCommunity(false);
-                        }
-                    }
-
+                    Community communityFromGameDepth1 = null;
                     for (Tuple<Move, Game> sortedMove : sortedListInCommunity) {
                         for (Community c : sortedMove.second().getGameStats().getCommunities()) {
                             if (c.getCoordinates().contains(sortedMove.first().getCoordinates())) {
-                                c.setUpdatedCommunity(true);
+                                communityFromGameDepth1 = c;
                                 break;
                             }
 
                         }
                     }
 
-                    for (Tuple<Move, Game> sortedMove : sortedListInCommunity) {
-                        nextPlayerInCommunity(sortedMove.second());
+                    if (communityFromGameDepth1 == null) {
+                        throw new RuntimeException("No matching community found");
                     }
 
                     // Only work with the new moves in the community
-                    bestMove = calculateBestMove(sortedListInCommunity, depthLimit);
+                    bestMove = calculateBestMove(sortedListInCommunity, depthLimit,
+                            communityFromGameDepth1);
 
                     if (bombPhasesReached >= sortedMoves.size()) {
                         throw new GamePhaseNotValidException("Tree reached bomb phase");
@@ -207,8 +200,8 @@ public class CommunitiesClient extends Client {
      * @return The best move
      * @throws OutOfTimeException if we ran out of time
      */
-    private Move calculateBestMove(List<Tuple<Move, Game>> sortedMoves, int depth)
-            throws OutOfTimeException {
+    private Move calculateBestMove(List<Tuple<Move, Game>> sortedMoves, int depth,
+                                   Community community) throws OutOfTimeException {
 
         logger.log("Starting Alpha/Beta-Search with search depth " + depth);
 
@@ -224,7 +217,9 @@ public class CommunitiesClient extends Client {
         logger.debug("0%");
 
         for (Tuple<Move, Game> moveAndGame : sortedMoves) {
-            int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
+            nextPlayerInCommunity(moveAndGame.second(), community);
+            int score =
+                    calculateScore(moveAndGame.second(), community, depth - 1, alpha, beta, true);
 
             if (score > resultScore) {
                 resultScore = score;
@@ -250,13 +245,13 @@ public class CommunitiesClient extends Client {
      * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
-    private int calculateScore(Game game, int depth, int alpha, int beta, boolean buildTree)
-            throws OutOfTimeException {
+    private int calculateScore(Game game, Community community, int depth, int alpha, int beta,
+                               boolean buildTree) throws OutOfTimeException {
 
         checkTime();
 
         if (depth == 0 || game.getPhase() != GamePhase.BUILD ||
-                getRelevantMovesInCommunity(game).isEmpty()) {
+                getRelevantMovesInCommunity(game, community).isEmpty()) {
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
@@ -270,16 +265,17 @@ public class CommunitiesClient extends Client {
         if (isMaximizer) {
             int result = Integer.MIN_VALUE;
 
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, getRelevantMovesInCommunity(game),
-                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
-
-            if (sortedMoves.isEmpty()) {
-                System.out.println(game);
-            }
+            List<Tuple<Move, Game>> sortedMoves =
+                    sortMoves(game, getRelevantMovesInCommunity(game, community),
+                            moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
 
             for (Tuple<Move, Game> moveAndGame : sortedMoves) {
-
-                int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
+                Community newCommunity =
+                        moveAndGame.second().getGameStats().getLastUpdatedCommunity();
+                nextPlayerInCommunity(moveAndGame.second(), newCommunity);
+                int score =
+                        calculateScore(moveAndGame.second(), newCommunity, depth - 1, alpha, beta,
+                                true);
 
                 result = Math.max(result, score);
 
@@ -297,19 +293,27 @@ public class CommunitiesClient extends Client {
 
         } else if (buildTree) {
 
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, getRelevantMovesInCommunity(game),
-                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), false);
+            List<Tuple<Move, Game>> sortedMoves =
+                    sortMoves(game, getRelevantMovesInCommunity(game, community),
+                            moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()),
+                            false);
 
             // Get phi move
             Tuple<Move, Game> phi = sortedMoves.get(0); // Best move for minimizer
+            Community newCommunityPhi = phi.second().getGameStats().getLastUpdatedCommunity();
+            nextPlayerInCommunity(phi.second(), newCommunityPhi);
 
             // Evaluate phi move
-            int score = calculateScore(phi.second(), depth - 1, alpha, beta, true);
+            int score = calculateScore(phi.second(), newCommunityPhi, depth - 1, alpha, beta, true);
             int result = score;
             beta = Math.min(beta, result);
 
             for (Tuple<Move, Game> moveAndGame : sortedMoves) {
-                score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, false);
+                Community newCommunity =
+                        moveAndGame.second().getGameStats().getLastUpdatedCommunity();
+                nextPlayerInCommunity(moveAndGame.second(), newCommunity);
+                score = calculateScore(moveAndGame.second(), newCommunity, depth - 1, alpha, beta,
+                        false);
 
                 result = Math.min(result, score);
 
@@ -328,30 +332,24 @@ public class CommunitiesClient extends Client {
         } else {
             // TODO: Better heuristic?
             //       maybe the move which gets us the most stones
-            Move move = getRelevantMovesInCommunity(game).iterator().next(); // Random valid move
+            Move move = getRelevantMovesInCommunity(game, community).iterator()
+                    .next(); // Random valid move
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            nextPlayerInCommunity(clonedGame);
 
             currentIterationNodesVisited++;
 
-            return calculateScore(clonedGame, depth - 1, alpha, beta, false);
+            Community newCommunity = clonedGame.getGameStats().getLastUpdatedCommunity();
+            nextPlayerInCommunity(clonedGame, newCommunity);
+            return calculateScore(clonedGame, newCommunity, depth - 1, alpha, beta, false);
         }
     }
 
-    private Set<Move> getRelevantMovesInCommunity(Game game) {
-        if (!game.getGameStats().isEnableCommunities()) {
+    private Set<Move> getRelevantMovesInCommunity(Game game, Community community) {
+        if (game.getGameStats().isCommunitiesDisabled()) {
             return game.getRelevantMovesForCurrentPlayer();
-        }
-
-        Optional<Community> interactedCommunity =
-                game.getGameStats().getCommunities().stream().filter(Community::isUpdatedCommunity)
-                        .findFirst();
-
-        if (interactedCommunity.isEmpty()) {
-            throw new RuntimeException("No community found to interact with");
         }
 
         Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
@@ -363,7 +361,7 @@ public class CommunitiesClient extends Client {
             neighbourCoordinates.removeIf(coordinate -> game.getTile(coordinate).isUnoccupied());
             boolean remove = true;
             for (Coordinates neighbourCoordinate : neighbourCoordinates) {
-                if (interactedCommunity.get().getCoordinates().contains(neighbourCoordinate)) {
+                if (community.getCoordinates().contains(neighbourCoordinate)) {
                     remove = false;
                     break;
                 }
@@ -375,22 +373,21 @@ public class CommunitiesClient extends Client {
         return relevantMovesForCurrentPlayerCopy;
     }
 
-    private void nextPlayerInCommunity(Game clonedGame) {
-        if (!game.getGameStats().isEnableCommunities()) {
+    private void nextPlayerInCommunity(Game game, Community community) {
+        if (game.getGameStats().isCommunitiesDisabled()) {
             return;
         }
 
-        if (!getRelevantMovesInCommunity(clonedGame).isEmpty() ||
-                clonedGame.getPhase() != GamePhase.BUILD) {
+        if (!getRelevantMovesInCommunity(game, community).isEmpty() ||
+                game.getPhase() != GamePhase.BUILD) {
             return;
         }
 
-        Player oldPlayer = clonedGame.getCurrentPlayer();
+        Player oldPlayer = game.getCurrentPlayer();
         do {
-            clonedGame.nextPlayer();
-        } while (getRelevantMovesInCommunity(clonedGame).isEmpty() &&
-                oldPlayer != clonedGame.getCurrentPlayer());
-
+            game.nextPlayer();
+        } while (getRelevantMovesInCommunity(game, community).isEmpty() &&
+                oldPlayer != game.getCurrentPlayer());
     }
 
     /*
@@ -424,7 +421,6 @@ public class CommunitiesClient extends Client {
 
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            nextPlayerInCommunity(clonedGame);
             int score = GameEvaluator.evaluate(clonedGame, ME);
             currentIterationNodesVisited++;
 

@@ -35,14 +35,16 @@ public final class MoveExecutor {
             game.getPlayer(move.getPlayerNumber()).decrementOverwriteStones();
         }
 
-
         // Color all tiles
         Set<Coordinates> allTilesToColor =
                 getAllTilesToColor(game, playerValue, move.getCoordinates());
+
+        // We need to update the communities here, because after setTile wen don't know the
+        // original tile value anymore
+        game.getGameStats().updateCommunities(allTilesToColor, playerValue, game);
         for (var coordinates : allTilesToColor) {
             game.setTile(coordinates, playerValue);
         }
-        game.updateCommunities(allTilesToColor, playerValue);
 
         if (move instanceof BonusMove) {
             executeBonusLogic(game, (BonusMove) move);
@@ -82,13 +84,13 @@ public final class MoveExecutor {
                     }
                 }
 
-                if(currentTile.isUnoccupied()) {
+                if (currentTile.isUnoccupied()) {
                     break;
                 }
-                if(tileReader.getCoordinates().equals(position)) {
+                if (tileReader.getCoordinates().equals(position)) {
                     break;
                 }
-                if(currentTile == playerValue) {
+                if (currentTile == playerValue) {
                     result.addAll(buffer);
                     break;
                 }
@@ -184,7 +186,6 @@ public final class MoveExecutor {
     */
 
     private static void executeBombMove(Game game, BombMove move) {
-
         if (game.getPlayer(move.getPlayerNumber()).getBombs() == 0) {
             throw new RuntimeException("No bombs available :(");
         }
@@ -198,5 +199,6 @@ public final class MoveExecutor {
         }
 
         game.getPlayer(move.getPlayerNumber()).decrementBombs();
+
     }
 }

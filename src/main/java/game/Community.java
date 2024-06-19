@@ -13,11 +13,9 @@ public class Community implements Cloneable {
 
     private Set<Coordinates> coordinates;
     private PlayerTileAmountContainer[] playerTileAmountContainers;
-    private boolean updatedCommunity;
 
     public Community(Game game) {
         this.coordinates = new HashSet<>();
-        this.updatedCommunity = false;
 
         int playersLength = game.getPlayers().length;
         this.playerTileAmountContainers = new PlayerTileAmountContainer[playersLength + 1];
@@ -42,6 +40,11 @@ public class Community implements Cloneable {
             }
         }
 
+        if (coordinates.size() != Arrays.stream(playerTileAmountContainers)
+                .mapToInt(PlayerTileAmountContainer::getTileAmount).sum()) {
+            System.out.println(
+                    this.coordinates.size() + " " + Arrays.toString(playerTileAmountContainers));
+        }
     }
 
     public void addAllCoordinates(Set<Coordinates> newCoordinates, Game game) {
@@ -68,7 +71,6 @@ public class Community implements Cloneable {
                 playerTileAmountContainer.decrementTileAmount();
             }
         }
-
     }
 
     public void addAllCoordinatesFromCommunity(Community other, Game game) {
@@ -151,14 +153,6 @@ public class Community implements Cloneable {
 
         return "Community {\n" + "  coordinates=" + coordinatesString + ",\n" +
                 "  playerTileAmountContainers=" + playerTileAmountsString + "\n" + '}';
-    }
-
-    public void setUpdatedCommunity(boolean updatedCommunity) {
-        this.updatedCommunity = updatedCommunity;
-    }
-
-    public boolean isUpdatedCommunity() {
-        return updatedCommunity;
     }
 
     static class PlayerTileAmountContainer implements Cloneable {

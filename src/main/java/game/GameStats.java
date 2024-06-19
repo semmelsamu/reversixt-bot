@@ -5,7 +5,10 @@ import board.CoordinatesExpander;
 import board.Tile;
 import util.Collection;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class GameStats implements Cloneable {
 
@@ -19,13 +22,16 @@ public class GameStats implements Cloneable {
 
     private Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
-    private List<Community> communities;
+    private Set<Community> communities;
 
-    private boolean enableCommunities;
+    private Community lastUpdatedCommunity;
+
+    private boolean communitiesDisabled;
 
     public GameStats(Game game) {
         coordinatesGroupedByTile = new HashMap<>();
-        communities = new ArrayList<>();
+        lastUpdatedCommunity = null;
+        communities = new HashSet<>();
         for (Tile tile : Tile.values()) {
             coordinatesGroupedByTile.put(tile,
                     new HashSet<>(game.getAllCoordinatesWhereTileIs(tile)));
@@ -69,10 +75,10 @@ public class GameStats implements Cloneable {
             } while (oldCoordinatesCounter != community.getCoordinates().size());
             communities.add(community);
         }
-        checkEnableCommunities(game);
+        checkDisableCommunities(game);
     }
 
-    private void checkEnableCommunities(Game game) {
+    private void checkDisableCommunities(Game game) {
         Set<Community> relevantCommunities = new HashSet<>(communities);
         for (Community community : communities) {
             int sumPlayers = 0;
@@ -84,7 +90,11 @@ public class GameStats implements Cloneable {
                 relevantCommunities.remove(community);
             }
         }
-        enableCommunities = relevantCommunities.size() >= 2;
+        communitiesDisabled = relevantCommunities.size() < 2;
+    }
+
+    public void setLastUpdatedCommunity(Community lastUpdatedCommunity) {
+        this.lastUpdatedCommunity = lastUpdatedCommunity;
     }
 
     /*
@@ -99,12 +109,16 @@ public class GameStats implements Cloneable {
         return coordinatesGroupedByTile.get(tile);
     }
 
-    public List<Community> getCommunities() {
+    public Set<Community> getCommunities() {
         return communities;
     }
 
-    public boolean isEnableCommunities() {
-        return enableCommunities;
+    public boolean isCommunitiesDisabled() {
+        return communitiesDisabled;
+    }
+
+    public Community getLastUpdatedCommunity() {
+        return lastUpdatedCommunity;
     }
 
     /*
@@ -124,7 +138,7 @@ public class GameStats implements Cloneable {
     }
 
     public void updateCommunities(Set<Coordinates> positions, Tile value, Game game) {
-        if (!enableCommunities) {
+        if (communitiesDisabled) {
             return;
         }
 
@@ -137,15 +151,14 @@ public class GameStats implements Cloneable {
                     break;
                 }
             }
-            Set<Community> communitiesToRemove = new HashSet<>();
             // If new tile is added on a new field where no community is, check for merge
             if (searchCommunity == null) {
-
                 Set<Coordinates> neighbourCoordinates =
                         CoordinatesExpander.expandCoordinates(game, Set.of(position), 1);
                 neighbourCoordinates.removeIf(
                         coordinate -> game.getTile(coordinate).isUnoccupied());
 
+                Set<Community> communitiesToRemove = new HashSet<>();
                 for (Coordinates neighbourCoordinate : neighbourCoordinates) {
                     // check the community of the neighbour
                     for (Community community : communities) {
@@ -174,14 +187,9 @@ public class GameStats implements Cloneable {
             // Add new position
             searchCommunity.addCoordinate(position, value);
         }
-        for (Community community : communities) {
-            community.setUpdatedCommunity(false);
-        }
-        // There have to be at least one community
-        assert searchCommunity != null;
-        searchCommunity.setUpdatedCommunity(true);
 
-        checkEnableCommunities(game);
+        lastUpdatedCommunity = searchCommunity;
+        checkDisableCommunities(game);
     }
 
     @Override
@@ -193,10 +201,13 @@ public class GameStats implements Cloneable {
                 clone.coordinatesGroupedByTile.put(entry.getKey(), new HashSet<>(entry.getValue()));
             }
 
-            clone.communities = new ArrayList<>();
+            clone.communities = new HashSet<>();
             for (Community community : communities) {
                 clone.communities.add(community.clone());
             }
+            clone.lastUpdatedCommunity =
+                    this.lastUpdatedCommunity != null ? this.lastUpdatedCommunity.clone() : null;
+
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();

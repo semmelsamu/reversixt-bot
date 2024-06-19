@@ -241,10 +241,6 @@ public class Game implements Cloneable {
         board.setTile(position, value);
     }
 
-    public void updateCommunities(Set<Coordinates> allTilesToColor, Tile playerValue) {
-        gameStats.updateCommunities(allTilesToColor, playerValue, this);
-    }
-
     public Map<Short, Short> getTransitions() {
         return board.getTransitions();
     }
