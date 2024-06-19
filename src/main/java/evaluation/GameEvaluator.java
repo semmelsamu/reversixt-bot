@@ -47,7 +47,7 @@ public final class GameEvaluator {
         rating += mobilityFactorsPerEvalPhase[evalPhase] * evaluateMobility(game, player);
         rating += rawTileFactorsPerEvalPhase[evalPhase] *
                 game.getAllCoordinatesWhereTileIs(Tile.getTileForPlayerNumber(player)).size();
-        rating += evaluateOverwriteStones(game, player, 20);
+        rating += evaluateOverwriteStones(game, player, 50);
         rating += evaluateBombs(game, player, 10);
         return (int) rating;
     }
