@@ -1,9 +1,4 @@
-import clients.BestReplySearchKillerHeuristicClient;
-import clients.IterativeDeepeningAlphaBetaSearchClient;
-import clients.OptimizedParanoidClient;
-import clients.ParanoidClient;
 import exercises.*;
-import game.Game;
 import util.ArgumentParser;
 import util.Logger;
 
@@ -65,14 +60,6 @@ public class Main {
 
             welcome();
 
-            Logger.setPriority(ParanoidClient.class.getName(), debugPrio);
-            Logger.setPriority(OptimizedParanoidClient.class.getName(), debugPrio);
-            Logger.setPriority(IterativeDeepeningAlphaBetaSearchClient.class.getName(), debugPrio);
-            Logger.setPriority(BestReplySearchKillerHeuristicClient.class.getName(), debugPrio);
-
-            for (var line : welcomeMessage) {
-                Logger.get().log(line);
-            }
             Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
         }
     }
