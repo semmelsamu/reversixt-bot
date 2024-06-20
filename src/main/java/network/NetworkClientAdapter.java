@@ -4,7 +4,6 @@ import board.Coordinates;
 import board.Tile;
 import clients.Client;
 import exceptions.GamePhaseNotValidException;
-import exceptions.MoveNotValidException;
 import game.Game;
 import game.GameFactory;
 import game.GamePhase;
@@ -47,96 +46,78 @@ public class NetworkClientAdapter implements NetworkClient {
 
     @Override
     public MoveAnswer sendMoveAnswer(int timeLimit, byte depthLimit) {
-        try {
-            Limit limitType;
-            int limit;
+        Limit limitType;
+        int limit;
 
-            if (timeLimit > 0) {
-                limitType = Limit.TIME;
-                limit = timeLimit;
-            } else {
-                limitType = Limit.DEPTH;
-                limit = depthLimit;
-            }
-
-            if (game.getValidMovesForCurrentPlayer().isEmpty()) {
-                throw new MoveNotValidException("No valid moves!");
-            }
-
-            if (game.getPhase() == GamePhase.END) {
-                throw new GamePhaseNotValidException(
-                        "Move was requested but we think the game already ended");
-            }
-
-            logger.log("Calculating new move with " + limitType + " limit " + limit);
-
-            Move result = client.sendMove(limitType, limit);
-
-            logger.log("Sending " + result.getClass().getSimpleName() + result.getCoordinates());
-
-            short x = (short) result.getCoordinates().x;
-            short y = (short) result.getCoordinates().y;
-
-            byte type = 0;
-
-            if (result instanceof ChoiceMove) {
-                type = (byte) (((ChoiceMove) result).getPlayerToSwapWith());
-            }
-
-            if (result instanceof BonusMove) {
-                type = (byte) (((BonusMove) result).getBonus() == Bonus.BOMB ? 20 : 21);
-            }
-
-            return new MoveAnswer(x, y, type);
-
-        } catch (Exception e) {
-            logger.error(game.toString());
-            throw e;
+        if (timeLimit > 0) {
+            limitType = Limit.TIME;
+            limit = timeLimit;
+        } else {
+            limitType = Limit.DEPTH;
+            limit = depthLimit;
         }
+
+        if (game.getPhase() == GamePhase.END) {
+            throw new GamePhaseNotValidException(
+                    "Move was requested but we think the game already ended");
+        }
+
+        logger.log("Calculating new move with " + limitType + " limit " + limit);
+
+        Move result = client.sendMove(limitType, limit);
+
+        logger.log("Sending " + result.getClass().getSimpleName() + result.getCoordinates());
+
+        short x = (short) result.getCoordinates().x;
+        short y = (short) result.getCoordinates().y;
+
+        byte type = 0;
+
+        if (result instanceof ChoiceMove) {
+            type = (byte) (((ChoiceMove) result).getPlayerToSwapWith());
+        }
+
+        if (result instanceof BonusMove) {
+            type = (byte) (((BonusMove) result).getBonus() == Bonus.BOMB ? 20 : 21);
+        }
+
+        return new MoveAnswer(x, y, type);
     }
 
     @Override
     public void receiveMove(short x, short y, byte type, byte playerNumber) {
-        try {
-            Coordinates coordinates = new Coordinates(x, y);
+        Coordinates coordinates = new Coordinates(x, y);
 
-            Move move;
+        Move move = null;
 
-            if (game.getPhase() == GamePhase.BUILD) {
-                if (type == 0) {
-                    if (game.getTile(coordinates) == Tile.INVERSION) {
-                        move = new InversionMove(playerNumber, coordinates);
-                    } else if (game.getTile(coordinates) == Tile.EMPTY) {
-                        move = new NormalMove(playerNumber, coordinates);
-                    } else {
-                        move = new OverwriteMove(playerNumber, coordinates);
-                    }
-                } else if (type == 20 || type == 21) {
-                    Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
-                    move = new BonusMove(playerNumber, coordinates, bonus);
+        if (game.getPhase() == GamePhase.BUILD) {
+            if (type == 0) {
+                if (game.getTile(coordinates) == Tile.INVERSION) {
+                    move = new InversionMove(playerNumber, coordinates);
+                } else if (game.getTile(coordinates) == Tile.EMPTY) {
+                    move = new NormalMove(playerNumber, coordinates);
                 } else {
-                    move = new ChoiceMove(playerNumber, coordinates, type);
+                    move = new OverwriteMove(playerNumber, coordinates);
                 }
+            } else if (type == 20 || type == 21) {
+                Bonus bonus = type == 20 ? Bonus.BOMB : Bonus.OVERWRITE_STONE;
+                move = new BonusMove(playerNumber, coordinates, bonus);
             } else {
-                move = new BombMove(playerNumber, coordinates);
+                move = new ChoiceMove(playerNumber, coordinates, type);
             }
-
-            game.executeMove(move);
-
-        } catch (Exception e) {
-            logger.error(game.toString());
-            throw e;
+        } else {
+            move = new BombMove(playerNumber, coordinates);
         }
+
+        game.executeMove(move);
+
+        logger.verbose(game.toString());
     }
 
     @Override
     public void receiveDisqualification(byte player) {
         game.disqualifyPlayer(player);
-        if (client.getME() == player) {
-            logger.error(game.toString());
-        } else {
-            logger.log(game.toString());
-        }
+        logger.log(game.toString());
     }
 
     @Override

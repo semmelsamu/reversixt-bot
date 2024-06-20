@@ -13,6 +13,9 @@ public final class MoveExecutor {
 
         if (!(move instanceof BombMove)) {
             executeColoringMove(game, move);
+            if(!(move instanceof OverwriteMove)){
+                game.gameStats.incrementOccupiedTilesOverAll();
+            }
         } else {
             executeBombMove(game, (BombMove) move);
         }
@@ -87,7 +90,7 @@ public final class MoveExecutor {
                 if (currentTile.isUnoccupied()) {
                     break;
                 }
-                if (tileReader.getCoordinates().equals(position)) {
+                if(tileReader.getCoordinates().equals(position)) {
                     break;
                 }
                 if (currentTile == playerValue) {
@@ -186,6 +189,7 @@ public final class MoveExecutor {
     */
 
     private static void executeBombMove(Game game, BombMove move) {
+
         if (game.getPlayer(move.getPlayerNumber()).getBombs() == 0) {
             throw new RuntimeException("No bombs available :(");
         }
@@ -199,6 +203,5 @@ public final class MoveExecutor {
         }
 
         game.getPlayer(move.getPlayerNumber()).decrementBombs();
-
     }
 }
