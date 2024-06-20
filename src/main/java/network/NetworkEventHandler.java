@@ -20,68 +20,85 @@ public class NetworkEventHandler {
     private DataOutputStream out;
     private DataInputStream in;
 
-    private final NetworkClient networkClient;
+    private NetworkClient client;
 
     private byte playerNumber = 0x0;
 
-    private long stats_totalMoveCalculationTime = 0;
-
     /**
-     * Connect a networkClient to a server.
+     * Connect to a server.
      *
-     * @param networkClient The client object that handles the actual "client" work. Must
-     *                      implement the {@link NetworkClient} interface.
-     * @param ip            The IP address of the server to which the client will connect.
-     * @param port          The port number on the server to which the client will connect.
+     * @param ip   The IP address of the server to which the client will connect.
+     * @param port The port number on the server to which the client will connect.
      */
-    public NetworkEventHandler(NetworkClient networkClient, String ip, int port) {
-
-        // Store client
-        this.networkClient = networkClient;
+    public void connect(String ip, int port) {
+        logger.log("Attempting to connect to server " + ip + " on port " + port);
 
         try {
-
-            // Connect
-            logger.log("Attempting to connect to server " + ip + " on port " + port);
             socket = new Socket(ip, port);
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
             logger.log("Connected");
-
-            // Launch
-            sendGroupNumber();
-            try {
-                run();
-            } catch(NetworkException | ClientDisqualifiedException e) {
-                logger.error(e.getMessage());
-                networkClient.exit();
-                disconnect();
-            }
-
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             logger.error("Failed connecting to server: " + e.getMessage());
+
         }
 
-        logger.log("Exiting NetworkEventHandler");
+    }
+
+    /**
+     * Launch a client on the network.
+     *
+     * @param client The client object.
+     */
+    public void launch(NetworkClient client) {
+
+        this.client = client;
+
+        try {
+            sendGroupNumber();
+            run();
+        }
+        catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        finally {
+            this.client.exit();
+        }
+
+    }
+
+    public void disconnect() {
+
+        logger.log("Disconnecting from server");
+
+        try {
+            socket.close();
+            logger.log("Disconnected");
+        }
+        catch (IOException e) {
+            logger.error("Failed disconnecting from server: " + e.getMessage());
+        }
+
     }
 
     private void sendGroupNumber() throws IOException {
         logger.verbose("Sending group number to server");
         out.writeByte(1); // Message type
         out.writeInt(1); // Message length
-        out.writeByte(networkClient.sendGroupNumber());
+        out.writeByte(client.sendGroupNumber());
     }
 
     public void run() throws IOException, NetworkException, ClientDisqualifiedException {
 
-        while (!socket.isClosed()) {
+        boolean isRunning = true;
+
+        while (isRunning) {
 
             logger.debug("Waiting for server");
 
             int messageType = in.readByte();
             int length = in.readInt();
-
-            long startTime = System.nanoTime();
 
             switch (messageType) {
 
@@ -93,7 +110,7 @@ public class NetworkEventHandler {
                     byte[] map = new byte[length];
                     in.readFully(map);
                     logger.log("Receiving map");
-                    networkClient.receiveMap(new String(map));
+                    client.receiveMap(new String(map));
                     break;
 
 
@@ -102,7 +119,7 @@ public class NetworkEventHandler {
                     playerNumber = in.readByte();
 
                     logger.log("Received player number " + playerNumber);
-                    networkClient.receivePlayerNumber(playerNumber);
+                    client.receivePlayerNumber(playerNumber);
                     break;
 
 
@@ -114,7 +131,7 @@ public class NetworkEventHandler {
                     logger.log("Server requests move (time/depth) " + timeLimit + " " + depthLimit);
 
                     // Get move answer
-                    MoveAnswer answer = networkClient.sendMoveAnswer(timeLimit, depthLimit);
+                    MoveAnswer answer = client.sendMoveAnswer(timeLimit, depthLimit);
 
                     // Write
                     out.writeByte(5); // Message type
@@ -140,7 +157,7 @@ public class NetworkEventHandler {
                             player);
 
                     // Pass to client
-                    networkClient.receiveMove(x, y, type, player);
+                    client.receiveMove(x, y, type, player);
 
                     break;
 
@@ -150,7 +167,7 @@ public class NetworkEventHandler {
                     byte disqualifiedPlayer = in.readByte();
 
                     logger.log("Received disqualification of player " + disqualifiedPlayer);
-                    networkClient.receiveDisqualification(disqualifiedPlayer);
+                    client.receiveDisqualification(disqualifiedPlayer);
 
                     if (disqualifiedPlayer == playerNumber) {
                         throw new ClientDisqualifiedException("Client got disqualified");
@@ -162,33 +179,24 @@ public class NetworkEventHandler {
                 case 8: // End of phase 1
 
                     logger.log("Received end of phase 1");
-                    networkClient.receiveEndingPhase1();
+                    client.receiveEndingPhase1();
                     break;
 
 
                 case 9: // End of phase 2 - the end.
 
                     logger.log("Received end of phase 2 - the end.");
-                    networkClient.receiveEndingPhase2();
-                    networkClient.exit();
-                    disconnect();
+                    client.receiveEndingPhase2();
+                    isRunning = false;
                     break;
 
 
                 default:
                     throw new NetworkException("Unknown message type: " + messageType);
 
+
             }
 
-            stats_totalMoveCalculationTime += System.nanoTime() - startTime;
         }
-
-        logger.log("Total calculation time: " + stats_totalMoveCalculationTime / 1_000_000 + "ms");
-    }
-
-    public void disconnect() throws IOException {
-        logger.log("Disconnecting from server");
-        socket.close();
-        logger.log("Disconnected");
     }
 }
