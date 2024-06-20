@@ -27,13 +27,17 @@ public class Main {
             Logger.defaultPriority = (int) parsedArguments.get("l");
         }
 
-        welcome();
+        logWelcomeMessage();
 
         Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
 
         launch((String) parsedArguments.get("i"), (int) parsedArguments.get("p"));
     }
 
+    /**
+     * @return The argument parser, which can parse the command line arguments and generate a help
+     * string.
+     */
     private static ArgumentParser getArgumentParser() {
         ArgumentParser argumentParser = new ArgumentParser();
         argumentParser.setParameter("i", new ArgumentParser.Parameter("IP", "127.0.0.1"));
@@ -46,7 +50,10 @@ public class Main {
         return argumentParser;
     }
 
-    private static void welcome() {
+    /**
+     * Logs the welcome message.
+     */
+    private static void logWelcomeMessage() {
         Logger.get().log("""
                 This is Reversi++ Client
                 Developed as part of the FWPM "ZOCK" in the summer semester 2024 at OTH Regensburg
@@ -54,6 +61,12 @@ public class Main {
                 Use -h for help""");
     }
 
+    /**
+     * Connect to the server and run the client.
+     *
+     * @param ip   The IP address to connect the client to.
+     * @param port The port to connect the client to.
+     */
     private static void launch(String ip, int port) {
         NetworkEventHandler handler = new NetworkEventHandler();
         handler.connect(ip, port);
