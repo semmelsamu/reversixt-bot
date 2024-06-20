@@ -3,6 +3,7 @@ package network;
 import exceptions.ClientDisqualifiedException;
 import exceptions.NetworkException;
 import util.Logger;
+import util.Triple;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -20,7 +21,7 @@ public class NetworkEventHandler {
     private DataOutputStream out;
     private DataInputStream in;
 
-    private NetworkClient client;
+    private NetworkClientAdapter client;
 
     private byte playerNumber = 0x0;
 
@@ -47,13 +48,11 @@ public class NetworkEventHandler {
     }
 
     /**
-     * Launch a client on the network.
-     *
-     * @param client The client object.
+     * Launch the client on the network.
      */
-    public void launch(NetworkClient client) {
+    public void launch() {
 
-        this.client = client;
+        this.client = new NetworkClientAdapter();
 
         try {
             sendGroupNumber();
@@ -61,9 +60,6 @@ public class NetworkEventHandler {
         }
         catch (Exception e) {
             logger.error(e.getMessage());
-        }
-        finally {
-            this.client.exit();
         }
 
     }
@@ -131,14 +127,15 @@ public class NetworkEventHandler {
                     logger.log("Server requests move (time/depth) " + timeLimit + " " + depthLimit);
 
                     // Get move answer
-                    MoveAnswer answer = client.sendMoveAnswer(timeLimit, depthLimit);
+                    Triple<Short, Short, Byte> answer =
+                            client.sendMoveAnswer(timeLimit, depthLimit);
 
                     // Write
                     out.writeByte(5); // Message type
                     out.writeInt(5); // Message length
-                    out.writeShort(answer.x());
-                    out.writeShort(answer.y());
-                    out.writeByte(answer.type());
+                    out.writeShort(answer.first()); // x
+                    out.writeShort(answer.second()); // y
+                    out.writeByte(answer.third()); // type
 
                     break;
 

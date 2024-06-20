@@ -1,5 +1,3 @@
-import clients.BestReplySearchKillerHeuristicClient;
-import network.NetworkClientAdapter;
 import network.NetworkEventHandler;
 import util.ArgumentParser;
 import util.Logger;
@@ -27,7 +25,7 @@ public class Main {
             Logger.defaultPriority = (int) parsedArguments.get("l");
         }
 
-        logWelcomeMessage();
+        welcome();
 
         Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
 
@@ -51,9 +49,9 @@ public class Main {
     }
 
     /**
-     * Logs the welcome message.
+     * Log the welcome message.
      */
-    private static void logWelcomeMessage() {
+    private static void welcome() {
         Logger.get().log("""
                 This is Reversi++ Client
                 Developed as part of the FWPM "ZOCK" in the summer semester 2024 at OTH Regensburg
@@ -70,7 +68,7 @@ public class Main {
     private static void launch(String ip, int port) {
         NetworkEventHandler handler = new NetworkEventHandler();
         handler.connect(ip, port);
-        handler.launch(new NetworkClientAdapter(new BestReplySearchKillerHeuristicClient()));
+        handler.launch();
         handler.disconnect();
     }
 }

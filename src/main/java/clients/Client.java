@@ -2,32 +2,39 @@ package clients;
 
 import game.Game;
 import move.Move;
-import network.Limit;
+import util.Logger;
 
-/**
- * A client that operates with local Data structures and Types, such as Tile, Move, ...
- */
-public abstract class Client {
+public class Client {
 
-    protected Game game;
+    private final Logger logger = new Logger(this.getClass().getName());
 
-    protected int ME;
+    private final Game game;
 
-    public void setGame(Game game) {
+    private final int playerNumber;
+
+    public Client(Game game, int playerNumber) {
+        logger.log("Hello there.");
         this.game = game;
+        logger.log(game.toString());
+        this.playerNumber = playerNumber;
+        logger.log("We are player " + playerNumber);
     }
 
-    public void setPlayer(int player) {
-        this.ME = player;
+    public void executeMove(Move move) {
+        game.executeMove(move);
     }
 
-    public int getME() {
-        return ME;
+    public Move search(int timeLimit) {
+        this.logger.log("Searching new move in " + timeLimit + "ms");
+        return game.getValidMovesForCurrentPlayer().iterator().next();
     }
 
-    public abstract Move sendMove(Limit type, int limit);
+    public void disqualify(int playerNumber) {
+        game.disqualifyPlayer(playerNumber);
+    }
 
-    public void exit() {
+    public void logStats() {
+
     }
 
 }

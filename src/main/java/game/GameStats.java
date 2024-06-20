@@ -24,7 +24,7 @@ public class GameStats implements Cloneable {
 
     Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
-    private Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
+//    private Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
     private Set<Community> communities;
 
@@ -41,9 +41,9 @@ public class GameStats implements Cloneable {
                     new HashSet<>(game.getAllCoordinatesWhereTileIs(tile)));
         }
 
-        for (Tile tile : Tile.getPlayerTiles(game.staticGameStats.getInitialPlayers())){
-            occupiedTilesOverall += (short) getAllCoordinatesWhereTileIs(tile).size();
-        }
+        //        for (Tile tile : Tile.getPlayerTiles(game.staticGameStats.getInitialPlayers())){
+        //            occupiedTilesOverall += (short) getAllCoordinatesWhereTileIs(tile).size();
+        //        }
 
         initializeCommunities(game);
     }

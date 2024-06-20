@@ -3,68 +3,57 @@ package network;
 import board.Coordinates;
 import board.Tile;
 import clients.Client;
-import exceptions.GamePhaseNotValidException;
 import game.Game;
 import game.GameFactory;
 import game.GamePhase;
 import move.*;
 import util.Logger;
+import util.Triple;
 
-public class NetworkClientAdapter implements NetworkClient {
+/**
+ * Adapts the primitive types of the server to internal data structures and function calls.
+ */
+public class NetworkClientAdapter {
 
     private final Logger logger = new Logger(this.getClass().getName());
 
-    private final Client client;
+    private Client client;
 
     private Game game;
+    private int playerNumber;
 
-    /**
-     * Adapt a Client to work with the NetworkClient aka the NetworkEventHandler, which
-     * communicates with the Server.
-     */
-    public NetworkClientAdapter(Client client) {
-        this.client = client;
-        logger.log("Starting " + client.getClass().getSimpleName());
+    public NetworkClientAdapter() {
     }
 
-    @Override
-    public int sendGroupNumber() {
+    public byte sendGroupNumber() {
         return 4;
     }
 
-    @Override
     public void receiveMap(String map) {
         this.game = GameFactory.createFromString(map);
-        logger.log(game.toString());
-        client.setGame(game);
+        startClient();
     }
 
-    @Override
-    public void receivePlayerNumber(byte player) {
-        client.setPlayer(player);
+    public void receivePlayerNumber(byte playerNumber) {
+        this.playerNumber = playerNumber;
+        startClient();
     }
 
-    @Override
-    public MoveAnswer sendMoveAnswer(int timeLimit, byte depthLimit) {
-        Limit limitType;
-        int limit;
-
-        if (timeLimit > 0) {
-            limitType = Limit.TIME;
-            limit = timeLimit;
-        } else {
-            limitType = Limit.DEPTH;
-            limit = depthLimit;
+    /**
+     * Check if the game and player number have been sent and if so, construct the client
+     */
+    private void startClient() {
+        if (game != null && playerNumber != 0) {
+            this.client = new Client(game, playerNumber);
         }
+    }
 
-        if (game.getPhase() == GamePhase.END) {
-            throw new GamePhaseNotValidException(
-                    "Move was requested but we think the game already ended");
-        }
+    public Triple<Short, Short, Byte> sendMoveAnswer(int timeLimit, byte depthLimit) {
 
-        logger.log("Calculating new move with " + limitType + " limit " + limit);
+        // For performance’s sake we ignore depth limit and always use a time limit
+        int limit = timeLimit > 0 ? timeLimit : 1000;
 
-        Move result = client.sendMove(limitType, limit);
+        Move result = client.search(limit);
 
         logger.log("Sending " + result.getClass().getSimpleName() + result.getCoordinates());
 
@@ -81,14 +70,14 @@ public class NetworkClientAdapter implements NetworkClient {
             type = (byte) (((BonusMove) result).getBonus() == Bonus.BOMB ? 20 : 21);
         }
 
-        return new MoveAnswer(x, y, type);
+        return new Triple<>(x, y, type);
     }
 
-    @Override
     public void receiveMove(short x, short y, byte type, byte playerNumber) {
+
         Coordinates coordinates = new Coordinates(x, y);
 
-        Move move = null;
+        Move move;
 
         if (game.getPhase() == GamePhase.BUILD) {
             if (type == 0) {
@@ -109,40 +98,38 @@ public class NetworkClientAdapter implements NetworkClient {
             move = new BombMove(playerNumber, coordinates);
         }
 
-        game.executeMove(move);
+        GamePhase currentPhase = game.getPhase();
+        boolean isBombMove = move instanceof BombMove;
 
-        logger.verbose(game.toString());
+        try {
+            client.executeMove(move);
+        }
+        catch (Exception e) {
+            // Only log but let it run. Maybe we'll get lucky and manage to sneak through.
+            logger.error(e.getClass().getSimpleName() + ": " + e.getMessage());
+            client.logStats();
+        }
     }
 
-    @Override
-    public void receiveDisqualification(byte player) {
-        game.disqualifyPlayer(player);
-        logger.log(game.toString());
+    public void receiveDisqualification(byte playerNumber) {
+        client.disqualify(playerNumber);
+        if (this.playerNumber == playerNumber) {
+            logger.error("Client got disqualified");
+            client.logStats();
+        }
     }
 
-    @Override
     public void receiveEndingPhase1() {
-        if (game.getPhase() != GamePhase.BOMB) {
-            logger.warn("Server and client game phase may not match.");
+        if (!game.getPhase().equals(GamePhase.BOMB)) {
+            logger.warn("Server and client game phase are out of sync");
+            client.logStats();
         }
-        logger.log(game.toString());
     }
 
-    @Override
     public void receiveEndingPhase2() {
-        if (game.getPhase() != GamePhase.END) {
-            logger.warn("Server and client game phase do not match.");
+        if (!game.getPhase().equals(GamePhase.END)) {
+            logger.warn("Server and client game phase are out of sync");
+            client.logStats();
         }
-        logger.log(game.toString());
-    }
-
-    /**
-     * Gets called if either the game is finished or the client got disconnected. This is the last
-     * time a client may execute any logic.
-     */
-    @Override
-    public void exit() {
-        logger.log("Exiting " + client.getClass().getSimpleName());
-        client.exit();
     }
 }
