@@ -238,7 +238,7 @@ public class Game implements Cloneable {
     }
 
     public void setTile(Coordinates position, Tile value) {
-        stats.replaceTileAtCoordinates(position, value);
+        stats.replaceTileAtCoordinates(position, board.getTile(position), value);
         board.setTile(position, value);
     }
 

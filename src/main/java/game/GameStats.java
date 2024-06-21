@@ -3,7 +3,6 @@ package game;
 import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
-import util.Collection;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -140,7 +139,7 @@ public class GameStats implements Cloneable {
         return occupiedTilesOverall;
     }
 
-    public void incrementOccupiedTilesOverAll(){
+    public void incrementOccupiedTilesOverAll() {
         occupiedTilesOverall++;
     }
 
@@ -152,12 +151,9 @@ public class GameStats implements Cloneable {
     |-----------------------------------------------------------------------------------------------
     */
 
-    // TODO: Performance?
-    public void replaceTileAtCoordinates(Coordinates coordinates, Tile tile) {
-        coordinatesGroupedByTile.get(
-                        Collection.findKeyByValue(coordinatesGroupedByTile, coordinates))
-                .remove(coordinates);
-        coordinatesGroupedByTile.get(tile).add(coordinates);
+    public void replaceTileAtCoordinates(Coordinates coordinates, Tile oldValue, Tile newValue) {
+        coordinatesGroupedByTile.get(oldValue).remove(coordinates);
+        coordinatesGroupedByTile.get(newValue).add(coordinates);
     }
 
     public void updateCommunities(Set<Coordinates> positions, Tile value, Game game) {
@@ -232,7 +228,8 @@ public class GameStats implements Cloneable {
                     this.lastUpdatedCommunity != null ? this.lastUpdatedCommunity.clone() : null;
 
             return clone;
-        } catch (CloneNotSupportedException e) {
+        }
+        catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }
