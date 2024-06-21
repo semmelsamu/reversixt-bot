@@ -14,7 +14,7 @@ public final class MoveExecutor {
         if (!(move instanceof BombMove)) {
             executeColoringMove(game, move);
             if(!(move instanceof OverwriteMove)){
-                game.gameStats.incrementOccupiedTilesOverAll();
+                game.stats.incrementOccupiedTilesOverAll();
             }
         } else {
             executeBombMove(game, (BombMove) move);
@@ -44,7 +44,7 @@ public final class MoveExecutor {
 
         // We need to update the communities here, because after setTile wen don't know the
         // original tile value anymore
-        game.getGameStats().updateCommunities(allTilesToColor, playerValue, game);
+        game.stats.updateCommunities(allTilesToColor, playerValue, game);
         for (var coordinates : allTilesToColor) {
             game.setTile(coordinates, playerValue);
         }
@@ -131,12 +131,12 @@ public final class MoveExecutor {
         Player playerToSwapWith = game.getPlayer(choiceMove.getPlayerToSwapWith());
 
         // Collect all occupied tiles of current player
-        var oldTilesPlayerFromCurrentPlayer = new HashSet<>(
-                game.getGameStats().getAllCoordinatesWhereTileIs(player.getPlayerValue()));
+        var oldTilesPlayerFromCurrentPlayer =
+                new HashSet<>(game.stats.getAllCoordinatesWhereTileIs(player.getPlayerValue()));
 
         // Iterate through all old tiles of player to swap with
-        for (Coordinates coordinates : new HashSet<>(game.getGameStats()
-                .getAllCoordinatesWhereTileIs(playerToSwapWith.getPlayerValue()))) {
+        for (Coordinates coordinates : new HashSet<>(
+                game.stats.getAllCoordinatesWhereTileIs(playerToSwapWith.getPlayerValue()))) {
             game.setTile(coordinates, player.getPlayerValue());
         }
 
@@ -160,7 +160,7 @@ public final class MoveExecutor {
         // We need to create a copy of the coordinate set as we are altering it in the loop
         // Else we get a ConcurrentModificationException.
         Set<Coordinates> oldTilesFromPred = new HashSet<>(
-                game.getGameStats().getAllCoordinatesWhereTileIs(previousPlayer.getPlayerValue()));
+                game.stats.getAllCoordinatesWhereTileIs(previousPlayer.getPlayerValue()));
 
         Set<Coordinates> oldOwnTiles = null;
 
@@ -171,7 +171,7 @@ public final class MoveExecutor {
             }
 
             oldOwnTiles = new HashSet<>(
-                    game.getGameStats().getAllCoordinatesWhereTileIs(players[i].getPlayerValue()));
+                    game.stats.getAllCoordinatesWhereTileIs(players[i].getPlayerValue()));
 
             for (Coordinates coordinates : oldTilesFromPred) {
                 game.setTile(coordinates, players[i].getPlayerValue());
@@ -194,7 +194,7 @@ public final class MoveExecutor {
             throw new RuntimeException("No bombs available :(");
         }
 
-        int radius = game.getBombRadius();
+        int radius = game.constants.bombRadius();
         Set<Coordinates> coordinates = new HashSet<>();
         coordinates.add(move.getCoordinates());
 

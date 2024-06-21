@@ -40,15 +40,15 @@ public class Game implements Cloneable {
     /**
      * The container for all stats about the game and the logic
      */
-    public GameStats gameStats;
+    public GameStats stats;
 
-    public final GameConstants gameConstants;
+    public final GameConstants constants;
 
     private int currentPlayer;
 
     private int moveCounter;
 
-    private GamePhase gamePhase;
+    private GamePhase phase;
 
     private Set<Move> validMovesForCurrentPlayer;
 
@@ -78,18 +78,12 @@ public class Game implements Cloneable {
                     initialBombs);
         }
 
-        gameConstants =
+        constants =
                 new GameConstants(initialPlayers, initialOverwriteStones, initialBombs, bombRadius);
 
-        // TODO: Create static game stats
-        //        staticGameStats =
-        //                new StaticGameStats(this, initialPlayers, initialOverwriteStones,
-        //                initialBombs,
-        //                        bombRadius);
+        stats = new GameStats(this);
 
-        gameStats = new GameStats(this);
-
-        gamePhase = GamePhase.BUILD;
+        phase = GamePhase.BUILD;
 
         moveCounter = 1;
 
@@ -101,9 +95,9 @@ public class Game implements Cloneable {
             if (currentPlayer == players.length && validMovesForCurrentPlayer.isEmpty()) {
 
                 // No valid moves in build phase
-                if (gamePhase == GamePhase.BUILD) {
+                if (phase == GamePhase.BUILD) {
                     logger.log("No player has valid moves in build phase, entering bomb phase");
-                    gamePhase = GamePhase.BOMB;
+                    phase = GamePhase.BOMB;
                     // Set player again to first player
                     rotateCurrentPlayer();
                 }
@@ -131,7 +125,7 @@ public class Game implements Cloneable {
     }
 
     public void nextPlayer() {
-        if (gamePhase == GamePhase.END) {
+        if (phase == GamePhase.END) {
             throw new GamePhaseNotValidException("Cannot calculate next player in end phase");
         }
 
@@ -141,16 +135,16 @@ public class Game implements Cloneable {
             rotateCurrentPlayer();
 
             if (oldPlayer == currentPlayer && validMovesForCurrentPlayer.isEmpty()) {
-                if (gamePhase == GamePhase.BUILD) {
+                if (phase == GamePhase.BUILD) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
                                     "phase");
-                    gamePhase = GamePhase.BOMB;
+                    phase = GamePhase.BOMB;
                     rotateCurrentPlayer();
                     oldPlayer = currentPlayer;
-                } else if (gamePhase == GamePhase.BOMB) {
+                } else if (phase == GamePhase.BOMB) {
                     logger.log("No more player has any bomb moves, entering end");
-                    gamePhase = GamePhase.END;
+                    phase = GamePhase.END;
                     // Set player to no player because the game ended
                     currentPlayer = 0;
                     return;
@@ -220,10 +214,6 @@ public class Game implements Cloneable {
         return players[playerNumber - 1];
     }
 
-    public int getBombRadius() {
-        return gameConstants.bombRadius();
-    }
-
     public Tile getTile(Coordinates position) {
         return board.getTile(position);
     }
@@ -237,16 +227,12 @@ public class Game implements Cloneable {
     }
 
     public void setTile(Coordinates position, Tile value) {
-        gameStats.replaceTileAtCoordinates(position, value);
+        stats.replaceTileAtCoordinates(position, value);
         board.setTile(position, value);
     }
 
     public Map<Short, Short> getTransitions() {
         return board.getTransitions();
-    }
-
-    public GameStats getGameStats() {
-        return gameStats;
     }
 
     public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
@@ -258,7 +244,7 @@ public class Game implements Cloneable {
     }
 
     public GamePhase getPhase() {
-        return gamePhase;
+        return phase;
     }
 
     public int getMoveCounter() {
@@ -277,13 +263,13 @@ public class Game implements Cloneable {
     public String toString() {
         StringBuilder result = new StringBuilder("Game\n");
 
-        result.append("Initial players: ").append(gameConstants.initialPlayers()).append("\n");
-        result.append("Initial overwrite stones: ").append(gameConstants.initialOverwriteStones())
+        result.append("Initial players: ").append(constants.initialPlayers()).append("\n");
+        result.append("Initial overwrite stones: ").append(constants.initialOverwriteStones())
                 .append("\n");
-        result.append("Initial bombs: ").append(gameConstants.initialBombs()).append("\n");
-        result.append("Bomb radius: ").append(gameConstants.bombRadius()).append("\n");
+        result.append("Initial bombs: ").append(constants.initialBombs()).append("\n");
+        result.append("Bomb radius: ").append(constants.bombRadius()).append("\n");
 
-        result.append("Phase: ").append(gamePhase).append("\n");
+        result.append("Phase: ").append(phase).append("\n");
         result.append("Move: ").append(moveCounter).append("\n");
 
         result.append("Players (Overwrite Stones / Bombs)").append("\n");
@@ -321,7 +307,7 @@ public class Game implements Cloneable {
                 clone.logger = new NullLogger("");
             }
 
-            clone.gameStats = this.gameStats.clone();
+            clone.stats = this.stats.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();

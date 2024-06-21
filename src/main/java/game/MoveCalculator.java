@@ -54,7 +54,7 @@ public final class MoveCalculator {
 
         if (player.getOverwriteStones() > 0) {
             // Add overwrite moves on expansion tiles
-            for (var coordinate : game.gameStats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
+            for (var coordinate : game.stats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
                 moves.add(new OverwriteMove(playerNumber, coordinate));
             }
         }
@@ -76,7 +76,7 @@ public final class MoveCalculator {
                 continue;
             }
 
-            for (Coordinates position : game.getGameStats().getAllCoordinatesWhereTileIs(tile)) {
+            for (Coordinates position : game.stats.getAllCoordinatesWhereTileIs(tile)) {
                 result.add(new BombMove(player, position));
             }
 

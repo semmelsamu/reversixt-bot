@@ -73,7 +73,7 @@ public class GameEvaluator {
     private int evaluateEnd(Game game, int player) {
         int numberOfOwnTiles = 0;
         int maxNumberOfEnemyTiles = Integer.MIN_VALUE;
-        for (int i = 1; i <= game.gameConstants.initialPlayers(); i++) {
+        for (int i = 1; i <= game.constants.initialPlayers(); i++) {
             if (i == player) {
                 numberOfOwnTiles = getNumberOfTilesForPlayer(game, player);
             }
@@ -90,7 +90,7 @@ public class GameEvaluator {
     }
 
     private int getEvalPhase(Game game) {
-        int percentage = (int) ((double) game.gameStats.getOccupiedTilesOverall() /
+        int percentage = (int) ((double) game.stats.getOccupiedTilesOverall() /
                 boardInfo.getReachableTiles() * 100 + 0.5);
         for (int i = 1; i < evalPhaseThresholds.length; i++) {
             if (percentage < evalPhaseThresholds[i]) {

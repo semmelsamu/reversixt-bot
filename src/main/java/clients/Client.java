@@ -56,8 +56,7 @@ public class Client {
 
         // Check if reachableTiles has to be updated
         if (boardInfo.getSimulationCount() < 2 &&
-                (double) game.gameStats.getOccupiedTilesOverall() / boardInfo.getReachableTiles() >
-                        0.6) {
+                (double) game.stats.getOccupiedTilesOverall() / boardInfo.getReachableTiles() > 0.6) {
             logger.log("Re-calculating board info...");
             boardInfo.updateReachableTiles(game, 1000);
         }
