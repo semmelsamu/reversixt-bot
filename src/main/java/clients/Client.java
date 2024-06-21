@@ -1,5 +1,6 @@
 package clients;
 
+import evaluation.BoardInfo;
 import game.Game;
 import move.Move;
 import util.Logger;
@@ -25,6 +26,11 @@ public class Client {
     private final int playerNumber;
 
     /**
+     * Board statistics containing the progress simulation/reachable tiles and tile ratings
+     */
+    private final BoardInfo boardInfo;
+
+    /**
      * Initialize the client.
      * @param game         The game that the client should run on.
      * @param playerNumber The number of the player this client should control.
@@ -35,6 +41,9 @@ public class Client {
         logger.log(game.toString());
         this.playerNumber = playerNumber;
         logger.log("We are player " + playerNumber);
+
+        logger.log("Calculating board info...");
+        boardInfo = new BoardInfo(game);
     }
 
     /**
@@ -43,6 +52,14 @@ public class Client {
      */
     public void executeMove(Move move) {
         game.executeMove(move);
+
+        // Check if reachableTiles has to be updated
+        if (boardInfo.getSimulationCount() < 2 &&
+                (double) game.gameStats.getOccupiedTilesOverall() / boardInfo.getReachableTiles() >
+                        0.6) {
+            logger.log("Re-calculating board info...");
+            boardInfo.updateReachableTiles(game, 1000);
+        }
     }
 
     /**
@@ -52,7 +69,7 @@ public class Client {
      */
     public Move search(int timeLimit) {
         this.logger.log("Searching new move in " + timeLimit + "ms");
-        return (new Search(game, playerNumber)).search(timeLimit - TIME_BUFFER);
+        return (new Search(game, playerNumber, boardInfo)).search(timeLimit - TIME_BUFFER);
     }
 
     /**

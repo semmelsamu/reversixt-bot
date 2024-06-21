@@ -42,11 +42,6 @@ public class Game implements Cloneable {
      */
     public GameStats gameStats;
 
-    /**
-     * The container for all stats that are valid for the whole game
-     */
-    // public StaticGameStats staticGameStats;
-
     public final GameConstants gameConstants;
 
     private int currentPlayer;
@@ -327,7 +322,6 @@ public class Game implements Cloneable {
             }
 
             clone.gameStats = this.gameStats.clone();
-            clone.staticGameStats = this.staticGameStats;
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();

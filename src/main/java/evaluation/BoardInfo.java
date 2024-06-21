@@ -14,30 +14,31 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public class StaticGameStats {
+public class BoardInfo {
 
     private final int[][] tileRatings;
+
     /**
      * Number of all tiles that are not walls
      */
     private final short potentialReachableTiles;
+
     /**
      * Number of occupied tiles after one example game (heuristic!)
      */
     private short reachableTiles;
-    /**
-     * Constant that is used for in updateReachableTiles
-     */
 
-    private boolean isReachableTilesSetFinally;
+    /**
+     * Counts the number of times a reachable tiles simulation has been executed
+     */
+    private int simulationCount;
 
     private final Boundaries noOverwriteTheMoveBefore = new Boundaries(0, 0);
 
-    public StaticGameStats(Game initialGame) {
+    public BoardInfo(Game initialGame) {
         tileRatings = calculateTileRatings(initialGame);
         potentialReachableTiles = calculatePotentialReachableTiles(initialGame);
         reachableTiles = 0;
-        isReachableTilesSetFinally = false;
     }
 
     private int[][] calculateTileRatings(Game game) {
@@ -64,6 +65,8 @@ public class StaticGameStats {
      * Simulates a whole game out the number of reachable tiles approximately
      */
     public void updateReachableTiles(Game game, int timelimit) {
+        simulationCount++;
+
         long time = System.currentTimeMillis();
         final int TIMECAP = Math.min(1000, timelimit);
         Game purposeGame = game.clone();
@@ -90,9 +93,6 @@ public class StaticGameStats {
                 boundaries = noOverwriteTheMoveBefore;
             }
 
-            if (System.currentTimeMillis() - time < TIMECAP) {
-                isReachableTilesSetFinally = true;
-            }
             int randomIndex = (int) (Math.random() * validMovesForCurrentPlayer.size());
             Move randomMove = ListOfRelevantMoves.get(randomIndex);
             purposeGame.executeMove(randomMove);
@@ -123,12 +123,9 @@ public class StaticGameStats {
     }
 
     /**
-     * Default tile rating: 1
-     * Checks all 4 angles on, whether they are only open in one direction
-     * Such angles are valuable, as tiles can "attack" in the angle but can not be "attacked"
-     * 1 bonuspoint for every angle, that fullfills the criterion
-     * Rating for WALLS: 0
-     *
+     * Default tile rating: 1. Checks all 4 angles on, whether they are only open in one direction,
+     * Such angles are valuable, as tiles can "attack" in the angle but can not be "attacked". 1
+     * bonuspoint for every angle, that fullfills the criterion. Rating for WALLS: 0
      * @param x X-coordinate
      * @param y Y-coordinate
      * @return Tile rating as an Integer
@@ -151,9 +148,14 @@ public class StaticGameStats {
         return tileRating;
     }
 
-    /**
-     * Getter
-     */
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Getters
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     public int[][] getTileRatings() {
         return tileRatings;
     }
@@ -166,7 +168,7 @@ public class StaticGameStats {
         return potentialReachableTiles;
     }
 
-    public boolean isReachableTilesSetFinally() {
-        return isReachableTilesSetFinally;
+    public int getSimulationCount() {
+        return simulationCount;
     }
 }
