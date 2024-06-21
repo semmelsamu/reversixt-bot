@@ -145,7 +145,7 @@ public class Search {
         catch (OutOfTimeException e) {
             String stackTrace = "at " + e.getStackTrace()[1].getMethodName() + " at " +
                     e.getStackTrace()[2].getMethodName();
-            logger.warn(e.getMessage() + stackTrace);
+            logger.warn(e.getMessage() + " " + stackTrace);
             stats_timeouts.add(stackTrace);
             return bestMove;
 
