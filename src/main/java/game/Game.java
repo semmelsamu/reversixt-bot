@@ -3,7 +3,6 @@ package game;
 import board.Board;
 import board.Coordinates;
 import board.Tile;
-import evaluation.StaticGameStats;
 import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
 import move.Move;
@@ -46,7 +45,9 @@ public class Game implements Cloneable {
     /**
      * The container for all stats that are valid for the whole game
      */
-    public StaticGameStats staticGameStats;
+    // public StaticGameStats staticGameStats;
+
+    public final GameConstants gameConstants;
 
     private int currentPlayer;
 
@@ -82,10 +83,14 @@ public class Game implements Cloneable {
                     initialBombs);
         }
 
-        // Create static game stats
-        staticGameStats =
-                new StaticGameStats(this, initialPlayers, initialOverwriteStones, initialBombs,
-                        bombRadius);
+        gameConstants =
+                new GameConstants(initialPlayers, initialOverwriteStones, initialBombs, bombRadius);
+
+        // TODO: Create static game stats
+        //        staticGameStats =
+        //                new StaticGameStats(this, initialPlayers, initialOverwriteStones,
+        //                initialBombs,
+        //                        bombRadius);
 
         gameStats = new GameStats(this);
 
@@ -221,7 +226,7 @@ public class Game implements Cloneable {
     }
 
     public int getBombRadius() {
-        return staticGameStats.getBombRadius();
+        return gameConstants.bombRadius();
     }
 
     public Tile getTile(Coordinates position) {
@@ -277,11 +282,11 @@ public class Game implements Cloneable {
     public String toString() {
         StringBuilder result = new StringBuilder("Game\n");
 
-        result.append("Initial players: ").append(staticGameStats.getInitialPlayers()).append("\n");
-        result.append("Initial overwrite stones: ")
-                .append(staticGameStats.getInitialOverwriteStones()).append("\n");
-        result.append("Initial bombs: ").append(staticGameStats.getInitialBombs()).append("\n");
-        result.append("Bomb radius: ").append(staticGameStats.getBombRadius()).append("\n");
+        result.append("Initial players: ").append(gameConstants.initialPlayers()).append("\n");
+        result.append("Initial overwrite stones: ").append(gameConstants.initialOverwriteStones())
+                .append("\n");
+        result.append("Initial bombs: ").append(gameConstants.initialBombs()).append("\n");
+        result.append("Bomb radius: ").append(gameConstants.bombRadius()).append("\n");
 
         result.append("Phase: ").append(gamePhase).append("\n");
         result.append("Move: ").append(moveCounter).append("\n");
@@ -291,7 +296,9 @@ public class Game implements Cloneable {
             result.append("- ").append(player.getPlayerValue().toString()).append(" (")
                     .append(player.getOverwriteStones()).append(" / ").append(player.getBombs())
                     .append(")");
-            if(player.isDisqualified()) result.append(" X");
+            if (player.isDisqualified()) {
+                result.append(" X");
+            }
             if (player.getPlayerValue().toPlayerIndex() + 1 == currentPlayer) {
                 result.append(" *");
             }

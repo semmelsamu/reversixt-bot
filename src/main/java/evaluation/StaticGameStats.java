@@ -15,33 +15,6 @@ import java.util.List;
 import java.util.Set;
 
 public class StaticGameStats {
-    /**
-     * The number of players this game usually starts with.
-     */
-    private final int initialPlayers;
-
-    /**
-     * The number of overwrite stones each player has in the beginning.
-     */
-    private final int initialOverwriteStones;
-
-    /**
-     * The number of bombs each player has in the beginning.
-     */
-    private final int initialBombs;
-
-    /**
-     * The amount of steps from the center of the explosion a bomb blows tiles up.
-     */
-    private final int bombRadius;
-    /**
-     * Width of board
-     */
-    private final int width;
-    /**
-     * Height of board
-     */
-    private final int height;
 
     private final int[][] tileRatings;
     /**
@@ -60,14 +33,7 @@ public class StaticGameStats {
 
     private final Boundaries noOverwriteTheMoveBefore = new Boundaries(0, 0);
 
-    public StaticGameStats(Game initialGame, int initialPlayers, int initialOverwriteStones,
-                           int initialBombs, int bombRadius) {
-        this.initialPlayers = initialPlayers;
-        this.initialOverwriteStones = initialOverwriteStones;
-        this.initialBombs = initialBombs;
-        this.bombRadius = bombRadius;
-        width = initialGame.getWidth();
-        height = initialGame.getHeight();
+    public StaticGameStats(Game initialGame) {
         tileRatings = calculateTileRatings(initialGame);
         potentialReachableTiles = calculatePotentialReachableTiles(initialGame);
         reachableTiles = 0;
@@ -75,9 +41,9 @@ public class StaticGameStats {
     }
 
     private int[][] calculateTileRatings(Game game) {
-        int[][] tileRatings = new int[height][width];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        int[][] tileRatings = new int[game.getHeight()][game.getWidth()];
+        for (int y = 0; y < game.getHeight(); y++) {
+            for (int x = 0; x < game.getWidth(); x++) {
                 if (game.getTile(new Coordinates(x, y)) == Tile.WALL) {
                     tileRatings[y][x] = 0;
                     continue;
@@ -89,7 +55,7 @@ public class StaticGameStats {
     }
 
     private short calculatePotentialReachableTiles(Game initialGame) {
-        int allTiles = width * height;
+        int allTiles = initialGame.getWidth() * initialGame.getHeight();
         int allWallTiles = initialGame.getAllCoordinatesWhereTileIs(Tile.WALL).size();
         return (short) (allTiles - allWallTiles);
     }
@@ -124,7 +90,7 @@ public class StaticGameStats {
                 boundaries = noOverwriteTheMoveBefore;
             }
 
-            if(System.currentTimeMillis() - time < TIMECAP){
+            if (System.currentTimeMillis() - time < TIMECAP) {
                 isReachableTilesSetFinally = true;
             }
             int randomIndex = (int) (Math.random() * validMovesForCurrentPlayer.size());
@@ -132,8 +98,8 @@ public class StaticGameStats {
             purposeGame.executeMove(randomMove);
         }
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        for (int y = 0; y < game.getHeight(); y++) {
+            for (int x = 0; x < game.getWidth(); x++) {
                 if (purposeGame.getTile(new Coordinates(x, y)).isPlayer()) {
                     reachableTiles++;
                 }
@@ -167,7 +133,6 @@ public class StaticGameStats {
      * @param y Y-coordinate
      * @return Tile rating as an Integer
      */
-
     private int calculateParicularTileRating(int x, int y, Game game) {
         int tileRating = 1;
         Direction[] halfOfAllDirections = Arrays.copyOfRange(Direction.values(), 0, 4);
@@ -189,22 +154,6 @@ public class StaticGameStats {
     /**
      * Getter
      */
-    public int getBombRadius() {
-        return bombRadius;
-    }
-
-    public int getInitialPlayers() {
-        return initialPlayers;
-    }
-
-    public int getInitialOverwriteStones() {
-        return initialOverwriteStones;
-    }
-
-    public int getInitialBombs() {
-        return initialBombs;
-    }
-
     public int[][] getTileRatings() {
         return tileRatings;
     }
