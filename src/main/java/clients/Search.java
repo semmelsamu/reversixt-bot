@@ -31,6 +31,11 @@ public class Search {
     private final int playerNumber;
 
     /**
+     * The game evaluator used for this search.
+     */
+    private final GameEvaluator evaluator;
+
+    /**
      * The timestamp in milliseconds at which we got a move request.
      */
     private long startTime;
@@ -61,9 +66,10 @@ public class Search {
      * @param game         The game for which to search the best move.
      * @param playerNumber The player for which to search the best move.
      */
-    public Search(Game game, int playerNumber) {
+    public Search(Game game, int playerNumber, GameEvaluator evaluator) {
         this.game = game;
         this.playerNumber = playerNumber;
+        this.evaluator = evaluator;
     }
 
     /**
@@ -198,7 +204,7 @@ public class Search {
                 bombPhasesReached++;
             }
             currentIterationNodesVisited++;
-            return GameEvaluator.evaluate(game, playerNumber);
+            return evaluator.evaluate(game, playerNumber);
         }
 
         int currentPlayerNumber = game.getCurrentPlayerNumber();
@@ -302,7 +308,7 @@ public class Search {
 
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            int score = GameEvaluator.evaluate(clonedGame, playerNumber);
+            int score = evaluator.evaluate(clonedGame, playerNumber);
             currentIterationNodesVisited++;
 
             int cutoffs = moveCutoffs.getOrDefault(move, 0);

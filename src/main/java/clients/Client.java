@@ -1,6 +1,7 @@
 package clients;
 
 import evaluation.BoardInfo;
+import evaluation.GameEvaluator;
 import game.Game;
 import move.Move;
 import util.Logger;
@@ -69,7 +70,15 @@ public class Client {
      */
     public Move search(int timeLimit) {
         this.logger.log("Searching new move in " + timeLimit + "ms");
-        return (new Search(game, playerNumber, boardInfo)).search(timeLimit - TIME_BUFFER);
+
+        // Creating the evaluator with the current available data
+        GameEvaluator evaluator = new GameEvaluator(boardInfo);
+
+        // Initializing the search
+        Search search = new Search(game, playerNumber, evaluator);
+
+        // Searching
+        return search.search(timeLimit - TIME_BUFFER);
     }
 
     /**
