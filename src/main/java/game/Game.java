@@ -114,7 +114,7 @@ public class Game implements Cloneable {
     /*
     |-----------------------------------------------------------------------------------------------
     |
-    |   Player logic
+    |   Players
     |
     |-----------------------------------------------------------------------------------------------
     */
@@ -156,6 +156,13 @@ public class Game implements Cloneable {
         logger.debug("Current player is now " + currentPlayer);
     }
 
+    public void disqualifyPlayer(int player) {
+        getPlayer(player).disqualify();
+        if (getCurrentPlayer().isDisqualified()) {
+            nextPlayer();
+        }
+    }
+
     public Player getCurrentPlayer() {
         return getPlayer(currentPlayer);
     }
@@ -164,12 +171,21 @@ public class Game implements Cloneable {
         return currentPlayer;
     }
 
-    public void disqualifyPlayer(int player) {
-        getPlayer(player).disqualify();
-        if (getCurrentPlayer().isDisqualified()) {
-            nextPlayer();
-        }
+    public Player[] getPlayers() {
+        return players;
     }
+
+    public Player getPlayer(int playerNumber) {
+        return players[playerNumber - 1];
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Moves
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
 
     public void executeMove(Move move) {
         if (!validMovesForCurrentPlayer.contains(move)) {
@@ -179,14 +195,6 @@ public class Game implements Cloneable {
         moveCounter++;
         nextPlayer();
     }
-
-    /*
-    |-----------------------------------------------------------------------------------------------
-    |
-    |   Getters and Setters
-    |
-    |-----------------------------------------------------------------------------------------------
-    */
 
     public Set<Move> getValidMovesForCurrentPlayer() {
         return validMovesForCurrentPlayer;
@@ -206,17 +214,17 @@ public class Game implements Cloneable {
         }
     }
 
-    public Player[] getPlayers() {
-        return players;
+    public int getMoveCounter() {
+        return moveCounter;
     }
 
-    public Player getPlayer(int playerNumber) {
-        return players[playerNumber - 1];
-    }
-
-    public Tile getTile(Coordinates position) {
-        return board.getTile(position);
-    }
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Board
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
 
     public int getHeight() {
         return board.getHeight();
@@ -224,6 +232,10 @@ public class Game implements Cloneable {
 
     public int getWidth() {
         return board.getWidth();
+    }
+
+    public Tile getTile(Coordinates position) {
+        return board.getTile(position);
     }
 
     public void setTile(Coordinates position, Tile value) {
@@ -245,10 +257,6 @@ public class Game implements Cloneable {
 
     public GamePhase getPhase() {
         return phase;
-    }
-
-    public int getMoveCounter() {
-        return moveCounter;
     }
 
     /*
