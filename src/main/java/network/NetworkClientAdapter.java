@@ -115,21 +115,21 @@ public class NetworkClientAdapter {
         client.disqualify(playerNumber);
         if (this.playerNumber == playerNumber) {
             logger.error("Client got disqualified");
-            client.logStats();
         }
+        client.logStats();
     }
 
     public void receiveEndingPhase1() {
         if (!game.getPhase().equals(GamePhase.BOMB)) {
             logger.warn("Server and client game phase are out of sync");
-            client.logStats();
         }
+        client.logStats();
     }
 
     public void receiveEndingPhase2() {
         if (!game.getPhase().equals(GamePhase.END)) {
             logger.warn("Server and client game phase are out of sync");
-            client.logStats();
         }
+        client.logStats();
     }
 }
