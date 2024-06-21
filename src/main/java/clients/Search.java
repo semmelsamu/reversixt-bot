@@ -9,6 +9,7 @@ import game.GamePhase;
 import move.Move;
 import util.Logger;
 import util.Quadruple;
+import util.StringUtil;
 import util.Tuple;
 
 import java.util.*;
@@ -46,10 +47,14 @@ public class Search {
     private long endTime;
 
     /**
-     * Used for statistics.
+     * Stores for each timeout that occurred the stack trace.
      */
-    private static int stats_timeouts = 0;
-    private static Map<Integer, Integer> stats_depthsSearched = new HashMap<>();
+    private static final List<String> stats_timeouts = new LinkedList<>();
+
+    /**
+     * Stores for each tree layer that was searched successfully its depth.
+     */
+    private static final List<Integer> stats_depths = new LinkedList<>();
 
     /**
      * Counts how often we reached the bomb phase in the tree. Used for exiting the iterative
@@ -87,7 +92,7 @@ public class Search {
         Move bestMove =
                 game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
-        stats_incrementDepthSearched(0);
+        stats_depths.add(0);
 
         try {
 
@@ -98,7 +103,7 @@ public class Search {
             // Cache move sorting
             List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>(), true);
 
-            stats_incrementDepthSearched(1);
+            stats_depths.add(1);
 
             // As the sorted moves already contain the result for depth 1, update bestMove
             bestMove = sortedMoves.get(0).first();
@@ -125,7 +130,7 @@ public class Search {
 
                 bestMove = calculateBestMove(sortedMoves, depthLimit);
 
-                stats_incrementDepthSearched(depthLimit);
+                stats_depths.add(depthLimit);
 
                 if (bombPhasesReached >= sortedMoves.size()) {
                     throw new GamePhaseNotValidException("Tree reached bomb phase");
@@ -138,8 +143,10 @@ public class Search {
 
         }
         catch (OutOfTimeException e) {
-            stats_timeouts++;
-            logger.warn(e.getMessage());
+            String stackTrace = "at " + e.getStackTrace()[1].getMethodName() + " at " +
+                    e.getStackTrace()[2].getMethodName();
+            logger.warn(e.getMessage() + stackTrace);
+            stats_timeouts.add(stackTrace);
             return bestMove;
 
         }
@@ -436,21 +443,9 @@ public class Search {
 
     }
 
-    private static void stats_incrementDepthSearched(int depth) {
-        stats_depthsSearched.put(depth, stats_depthsSearched.getOrDefault(depth, 0) + 1);
-    }
-
     public static String getStats() {
-        StringBuilder result = new StringBuilder("Search stats\n");
-        result.append("Total timeouts: ").append(stats_timeouts).append("\n");
-        result.append("Depths searched: ")
-                .append(stats_depthsSearched.values().stream().mapToInt(Integer::intValue).sum())
-                .append("\n");
-        for (int i = 0; stats_depthsSearched.containsKey(i); i++) {
-            result.append("- Depth ").append(i).append(" was searched ")
-                    .append(stats_depthsSearched.get(i)).append(" times\n");
-        }
-        return result.toString();
+        return "Timeouts: " + StringUtil.countElements(stats_timeouts) + "\nDepths searched: " +
+                StringUtil.countElements(stats_depths);
     }
 
 }
