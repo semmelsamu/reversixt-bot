@@ -4,8 +4,6 @@ import exceptions.CoordinatesOutOfBoundsException;
 import util.Logger;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,16 +36,18 @@ public class Board implements Cloneable {
     private byte[] board;
 
     /**
-     * A transition consists out of two Transition parts, which are linked together. Transitions can
-     * be considered "Portals": If we enter a Transition's part, we exit its counterpart.
-     * -
+     * A transition consists of two Transition parts, which are linked together. Transitions can be
+     * considered "Portals": If we enter a Transition's part, we exit its counterpart.
+     * <p>
      * For the sake of performance, we store each transition twice, once as is and once flipped, so
      * we can iterate through only the keys of the Map and still meet every Transition part.
-     * -
+     * <p>
      * Transition Parts are stored as shorts, which can be interpreted as follows:
-     * - The first 4 Bits represent the Direction (0=North, 1=Northeast, ...)
-     * - The next 6 Bits represent the X Coordinate
-     * - The last 6 Bits represent the Y Coordinate
+     * <ul>
+     * <li>The first 4 Bits represent the Direction (0=North, 1=Northeast, ...)</li>
+     * <li>The next 6 Bits represent the X Coordinate</li>
+     * <li>The last 6 Bits represent the Y Coordinate</li>
+     * </ul>
      * A short provides enough space, as: We have 8 directions (less than 2^4=16) and a board's size
      * will never exceed 50x50 (less than 2^6=64)
      */
@@ -137,18 +137,6 @@ public class Board implements Cloneable {
         return width;
     }
 
-    public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
-        List<Coordinates> result = new LinkedList<>();
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (getTile(new Coordinates(x, y)) == tile) {
-                    result.add(new Coordinates(x, y));
-                }
-            }
-        }
-        return result;
-    }
-
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -207,7 +195,8 @@ public class Board implements Cloneable {
             clone.transitions = new HashMap<>();
             clone.transitions.putAll(transitions);
             return clone;
-        } catch (CloneNotSupportedException e) {
+        }
+        catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }

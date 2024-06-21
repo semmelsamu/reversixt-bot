@@ -36,7 +36,7 @@ public final class MoveCalculator {
 
         HashSet<Move> moves = new HashSet<>();
 
-        for (Coordinates occupiedTile : game.getAllCoordinatesWhereTileIs(
+        for (Coordinates occupiedTile : game.stats.getAllCoordinatesWhereTileIs(
                 player.getPlayerValue())) {
             if (game.getTile(occupiedTile) != player.getPlayerValue()) {
                 throw new AssertionError("Wrong coordinates in Player" + player + "'s List stones");

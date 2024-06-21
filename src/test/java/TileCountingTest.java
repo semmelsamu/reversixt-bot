@@ -1,7 +1,7 @@
 import game.Game;
 import game.GameFactory;
-import org.junit.jupiter.api.Test;
 import game.Player;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -13,7 +13,8 @@ public class TileCountingTest {
 
         for (Player allParticipatingPlayer : game.getPlayers()) {
             int calculatedTileCount =
-                    game.getAllCoordinatesWhereTileIs(allParticipatingPlayer.getPlayerValue()).size();
+                    game.stats.getAllCoordinatesWhereTileIs(allParticipatingPlayer.getPlayerValue())
+                            .size();
             assertEquals(4, calculatedTileCount, "Tile count for each player at 4");
         }
     }
@@ -24,7 +25,8 @@ public class TileCountingTest {
 
         for (Player allParticipatingPlayer : game.getPlayers()) {
             int calculatedTileCount =
-                    game.getAllCoordinatesWhereTileIs(allParticipatingPlayer.getPlayerValue()).size();
+                    game.stats.getAllCoordinatesWhereTileIs(allParticipatingPlayer.getPlayerValue())
+                            .size();
             assertEquals(8, calculatedTileCount, "Tile count for each player at 8");
         }
     }

@@ -57,7 +57,7 @@ public class BoardInfo {
 
     private short calculatePotentialReachableTiles(Game initialGame) {
         int allTiles = initialGame.getWidth() * initialGame.getHeight();
-        int allWallTiles = initialGame.getAllCoordinatesWhereTileIs(Tile.WALL).size();
+        int allWallTiles = initialGame.stats.getAllCoordinatesWhereTileIs(Tile.WALL).size();
         return (short) (allTiles - allWallTiles);
     }
 

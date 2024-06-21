@@ -10,7 +10,6 @@ import move.OverwriteMove;
 import util.Logger;
 import util.NullLogger;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -245,10 +244,6 @@ public class Game implements Cloneable {
 
     public Map<Short, Short> getTransitions() {
         return board.getTransitions();
-    }
-
-    public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
-        return board.getAllCoordinatesWhereTileIs(tile);
     }
 
     public boolean coordinatesLayInBoard(Coordinates position) {
