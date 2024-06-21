@@ -9,7 +9,6 @@ import game.GamePhase;
 import move.Move;
 import util.Logger;
 import util.Quadruple;
-import util.StringUtil;
 import util.Tuple;
 
 import java.util.*;
@@ -444,8 +443,20 @@ public class Search {
     }
 
     public static String getStats() {
-        return "Timeouts: " + StringUtil.countElements(stats_timeouts) + "\nDepths searched: " +
-                StringUtil.countElements(stats_depths);
+        return "Timeouts: " + countElements(stats_timeouts) + "\nDepths searched: " +
+                countElements(stats_depths);
+    }
+
+    public static <T> String countElements(List<T> list) {
+        Map<T, Integer> stats = new HashMap<>();
+        for (T item : list) {
+            stats.put(item, stats.getOrDefault(item, 0) + 1);
+        }
+        StringBuilder result = new StringBuilder().append(list.size());
+        for (Map.Entry<T, Integer> entry : stats.entrySet()) {
+            result.append("\n- ").append(entry.getKey()).append(": ").append(entry.getValue());
+        }
+        return result.toString();
     }
 
 }
