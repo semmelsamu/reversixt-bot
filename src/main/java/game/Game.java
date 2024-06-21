@@ -6,6 +6,8 @@ import board.Tile;
 import evaluation.StaticGameStats;
 import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
+import move.Bonus;
+import move.BonusMove;
 import move.Move;
 import move.OverwriteMove;
 import util.Logger;
@@ -205,6 +207,12 @@ public class Game implements Cloneable {
         Set<Move> movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
                 .filter((move) -> !(move instanceof OverwriteMove)).collect(Collectors.toSet());
 
+        // TODO: Make decision between bomb or overwrite bonus in evaluation (currently I don't
+        //  know how)
+        movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
+                .filter((move) -> !(move instanceof BonusMove bonusMove &&
+                        bonusMove.getBonus() == Bonus.BOMB)).collect(Collectors.toSet());
+
         if (movesWithoutOverwrites.isEmpty()) {
             return validMovesForCurrentPlayer;
         } else {
@@ -291,7 +299,9 @@ public class Game implements Cloneable {
             result.append("- ").append(player.getPlayerValue().toString()).append(" (")
                     .append(player.getOverwriteStones()).append(" / ").append(player.getBombs())
                     .append(")");
-            if(player.isDisqualified()) result.append(" X");
+            if (player.isDisqualified()) {
+                result.append(" X");
+            }
             if (player.getPlayerValue().toPlayerIndex() + 1 == currentPlayer) {
                 result.append(" *");
             }
