@@ -7,7 +7,6 @@ import exceptions.OutOfTimeException;
 import game.Game;
 import game.GamePhase;
 import move.Move;
-import network.Limit;
 import util.Logger;
 import util.Quadruple;
 import util.Tuple;
@@ -17,15 +16,19 @@ import java.util.*;
 import static util.Tree.calculateBranchingFactor;
 import static util.Tree.calculateNodeCountOfTree;
 
-public class BestReplySearchKillerHeuristicClient extends Client {
+public class Search {
 
     Logger logger = new Logger(this.getClass().getName());
 
     /**
-     * The time in milliseconds by which we want to respond earlier to avoid disqualification due to
-     * network latency.
+     * The game for which to search a new move for.
      */
-    private static final int TIME_BUFFER = 1000;
+    private final Game game;
+
+    /**
+     * The number of the player to search a new move for.
+     */
+    private final int playerNumber;
 
     /**
      * The timestamp in milliseconds at which we got a move request.
@@ -33,7 +36,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     private long startTime;
 
     /**
-     * The very latest time by which we should send a move
+     * The very latest time by which we should send a move.
      */
     private long endTime;
 
@@ -54,25 +57,24 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     private Map<Integer, Map<Move, Integer>> moveCutoffs;
 
     /**
-     * States if we shall use a time or a depth limit for calculating a move.
+     * Initialize a new move search.
+     * @param game         The game for which to search the best move.
+     * @param playerNumber The player for which to search the best move.
      */
-    private Limit type;
+    public Search(Game game, int playerNumber) {
+        this.game = game;
+        this.playerNumber = playerNumber;
+    }
 
     /**
-     * This is the entry point to the search for a new move.
-     *
-     * @param type  The type of the limit, either depth or time.
-     * @param limit The amount of the limit. If depth limit, specifies the maximum depth the search
-     *              tree shall be built, if time limit, specifies the maximum time the client has to
-     *              respond with a move before it gets disqualified.
+     * Start the search.
+     * @param timeLimit The maximum time after which a move has to be returned in milliseconds.
      * @return A valid move.
      */
-    @Override
-    public Move sendMove(Limit type, int limit) {
+    public Move search(int timeLimit) {
 
-        this.type = type;
         this.startTime = System.currentTimeMillis();
-        this.endTime = startTime + limit - TIME_BUFFER;
+        this.endTime = startTime + timeLimit;
 
         // Fallback move
         Move bestMove =
@@ -104,7 +106,10 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
-            for (int depthLimit = 2; type != Limit.DEPTH || depthLimit < limit; depthLimit++) {
+            int depthLimit = 2;
+
+            while (true) {
+
                 resetStats();
 
                 bestMove = calculateBestMove(sortedMoves, depthLimit);
@@ -114,16 +119,18 @@ public class BestReplySearchKillerHeuristicClient extends Client {
                 }
 
                 evaluateStats(depthLimit);
+
+                depthLimit++;
             }
 
-            return bestMove;
-
-        } catch (OutOfTimeException e) {
+        }
+        catch (OutOfTimeException e) {
             timeouts++;
             logger.warn(e.getMessage());
             return bestMove;
 
-        } catch (NotEnoughTimeException | GamePhaseNotValidException e) {
+        }
+        catch (NotEnoughTimeException | GamePhaseNotValidException e) {
             logger.log(e.getMessage());
             return bestMove;
         }
@@ -133,7 +140,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     /**
      * Initialize the search, and thus begin the building of a search tree. If enough time, the
      * depth of the tree will be `depthLimit`.
-     *
      * @param sortedMoves The list of the initial sorted moves, consisting of a Tuple of the Move
      *                    itself and the Game after the move has been executed.
      * @return The best move
@@ -177,7 +183,6 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     /**
      * Recursive function for calculating the score of a game situation.
-     *
      * @param depth Depth of tree that is built
      * @param alpha Lowest value that is allowed by Max
      * @param beta  Highest value that is allowed by Min
@@ -193,11 +198,11 @@ public class BestReplySearchKillerHeuristicClient extends Client {
                 bombPhasesReached++;
             }
             currentIterationNodesVisited++;
-            return GameEvaluator.evaluate(game, ME);
+            return GameEvaluator.evaluate(game, playerNumber);
         }
 
         int currentPlayerNumber = game.getCurrentPlayerNumber();
-        boolean isMaximizer = currentPlayerNumber == ME;
+        boolean isMaximizer = currentPlayerNumber == playerNumber;
 
         if (isMaximizer) {
             int result = Integer.MIN_VALUE;
@@ -278,16 +283,14 @@ public class BestReplySearchKillerHeuristicClient extends Client {
     */
 
     /**
-     * Sort all possible moves the current player has by
-     * 1. The number of cutoffs the same moves achieved in other branches on the same height of the
-     * tree (killer heuristic)
-     * 2. The score of the game after this move is executed.
-     *
+     * Sort all possible moves the current player has by 1. The number of cutoffs the same moves
+     * achieved in other branches on the same height of the tree (killer heuristic) 2. The score of
+     * the game after this move is executed.
      * @param game        The initial game situation
      * @param moveCutoffs The killer heuristic
      */
-    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs, boolean descending)
-            throws OutOfTimeException {
+    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs,
+                                              boolean descending) throws OutOfTimeException {
 
         // A dataset where every entry consists of a Move, the Game after the Move execution, the
         // score of the game and the number of cutoffs this move achieved in other branches
@@ -299,7 +302,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            int score = GameEvaluator.evaluate(clonedGame, ME);
+            int score = GameEvaluator.evaluate(clonedGame, playerNumber);
             currentIterationNodesVisited++;
 
             int cutoffs = moveCutoffs.getOrDefault(move, 0);
@@ -328,7 +331,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         }
 
         // Reverse if necessary
-        if(descending) {
+        if (descending) {
             Collections.reverse(tuples);
         }
 
@@ -337,18 +340,16 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
     /**
      * Checks if we are over the time limit
-     *
      * @throws OutOfTimeException if we ran out of time
      */
     private void checkTime() throws OutOfTimeException {
-        if (type == Limit.TIME && System.currentTimeMillis() > endTime) {
+        if (System.currentTimeMillis() > endTime) {
             throw new OutOfTimeException("Out of time");
         }
     }
 
     /**
      * Add a cutoff to the statistics.
-     *
      * @param move  Which move achieved the cutoff
      * @param depth On which depth the cutoff was achieved
      */
@@ -415,16 +416,11 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         stats.append("Time estimated: ").append(timeEstimated).append(" ms\n");
         logger.verbose(stats.toString());
 
-        if (type == Limit.TIME && timeLeft < timeEstimated) {
+        if (timeLeft < timeEstimated) {
             throw new NotEnoughTimeException(
                     "Estimated more time for the next depth than what's left");
         }
 
-    }
-
-    @Override
-    public void exit() {
-        logger.verbose("Total timeouts: " + timeouts);
     }
 
 }
