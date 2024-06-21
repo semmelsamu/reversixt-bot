@@ -14,8 +14,6 @@ import java.util.Map;
  */
 public class Board implements Cloneable {
 
-    Logger logger = new Logger(this.getClass().getName());
-
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -27,16 +25,15 @@ public class Board implements Cloneable {
     /**
      * The dimensions of the game board. Used for quick access.
      */
-    private final int width;
-    private final int height;
+    private final short width;
+    private final short height;
 
     /**
-     * The game board.
-     * Consisting of bytes, where every byte represents two Tiles, one by the first 4 bits and one
-     * by the last 4 bits. We start with the first 4 bits at the top left (0/0), the next 4 bits are
-     * one to the right (0/1) and so on. If we are at the end of a line, the next 4 bits represent
-     * the first Tile on the next line. If the number of  Tiles on the board is odd, the last 4 bits
-     * of the last byte may be ignored as they then won't hold any information.
+     * The game board. Consisting of bytes, where every byte represents two Tiles, one by the first
+     * 4 bits and one by the last 4 bits. We start with the first 4 bits at the top left (0/0), the
+     * next 4 bits are one to the right (0/1) and so on. If we are at the end of a line, the next 4
+     * bits represent the first Tile on the next line. If the number of  Tiles on the board is odd,
+     * the last 4 bits of the last byte may be ignored as they then won't hold any information.
      */
     private byte[] board;
 
@@ -66,8 +63,8 @@ public class Board implements Cloneable {
 
     public Board(Tile[][] tiles, Map<TransitionPart, TransitionPart> transitions) {
 
-        this.height = tiles.length;
-        this.width = tiles[0].length;
+        this.height = (short) tiles.length;
+        this.width = (short) tiles[0].length;
 
         this.board = new byte[(int) Math.ceil((double) (width * height) / 2)];
 
