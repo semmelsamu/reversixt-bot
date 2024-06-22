@@ -110,6 +110,8 @@ public class Game implements Cloneable {
 
         moveCounter = 1;
 
+        int i = 0;
+
         currentPlayer = 0;
         do {
             rotateCurrentPlayer();
@@ -129,6 +131,10 @@ public class Game implements Cloneable {
                 else {
                     logger.warn("Map is not playable as there are no valid moves in any phase");
                     break;
+                }
+
+                if (i++ > 100) {
+                    throw new RuntimeException("Too many iterations");
                 }
             }
         } while (validMovesForCurrentPlayer.isEmpty());
@@ -153,6 +159,7 @@ public class Game implements Cloneable {
         }
 
         int oldPlayer = currentPlayer;
+        int i = 0;
 
         do {
             rotateCurrentPlayer();
@@ -172,6 +179,10 @@ public class Game implements Cloneable {
                     currentPlayer = 0;
                     return;
                 }
+            }
+
+            if (i++ > 100) {
+                throw new RuntimeException("Too many iterations");
             }
 
         } while (validMovesForCurrentPlayer.isEmpty() || getCurrentPlayer().isDisqualified());
