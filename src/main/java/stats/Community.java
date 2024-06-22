@@ -55,8 +55,6 @@ public class Community implements Cloneable {
         while (reachableCoordinates.addAll(
                 CoordinatesExpander.expandCoordinates(game, reachableCoordinates, 1)))
             ;
-
-        logger.debug(this.toString(game));
     }
 
     public void addCoordinate(Coordinates coordinate, Game game) {
@@ -104,10 +102,6 @@ public class Community implements Cloneable {
         // ... and the Player has a move in the community
         var possibleMoves = MoveCalculator.getValidMovesForPlayer(game, player);
         return possibleMoves.stream().anyMatch(move -> coordinates.contains(move.getCoordinates()));
-    }
-
-    public boolean containsCoordinates(Coordinates coordinates) {
-        return this.coordinates.contains(coordinates);
     }
 
     /**
@@ -215,22 +209,22 @@ public class Community implements Cloneable {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("Community ").append(hashCode()).append("\n");
-        result.append("- Coordinates: ");
+        result.append("Community #").append(hashCode());
+        result.append("\n- Coordinates: ");
         for (var coordinate : coordinates) {
-            result.append(coordinate).append(", ");
+            result.append(coordinate).append(" ");
         }
         result.append("\n- Tile counts: ");
-        result.append("EXPANSION: ").append(tileCounts[0]);
+        result.append("EXPANSION=").append(tileCounts[0]);
         for (int i = 1; i < tileCounts.length; i++) {
-            result.append(", PLAYER").append(i).append(": ").append(tileCounts[i]);
+            result.append(" PLAYER").append(i).append("=").append(tileCounts[i]);
         }
         return result.toString();
     }
 
     public String toString(Game game) {
         StringBuilder result = new StringBuilder();
-        result.append("Community visualized. WALL=. CURRENT=# REACHABLE=* NOT_REACHABLE=-");
+        result.append("Community #").append(hashCode());
         for (int y = 0; y < game.getHeight(); y++) {
             result.append("\n");
             for (int x = 0; x < game.getWidth(); x++) {

@@ -57,11 +57,6 @@ public class Communities implements Cloneable {
             //       Then we may only need to store it in one community and the others can reference
             //       it.
         }
-
-        this.logger.log("Initial Communities: " + this);
-        this.logger.log(this.toString(game));
-
-        // checkDisableCommunities(game);
     }
 
     private void checkDisableCommunities(Game game) {
@@ -200,7 +195,7 @@ public class Communities implements Cloneable {
     public String toString(Game game) {
         List<Community> orderedCommunities = new ArrayList<>(communities);
         StringBuilder result = new StringBuilder();
-        result.append("Communities visualized");
+        result.append("All Communities");
         for (int y = 0; y < game.getHeight(); y++) {
             result.append("\n");
             for (int x = 0; x < game.getWidth(); x++) {

@@ -7,11 +7,13 @@ import exceptions.OutOfTimeException;
 import game.Game;
 import game.GamePhase;
 import move.Move;
+import stats.Community;
 import util.Logger;
 import util.Quadruple;
 import util.Tuple;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static util.Tree.calculateBranchingFactor;
 import static util.Tree.calculateNodeCountOfTree;
@@ -122,6 +124,12 @@ public class Search {
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
             int depthLimit = 2;
+
+            Set<Community> reachableCommunities = game.communities.getCommunities().stream()
+                    .filter(community -> community.isReachable(game, playerNumber))
+                    .collect(Collectors.toSet());
+
+            logCommunities(game, reachableCommunities);
 
             while (true) {
 
@@ -457,6 +465,28 @@ public class Search {
             result.append("\n- ").append(entry.getKey()).append(": ").append(entry.getValue());
         }
         return result.toString();
+    }
+
+    private static void logCommunities(Game game, Set<Community> reachableCommunities) {
+        if (Logger.defaultPriority > 0) {
+            return;
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        result.append(game.communities.toString(game)).append("\n");
+
+        for (var community : game.communities.getCommunities()) {
+            result.append(community.toString(game)).append("\n");
+        }
+
+        result.append("Reachable:");
+
+        for (var reachableCommunity : reachableCommunities) {
+            result.append("\n").append(reachableCommunity.toString());
+        }
+
+        Logger.get().debug(result.toString());
     }
 
 }
