@@ -339,6 +339,7 @@ public class Game implements Cloneable {
             clone.coordinatesGroupedByTile = this.coordinatesGroupedByTile.clone();
             clone.totalTilesOccupiedCounter = this.totalTilesOccupiedCounter.clone();
             clone.communities = this.communities.clone();
+            clone.communities.setGame(clone);
 
             return clone;
 

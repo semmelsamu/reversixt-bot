@@ -5,16 +5,18 @@ import board.Tile;
 import game.Game;
 import game.Player;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Communities implements Cloneable {
 
     private Set<Community> communities;
 
+    Game game;
+
     public Communities(Game game) {
+
+        this.game = game;
 
         Set<Coordinates> allOccupiedCoordinates = new HashSet<>(
                 game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(Tile.EXPANSION));
@@ -62,16 +64,23 @@ public class Communities implements Cloneable {
         return communities;
     }
 
-    public Set<Community> getAllReachableCommunities(Game game, int player) {
+    public Set<Community> getAllReachableCommunities(int player) {
         Set<Community> result = new HashSet<>();
 
         for (var community : communities) {
-            if (community.isReachable(game, player)) {
+            if (community.isReachable(player)) {
                 result.add(community);
             }
         }
 
         return result;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+        for (var community : communities) {
+            community.setGame(game);
+        }
     }
 
     /*
@@ -108,32 +117,6 @@ public class Communities implements Cloneable {
         result.append("Communities");
         for (var community : communities) {
             result.append("\n").append(community.toString());
-        }
-        return result.toString();
-    }
-
-    public String toString(Game game) {
-        List<Community> orderedCommunities = new ArrayList<>(communities);
-        StringBuilder result = new StringBuilder();
-        result.append("All Communities");
-        for (int y = 0; y < game.getHeight(); y++) {
-            result.append("\n");
-            for (int x = 0; x < game.getWidth(); x++) {
-                Coordinates currentPosition = new Coordinates(x, y);
-
-                if (game.getTile(currentPosition).equals(Tile.WALL)) {
-                    result.append("# ");
-                    continue;
-                }
-
-                char community = '-';
-                for (int i = 0; i < orderedCommunities.size(); i++) {
-                    if (orderedCommunities.get(i).getCoordinates().contains(currentPosition)) {
-                        community = (char) (i + '0');
-                    }
-                }
-                result.append(community).append(" ");
-            }
         }
         return result.toString();
     }

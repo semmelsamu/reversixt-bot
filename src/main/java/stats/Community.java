@@ -19,16 +19,18 @@ public class Community implements Cloneable {
     /**
      * The Coordinates this Community includes.
      */
-    private Set<Coordinates> coordinates;
+    Set<Coordinates> coordinates;
 
     /**
      * Stores the number of tiles each player in this community occupies. The first entry [0] is
      * reserved for expansion stones, each following entry stores the amount of tiles the
      * corresponding player has.
      */
-    private int[] tileCounts;
+    int[] tileCounts;
 
-    private Set<Coordinates> reachableCoordinates;
+    Set<Coordinates> reachableCoordinates;
+
+    Game game;
 
     /**
      * Initialize a new Community.
@@ -37,6 +39,8 @@ public class Community implements Cloneable {
      */
     public Community(Game game, Coordinates coordinate) {
 
+        this.game = game;
+
         coordinates = new HashSet<>();
 
         // Initialize tile counts with 0
@@ -44,8 +48,8 @@ public class Community implements Cloneable {
         Arrays.fill(tileCounts, 0);
 
         // Calculate community coordinates
-        for (Coordinates coordinateToBeAdded : expandCoordinateToCommunity(coordinate, game)) {
-            addCoordinate(coordinateToBeAdded, game);
+        for (Coordinates coordinateToBeAdded : expandCoordinateToCommunity(coordinate)) {
+            addCoordinate(coordinateToBeAdded);
         }
 
         // Calculate reachability map
@@ -57,14 +61,14 @@ public class Community implements Cloneable {
             ;
     }
 
-    public void addCoordinate(Coordinates coordinate, Game game) {
+    public void addCoordinate(Coordinates coordinate) {
         if (coordinates.add(coordinate)) {
             // Only update if the coordinate was not already present
             tileCounts[game.getTile(coordinate).toPlayerIndex() + 1]++;
         }
     }
 
-    public void removeCoordinate(Coordinates coordinate, Game game) {
+    public void removeCoordinate(Coordinates coordinate) {
         if (coordinates.remove(coordinate)) {
             // Only update if the coordinate was actually removed
             tileCounts[game.getTile(coordinate).toPlayerIndex() + 1]--;
@@ -73,9 +77,8 @@ public class Community implements Cloneable {
 
     /**
      * Calculate if this community is reachable for a Player.
-     * @param game The game this community is part of.
      */
-    public boolean isReachable(Game game, int player) {
+    public boolean isReachable(int player) {
         // "A Community is considered reachable when..."
 
         // OPTION A
@@ -112,13 +115,12 @@ public class Community implements Cloneable {
     /**
      * Merge a Community into this Community.
      * @param community The other Community.
-     * @param game      The game the Communities are part of.
      */
-    public void mergeCommunity(Community community, Game game) {
+    public void mergeCommunity(Community community) {
         // Merge the coordinates
         for (Coordinates coordinate : community.coordinates) {
             // TileCounts get merged internally
-            addCoordinate(coordinate, game);
+            addCoordinate(coordinate);
         }
 
         // Merge the reachability map
@@ -151,7 +153,7 @@ public class Community implements Cloneable {
     /**
      * Calculate all coordinates of the community that contains the coordinate
      */
-    private static Set<Coordinates> expandCoordinateToCommunity(Coordinates coordinate, Game game) {
+    private Set<Coordinates> expandCoordinateToCommunity(Coordinates coordinate) {
         Set<Coordinates> result = new HashSet<>();
 
         Set<Coordinates> coordinatesToBeAdded = new HashSet<>();
@@ -166,6 +168,10 @@ public class Community implements Cloneable {
         }
 
         return result;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 
     /*
@@ -185,13 +191,12 @@ public class Community implements Cloneable {
             return false;
         }
         Community community = (Community) o;
-        return Objects.equals(coordinates, community.coordinates) &&
-                Arrays.equals(tileCounts, community.tileCounts);
+        return Objects.equals(coordinates, community.coordinates);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(reachableCoordinates) * 10_000 + Objects.hashCode(coordinates);
+        return Objects.hashCode(coordinates);
     }
 
     @Override
@@ -214,25 +219,15 @@ public class Community implements Cloneable {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("Community #").append(hashCode());
-        result.append("\n- Coordinates: ");
-        for (var coordinate : coordinates) {
-            result.append(coordinate).append(" ");
-        }
-        result.append("\n- Tile counts: ");
-        result.append("EXPANSION=").append(tileCounts[0]);
-        for (int i = 1; i < tileCounts.length; i++) {
-            result.append(" PLAYER").append(i).append("=").append(tileCounts[i]);
-        }
-        return result.toString();
-    }
 
-    public String toString(Game game) {
-        StringBuilder result = new StringBuilder();
         result.append("Community #").append(hashCode());
+
         for (int y = 0; y < game.getHeight(); y++) {
+
             result.append("\n");
+
             for (int x = 0; x < game.getWidth(); x++) {
+
                 Coordinates currentPosition = new Coordinates(x, y);
 
                 if (game.getTile(currentPosition).equals(Tile.WALL)) {
@@ -240,12 +235,14 @@ public class Community implements Cloneable {
                 } else if (coordinates.contains(currentPosition)) {
                     result.append("# ");
                 } else if (reachableCoordinates.contains(currentPosition)) {
-                    result.append("* ");
+                    result.append("+ ");
                 } else {
                     result.append("- ");
                 }
+
             }
         }
+
         return result.toString();
     }
 
