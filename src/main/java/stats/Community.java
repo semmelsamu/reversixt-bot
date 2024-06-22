@@ -28,10 +28,6 @@ public class Community implements Cloneable {
                 new PlayerTileAmountContainer(Tile.EXPANSION, 0);
     }
 
-    public void addCoordinateOfExistingField(Coordinates coordinate, Game game) {
-        addCoordinate(coordinate, game.getTile(coordinate));
-    }
-
     public void addCoordinate(Coordinates coordinate, Tile tile) {
         if (coordinates.add(coordinate)) { // Only update if the coordinate was not already present
             for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
