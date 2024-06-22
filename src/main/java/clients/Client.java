@@ -31,7 +31,6 @@ public class Client {
      * @param playerNumber The number of the player this client should control.
      */
     public Client(Game game, int playerNumber) {
-        logger.log("Hello there.");
         this.game = game;
         logger.log(game.toString());
         this.playerNumber = playerNumber;
