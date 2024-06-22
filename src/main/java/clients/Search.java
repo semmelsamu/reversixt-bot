@@ -7,7 +7,6 @@ import exceptions.OutOfTimeException;
 import game.Game;
 import game.GamePhase;
 import move.Move;
-import stats.Community;
 import util.Logger;
 import util.Quadruple;
 import util.Tuple;
@@ -123,8 +122,6 @@ public class Search {
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
             int depthLimit = 2;
-
-            logCommunities(game, game.communities.getAllReachableCommunities(game, playerNumber));
 
             while (true) {
 
@@ -460,28 +457,6 @@ public class Search {
             result.append("\n- ").append(entry.getKey()).append(": ").append(entry.getValue());
         }
         return result.toString();
-    }
-
-    private static void logCommunities(Game game, Set<Community> reachableCommunities) {
-        if (Logger.defaultPriority > 0) {
-            return;
-        }
-
-        StringBuilder result = new StringBuilder();
-
-        result.append(game.communities.toString(game)).append("\n");
-
-        for (var community : game.communities.getCommunities()) {
-            result.append(community.toString(game)).append("\n");
-        }
-
-        result.append("Reachable:");
-
-        for (var reachableCommunity : reachableCommunities) {
-            result.append("\n- #").append(reachableCommunity.hashCode());
-        }
-
-        Logger.get().debug(result.toString());
     }
 
 }

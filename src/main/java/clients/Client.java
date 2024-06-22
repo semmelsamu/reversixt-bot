@@ -46,6 +46,10 @@ public class Client {
      * @param move The move in question.
      */
     public void executeMove(Move move) {
+
+        logger.debug(game.toString());
+        logger.debug(game.communities.toString());
+
         game.executeMove(move);
 
         // Check if reachableTiles has to be updated
