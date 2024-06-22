@@ -336,10 +336,8 @@ public class Game implements Cloneable {
             }
 
             // Caches
-            clone.coordinatesGroupedByTile =
-                    (CoordinatesGroupedByTile) this.coordinatesGroupedByTile.clone();
-            clone.totalTilesOccupiedCounter =
-                    (TotalTilesOccupiedCounter) this.totalTilesOccupiedCounter.clone();
+            clone.coordinatesGroupedByTile = this.coordinatesGroupedByTile.clone();
+            clone.totalTilesOccupiedCounter = this.totalTilesOccupiedCounter.clone();
             clone.communities = this.communities.clone();
 
             return clone;
