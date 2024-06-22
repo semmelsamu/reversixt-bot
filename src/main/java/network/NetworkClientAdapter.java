@@ -110,7 +110,7 @@ public class NetworkClientAdapter {
         }
         catch (Exception e) {
             // Only log but let it run. Maybe we'll get lucky and manage to sneak through.
-            logger.error(e.getClass().getSimpleName() + ": " + e.getMessage());
+            logger.error(e);
             client.logStats();
         }
     }
