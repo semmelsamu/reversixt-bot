@@ -27,54 +27,38 @@ public class NetworkEventHandler {
 
     /**
      * Connect to a server.
-     *
      * @param ip   The IP address of the server to which the client will connect.
      * @param port The port number on the server to which the client will connect.
      */
-    public void connect(String ip, int port) {
+    public void connect(String ip, int port) throws IOException {
+
         logger.log("Attempting to connect to server " + ip + " on port " + port);
 
-        try {
-            socket = new Socket(ip, port);
-            out = new DataOutputStream(socket.getOutputStream());
-            in = new DataInputStream(socket.getInputStream());
-            logger.log("Connected");
-        }
-        catch (IOException e) {
-            logger.error("Failed connecting to server: " + e.getMessage());
-
-        }
+        socket = new Socket(ip, port);
+        out = new DataOutputStream(socket.getOutputStream());
+        in = new DataInputStream(socket.getInputStream());
+        logger.log("Connected");
 
     }
 
     /**
      * Launch the client on the network.
      */
-    public void launch() {
+    public void launch() throws IOException, ClientDisqualifiedException, NetworkException {
 
         this.client = new NetworkClientAdapter();
 
-        try {
-            sendGroupNumber();
-            run();
-        }
-        catch (Exception e) {
-            logger.error(e.toString());
-        }
+        sendGroupNumber();
+        run();
 
     }
 
-    public void disconnect() {
+    public void disconnect() throws IOException {
 
         logger.log("Disconnecting from server");
 
-        try {
-            socket.close();
-            logger.log("Disconnected");
-        }
-        catch (IOException e) {
-            logger.error("Failed disconnecting from server: " + e.getMessage());
-        }
+        socket.close();
+        logger.log("Disconnected");
 
     }
 

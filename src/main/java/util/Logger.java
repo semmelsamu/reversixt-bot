@@ -1,5 +1,6 @@
 package util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,13 +84,8 @@ public class Logger {
     */
 
     /**
-     * Stores the priorities for each logger.
-     * 0 = DEBUG / log everything,
-     * 1 = VERBOSE,
-     * 2 = LOG,
-     * 3 = WARNING,
-     * 4 = ERROR,
-     * 5 = FATAL.
+     * Stores the priorities for each logger. 0 = DEBUG / log everything, 1 = VERBOSE, 2 = LOG, 3 =
+     * WARNING, 4 = ERROR, 5 = FATAL.
      */
     private static final Map<String, Integer> priorities = new HashMap<>();
 
@@ -125,7 +121,8 @@ public class Logger {
     /**
      * Actual printing logic
      */
-    private void print(String color, String type, String message, int priority) {
+    private void print(String color, String type, String message, int priority,
+                       String callerOverwrite) {
 
         String terminator = replace ? "\r" : "\n";
         replace = false;
@@ -143,22 +140,25 @@ public class Logger {
                 caller.getClassName().substring(caller.getClassName().lastIndexOf('.') + 1);
         String callerMethodName = caller.getMethodName();
 
+        if (callerOverwrite != null) {
+            callerMethodName = callerOverwrite;
+        }
 
-        if(!useColors) {
+        if (!useColors) {
             message = message.replaceAll("\u001B\\[[;\\d]*m", "");
         }
 
         String[] lines = message.trim().split("\n");
         StringBuilder indentedMessage = new StringBuilder(lines[0]);
-        for(int i = 1; i < lines.length; i++) {
-            indentedMessage.append("\n").append(" ".repeat(13 + callerMethodName.length())).append(lines[i]);
+        for (int i = 1; i < lines.length; i++) {
+            indentedMessage.append("\n").append(" ".repeat(13 + callerMethodName.length()))
+                    .append(lines[i]);
         }
 
         // Print
-        System.out.print(
-                terminator + (useColors ? color : "") + fillString(type, 7) + (useColors ? ANSI_RESET : "") +
-                        "  [" + callerMethodName + "]  " + (useColors ? color : "") + indentedMessage +
-                        (useColors ? ANSI_RESET : ""));
+        System.out.print(terminator + (useColors ? color : "") + fillString(type, 7) +
+                (useColors ? ANSI_RESET : "") + "  [" + callerMethodName + "]  " +
+                (useColors ? color : "") + indentedMessage + (useColors ? ANSI_RESET : ""));
 
     }
 
@@ -179,47 +179,57 @@ public class Logger {
     }
 
     /**
+     * Log an Exception.
+     * @param exception The Exception.
+     */
+    public void error(Exception exception) {
+        var stack = Arrays.stream(exception.getStackTrace()).filter(e -> e.getModuleName() == null)
+                .toList();
+        StringBuilder message = new StringBuilder();
+        message.append(exception.getMessage());
+        for (var stackTraceElement : stack) {
+            message.append("\nat ").append(stackTraceElement.toString());
+        }
+        print(ANSI_RED, "ERROR", message.toString(), 4, stack.get(0).getMethodName());
+    }
+
+    /**
      * Log an error.
-     *
      * @param message The error message.
      */
     public void error(String message) {
-        print(ANSI_RED, "ERROR", message, 4);
+        print(ANSI_RED, "ERROR", message, 4, null);
     }
 
     /**
      * Log a warning.
-     *
      * @param message The warning message.
      */
     public void warn(String message) {
-        print(ANSI_YELLOW, "WARN", message, 3);
+        print(ANSI_YELLOW, "WARN", message, 3, null);
     }
 
     /**
      * Log a message.
-     *
      * @param message The message.
      */
     public void log(String message) {
-        print(ANSI_GREEN, "LOG", message, 2);
+        print(ANSI_GREEN, "LOG", message, 2, null);
     }
 
     /**
      * Log a verbose message.
-     *
      * @param message The message.
      */
     public void verbose(String message) {
-        print(ANSI_CYAN, "VERBOSE", message, 1);
+        print(ANSI_CYAN, "VERBOSE", message, 1, null);
     }
 
     /**
      * Log a debug message.
-     *
      * @param message The message.
      */
     public void debug(String message) {
-        print(ANSI_PURPLE, "DEBUG", message, 0);
+        print(ANSI_PURPLE, "DEBUG", message, 0, null);
     }
 }

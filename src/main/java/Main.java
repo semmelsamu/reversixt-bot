@@ -66,9 +66,14 @@ public class Main {
      * @param port The port to connect the client to.
      */
     private static void launch(String ip, int port) {
-        NetworkEventHandler handler = new NetworkEventHandler();
-        handler.connect(ip, port);
-        handler.launch();
-        handler.disconnect();
+        try {
+            NetworkEventHandler handler = new NetworkEventHandler();
+            handler.connect(ip, port);
+            handler.launch();
+            handler.disconnect();
+        }
+        catch (Exception e) {
+            Logger.get().error(e);
+        }
     }
 }
