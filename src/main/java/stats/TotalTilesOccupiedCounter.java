@@ -3,7 +3,7 @@ package stats;
 import board.Tile;
 import game.Game;
 
-public class TotalTilesOccupiedCounter {
+public class TotalTilesOccupiedCounter implements Cloneable {
 
     short totalTilesOccupied;
 
@@ -23,7 +23,14 @@ public class TotalTilesOccupiedCounter {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public TotalTilesOccupiedCounter clone() {
+        try {
+
+            return (TotalTilesOccupiedCounter) super.clone();
+
+        }
+        catch (CloneNotSupportedException e) {
+            throw new AssertionError(); // Can never happen
+        }
     }
 }

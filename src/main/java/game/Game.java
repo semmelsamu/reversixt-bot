@@ -321,6 +321,7 @@ public class Game implements Cloneable {
     @Override
     public Game clone() {
         try {
+
             Game clone = (Game) super.clone();
 
             clone.board = this.board.clone();
@@ -342,9 +343,10 @@ public class Game implements Cloneable {
             clone.communities = this.communities.clone();
 
             return clone;
+
         }
         catch (CloneNotSupportedException e) {
-            throw new AssertionError();
+            throw new AssertionError(); // Can never happen
         }
     }
 }

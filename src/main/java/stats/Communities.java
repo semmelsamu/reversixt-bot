@@ -163,16 +163,23 @@ public class Communities implements Cloneable {
     }
 
     @Override
-    public Communities clone() throws CloneNotSupportedException {
-        Communities clone = (Communities) super.clone();
+    public Communities clone() {
+        try {
 
-        clone.communities = new HashSet<>();
-        for (Community community : communities) {
-            clone.communities.add(community.clone());
+            Communities clone = (Communities) super.clone();
+
+            clone.communities = new HashSet<>();
+            for (Community community : communities) {
+                clone.communities.add(community.clone());
+            }
+            clone.lastUpdatedCommunity =
+                    this.lastUpdatedCommunity != null ? this.lastUpdatedCommunity.clone() : null;
+
+            return clone;
+
         }
-        clone.lastUpdatedCommunity =
-                this.lastUpdatedCommunity != null ? this.lastUpdatedCommunity.clone() : null;
-
-        return clone;
+        catch (CloneNotSupportedException e) {
+            throw new AssertionError(); // Can never happen
+        }
     }
 }

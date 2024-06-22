@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class CoordinatesGroupedByTile {
+public class CoordinatesGroupedByTile implements Cloneable {
 
     private Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
@@ -43,16 +43,22 @@ public class CoordinatesGroupedByTile {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public CoordinatesGroupedByTile clone() {
+        try {
 
-        CoordinatesGroupedByTile clone = (CoordinatesGroupedByTile) super.clone();
+            CoordinatesGroupedByTile clone = (CoordinatesGroupedByTile) super.clone();
 
-        clone.coordinatesGroupedByTile = new HashMap<>();
+            clone.coordinatesGroupedByTile = new HashMap<>();
 
-        for (Map.Entry<Tile, Set<Coordinates>> entry : coordinatesGroupedByTile.entrySet()) {
-            clone.coordinatesGroupedByTile.put(entry.getKey(), new HashSet<>(entry.getValue()));
+            for (Map.Entry<Tile, Set<Coordinates>> entry : coordinatesGroupedByTile.entrySet()) {
+                clone.coordinatesGroupedByTile.put(entry.getKey(), new HashSet<>(entry.getValue()));
+            }
+
+            return clone;
+
         }
-
-        return clone;
+        catch (CloneNotSupportedException e) {
+            throw new AssertionError(); // Can never happen
+        }
     }
 }
