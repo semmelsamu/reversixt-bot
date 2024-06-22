@@ -65,26 +65,6 @@ public class Communities implements Cloneable {
         // checkDisableCommunities(game);
     }
 
-    /**
-     * Calculate all coordinates of the community that contains the coordinate
-     */
-    private static Set<Coordinates> expandCoordinateToCommunity(Coordinates coordinate, Game game) {
-        Set<Coordinates> result = new HashSet<>();
-
-        Set<Coordinates> coordinatesToBeAdded = new HashSet<>();
-        coordinatesToBeAdded.add(coordinate);
-
-        // addAll returns true if new elements were added
-        while (result.addAll(coordinatesToBeAdded)) {
-
-            coordinatesToBeAdded = CoordinatesExpander.expandCoordinates(game, result, 1);
-            coordinatesToBeAdded.removeIf(coordinates -> game.getTile(coordinates).isUnoccupied());
-
-        }
-
-        return result;
-    }
-
     private void checkDisableCommunities(Game game) {
         Set<Community> relevantCommunities = new HashSet<>(communities);
         for (Community community : communities) {
@@ -99,38 +79,6 @@ public class Communities implements Cloneable {
         }
         communitiesDisabled = relevantCommunities.size() < 2;
     }
-
-    public void setLastUpdatedCommunity(Community lastUpdatedCommunity) {
-        this.lastUpdatedCommunity = lastUpdatedCommunity;
-    }
-
-    /*
-    |-----------------------------------------------------------------------------------------------
-    |
-    |   Getters and Setters
-    |
-    |-----------------------------------------------------------------------------------------------
-    */
-
-    public Set<Community> getCommunities() {
-        return communities;
-    }
-
-    public boolean isCommunitiesDisabled() {
-        return communitiesDisabled;
-    }
-
-    public Community getLastUpdatedCommunity() {
-        return lastUpdatedCommunity;
-    }
-
-    /*
-    |-----------------------------------------------------------------------------------------------
-    |
-    |   Other Methods
-    |
-    |-----------------------------------------------------------------------------------------------
-    */
 
     public void updateCommunities(Set<Coordinates> positions, Tile value, Game game) {
         if (communitiesDisabled) {
@@ -186,6 +134,66 @@ public class Communities implements Cloneable {
         lastUpdatedCommunity = searchCommunity;
         checkDisableCommunities(game);
     }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Getters and Setters
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    public void setLastUpdatedCommunity(Community lastUpdatedCommunity) {
+        this.lastUpdatedCommunity = lastUpdatedCommunity;
+    }
+
+    public Set<Community> getCommunities() {
+        return communities;
+    }
+
+    public boolean isCommunitiesDisabled() {
+        return communitiesDisabled;
+    }
+
+    public Community getLastUpdatedCommunity() {
+        return lastUpdatedCommunity;
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Utility
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    /**
+     * Calculate all coordinates of the community that contains the coordinate
+     */
+    private static Set<Coordinates> expandCoordinateToCommunity(Coordinates coordinate, Game game) {
+        Set<Coordinates> result = new HashSet<>();
+
+        Set<Coordinates> coordinatesToBeAdded = new HashSet<>();
+        coordinatesToBeAdded.add(coordinate);
+
+        // addAll returns true if new elements were added
+        while (result.addAll(coordinatesToBeAdded)) {
+
+            coordinatesToBeAdded = CoordinatesExpander.expandCoordinates(game, result, 1);
+            coordinatesToBeAdded.removeIf(coordinates -> game.getTile(coordinates).isUnoccupied());
+
+        }
+
+        return result;
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Overrides
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
 
     @Override
     public Communities clone() {
