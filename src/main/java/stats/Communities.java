@@ -1,7 +1,6 @@
 package stats;
 
 import board.Coordinates;
-import board.CoordinatesExpander;
 import board.Tile;
 import game.Game;
 import game.Player;
@@ -52,11 +51,11 @@ public class Communities implements Cloneable {
             }
 
             // Coordinate is not yet in a community, so a new one has to be created
-            Community community = new Community(game);
-            community.addAllCoordinates(expandCoordinateToCommunity(coordinate, game), game);
+            communities.add(new Community(game, coordinate));
 
-            communities.add(community);
-
+            // TODO: Initial reachability maps can potentially be equal on different communities.
+            //       Then we may only need to store it in one community and the others can reference
+            //       it.
         }
 
         this.logger.log("Initial Communities: " + this);
@@ -80,7 +79,7 @@ public class Communities implements Cloneable {
         communitiesDisabled = relevantCommunities.size() < 2;
     }
 
-    public void updateCommunities(Set<Coordinates> positions, Tile value, Game game) {
+    /* public void updateCommunities(Set<Coordinates> positions, Tile value, Game game) {
         if (communitiesDisabled) {
             return;
         }
@@ -117,7 +116,7 @@ public class Communities implements Cloneable {
                     // Merge the communities to a single one
                     Community newCommunity = new Community(game);
                     for (Community community : communitiesToRemove) {
-                        newCommunity.addAllCoordinatesFromCommunity(community, game);
+                        newCommunity.mergeCommunity(community, game);
                     }
                     communities.removeAll(communitiesToRemove);
                     communities.add(newCommunity);
@@ -133,7 +132,7 @@ public class Communities implements Cloneable {
 
         lastUpdatedCommunity = searchCommunity;
         checkDisableCommunities(game);
-    }
+    }*/
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -157,34 +156,6 @@ public class Communities implements Cloneable {
 
     public Community getLastUpdatedCommunity() {
         return lastUpdatedCommunity;
-    }
-
-    /*
-    |-----------------------------------------------------------------------------------------------
-    |
-    |   Utility
-    |
-    |-----------------------------------------------------------------------------------------------
-    */
-
-    /**
-     * Calculate all coordinates of the community that contains the coordinate
-     */
-    private static Set<Coordinates> expandCoordinateToCommunity(Coordinates coordinate, Game game) {
-        Set<Coordinates> result = new HashSet<>();
-
-        Set<Coordinates> coordinatesToBeAdded = new HashSet<>();
-        coordinatesToBeAdded.add(coordinate);
-
-        // addAll returns true if new elements were added
-        while (result.addAll(coordinatesToBeAdded)) {
-
-            coordinatesToBeAdded = CoordinatesExpander.expandCoordinates(game, result, 1);
-            coordinatesToBeAdded.removeIf(coordinates -> game.getTile(coordinates).isUnoccupied());
-
-        }
-
-        return result;
     }
 
     /*
