@@ -275,6 +275,7 @@ public class Game implements Cloneable {
     public void setTile(Coordinates position, Tile value) {
         coordinatesGroupedByTile.updateCoordinates(position, board.getTile(position), value);
         board.setTile(position, value);
+        communities.updateCommunities(position);
     }
 
     public Map<Short, Short> getTransitions() {

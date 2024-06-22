@@ -1,12 +1,12 @@
 package stats;
 
 import board.Coordinates;
+import board.CoordinatesExpander;
 import board.Tile;
 import game.Game;
 import game.Player;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Communities implements Cloneable {
 
@@ -76,6 +76,46 @@ public class Communities implements Cloneable {
         return result;
     }
 
+    public void updateCommunities(Coordinates coordinates) {
+
+        List<Community> communitiesToBeUpdated = new LinkedList<>();
+
+        for (var community : communities) {
+            // Check if Coordinates border the community
+            if (CoordinatesExpander.expandCoordinates(game, community.getCoordinates(), 1)
+                    .contains(coordinates)) {
+                communitiesToBeUpdated.add(community);
+            }
+        }
+
+        // Get the Community the others get merged into
+        // TODO: Better heuristic? Maybe the largest one?
+        Community resultCommunity = communitiesToBeUpdated.remove(0);
+
+        // Add the new Coordinate to the Community
+        resultCommunity.addCoordinate(coordinates);
+
+        // Merge with the other Communities
+        for (var communityToBeMerged : communitiesToBeUpdated) {
+
+            // Merge community
+            resultCommunity.mergeCommunity(communityToBeMerged);
+
+            // Remove merged community as it is now contained in the resultCommunity.
+            // We can't use communities.remove(communityToBeMerged) because of some Java edge-case,
+            // this doesn't remove it. Instead, we need to do it with an iterator. Ugly but works.
+            // These 8 lines of code cost me 6 hours, I hope that they are appreciated.
+            Iterator<Community> iterator = communities.iterator();
+            while (iterator.hasNext()) {
+                Community community = iterator.next();
+                if (community.equals(communityToBeMerged)) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+    }
+
     public void setGame(Game game) {
         this.game = game;
         for (var community : communities) {
@@ -114,7 +154,7 @@ public class Communities implements Cloneable {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("Communities");
+        result.append(communities.size()).append(" Communities");
         for (var community : communities) {
             result.append("\n").append(community.toString());
         }

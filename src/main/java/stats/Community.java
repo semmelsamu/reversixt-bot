@@ -196,7 +196,7 @@ public class Community implements Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(coordinates);
+        return Objects.hash(coordinates);
     }
 
     @Override
