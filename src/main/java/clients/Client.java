@@ -11,12 +11,6 @@ public class Client {
     private final Logger logger = new Logger(this.getClass().getName());
 
     /**
-     * The time in milliseconds by which we want to respond earlier to avoid disqualification due to
-     * network latency.
-     */
-    private static final int TIME_BUFFER = 1000;
-
-    /**
      * The local copy of the game that runs in sync with the server.
      */
     private final Game game;
@@ -78,7 +72,7 @@ public class Client {
         Search search = new Search(game, playerNumber, evaluator);
 
         // Searching
-        return search.search(timeLimit - TIME_BUFFER);
+        return search.search(timeLimit);
     }
 
     /**

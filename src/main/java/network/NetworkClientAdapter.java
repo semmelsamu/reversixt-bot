@@ -19,6 +19,12 @@ public class NetworkClientAdapter {
 
     private Client client;
 
+    /**
+     * The time in milliseconds by which we want to respond earlier to avoid disqualification due to
+     * network latency.
+     */
+    private static final int TIME_BUFFER = 1000;
+
     private Game game;
     private int playerNumber;
 
@@ -51,7 +57,8 @@ public class NetworkClientAdapter {
     public Triple<Short, Short, Byte> sendMoveAnswer(int timeLimit, byte depthLimit) {
 
         // For performance’s sake we ignore depth limit and always use a time limit
-        int limit = timeLimit > 0 ? timeLimit : 1000;
+        // If no time limit is given we default to 2 seconds as we are probably debugging
+        int limit = timeLimit > 0 ? timeLimit - TIME_BUFFER : 2000;
 
         Move result = client.search(limit);
 
@@ -97,9 +104,6 @@ public class NetworkClientAdapter {
         } else {
             move = new BombMove(playerNumber, coordinates);
         }
-
-        GamePhase currentPhase = game.getPhase();
-        boolean isBombMove = move instanceof BombMove;
 
         try {
             client.executeMove(move);
