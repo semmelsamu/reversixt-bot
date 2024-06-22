@@ -59,7 +59,7 @@ public class NetworkEventHandler {
             run();
         }
         catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.toString());
         }
 
     }
