@@ -1,7 +1,5 @@
 package board;
 
-import java.util.Arrays;
-
 /**
  * Formerly TileValue formerly TileType
  */
@@ -118,16 +116,6 @@ public enum Tile {
             throw new IllegalArgumentException("Player number is higher than 8");
         }
         return Tile.values()[player];
-    }
-
-    /**
-     * Returns array of all participatingPlayers
-     */
-    public static Tile[] getPlayerTiles(int players){
-        if(players  > 8){
-            throw new IllegalArgumentException("Number of players is higher than 8");
-        }
-        return Arrays.copyOfRange(Tile.values(), 1, players + 1);
     }
 
     /*

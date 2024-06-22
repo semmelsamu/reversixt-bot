@@ -1,16 +1,17 @@
 package stats;
 
-import board.Tile;
 import game.Game;
+import game.Player;
 
 public class TotalTilesOccupiedCounter implements Cloneable {
 
     short totalTilesOccupied;
 
     public TotalTilesOccupiedCounter(Game game) {
-        for (Tile tile : Tile.getPlayerTiles(game.constants.initialPlayers())) {
+        for (Player player : game.getPlayers()) {
             totalTilesOccupied +=
-                    (short) game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(tile).size();
+                    (short) game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                            player.getPlayerValue()).size();
         }
     }
 
