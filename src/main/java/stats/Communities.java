@@ -20,44 +20,60 @@ public class Communities implements Cloneable {
     public Communities(Game game) {
 
         lastUpdatedCommunity = null;
-        communities = new HashSet<>();
 
         Set<Coordinates> allOccupiedCoordinates = new HashSet<>();
-        for (Tile tile : Tile.values()) {
-            if (tile.isUnoccupied() || tile.equals(Tile.WALL)) {
-                continue;
-            }
-            // all players
+
+        for (Player player : game.getPlayers()) {
             allOccupiedCoordinates.addAll(
-                    game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(tile));
+                    game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                            player.getPlayerValue()));
         }
 
+        communities = new HashSet<>();
+
         for (Coordinates coordinate : allOccupiedCoordinates) {
-            boolean nextV = false;
+
+            // Check if Coordinate is already present in a Community
+            boolean coordinateIsPresentInCommunity = false;
             for (Community community : communities) {
                 if (community.getCoordinates().contains(coordinate)) {
-                    nextV = true;
+                    coordinateIsPresentInCommunity = true;
                     break;
                 }
             }
-
-            if (nextV) {
+            if (coordinateIsPresentInCommunity) {
                 continue;
             }
 
+            // Coordinate is not yet in a community, so a new one has to be created
             Community community = new Community(game);
-            community.addCoordinateOfExistingField(coordinate, game);
-            int oldCoordinatesCounter;
-            do {
-                oldCoordinatesCounter = community.getCoordinates().size();
-                Set<Coordinates> coordinatesInCommunity =
-                        CoordinatesExpander.expandCoordinates(game, community.getCoordinates(), 1);
-                coordinatesInCommunity.removeIf(cor -> game.getTile(cor).isUnoccupied());
-                community.addAllCoordinates(coordinatesInCommunity, game);
-            } while (oldCoordinatesCounter != community.getCoordinates().size());
+            community.addAllCoordinates(expandCoordinateToCommunity(coordinate, game), game);
+
             communities.add(community);
+
         }
+
         checkDisableCommunities(game);
+    }
+
+    /**
+     * Calculate all coordinates of the community that contains the coordinate
+     */
+    private static Set<Coordinates> expandCoordinateToCommunity(Coordinates coordinate, Game game) {
+        Set<Coordinates> result = new HashSet<>();
+
+        Set<Coordinates> coordinatesToBeAdded = new HashSet<>();
+        coordinatesToBeAdded.add(coordinate);
+
+        // addAll returns true if new elements were added
+        while (result.addAll(coordinatesToBeAdded)) {
+
+            coordinatesToBeAdded = CoordinatesExpander.expandCoordinates(game, result, 1);
+            coordinatesToBeAdded.removeIf(coordinates -> game.getTile(coordinates).isUnoccupied());
+
+        }
+
+        return result;
     }
 
     private void checkDisableCommunities(Game game) {
