@@ -1,22 +1,15 @@
-package game;
+package stats;
 
 import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
+import game.Game;
+import game.Player;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class GameStats implements Cloneable {
-
-    /*
-    |-----------------------------------------------------------------------------------------------
-    |
-    |   Attributes
-    |
-    |-----------------------------------------------------------------------------------------------
-    */
-
+public class Communities implements Cloneable {
 
     private Set<Community> communities;
 
@@ -24,15 +17,11 @@ public class GameStats implements Cloneable {
 
     private boolean communitiesDisabled;
 
-    public GameStats(Game game) {
+    public Communities(Game game) {
 
         lastUpdatedCommunity = null;
         communities = new HashSet<>();
 
-        initializeCommunities(game);
-    }
-
-    private void initializeCommunities(Game game) {
         Set<Coordinates> allOccupiedCoordinates = new HashSet<>();
         for (Tile tile : Tile.values()) {
             if (tile.isUnoccupied() || tile.equals(Tile.WALL)) {
@@ -174,21 +163,16 @@ public class GameStats implements Cloneable {
     }
 
     @Override
-    public GameStats clone() {
-        try {
-            GameStats clone = (GameStats) super.clone();
+    public Communities clone() throws CloneNotSupportedException {
+        Communities clone = (Communities) super.clone();
 
-            clone.communities = new HashSet<>();
-            for (Community community : communities) {
-                clone.communities.add(community.clone());
-            }
-            clone.lastUpdatedCommunity =
-                    this.lastUpdatedCommunity != null ? this.lastUpdatedCommunity.clone() : null;
+        clone.communities = new HashSet<>();
+        for (Community community : communities) {
+            clone.communities.add(community.clone());
+        }
+        clone.lastUpdatedCommunity =
+                this.lastUpdatedCommunity != null ? this.lastUpdatedCommunity.clone() : null;
 
-            return clone;
-        }
-        catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        return clone;
     }
 }

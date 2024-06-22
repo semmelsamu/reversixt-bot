@@ -7,6 +7,7 @@ import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
 import move.Move;
 import move.OverwriteMove;
+import stats.Communities;
 import stats.CoordinatesGroupedByTile;
 import stats.TotalTilesOccupiedCounter;
 import util.Logger;
@@ -38,11 +39,6 @@ public class Game implements Cloneable {
      */
     private Player[] players;
 
-    /**
-     * The container for all stats about the game and the logic
-     */
-    public GameStats stats;
-
     public final GameConstants constants;
 
     private int currentPlayer;
@@ -62,14 +58,19 @@ public class Game implements Cloneable {
     */
 
     /**
+     * For each tile value, caches the set of coordinates that have this value.
+     */
+    public CoordinatesGroupedByTile coordinatesGroupedByTile;
+
+    /**
      * Caches the total number of tiles occupied.
      */
     public TotalTilesOccupiedCounter totalTilesOccupiedCounter;
 
     /**
-     * For each tile value, caches the set of coordinates that have this value.
+     * Caches the communities on the board.
      */
-    public CoordinatesGroupedByTile coordinatesGroupedByTile;
+    public Communities communities;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -102,8 +103,8 @@ public class Game implements Cloneable {
 
         // Caching
         coordinatesGroupedByTile = new CoordinatesGroupedByTile(this);
-        stats = new GameStats(this);
         totalTilesOccupiedCounter = new TotalTilesOccupiedCounter(this);
+        communities = new Communities(this);
 
         phase = GamePhase.BUILD;
 
@@ -280,7 +281,7 @@ public class Game implements Cloneable {
     /*
     |-----------------------------------------------------------------------------------------------
     |
-    |   To string
+    |   Overrides
     |
     |-----------------------------------------------------------------------------------------------
     */
@@ -333,12 +334,13 @@ public class Game implements Cloneable {
                 clone.logger = new NullLogger("");
             }
 
-            clone.stats = this.stats.clone();
+            // Caches
             clone.coordinatesGroupedByTile =
                     (CoordinatesGroupedByTile) this.coordinatesGroupedByTile.clone();
-
             clone.totalTilesOccupiedCounter =
                     (TotalTilesOccupiedCounter) this.totalTilesOccupiedCounter.clone();
+            clone.communities = this.communities.clone();
+
             return clone;
         }
         catch (CloneNotSupportedException e) {
