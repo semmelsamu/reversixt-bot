@@ -5,11 +5,16 @@ import board.CoordinatesExpander;
 import board.Tile;
 import game.Game;
 import game.Player;
+import util.Logger;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Communities implements Cloneable {
+
+    Logger logger = new Logger(this.getClass().getName());
 
     private Set<Community> communities;
 
@@ -21,7 +26,8 @@ public class Communities implements Cloneable {
 
         lastUpdatedCommunity = null;
 
-        Set<Coordinates> allOccupiedCoordinates = new HashSet<>();
+        Set<Coordinates> allOccupiedCoordinates = new HashSet<>(
+                game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(Tile.EXPANSION));
 
         for (Player player : game.getPlayers()) {
             allOccupiedCoordinates.addAll(
@@ -53,7 +59,10 @@ public class Communities implements Cloneable {
 
         }
 
-        checkDisableCommunities(game);
+        this.logger.log("Initial Communities: " + this);
+        this.logger.log(this.toString(game));
+
+        // checkDisableCommunities(game);
     }
 
     /**
@@ -197,5 +206,41 @@ public class Communities implements Cloneable {
         catch (CloneNotSupportedException e) {
             throw new AssertionError(); // Can never happen
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append("Communities");
+        for (var community : communities) {
+            result.append("\n").append(community.toString());
+        }
+        return result.toString();
+    }
+
+    public String toString(Game game) {
+        List<Community> orderedCommunities = new ArrayList<>(communities);
+        StringBuilder result = new StringBuilder();
+        result.append("Communities visualized");
+        for (int y = 0; y < game.getHeight(); y++) {
+            result.append("\n");
+            for (int x = 0; x < game.getWidth(); x++) {
+                Coordinates currentPosition = new Coordinates(x, y);
+
+                if (game.getTile(currentPosition).equals(Tile.WALL)) {
+                    result.append("# ");
+                    continue;
+                }
+
+                char community = '-';
+                for (int i = 0; i < orderedCommunities.size(); i++) {
+                    if (orderedCommunities.get(i).getCoordinates().contains(currentPosition)) {
+                        community = (char) (i + '0');
+                    }
+                }
+                result.append(community).append(" ");
+            }
+        }
+        return result.toString();
     }
 }
