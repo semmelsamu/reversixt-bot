@@ -3,9 +3,12 @@ package board;
 import java.util.Objects;
 
 /**
- * y is the vertical axis, x the horizontal axis.
- * Coordinates start at 0.
- * (0/0) is on the top left.
+ * <ul>
+ *     <li>X is the horizontal axis</li>
+ *     <li>Y is the vertical axis</li>
+ *     <li>Coordinates start at 0</li>
+ *     <li>(0/0) is on the top left</li>
+ * </ul>
  */
 public class Coordinates {
 
@@ -17,8 +20,8 @@ public class Coordinates {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public final int x;
-    public final int y;
+    public final byte x;
+    public final byte y;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -29,8 +32,8 @@ public class Coordinates {
     */
 
     public Coordinates(int x, int y) {
-        this.x = x;
-        this.y = y;
+        this.x = (byte) x;
+        this.y = (byte) y;
     }
 
     /*
