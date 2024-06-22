@@ -7,6 +7,7 @@ import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
 import move.Move;
 import move.OverwriteMove;
+import stats.TotalTilesOccupiedCounter;
 import util.Logger;
 import util.NullLogger;
 
@@ -54,6 +55,19 @@ public class Game implements Cloneable {
     /*
     |-----------------------------------------------------------------------------------------------
     |
+    |   Caches
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    /**
+     * Caches the total number of tiles occupied.
+     */
+    public TotalTilesOccupiedCounter totalTilesOccupiedCounter;
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
     |   Constructor
     |
     |-----------------------------------------------------------------------------------------------
@@ -81,6 +95,7 @@ public class Game implements Cloneable {
                 new GameConstants(initialPlayers, initialOverwriteStones, initialBombs, bombRadius);
 
         stats = new GameStats(this);
+        totalTilesOccupiedCounter = new TotalTilesOccupiedCounter(this);
 
         phase = GamePhase.BUILD;
 
@@ -311,8 +326,11 @@ public class Game implements Cloneable {
             }
 
             clone.stats = this.stats.clone();
+            clone.totalTilesOccupiedCounter =
+                    (TotalTilesOccupiedCounter) this.totalTilesOccupiedCounter.clone();
             return clone;
-        } catch (CloneNotSupportedException e) {
+        }
+        catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }

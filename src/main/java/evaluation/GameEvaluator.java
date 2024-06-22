@@ -90,7 +90,7 @@ public class GameEvaluator {
     }
 
     private int getEvalPhase(Game game) {
-        int percentage = (int) ((double) game.stats.getOccupiedTilesOverall() /
+        int percentage = (int) ((double) game.totalTilesOccupiedCounter.getTotalTilesOccupied() /
                 boardInfo.getReachableTiles() * 100 + 0.5);
         for (int i = 1; i < evalPhaseThresholds.length; i++) {
             if (percentage < evalPhaseThresholds[i]) {

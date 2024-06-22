@@ -19,8 +19,6 @@ public class GameStats implements Cloneable {
     |-----------------------------------------------------------------------------------------------
     */
 
-    short occupiedTilesOverall;
-
     Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
     private Set<Community> communities;
@@ -42,10 +40,6 @@ public class GameStats implements Cloneable {
                     }
                 }
             }
-        }
-
-        for (Tile tile : Tile.getPlayerTiles(game.constants.initialPlayers())) {
-            occupiedTilesOverall += (short) getAllCoordinatesWhereTileIs(tile).size();
         }
 
         lastUpdatedCommunity = null;
@@ -133,14 +127,6 @@ public class GameStats implements Cloneable {
 
     public Community getLastUpdatedCommunity() {
         return lastUpdatedCommunity;
-    }
-
-    public short getOccupiedTilesOverall() {
-        return occupiedTilesOverall;
-    }
-
-    public void incrementOccupiedTilesOverAll() {
-        occupiedTilesOverall++;
     }
 
     /*
