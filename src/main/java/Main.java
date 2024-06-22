@@ -25,11 +25,15 @@ public class Main {
             Logger.defaultPriority = (int) parsedArguments.get("l");
         }
 
+        Logger.get().log("Hello there.");
+
         welcome();
 
         Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
 
         launch((String) parsedArguments.get("i"), (int) parsedArguments.get("p"));
+
+        Logger.get().log("The Force will be with you. Always.");
     }
 
     /**
