@@ -4,9 +4,7 @@ import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class GameStats implements Cloneable {
@@ -19,7 +17,6 @@ public class GameStats implements Cloneable {
     |-----------------------------------------------------------------------------------------------
     */
 
-    Map<Tile, Set<Coordinates>> coordinatesGroupedByTile;
 
     private Set<Community> communities;
 
@@ -28,19 +25,6 @@ public class GameStats implements Cloneable {
     private boolean communitiesDisabled;
 
     public GameStats(Game game) {
-
-        // Initialize cache for coordinates grouped by tile
-        coordinatesGroupedByTile = new HashMap<>();
-        for (Tile tile : Tile.values()) {
-            coordinatesGroupedByTile.put(tile, new HashSet<>());
-            for (int y = 0; y < game.getHeight(); y++) {
-                for (int x = 0; x < game.getWidth(); x++) {
-                    if (game.getTile(new Coordinates(x, y)) == tile) {
-                        coordinatesGroupedByTile.get(tile).add(new Coordinates(x, y));
-                    }
-                }
-            }
-        }
 
         lastUpdatedCommunity = null;
         communities = new HashSet<>();
@@ -55,7 +39,8 @@ public class GameStats implements Cloneable {
                 continue;
             }
             // all players
-            allOccupiedCoordinates.addAll(getAllCoordinatesWhereTileIs(tile));
+            allOccupiedCoordinates.addAll(
+                    game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(tile));
         }
 
         for (Coordinates coordinate : allOccupiedCoordinates) {
@@ -113,10 +98,6 @@ public class GameStats implements Cloneable {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public Set<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
-        return coordinatesGroupedByTile.get(tile);
-    }
-
     public Set<Community> getCommunities() {
         return communities;
     }
@@ -136,11 +117,6 @@ public class GameStats implements Cloneable {
     |
     |-----------------------------------------------------------------------------------------------
     */
-
-    public void replaceTileAtCoordinates(Coordinates coordinates, Tile oldValue, Tile newValue) {
-        coordinatesGroupedByTile.get(oldValue).remove(coordinates);
-        coordinatesGroupedByTile.get(newValue).add(coordinates);
-    }
 
     public void updateCommunities(Set<Coordinates> positions, Tile value, Game game) {
         if (communitiesDisabled) {
@@ -201,10 +177,6 @@ public class GameStats implements Cloneable {
     public GameStats clone() {
         try {
             GameStats clone = (GameStats) super.clone();
-            clone.coordinatesGroupedByTile = new HashMap<>();
-            for (Map.Entry<Tile, Set<Coordinates>> entry : coordinatesGroupedByTile.entrySet()) {
-                clone.coordinatesGroupedByTile.put(entry.getKey(), new HashSet<>(entry.getValue()));
-            }
 
             clone.communities = new HashSet<>();
             for (Community community : communities) {

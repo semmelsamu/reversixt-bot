@@ -9,7 +9,8 @@ public class TotalTilesOccupiedCounter {
 
     public TotalTilesOccupiedCounter(Game game) {
         for (Tile tile : Tile.getPlayerTiles(game.constants.initialPlayers())) {
-            totalTilesOccupied += (short) game.stats.getAllCoordinatesWhereTileIs(tile).size();
+            totalTilesOccupied +=
+                    (short) game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(tile).size();
         }
     }
 

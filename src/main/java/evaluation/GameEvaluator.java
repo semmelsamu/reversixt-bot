@@ -57,7 +57,8 @@ public class GameEvaluator {
                 sumUpAllRatingsForOccupiedTiles(game, player);
         rating += mobilityFactorsPerEvalPhase[evalPhase] * evaluateMobility(game, player);
         rating += rawTileFactorsPerEvalPhase[evalPhase] *
-                game.stats.getAllCoordinatesWhereTileIs(Tile.getTileForPlayerNumber(player)).size();
+                game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                        Tile.getTileForPlayerNumber(player)).size();
         rating += evaluateOverwriteStones(game, player, 50);
         rating += evaluateBombs(game, player, 10);
         return (int) rating;
@@ -66,7 +67,7 @@ public class GameEvaluator {
     // Evaluation in bomb phase just counts the occupied tiles
     private int evaluatePhase2(Game game, int player) {
         Tile playerTile = Tile.getTileForPlayerNumber(player);
-        return game.stats.getAllCoordinatesWhereTileIs(playerTile).size();
+        return game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(playerTile).size();
     }
 
     // Evaluation of an end game returns max int, if game is won. Otherwise same as phase 2
@@ -119,7 +120,7 @@ public class GameEvaluator {
 
     private int sumUpAllRatingsForOccupiedTiles(Game game, int player) {
         int sum = 0;
-        for (Coordinates tile : game.stats.getAllCoordinatesWhereTileIs(
+        for (Coordinates tile : game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
                 game.getPlayer(player).getPlayerValue())) {
             sum += tileRatings[tile.y][tile.x];
         }
@@ -139,7 +140,8 @@ public class GameEvaluator {
     }
 
     private int getNumberOfTilesForPlayer(Game game, int player) {
-        return game.stats.getAllCoordinatesWhereTileIs(Tile.getTileForPlayerNumber(player)).size();
+        return game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                Tile.getTileForPlayerNumber(player)).size();
     }
 
     /*

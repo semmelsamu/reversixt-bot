@@ -36,7 +36,7 @@ public final class MoveCalculator {
 
         HashSet<Move> moves = new HashSet<>();
 
-        for (Coordinates occupiedTile : game.stats.getAllCoordinatesWhereTileIs(
+        for (Coordinates occupiedTile : game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
                 player.getPlayerValue())) {
             if (game.getTile(occupiedTile) != player.getPlayerValue()) {
                 throw new AssertionError("Wrong coordinates in Player" + player + "'s List stones");
@@ -54,7 +54,8 @@ public final class MoveCalculator {
 
         if (player.getOverwriteStones() > 0) {
             // Add overwrite moves on expansion tiles
-            for (var coordinate : game.stats.getAllCoordinatesWhereTileIs(Tile.EXPANSION)) {
+            for (var coordinate : game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                    Tile.EXPANSION)) {
                 moves.add(new OverwriteMove(playerNumber, coordinate));
             }
         }
@@ -76,7 +77,8 @@ public final class MoveCalculator {
                 continue;
             }
 
-            for (Coordinates position : game.stats.getAllCoordinatesWhereTileIs(tile)) {
+            for (Coordinates position : game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                    tile)) {
                 result.add(new BombMove(player, position));
             }
 

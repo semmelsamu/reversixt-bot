@@ -13,7 +13,8 @@ public class TileCountingTest {
 
         for (Player allParticipatingPlayer : game.getPlayers()) {
             int calculatedTileCount =
-                    game.stats.getAllCoordinatesWhereTileIs(allParticipatingPlayer.getPlayerValue())
+                    game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                                    allParticipatingPlayer.getPlayerValue())
                             .size();
             assertEquals(4, calculatedTileCount, "Tile count for each player at 4");
         }
@@ -24,8 +25,8 @@ public class TileCountingTest {
         Game game = GameFactory.createFromFile("maps/initialMaps/checkerboard.map");
 
         for (Player allParticipatingPlayer : game.getPlayers()) {
-            int calculatedTileCount =
-                    game.stats.getAllCoordinatesWhereTileIs(allParticipatingPlayer.getPlayerValue())
+            int calculatedTileCount = game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                            allParticipatingPlayer.getPlayerValue())
                             .size();
             assertEquals(8, calculatedTileCount, "Tile count for each player at 8");
         }

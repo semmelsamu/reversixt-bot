@@ -7,6 +7,7 @@ import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
 import move.Move;
 import move.OverwriteMove;
+import stats.CoordinatesGroupedByTile;
 import stats.TotalTilesOccupiedCounter;
 import util.Logger;
 import util.NullLogger;
@@ -65,6 +66,11 @@ public class Game implements Cloneable {
      */
     public TotalTilesOccupiedCounter totalTilesOccupiedCounter;
 
+    /**
+     * For each tile value, caches the set of coordinates that have this value.
+     */
+    public CoordinatesGroupedByTile coordinatesGroupedByTile;
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -94,6 +100,8 @@ public class Game implements Cloneable {
         constants =
                 new GameConstants(initialPlayers, initialOverwriteStones, initialBombs, bombRadius);
 
+        // Caching
+        coordinatesGroupedByTile = new CoordinatesGroupedByTile(this);
         stats = new GameStats(this);
         totalTilesOccupiedCounter = new TotalTilesOccupiedCounter(this);
 
@@ -253,7 +261,7 @@ public class Game implements Cloneable {
     }
 
     public void setTile(Coordinates position, Tile value) {
-        stats.replaceTileAtCoordinates(position, board.getTile(position), value);
+        coordinatesGroupedByTile.updateCoordinates(position, board.getTile(position), value);
         board.setTile(position, value);
     }
 
@@ -326,6 +334,9 @@ public class Game implements Cloneable {
             }
 
             clone.stats = this.stats.clone();
+            clone.coordinatesGroupedByTile =
+                    (CoordinatesGroupedByTile) this.coordinatesGroupedByTile.clone();
+
             clone.totalTilesOccupiedCounter =
                     (TotalTilesOccupiedCounter) this.totalTilesOccupiedCounter.clone();
             return clone;

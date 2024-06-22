@@ -131,12 +131,14 @@ public final class MoveExecutor {
         Player playerToSwapWith = game.getPlayer(choiceMove.getPlayerToSwapWith());
 
         // Collect all occupied tiles of current player
-        var oldTilesPlayerFromCurrentPlayer =
-                new HashSet<>(game.stats.getAllCoordinatesWhereTileIs(player.getPlayerValue()));
+        var oldTilesPlayerFromCurrentPlayer = new HashSet<>(
+                game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                        player.getPlayerValue()));
 
         // Iterate through all old tiles of player to swap with
         for (Coordinates coordinates : new HashSet<>(
-                game.stats.getAllCoordinatesWhereTileIs(playerToSwapWith.getPlayerValue()))) {
+                game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                        playerToSwapWith.getPlayerValue()))) {
             game.setTile(coordinates, player.getPlayerValue());
         }
 
@@ -160,7 +162,8 @@ public final class MoveExecutor {
         // We need to create a copy of the coordinate set as we are altering it in the loop
         // Else we get a ConcurrentModificationException.
         Set<Coordinates> oldTilesFromPred = new HashSet<>(
-                game.stats.getAllCoordinatesWhereTileIs(previousPlayer.getPlayerValue()));
+                game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                        previousPlayer.getPlayerValue()));
 
         Set<Coordinates> oldOwnTiles = null;
 
@@ -170,8 +173,8 @@ public final class MoveExecutor {
                 oldTilesFromPred = oldOwnTiles;
             }
 
-            oldOwnTiles = new HashSet<>(
-                    game.stats.getAllCoordinatesWhereTileIs(players[i].getPlayerValue()));
+            oldOwnTiles = new HashSet<>(game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                    players[i].getPlayerValue()));
 
             for (Coordinates coordinates : oldTilesFromPred) {
                 game.setTile(coordinates, players[i].getPlayerValue());
