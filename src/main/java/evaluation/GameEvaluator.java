@@ -58,7 +58,7 @@ public class GameEvaluator {
         rating += mobilityFactorsPerEvalPhase[evalPhase] * evaluateMobility(game, player);
         rating += rawTileFactorsPerEvalPhase[evalPhase] *
                 game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
-                        Tile.getTileForPlayerNumber(player)).size();
+                        game.getPlayer(player).getPlayerValue()).size();
         rating += evaluateOverwriteStones(game, player, 50);
         rating += evaluateBombs(game, player, 10);
         return (int) rating;
@@ -66,7 +66,7 @@ public class GameEvaluator {
 
     // Evaluation in bomb phase just counts the occupied tiles
     private int evaluatePhase2(Game game, int player) {
-        Tile playerTile = Tile.getTileForPlayerNumber(player);
+        Tile playerTile = game.getPlayer(player).getPlayerValue();
         return game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(playerTile).size();
     }
 
@@ -141,7 +141,7 @@ public class GameEvaluator {
 
     private int getNumberOfTilesForPlayer(Game game, int player) {
         return game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
-                Tile.getTileForPlayerNumber(player)).size();
+                game.getPlayer(player).getPlayerValue()).size();
     }
 
     /*
