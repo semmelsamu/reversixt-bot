@@ -478,7 +478,7 @@ public class Search {
         result.append("Reachable:");
 
         for (var reachableCommunity : reachableCommunities) {
-            result.append("\n").append(reachableCommunity.toString());
+            result.append("\n- #").append(reachableCommunity.hashCode());
         }
 
         Logger.get().debug(result.toString());
