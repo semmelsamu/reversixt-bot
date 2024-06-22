@@ -12,79 +12,50 @@ import java.util.stream.Collectors;
 
 public class Community implements Cloneable {
 
+    /**
+     * The Coordinates this Community includes.
+     */
     private Set<Coordinates> coordinates;
-    private PlayerTileAmountContainer[] playerTileAmountContainers;
+
+    /**
+     * Stores the number of tiles each player in this community occupies. The first entry [0] is
+     * reserved for expansion stones, each following entry stores the amount of tiles the
+     * corresponding player has.
+     */
+    private int[] tileCounts;
 
     public Community(Game game) {
-        this.coordinates = new HashSet<>();
 
-        int playersLength = game.getPlayers().length;
-        this.playerTileAmountContainers = new PlayerTileAmountContainer[playersLength + 1];
-        for (int i = 0; i < playersLength; i++) {
-            playerTileAmountContainers[i] =
-                    new PlayerTileAmountContainer(game.getPlayers()[i].getPlayerValue(), 0);
-        }
-        playerTileAmountContainers[playersLength] =
-                new PlayerTileAmountContainer(Tile.EXPANSION, 0);
+        coordinates = new HashSet<>();
+
+        // Initialize tile counts with 0
+        tileCounts = new int[game.getPlayers().length + 1];
+        Arrays.fill(tileCounts, 0);
     }
 
-    public void addCoordinate(Coordinates coordinate, Tile tile) {
-        if (coordinates.add(coordinate)) { // Only update if the coordinate was not already present
-            for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
-                if (playerTileAmountContainer.getPlayer().equals(tile)) {
-                    playerTileAmountContainer.incrementTileAmount();
-                }
-            }
-        }
-
-        if (coordinates.size() != Arrays.stream(playerTileAmountContainers)
-                .mapToInt(PlayerTileAmountContainer::getTileAmount).sum()) {
-            System.out.println(
-                    this.coordinates.size() + " " + Arrays.toString(playerTileAmountContainers));
+    public void addCoordinate(Coordinates coordinate, Game game) {
+        if (coordinates.add(coordinate)) {
+            // Only update if the coordinate was not already present
+            tileCounts[game.getTile(coordinate).toPlayerIndex() + 1]++;
         }
     }
 
-    public void addAllCoordinates(Set<Coordinates> newCoordinates, Game game) {
-        Set<Coordinates> addedCoordinates = new HashSet<>();
-        for (Coordinates coordinate : newCoordinates) {
-            if (coordinates.add(coordinate)) { // Only add if it wasn't already present
-                addedCoordinates.add(coordinate);
-            }
-        }
-        // Update statistics only for newly added coordinates
-        for (Coordinates coordinate : addedCoordinates) {
-            for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
-                if (playerTileAmountContainer.getPlayer().equals(game.getTile(coordinate))) {
-                    playerTileAmountContainer.incrementTileAmount();
-                }
-            }
+    public void addAllCoordinates(Set<Coordinates> coordinates, Game game) {
+        for (Coordinates coordinate : coordinates) {
+            addCoordinate(coordinate, game);
         }
     }
 
     public void removeCoordinate(Coordinates coordinate, Game game) {
-        coordinates.remove(coordinate); // Only update if the coordinate was actually removed
-        for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
-            if (playerTileAmountContainer.getPlayer().equals(game.getTile(coordinate))) {
-                playerTileAmountContainer.decrementTileAmount();
-            }
+        if (coordinates.remove(coordinate)) {
+            // Only update if the coordinate was actually removed
+            tileCounts[game.getTile(coordinate).toPlayerIndex() + 1]--;
         }
     }
 
     public void addAllCoordinatesFromCommunity(Community other, Game game) {
-        Set<Coordinates> addedCoordinates = new HashSet<>();
         for (Coordinates coordinate : other.coordinates) {
-            if (coordinates.add(coordinate)) { // Only add if it wasn't already present
-                addedCoordinates.add(coordinate);
-            }
-        }
-        // Update statistics only for newly added coordinates
-        for (Coordinates coordinate : addedCoordinates) {
-            for (PlayerTileAmountContainer ourPlayerTileAmountContainer :
-                    playerTileAmountContainers) {
-                if (ourPlayerTileAmountContainer.getPlayer().equals(game.getTile(coordinate))) {
-                    ourPlayerTileAmountContainer.incrementTileAmount();
-                }
-            }
+            addCoordinate(coordinate, game);
         }
     }
 
@@ -92,13 +63,14 @@ public class Community implements Cloneable {
         return coordinates;
     }
 
-    public int getTileAmountByPlayer(Tile playerValue) {
-        for (PlayerTileAmountContainer playerTileAmountContainer : playerTileAmountContainers) {
-            if (playerTileAmountContainer.player.equals(playerValue)) {
-                return playerTileAmountContainer.getTileAmount();
-            }
+    public int getTileCount(Tile tile) {
+        if (tile.equals(Tile.EXPANSION)) {
+            return tileCounts[0];
+        } else if (tile.isPlayer()) {
+            return tileCounts[tile.toPlayerIndex() + 1];
+        } else {
+            return -1;
         }
-        return -1;
     }
 
     /*
@@ -119,29 +91,29 @@ public class Community implements Cloneable {
         }
         Community community = (Community) o;
         return Objects.equals(coordinates, community.coordinates) &&
-                Arrays.equals(playerTileAmountContainers, community.playerTileAmountContainers);
+                Arrays.equals(tileCounts, community.tileCounts);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(coordinates);
-        result = 31 * result + Arrays.hashCode(playerTileAmountContainers);
+        result = 31 * result + Arrays.hashCode(tileCounts);
         return result;
     }
 
     @Override
     public Community clone() {
         try {
+
             Community clone = (Community) super.clone();
-            // Deep clone the mutable state
+
             clone.coordinates = new HashSet<>(this.coordinates);
-            clone.playerTileAmountContainers =
-                    new PlayerTileAmountContainer[this.playerTileAmountContainers.length];
-            for (int i = 0; i < this.playerTileAmountContainers.length; i++) {
-                clone.playerTileAmountContainers[i] = this.playerTileAmountContainers[i].clone();
-            }
+            clone.tileCounts = this.tileCounts.clone();
+
             return clone;
-        } catch (CloneNotSupportedException e) {
+
+        }
+        catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }
@@ -151,9 +123,9 @@ public class Community implements Cloneable {
         String coordinatesString = coordinates.stream().map(Coordinates::toString)
                 .collect(Collectors.joining(",\n    ", "[\n    ", "\n]"));
 
-        String playerTileAmountsString =
-                Arrays.stream(playerTileAmountContainers).map(PlayerTileAmountContainer::toString)
-                        .collect(Collectors.joining(",\n    ", "[\n    ", "\n]"));
+        // TODO String playerTileAmountsString =
+        //        Arrays.stream(tileCounts).map(PlayerTileAmountContainer::toString)
+        //                .collect(Collectors.joining(",\n    ", "[\n    ", "\n]"));
 
         return "Community {\n" + "  coordinates=" + coordinatesString + ",\n" +
                 "  playerTileAmountContainers=" + playerTileAmountsString + "\n" + '}';

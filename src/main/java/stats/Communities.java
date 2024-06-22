@@ -81,7 +81,7 @@ public class Communities implements Cloneable {
         for (Community community : communities) {
             int sumPlayers = 0;
             for (Player player : game.getPlayers()) {
-                sumPlayers += community.getTileAmountByPlayer(player.getPlayerValue());
+                sumPlayers += community.getTileCount(player.getPlayerValue());
             }
             if (sumPlayers == 0) {
                 // Should be only these communities, which only contains expansion stones
@@ -171,7 +171,7 @@ public class Communities implements Cloneable {
                 searchCommunity.removeCoordinate(position, game);
             }
             // Add new position
-            searchCommunity.addCoordinate(position, value);
+            searchCommunity.addCoordinate(position, game);
         }
 
         lastUpdatedCommunity = searchCommunity;
