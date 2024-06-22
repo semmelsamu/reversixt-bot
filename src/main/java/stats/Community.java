@@ -4,6 +4,7 @@ import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
 import game.Game;
+import game.MoveCalculator;
 import util.Logger;
 
 import java.util.Arrays;
@@ -70,6 +71,43 @@ public class Community implements Cloneable {
             // Only update if the coordinate was actually removed
             tileCounts[game.getTile(coordinate).toPlayerIndex() + 1]--;
         }
+    }
+
+    /**
+     * Calculate if this community is reachable for a Player.
+     * @param game The game this community is part of.
+     */
+    public boolean isReachable(Game game, int player) {
+        // "A Community is considered reachable when..."
+
+        // OPTION A
+        // ... there are at least two Players with stones in the community
+        int playersWithStones = 0;
+        for (int i = 1; i < tileCounts.length; i++) {
+            if (tileCounts[i] > 0) {
+                playersWithStones++;
+            }
+            if (playersWithStones >= 2) {
+                return true;
+            }
+        }
+
+        // OPTION B
+        // ... one player owns stones, ...
+        if (playersWithStones == 0) {
+            return false;
+        }
+        // ... there is at least one expansion stone in the Community, ...
+        if (tileCounts[0] == 0) {
+            return false;
+        }
+        // ... and the Player has a move in the community
+        var possibleMoves = MoveCalculator.getValidMovesForPlayer(game, player);
+        return possibleMoves.stream().anyMatch(move -> coordinates.contains(move.getCoordinates()));
+    }
+
+    public boolean containsCoordinates(Coordinates coordinates) {
+        return this.coordinates.contains(coordinates);
     }
 
     /**
