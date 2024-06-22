@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Community implements Cloneable {
 
@@ -120,15 +119,18 @@ public class Community implements Cloneable {
 
     @Override
     public String toString() {
-        String coordinatesString = coordinates.stream().map(Coordinates::toString)
-                .collect(Collectors.joining(",\n    ", "[\n    ", "\n]"));
-
-        // TODO String playerTileAmountsString =
-        //        Arrays.stream(tileCounts).map(PlayerTileAmountContainer::toString)
-        //                .collect(Collectors.joining(",\n    ", "[\n    ", "\n]"));
-
-        return "Community {\n" + "  coordinates=" + coordinatesString + ",\n" +
-                "  playerTileAmountContainers=" + playerTileAmountsString + "\n" + '}';
+        StringBuilder result = new StringBuilder();
+        result.append("Community\n");
+        result.append("- Coordinates: ");
+        for (var coordinate : coordinates) {
+            result.append(coordinate).append(", ");
+        }
+        result.append("\n- Tile counts: ");
+        result.append("EXPANSION: ").append(tileCounts[0]);
+        for (int i = 1; i < tileCounts.length; i++) {
+            result.append(", PLAYER").append(i).append(": ").append(tileCounts[i]);
+        }
+        return result.toString();
     }
 
 }
