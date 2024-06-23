@@ -47,7 +47,9 @@ public class Client {
     public void executeMove(Move move) {
 
         logger.debug(game.toString());
-        logger.debug(game.communities.toString());
+        if (game.communities != null) {
+            logger.debug(game.communities.toString());
+        }
 
         game.executeMove(move);
 

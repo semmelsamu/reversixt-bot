@@ -170,6 +170,7 @@ public class Game implements Cloneable {
                             "No more player has any moves in the coloring phase, entering bomb " +
                                     "phase");
                     phase = GamePhase.BOMB;
+                    communities = null;
                     rotateCurrentPlayer();
                     oldPlayer = currentPlayer;
                 } else if (phase == GamePhase.BOMB) {
@@ -275,7 +276,9 @@ public class Game implements Cloneable {
     public void setTile(Coordinates position, Tile value) {
         coordinatesGroupedByTile.updateCoordinates(position, board.getTile(position), value);
         board.setTile(position, value);
-        communities.updateCommunities(position);
+        if (communities != null) {
+            communities.updateCommunities(position);
+        }
     }
 
     public Map<Short, Short> getTransitions() {
@@ -350,8 +353,10 @@ public class Game implements Cloneable {
             // Caches
             clone.coordinatesGroupedByTile = this.coordinatesGroupedByTile.clone();
             clone.totalTilesOccupiedCounter = this.totalTilesOccupiedCounter.clone();
-            clone.communities = this.communities.clone();
-            clone.communities.setGame(clone);
+            if (communities != null) {
+                clone.communities = this.communities.clone();
+                clone.communities.setGame(clone);
+            }
 
             return clone;
 
