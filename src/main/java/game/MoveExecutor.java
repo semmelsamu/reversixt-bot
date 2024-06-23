@@ -42,9 +42,6 @@ public final class MoveExecutor {
         Set<Coordinates> allTilesToColor =
                 getAllTilesToColor(game, playerValue, move.getCoordinates());
 
-        // TODO: We need to update the communities here, because after setTile wen don't know the
-        //       original tile value anymore
-        // game.communities.updateCommunities(allTilesToColor, playerValue, game);
         for (var coordinates : allTilesToColor) {
             game.setTile(coordinates, playerValue);
         }
