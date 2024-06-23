@@ -112,6 +112,8 @@ public class NetworkClientAdapter {
             // Only log but let it run. Maybe we'll get lucky and manage to sneak through.
             logger.error(e);
             client.logStats();
+            logger.warn("Not aborting because maybe we'll still be able to move on. 0 points are " +
+                    "still better than a disqualification.");
         }
     }
 
