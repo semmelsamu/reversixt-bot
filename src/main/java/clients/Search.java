@@ -46,12 +46,12 @@ public class Search {
     private long endTime;
 
     /**
-     * Stores for each timeout that occurred the stack trace.
+     * Stores for each timeout that occurred its stack trace.
      */
     private static final List<String> stats_timeouts = new LinkedList<>();
 
     /**
-     * Stores for each tree layer that was searched successfully its depth.
+     * Stores for each tree layer that was successfully searched its depth.
      */
     private static final List<Integer> stats_depths = new LinkedList<>();
 
