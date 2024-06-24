@@ -5,6 +5,7 @@ import board.CoordinatesExpander;
 import board.Tile;
 import game.Game;
 import game.Player;
+import util.Tuple;
 
 import java.util.*;
 
@@ -64,13 +65,36 @@ public class Communities implements Cloneable {
         return communities;
     }
 
-    public Set<Community> getAllReachableCommunities(int player) {
-        Set<Community> result = new HashSet<>();
+    public Set<Tuple<Game, Community>> getRelevantCommunities(int player) {
+        Set<Tuple<Game, Community>> result = new HashSet<>();
+        Game game = this.game;
 
         for (var community : communities) {
-            if (community.isReachable(player)) {
-                result.add(community);
+
+            // Reachability calculation like in the report
+            if (!community.isReachable(player)) {
+                continue;
             }
+
+            // If there are no valid moves in the Community, it sure cannot be simulated
+            if (!community.hasNextPlayer()) {
+                continue;
+            }
+
+            // The following checks are destructive for the game, so a copy has to be made.
+            game = game.clone();
+            community = game.communities.findCommunityByCoordinates(
+                    community.getCoordinates().iterator().next());
+
+            community.nextPlayer();
+
+            // No need to simulate the Community if the player doesn't have any moves
+            if (game.getCurrentPlayerNumber() != player) {
+                continue;
+            }
+
+            result.add(new Tuple<>(game, community));
+
         }
 
         return result;
