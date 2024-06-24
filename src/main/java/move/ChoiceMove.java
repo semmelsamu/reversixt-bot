@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * A move where after the player set the stone, he will swap places with another player.
  */
-public class ChoiceMove extends Move {
+public class ChoiceMove extends SpecialMoveInMinimaxTree {
 
     /**
      * The other player which the player will swap places with after he set the stone.
