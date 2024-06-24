@@ -5,12 +5,14 @@ import board.CoordinatesExpander;
 import board.Tile;
 import game.Game;
 import game.MoveCalculator;
+import move.Move;
 import util.Logger;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Community implements Cloneable {
 
@@ -140,6 +142,30 @@ public class Community implements Cloneable {
         } else {
             return -1;
         }
+    }
+
+    public Set<Move> getRelevantMovesForCurrentPlayer() {
+        Set<Coordinates> validCoordinates =
+                CoordinatesExpander.expandCoordinates(game, coordinates, 1);
+        return game.getRelevantMovesForCurrentPlayer().stream()
+                .filter(move -> validCoordinates.contains(move.getCoordinates()))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Replace the game's current Player with the next Player that has valid moves in this
+     * Community. Does nothing if the current Player has valid moves in this Community.
+     * @return True if a valid player could be found, false if not.
+     */
+    public boolean findValidPlayer() {
+        int oldPlayer = game.getCurrentPlayerNumber();
+        while (getRelevantMovesForCurrentPlayer().isEmpty()) {
+            game.nextPlayer();
+            if (game.getCurrentPlayerNumber() == oldPlayer) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /*
