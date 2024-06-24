@@ -181,7 +181,7 @@ public class Board implements Cloneable {
                 result.append(getTile(new Coordinates(x, y)).toString(true));
             }
 
-            result.append("\n");
+            result.append(Logger.ANSI_RESET).append("\n");
         }
 
         return "Board" + "\n" + "\u001B[0m" + result + "\n"; //+ raw;
