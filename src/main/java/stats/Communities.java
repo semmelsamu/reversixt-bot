@@ -76,6 +76,15 @@ public class Communities implements Cloneable {
         return result;
     }
 
+    public Community findCommunityByCoordinates(Coordinates coordinates) {
+        for (Community community : communities) {
+            if (community.coordinates.contains(coordinates)) {
+                return community;
+            }
+        }
+        return null;
+    }
+
     public void updateCommunities(Coordinates coordinates) {
 
         List<Community> communitiesToBeUpdated = new LinkedList<>();
