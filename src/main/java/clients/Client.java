@@ -32,7 +32,7 @@ public class Client {
      */
     public Client(Game game, int playerNumber) {
         this.game = game;
-        logger.log(game.toString());
+        logGame();
         this.playerNumber = playerNumber;
         logger.log("We are player " + playerNumber);
 
@@ -46,11 +46,6 @@ public class Client {
      */
     public void executeMove(Move move) {
 
-        logger.debug(game.toString());
-        if (game.communities != null) {
-            logger.debug(game.communities.toString());
-        }
-
         game.executeMove(move);
 
         // Check if reachableTiles has to be updated
@@ -60,6 +55,9 @@ public class Client {
             logger.log("Re-calculating board info...");
             boardInfo.updateReachableTiles(game, 1000);
         }
+
+        logGame();
+
     }
 
     /**
@@ -68,13 +66,15 @@ public class Client {
      * @return The best move found in the given time window.
      */
     public Move search(int timeLimit) {
+
         this.logger.log("Searching new move in " + timeLimit + "ms");
 
         // Creating the evaluator with the current available data
         GameEvaluator evaluator = new GameEvaluator(boardInfo);
 
-        // Initializing the search
-        Search search = new Search(game, playerNumber, evaluator);
+        // Initializing the search.
+        // Using a Game clone to prevent the search messing with the synchronized Game
+        Search search = new Search(game.clone(), playerNumber, evaluator);
 
         // Searching
         return search.search(timeLimit);
@@ -93,6 +93,13 @@ public class Client {
      */
     public void logStats() {
         logger.verbose(Search.getStats());
+    }
+
+    public void logGame() {
+        logger.log(game.toString());
+        if (game.communities != null) {
+            logger.log(game.communities.toString());
+        }
     }
 
 }
