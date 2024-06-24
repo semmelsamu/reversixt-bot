@@ -69,15 +69,16 @@ public class Communities implements Cloneable {
         Set<Tuple<Game, Community>> result = new HashSet<>();
         Game game = this.game;
 
+        communityLoop:
         for (var community : communities) {
 
-            // Reachability calculation like in the report
+            // Reachability calculation as specified in the report
             if (!community.isReachable(player)) {
                 continue;
             }
 
             // If there are no valid moves in the Community, it sure cannot be simulated
-            if (!community.hasNextPlayer()) {
+            if (!community.anyPlayerHasValidMoves()) {
                 continue;
             }
 
@@ -86,11 +87,17 @@ public class Communities implements Cloneable {
             community = game.communities.findCommunityByCoordinates(
                     community.getCoordinates().iterator().next());
 
-            community.nextPlayer();
+            if (community.getRelevantMovesForCurrentPlayer().isEmpty()) {
+                community.nextPlayer();
+            }
 
-            // No need to simulate the Community if the player doesn't have any moves
-            if (game.getCurrentPlayerNumber() != player) {
-                continue;
+            // Search if we have valid moves in the Community
+            int oldPlayer = game.getCurrentPlayerNumber();
+            while (game.getCurrentPlayerNumber() != player) {
+                community.nextPlayer();
+                if (game.getCurrentPlayerNumber() == oldPlayer) {
+                    continue communityLoop;
+                }
             }
 
             result.add(new Tuple<>(game, community));

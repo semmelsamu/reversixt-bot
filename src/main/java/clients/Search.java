@@ -186,11 +186,6 @@ public class Search {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        // For logging progress percentage
-        int i = 0;
-
-        logger.debug("0%");
-
         for (var moveGameCommunityTriple : fullMoveSortResult) {
 
             int score = calculateScore(moveGameCommunityTriple.second(),
@@ -203,11 +198,6 @@ public class Search {
 
             // Update alpha for the maximizer
             alpha = Math.max(alpha, score);
-
-            // Log progress percentage
-            i++;
-            logger.replace()
-                    .debug((int) ((float) i / (float) fullMoveSortResult.size() * 100) + "%");
         }
 
         return new Tuple<>(resultMove, resultScore);
@@ -225,15 +215,14 @@ public class Search {
 
         checkTime();
 
-        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) || !community.hasNextPlayer()) {
+        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) ||
+                !community.anyPlayerHasValidMoves()) {
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
             currentIterationNodesVisited++;
             return evaluator.evaluate(game, playerNumber);
         }
-
-        community.nextPlayer();
 
         boolean isMaximizer = game.getCurrentPlayerNumber() == playerNumber;
 
@@ -395,6 +384,9 @@ public class Search {
         if (clonedGame.communities != null) {
             clonedCommunity =
                     clonedGame.communities.findCommunityByCoordinates(move.getCoordinates());
+            if (clonedCommunity.getRelevantMovesForCurrentPlayer().isEmpty()) {
+                clonedCommunity.nextPlayer();
+            }
         }
 
         return new Tuple<>(clonedGame, clonedCommunity);

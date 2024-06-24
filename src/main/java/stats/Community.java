@@ -157,7 +157,7 @@ public class Community implements Cloneable {
      * Check if the Game has valid moves in the Community.
      * @return True if a valid player could be found, false if not.
      */
-    public boolean hasNextPlayer() {
+    public boolean anyPlayerHasValidMoves() {
         int oldPlayer = game.getCurrentPlayerNumber();
         while (getRelevantMovesForCurrentPlayer().isEmpty()) {
             game.nextPlayer();
@@ -178,12 +178,12 @@ public class Community implements Cloneable {
      */
     public void nextPlayer() {
         int oldPlayer = game.getCurrentPlayerNumber();
-        while (getRelevantMovesForCurrentPlayer().isEmpty()) {
+        do {
             game.nextPlayer();
             if (game.getCurrentPlayerNumber() == oldPlayer) {
                 throw new MoveNotValidException("No player has valid moves");
             }
-        }
+        } while (getRelevantMovesForCurrentPlayer().isEmpty());
     }
 
     /*
