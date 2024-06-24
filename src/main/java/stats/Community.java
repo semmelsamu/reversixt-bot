@@ -3,6 +3,7 @@ package stats;
 import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
+import exceptions.MoveNotValidException;
 import game.Game;
 import game.MoveCalculator;
 import move.Move;
@@ -153,11 +154,10 @@ public class Community implements Cloneable {
     }
 
     /**
-     * Replace the game's current Player with the next Player that has valid moves in this
-     * Community. Does nothing if the current Player has valid moves in this Community.
+     * Check if the Game has valid moves in the Community.
      * @return True if a valid player could be found, false if not.
      */
-    public boolean findValidPlayer() {
+    public boolean hasNextPlayer() {
         int oldPlayer = game.getCurrentPlayerNumber();
         while (getRelevantMovesForCurrentPlayer().isEmpty()) {
             game.nextPlayer();
@@ -165,7 +165,25 @@ public class Community implements Cloneable {
                 return false;
             }
         }
+        // Restore old player
+        while (game.getCurrentPlayerNumber() != oldPlayer) {
+            game.nextPlayer();
+        }
         return true;
+    }
+
+    /**
+     * Replace the game's current Player with the next Player that has valid moves in this
+     * Community. Does nothing if the current Player has valid moves in this Community.
+     */
+    public void nextPlayer() {
+        int oldPlayer = game.getCurrentPlayerNumber();
+        while (getRelevantMovesForCurrentPlayer().isEmpty()) {
+            game.nextPlayer();
+            if (game.getCurrentPlayerNumber() == oldPlayer) {
+                throw new MoveNotValidException("No player has valid moves");
+            }
+        }
     }
 
     /*
