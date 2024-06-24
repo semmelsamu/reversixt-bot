@@ -14,70 +14,37 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public class StaticGameStats {
-    /**
-     * The number of players this game usually starts with.
-     */
-    private final int initialPlayers;
-
-    /**
-     * The number of overwrite stones each player has in the beginning.
-     */
-    private final int initialOverwriteStones;
-
-    /**
-     * The number of bombs each player has in the beginning.
-     */
-    private final int initialBombs;
-
-    /**
-     * The amount of steps from the center of the explosion a bomb blows tiles up.
-     */
-    private final int bombRadius;
-    /**
-     * Width of board
-     */
-    private final int width;
-    /**
-     * Height of board
-     */
-    private final int height;
+public class BoardInfo {
 
     private final int[][] tileRatings;
+
     /**
      * Number of all tiles that are not walls
      */
     private final short potentialReachableTiles;
+
     /**
      * Number of occupied tiles after one example game (heuristic!)
      */
     private short reachableTiles;
-    /**
-     * Constant that is used for in updateReachableTiles
-     */
 
-    private boolean isReachableTilesSetFinally;
+    /**
+     * Counts the number of times a reachable tiles simulation has been executed
+     */
+    private int simulationCount;
 
     private final Boundaries noOverwriteTheMoveBefore = new Boundaries(0, 0);
 
-    public StaticGameStats(Game initialGame, int initialPlayers, int initialOverwriteStones,
-                           int initialBombs, int bombRadius) {
-        this.initialPlayers = initialPlayers;
-        this.initialOverwriteStones = initialOverwriteStones;
-        this.initialBombs = initialBombs;
-        this.bombRadius = bombRadius;
-        width = initialGame.getWidth();
-        height = initialGame.getHeight();
+    public BoardInfo(Game initialGame) {
         tileRatings = calculateTileRatings(initialGame);
         potentialReachableTiles = calculatePotentialReachableTiles(initialGame);
         reachableTiles = 0;
-        isReachableTilesSetFinally = false;
     }
 
     private int[][] calculateTileRatings(Game game) {
-        int[][] tileRatings = new int[height][width];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        int[][] tileRatings = new int[game.getHeight()][game.getWidth()];
+        for (int y = 0; y < game.getHeight(); y++) {
+            for (int x = 0; x < game.getWidth(); x++) {
                 if (game.getTile(new Coordinates(x, y)) == Tile.WALL) {
                     tileRatings[y][x] = 0;
                     continue;
@@ -89,8 +56,9 @@ public class StaticGameStats {
     }
 
     private short calculatePotentialReachableTiles(Game initialGame) {
-        int allTiles = width * height;
-        int allWallTiles = initialGame.getAllCoordinatesWhereTileIs(Tile.WALL).size();
+        int allTiles = initialGame.getWidth() * initialGame.getHeight();
+        int allWallTiles =
+                initialGame.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(Tile.WALL).size();
         return (short) (allTiles - allWallTiles);
     }
 
@@ -98,6 +66,8 @@ public class StaticGameStats {
      * Simulates a whole game out the number of reachable tiles approximately
      */
     public void updateReachableTiles(Game game, int timelimit) {
+        simulationCount++;
+
         long time = System.currentTimeMillis();
         final int TIMECAP = Math.min(1000, timelimit);
         Game purposeGame = game.clone();
@@ -124,16 +94,13 @@ public class StaticGameStats {
                 boundaries = noOverwriteTheMoveBefore;
             }
 
-            if(System.currentTimeMillis() - time < TIMECAP){
-                isReachableTilesSetFinally = true;
-            }
             int randomIndex = (int) (Math.random() * validMovesForCurrentPlayer.size());
             Move randomMove = ListOfRelevantMoves.get(randomIndex);
             purposeGame.executeMove(randomMove);
         }
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        for (int y = 0; y < game.getHeight(); y++) {
+            for (int x = 0; x < game.getWidth(); x++) {
                 if (purposeGame.getTile(new Coordinates(x, y)).isPlayer()) {
                     reachableTiles++;
                 }
@@ -157,17 +124,13 @@ public class StaticGameStats {
     }
 
     /**
-     * Default tile rating: 1
-     * Checks all 4 angles on, whether they are only open in one direction
-     * Such angles are valuable, as tiles can "attack" in the angle but can not be "attacked"
-     * 1 bonuspoint for every angle, that fullfills the criterion
-     * Rating for WALLS: 0
-     *
+     * Default tile rating: 1. Checks all 4 angles on, whether they are only open in one direction,
+     * Such angles are valuable, as tiles can "attack" in the angle but can not be "attacked". 1
+     * bonuspoint for every angle, that fullfills the criterion. Rating for WALLS: 0
      * @param x X-coordinate
      * @param y Y-coordinate
      * @return Tile rating as an Integer
      */
-
     private int calculateParicularTileRating(int x, int y, Game game) {
         int tileRating = 1;
         Direction[] halfOfAllDirections = Arrays.copyOfRange(Direction.values(), 0, 4);
@@ -186,24 +149,13 @@ public class StaticGameStats {
         return tileRating;
     }
 
-    /**
-     * Getter
-     */
-    public int getBombRadius() {
-        return bombRadius;
-    }
-
-    public int getInitialPlayers() {
-        return initialPlayers;
-    }
-
-    public int getInitialOverwriteStones() {
-        return initialOverwriteStones;
-    }
-
-    public int getInitialBombs() {
-        return initialBombs;
-    }
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Getters
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
 
     public int[][] getTileRatings() {
         return tileRatings;
@@ -217,7 +169,7 @@ public class StaticGameStats {
         return potentialReachableTiles;
     }
 
-    public boolean isReachableTilesSetFinally() {
-        return isReachableTilesSetFinally;
+    public int getSimulationCount() {
+        return simulationCount;
     }
 }

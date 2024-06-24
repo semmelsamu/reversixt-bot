@@ -1,15 +1,9 @@
 package fightclub;
 
 import clients.IterativeDeepeningAlphaBetaSearchClient;
-import clients.ParanoidClient;
-import game.Game;
-import game.MoveCalculator;
-import game.MoveExecutor;
-import network.NetworkClientAdapter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import util.Logger;
 import util.NetworkClientHelper;
 import util.NetworkServerHelper;
 

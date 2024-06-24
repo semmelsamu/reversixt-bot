@@ -3,15 +3,16 @@ package game;
 import board.Board;
 import board.Coordinates;
 import board.Tile;
-import evaluation.StaticGameStats;
 import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
 import move.Move;
 import move.OverwriteMove;
+import stats.Communities;
+import stats.CoordinatesGroupedByTile;
+import stats.TotalTilesOccupiedCounter;
 import util.Logger;
 import util.NullLogger;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,23 +39,38 @@ public class Game implements Cloneable {
      */
     private Player[] players;
 
-    /**
-     * The container for all stats about the game and the logic
-     */
-    public GameStats gameStats;
-
-    /**
-     * The container for all stats that are valid for the whole game
-     */
-    public StaticGameStats staticGameStats;
+    public final GameConstants constants;
 
     private int currentPlayer;
 
     private int moveCounter;
 
-    private GamePhase gamePhase;
+    private GamePhase phase;
 
     private Set<Move> validMovesForCurrentPlayer;
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Caches
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    /**
+     * For each tile value, caches the set of coordinates that have this value.
+     */
+    public CoordinatesGroupedByTile coordinatesGroupedByTile;
+
+    /**
+     * Caches the total number of tiles occupied.
+     */
+    public TotalTilesOccupiedCounter totalTilesOccupiedCounter;
+
+    /**
+     * Caches the communities on the board.
+     */
+    public Communities communities;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -78,20 +94,23 @@ public class Game implements Cloneable {
         // Initialize players
         players = new Player[initialPlayers];
         for (int i = 0; i < initialPlayers; i++) {
-            players[i] = new Player(Tile.getTileForPlayerNumber(i + 1), initialOverwriteStones,
+            players[i] = new Player(Tile.fromChar((char) (i + 1 + '0')), initialOverwriteStones,
                     initialBombs);
         }
 
-        // Create static game stats
-        staticGameStats =
-                new StaticGameStats(this, initialPlayers, initialOverwriteStones, initialBombs,
-                        bombRadius);
+        constants =
+                new GameConstants(initialPlayers, initialOverwriteStones, initialBombs, bombRadius);
 
-        gameStats = new GameStats(this);
+        // Caching
+        coordinatesGroupedByTile = new CoordinatesGroupedByTile(this);
+        totalTilesOccupiedCounter = new TotalTilesOccupiedCounter(this);
+        communities = new Communities(this);
 
-        gamePhase = GamePhase.BUILD;
+        phase = GamePhase.BUILD;
 
         moveCounter = 1;
+
+        int i = 0;
 
         currentPlayer = 0;
         do {
@@ -101,9 +120,9 @@ public class Game implements Cloneable {
             if (currentPlayer == players.length && validMovesForCurrentPlayer.isEmpty()) {
 
                 // No valid moves in build phase
-                if (gamePhase == GamePhase.BUILD) {
+                if (phase == GamePhase.BUILD) {
                     logger.log("No player has valid moves in build phase, entering bomb phase");
-                    gamePhase = GamePhase.BOMB;
+                    phase = GamePhase.BOMB;
                     // Set player again to first player
                     rotateCurrentPlayer();
                 }
@@ -113,6 +132,10 @@ public class Game implements Cloneable {
                     logger.warn("Map is not playable as there are no valid moves in any phase");
                     break;
                 }
+
+                if (i++ > 100) {
+                    throw new RuntimeException("Too many iterations");
+                }
             }
         } while (validMovesForCurrentPlayer.isEmpty());
     }
@@ -120,7 +143,7 @@ public class Game implements Cloneable {
     /*
     |-----------------------------------------------------------------------------------------------
     |
-    |   Player logic
+    |   Players
     |
     |-----------------------------------------------------------------------------------------------
     */
@@ -131,35 +154,48 @@ public class Game implements Cloneable {
     }
 
     public void nextPlayer() {
-        if (gamePhase == GamePhase.END) {
+        if (phase == GamePhase.END) {
             throw new GamePhaseNotValidException("Cannot calculate next player in end phase");
         }
 
         int oldPlayer = currentPlayer;
+        int i = 0;
 
         do {
             rotateCurrentPlayer();
 
             if (oldPlayer == currentPlayer && validMovesForCurrentPlayer.isEmpty()) {
-                if (gamePhase == GamePhase.BUILD) {
+                if (phase == GamePhase.BUILD) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
                                     "phase");
-                    gamePhase = GamePhase.BOMB;
+                    phase = GamePhase.BOMB;
+                    communities = null;
                     rotateCurrentPlayer();
                     oldPlayer = currentPlayer;
-                } else if (gamePhase == GamePhase.BOMB) {
+                } else if (phase == GamePhase.BOMB) {
                     logger.log("No more player has any bomb moves, entering end");
-                    gamePhase = GamePhase.END;
+                    phase = GamePhase.END;
                     // Set player to no player because the game ended
                     currentPlayer = 0;
                     return;
                 }
             }
 
+            if (i++ > 100) {
+                throw new RuntimeException("Too many iterations");
+            }
+
         } while (validMovesForCurrentPlayer.isEmpty() || getCurrentPlayer().isDisqualified());
 
         logger.debug("Current player is now " + currentPlayer);
+    }
+
+    public void disqualifyPlayer(int player) {
+        getPlayer(player).disqualify();
+        if (getCurrentPlayer().isDisqualified()) {
+            nextPlayer();
+        }
     }
 
     public Player getCurrentPlayer() {
@@ -170,12 +206,21 @@ public class Game implements Cloneable {
         return currentPlayer;
     }
 
-    public void disqualifyPlayer(int player) {
-        getPlayer(player).disqualify();
-        if (getCurrentPlayer().isDisqualified()) {
-            nextPlayer();
-        }
+    public Player[] getPlayers() {
+        return players;
     }
+
+    public Player getPlayer(int playerNumber) {
+        return players[playerNumber - 1];
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Moves
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
 
     public void executeMove(Move move) {
         if (!validMovesForCurrentPlayer.contains(move)) {
@@ -185,14 +230,6 @@ public class Game implements Cloneable {
         moveCounter++;
         nextPlayer();
     }
-
-    /*
-    |-----------------------------------------------------------------------------------------------
-    |
-    |   Getters and Setters
-    |
-    |-----------------------------------------------------------------------------------------------
-    */
 
     public Set<Move> getValidMovesForCurrentPlayer() {
         return validMovesForCurrentPlayer;
@@ -218,21 +255,17 @@ public class Game implements Cloneable {
         }
     }
 
-    public Player[] getPlayers() {
-        return players;
+    public int getMoveCounter() {
+        return moveCounter;
     }
 
-    public Player getPlayer(int playerNumber) {
-        return players[playerNumber - 1];
-    }
-
-    public int getBombRadius() {
-        return staticGameStats.getBombRadius();
-    }
-
-    public Tile getTile(Coordinates position) {
-        return board.getTile(position);
-    }
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Board
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
 
     public int getHeight() {
         return board.getHeight();
@@ -242,21 +275,20 @@ public class Game implements Cloneable {
         return board.getWidth();
     }
 
+    public Tile getTile(Coordinates position) {
+        return board.getTile(position);
+    }
+
     public void setTile(Coordinates position, Tile value) {
-        gameStats.replaceTileAtCoordinates(position, value);
+        coordinatesGroupedByTile.updateCoordinates(position, board.getTile(position), value);
         board.setTile(position, value);
+        if (communities != null) {
+            communities.updateCommunities(position);
+        }
     }
 
     public Map<Short, Short> getTransitions() {
         return board.getTransitions();
-    }
-
-    public GameStats getGameStats() {
-        return gameStats;
-    }
-
-    public List<Coordinates> getAllCoordinatesWhereTileIs(Tile tile) {
-        return board.getAllCoordinatesWhereTileIs(tile);
     }
 
     public boolean coordinatesLayInBoard(Coordinates position) {
@@ -264,17 +296,13 @@ public class Game implements Cloneable {
     }
 
     public GamePhase getPhase() {
-        return gamePhase;
-    }
-
-    public int getMoveCounter() {
-        return moveCounter;
+        return phase;
     }
 
     /*
     |-----------------------------------------------------------------------------------------------
     |
-    |   To string
+    |   Overrides
     |
     |-----------------------------------------------------------------------------------------------
     */
@@ -283,13 +311,13 @@ public class Game implements Cloneable {
     public String toString() {
         StringBuilder result = new StringBuilder("Game\n");
 
-        result.append("Initial players: ").append(staticGameStats.getInitialPlayers()).append("\n");
-        result.append("Initial overwrite stones: ")
-                .append(staticGameStats.getInitialOverwriteStones()).append("\n");
-        result.append("Initial bombs: ").append(staticGameStats.getInitialBombs()).append("\n");
-        result.append("Bomb radius: ").append(staticGameStats.getBombRadius()).append("\n");
+        result.append("Initial players: ").append(constants.initialPlayers()).append("\n");
+        result.append("Initial overwrite stones: ").append(constants.initialOverwriteStones())
+                .append("\n");
+        result.append("Initial bombs: ").append(constants.initialBombs()).append("\n");
+        result.append("Bomb radius: ").append(constants.bombRadius()).append("\n");
 
-        result.append("Phase: ").append(gamePhase).append("\n");
+        result.append("Phase: ").append(phase).append("\n");
         result.append("Move: ").append(moveCounter).append("\n");
 
         result.append("Players (Overwrite Stones / Bombs)").append("\n");
@@ -314,6 +342,7 @@ public class Game implements Cloneable {
     @Override
     public Game clone() {
         try {
+
             Game clone = (Game) super.clone();
 
             clone.board = this.board.clone();
@@ -327,11 +356,19 @@ public class Game implements Cloneable {
                 clone.logger = new NullLogger("");
             }
 
-            clone.gameStats = this.gameStats.clone();
-            clone.staticGameStats = this.staticGameStats;
+            // Caches
+            clone.coordinatesGroupedByTile = this.coordinatesGroupedByTile.clone();
+            clone.totalTilesOccupiedCounter = this.totalTilesOccupiedCounter.clone();
+            if (communities != null) {
+                clone.communities = this.communities.clone();
+                clone.communities.setGame(clone);
+            }
+
             return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
+
+        }
+        catch (CloneNotSupportedException e) {
+            throw new AssertionError(); // Can never happen
         }
     }
 }

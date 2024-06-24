@@ -1,12 +1,18 @@
 package clients;
 
+import board.Coordinates;
+import board.CoordinatesExpander;
+import board.Tile;
 import evaluation.GameEvaluator;
 import exceptions.GamePhaseNotValidException;
 import exceptions.NotEnoughTimeException;
 import exceptions.OutOfTimeException;
+import game.Community;
 import game.Game;
 import game.GamePhase;
+import game.Player;
 import move.Move;
+import move.OverwriteMove;
 import network.Limit;
 import util.Logger;
 import util.Quadruple;
@@ -17,7 +23,7 @@ import java.util.*;
 import static util.Tree.calculateBranchingFactor;
 import static util.Tree.calculateNodeCountOfTree;
 
-public class BestReplySearchKillerHeuristicClient extends Client {
+public class CommunitiesClient extends Client {
 
     Logger logger = new Logger(this.getClass().getName());
 
@@ -75,8 +81,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         this.endTime = startTime + limit - TIME_BUFFER;
 
         // Fallback move
-        Move bestMove =
-                game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
+        Move bestMove = null;
+        //game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
 
         try {
 
@@ -85,7 +91,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
             resetStats();
 
             // Cache move sorting
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>(), true);
+            List<Tuple<Move, Game>> sortedMoves =
+                    sortMoves(game, game.getRelevantMovesForCurrentPlayer(), new HashMap<>(), true);
 
             // As the sorted moves already contain the result for depth 1, update bestMove
             bestMove = sortedMoves.get(0).first();
@@ -102,17 +109,69 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
             bombPhasesReached = 0;
 
+            // Filter for the only client relevant communities
+            Set<Community> communities = new HashSet<>();
+            for (Community community : game.getGameStats().getCommunities()) {
+                if (community.getTileAmountByPlayer(Tile.fromByte((byte) ME)) > 0) {
+                    communities.add(community);
+                }
+                // TODO: if we have another logic than having overwrite moves only as last option
+                //  than we need to change this filter
+                if (sortedMoves.stream().allMatch(
+                        moveGameTuple -> moveGameTuple.first() instanceof OverwriteMove)) {
+                    if (community.getTileAmountByPlayer(Tile.EXPANSION) > 0) {
+                        communities.add(community);
+                    }
+                }
+            }
+
             // Iterative deepening search
             // Start with depth 2 as depth 1 is already calculated via the sorted moves
             for (int depthLimit = 2; type != Limit.DEPTH || depthLimit < limit; depthLimit++) {
                 resetStats();
+                for (Community community : communities) {
+                    // We need to update the current community, because we don't know in which
+                    // the loop starts
+                    nextPlayerInCommunity(game, community);
+                    Set<Move> movesInCommunity = getRelevantMovesInCommunity(game, community);
 
-                bestMove = calculateBestMove(sortedMoves, depthLimit);
+                    // In this case no one has moves in this community
+                    if (movesInCommunity.isEmpty()) {
+                        continue;
+                    }
 
-                if (bombPhasesReached >= sortedMoves.size()) {
-                    throw new GamePhaseNotValidException("Tree reached bomb phase");
+                    // New moves which are only in the community
+                    List<Tuple<Move, Game>> sortedListInCommunity = new ArrayList<>();
+                    for (Tuple<Move, Game> move : sortedMoves) {
+                        if (movesInCommunity.contains(move.first())) {
+                            sortedListInCommunity.add(move);
+                        }
+                    }
+
+                    Community communityFromGameDepth1 = null;
+                    for (Tuple<Move, Game> sortedMove : sortedListInCommunity) {
+                        for (Community c : sortedMove.second().getGameStats().getCommunities()) {
+                            if (c.getCoordinates().contains(sortedMove.first().getCoordinates())) {
+                                communityFromGameDepth1 = c;
+                                break;
+                            }
+
+                        }
+                    }
+
+                    if (communityFromGameDepth1 == null) {
+                        throw new RuntimeException("No matching community found");
+                    }
+
+                    // Only work with the new moves in the community
+                    bestMove = calculateBestMove(sortedListInCommunity, depthLimit,
+                            communityFromGameDepth1);
+
+                    if (bombPhasesReached >= sortedMoves.size()) {
+                        throw new GamePhaseNotValidException("Tree reached bomb phase");
+                    }
+
                 }
-
                 evaluateStats(depthLimit);
             }
 
@@ -121,10 +180,12 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         } catch (OutOfTimeException e) {
             timeouts++;
             logger.warn(e.getMessage());
+
             return bestMove;
 
         } catch (NotEnoughTimeException | GamePhaseNotValidException e) {
             logger.log(e.getMessage());
+
             return bestMove;
         }
 
@@ -139,8 +200,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * @return The best move
      * @throws OutOfTimeException if we ran out of time
      */
-    private Move calculateBestMove(List<Tuple<Move, Game>> sortedMoves, int depth)
-            throws OutOfTimeException {
+    private Move calculateBestMove(List<Tuple<Move, Game>> sortedMoves, int depth,
+                                   Community community) throws OutOfTimeException {
 
         logger.log("Starting Alpha/Beta-Search with search depth " + depth);
 
@@ -155,9 +216,10 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         logger.debug("0%");
 
-        for (var moveAndGame : sortedMoves) {
-
-            int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
+        for (Tuple<Move, Game> moveAndGame : sortedMoves) {
+            nextPlayerInCommunity(moveAndGame.second(), community);
+            int score =
+                    calculateScore(moveAndGame.second(), community, depth - 1, alpha, beta, true);
 
             if (score > resultScore) {
                 resultScore = score;
@@ -183,12 +245,13 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
-    private int calculateScore(Game game, int depth, int alpha, int beta, boolean buildTree)
-            throws OutOfTimeException {
+    private int calculateScore(Game game, Community community, int depth, int alpha, int beta,
+                               boolean buildTree) throws OutOfTimeException {
 
         checkTime();
 
-        if (depth == 0 || game.getPhase() != GamePhase.BUILD) {
+        if (depth == 0 || game.getPhase() != GamePhase.BUILD ||
+                getRelevantMovesInCommunity(game, community).isEmpty()) {
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
@@ -202,12 +265,17 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         if (isMaximizer) {
             int result = Integer.MIN_VALUE;
 
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
-                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
+            List<Tuple<Move, Game>> sortedMoves =
+                    sortMoves(game, getRelevantMovesInCommunity(game, community),
+                            moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
 
-            for (var moveAndGame : sortedMoves) {
-
-                int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
+            for (Tuple<Move, Game> moveAndGame : sortedMoves) {
+                Community newCommunity =
+                        moveAndGame.second().getGameStats().getLastUpdatedCommunity();
+                nextPlayerInCommunity(moveAndGame.second(), newCommunity);
+                int score =
+                        calculateScore(moveAndGame.second(), newCommunity, depth - 1, alpha, beta,
+                                true);
 
                 result = Math.max(result, score);
 
@@ -225,20 +293,27 @@ public class BestReplySearchKillerHeuristicClient extends Client {
 
         } else if (buildTree) {
 
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
-                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), false);
+            List<Tuple<Move, Game>> sortedMoves =
+                    sortMoves(game, getRelevantMovesInCommunity(game, community),
+                            moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()),
+                            false);
 
             // Get phi move
-            // TODO: what if we have no moves?
             Tuple<Move, Game> phi = sortedMoves.get(0); // Best move for minimizer
+            Community newCommunityPhi = phi.second().getGameStats().getLastUpdatedCommunity();
+            nextPlayerInCommunity(phi.second(), newCommunityPhi);
 
             // Evaluate phi move
-            int score = calculateScore(phi.second(), depth - 1, alpha, beta, true);
+            int score = calculateScore(phi.second(), newCommunityPhi, depth - 1, alpha, beta, true);
             int result = score;
             beta = Math.min(beta, result);
 
-            for (var moveAndGame : sortedMoves) {
-                score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, false);
+            for (Tuple<Move, Game> moveAndGame : sortedMoves) {
+                Community newCommunity =
+                        moveAndGame.second().getGameStats().getLastUpdatedCommunity();
+                nextPlayerInCommunity(moveAndGame.second(), newCommunity);
+                score = calculateScore(moveAndGame.second(), newCommunity, depth - 1, alpha, beta,
+                        false);
 
                 result = Math.min(result, score);
 
@@ -257,16 +332,62 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         } else {
             // TODO: Better heuristic?
             //       maybe the move which gets us the most stones
-            Move move =
-                    game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
+            Move move = getRelevantMovesInCommunity(game, community).iterator()
+                    .next(); // Random valid move
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
+
             currentIterationNodesVisited++;
 
-            return calculateScore(clonedGame, depth - 1, alpha, beta, false);
+            Community newCommunity = clonedGame.getGameStats().getLastUpdatedCommunity();
+            nextPlayerInCommunity(clonedGame, newCommunity);
+            return calculateScore(clonedGame, newCommunity, depth - 1, alpha, beta, false);
         }
+    }
+
+    private Set<Move> getRelevantMovesInCommunity(Game game, Community community) {
+        if (game.getGameStats().isCommunitiesDisabled()) {
+            return game.getRelevantMovesForCurrentPlayer();
+        }
+
+        Set<Move> relevantMovesForCurrentPlayer = game.getRelevantMovesForCurrentPlayer();
+        Set<Move> relevantMovesForCurrentPlayerCopy = new HashSet<>(relevantMovesForCurrentPlayer);
+
+        for (Move move : relevantMovesForCurrentPlayer) {
+            Set<Coordinates> neighbourCoordinates =
+                    CoordinatesExpander.expandCoordinates(game, Set.of(move.getCoordinates()), 1);
+            neighbourCoordinates.removeIf(coordinate -> game.getTile(coordinate).isUnoccupied());
+            boolean remove = true;
+            for (Coordinates neighbourCoordinate : neighbourCoordinates) {
+                if (community.getCoordinates().contains(neighbourCoordinate)) {
+                    remove = false;
+                    break;
+                }
+            }
+            if (remove) {
+                relevantMovesForCurrentPlayerCopy.remove(move);
+            }
+        }
+        return relevantMovesForCurrentPlayerCopy;
+    }
+
+    private void nextPlayerInCommunity(Game game, Community community) {
+        if (game.getGameStats().isCommunitiesDisabled()) {
+            return;
+        }
+
+        if (!getRelevantMovesInCommunity(game, community).isEmpty() ||
+                game.getPhase() != GamePhase.BUILD) {
+            return;
+        }
+
+        Player oldPlayer = game.getCurrentPlayer();
+        do {
+            game.nextPlayer();
+        } while (getRelevantMovesInCommunity(game, community).isEmpty() &&
+                oldPlayer != game.getCurrentPlayer());
     }
 
     /*
@@ -286,7 +407,8 @@ public class BestReplySearchKillerHeuristicClient extends Client {
      * @param game        The initial game situation
      * @param moveCutoffs The killer heuristic
      */
-    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs, boolean descending)
+    private List<Tuple<Move, Game>> sortMoves(Game game, Set<Move> movesToBeSorted,
+                                              Map<Move, Integer> moveCutoffs, boolean descending)
             throws OutOfTimeException {
 
         // A dataset where every entry consists of a Move, the Game after the Move execution, the
@@ -294,7 +416,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         List<Quadruple<Move, Game, Integer, Integer>> result = new LinkedList<>();
 
         // Get data
-        for (Move move : game.getRelevantMovesForCurrentPlayer()) {
+        for (Move move : movesToBeSorted) {
             checkTime();
 
             Game clonedGame = game.clone();
@@ -328,7 +450,7 @@ public class BestReplySearchKillerHeuristicClient extends Client {
         }
 
         // Reverse if necessary
-        if(descending) {
+        if (descending) {
             Collections.reverse(tuples);
         }
 

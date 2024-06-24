@@ -1,7 +1,5 @@
 package board;
 
-import java.util.Arrays;
-
 /**
  * Formerly TileValue formerly TileType
  */
@@ -100,34 +98,6 @@ public enum Tile {
     public boolean isPlayer() {
         return (this == PLAYER1 || this == PLAYER2 || this == PLAYER3 || this == PLAYER4 ||
                 this == PLAYER5 || this == PLAYER6 || this == PLAYER7 || this == PLAYER8);
-    }
-
-    /*
-    |-----------------------------------------------------------------------------------------------
-    |
-    |   Value Functions
-    |
-    |-----------------------------------------------------------------------------------------------
-    */
-
-    /**
-     * Returns tile for player
-     */
-    public static Tile getTileForPlayerNumber(int player) {
-        if(player  > 8){
-            throw new IllegalArgumentException("Player number is higher than 8");
-        }
-        return Tile.values()[player];
-    }
-
-    /**
-     * Returns array of all participatingPlayers
-     */
-    public static Tile[] getPlayerTiles(int players){
-        if(players  > 8){
-            throw new IllegalArgumentException("Number of players is higher than 8");
-        }
-        return Arrays.copyOfRange(Tile.values(), 1, players + 1);
     }
 
     /*

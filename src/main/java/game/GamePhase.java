@@ -10,7 +10,6 @@ public enum GamePhase {
      */
     BUILD,
 
-
     /**
      * The bomb phase.
      */
