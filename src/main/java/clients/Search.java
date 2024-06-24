@@ -7,8 +7,10 @@ import exceptions.OutOfTimeException;
 import game.Game;
 import game.GamePhase;
 import move.Move;
+import stats.Community;
 import util.Logger;
 import util.Quadruple;
+import util.Triple;
 import util.Tuple;
 
 import java.util.*;
@@ -87,51 +89,62 @@ public class Search {
         this.startTime = System.currentTimeMillis();
         this.endTime = startTime + timeLimit;
 
-        // Fallback move
-        Move bestMove =
-                game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
-
-        stats_depths.add(0);
+        // Fallback
+        Tuple<Move, Integer> result =
+                new Tuple<>(game.getRelevantMovesForCurrentPlayer().iterator().next(),
+                        Integer.MIN_VALUE);
 
         try {
+
+            stats_depths.add(0);
 
             // For each depth we calculate the average time per game visited in order to
             // estimate a time for the next depth
             resetStats();
 
-            // Cache move sorting
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game, new HashMap<>(), true);
-
-            stats_depths.add(1);
-
-            // As the sorted moves already contain the result for depth 1, update bestMove
-            bestMove = sortedMoves.get(0).first();
-
             // It only makes sense to build a tree if we are in the first phase
             if (!game.getPhase().equals(GamePhase.BUILD)) {
-                return bestMove;
+                throw new GamePhaseNotValidException("Not in build phase, so no tree building");
             }
 
             moveCutoffs = new HashMap<>();
-
-            // Exit if we don't have the estimated time left
-            evaluateStats(1);
-
             bombPhasesReached = 0;
 
             // Iterative deepening search
-            // Start with depth 2 as depth 1 is already calculated via the sorted moves
-            int depthLimit = 2;
+            int depthLimit = 1;
 
             while (true) {
 
+                logger.log("Iterative deepening: Depth " + depthLimit);
+
                 resetStats();
 
-                bestMove = calculateBestMove(sortedMoves, depthLimit);
+                Set<Tuple<Game, Community>> relevantCommunities =
+                        game.communities.getRelevantCommunities(playerNumber);
+
+                logger.debug(relevantCommunities.size() + " relevant Communities");
+
+                for (var gameAndCommunity : relevantCommunities) {
+
+                    logger.debug("Calculating best move for Community #" +
+                            gameAndCommunity.second().hashCode());
+
+                    var communityResult = findBestMove(
+                            fullMoveSort(gameAndCommunity.first(), gameAndCommunity.second()),
+                            depthLimit);
+
+                    logger.debug("Best Move is " + communityResult.first() + " with a score of " +
+                            communityResult.second());
+
+                    if (communityResult.second() > result.second()) {
+                        result = communityResult;
+                    }
+
+                }
 
                 stats_depths.add(depthLimit);
 
-                if (bombPhasesReached >= sortedMoves.size()) {
+                if (bombPhasesReached >= game.getValidMovesForCurrentPlayer().size()) {
                     throw new GamePhaseNotValidException("Tree reached bomb phase");
                 }
 
@@ -146,28 +159,26 @@ public class Search {
                     e.getStackTrace()[2].getMethodName();
             logger.warn(e.getMessage() + " " + stackTrace);
             stats_timeouts.add(stackTrace);
-            return bestMove;
 
         }
         catch (NotEnoughTimeException | GamePhaseNotValidException e) {
             logger.log(e.getMessage());
-            return bestMove;
         }
+
+        // Result = Move and Score. Return only the Move.
+        return result.first();
 
     }
 
     /**
      * Initialize the search, and thus begin the building of a search tree. If enough time, the
      * depth of the tree will be `depthLimit`.
-     * @param sortedMoves The list of the initial sorted moves, consisting of a Tuple of the Move
-     *                    itself and the Game after the move has been executed.
      * @return The best move
      * @throws OutOfTimeException if we ran out of time
      */
-    private Move calculateBestMove(List<Tuple<Move, Game>> sortedMoves, int depth)
+    private Tuple<Move, Integer> findBestMove(
+            List<Triple<Move, Game, Community>> fullMoveSortResult, int depth)
             throws OutOfTimeException {
-
-        logger.log("Starting Alpha/Beta-Search with search depth " + depth);
 
         int resultScore = Integer.MIN_VALUE;
         Move resultMove = null;
@@ -180,13 +191,14 @@ public class Search {
 
         logger.debug("0%");
 
-        for (var moveAndGame : sortedMoves) {
+        for (var moveGameCommunityTriple : fullMoveSortResult) {
 
-            int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
+            int score = calculateScore(moveGameCommunityTriple.second(),
+                    moveGameCommunityTriple.third(), depth - 1, alpha, beta, true);
 
             if (score > resultScore) {
                 resultScore = score;
-                resultMove = moveAndGame.first();
+                resultMove = moveGameCommunityTriple.first();
             }
 
             // Update alpha for the maximizer
@@ -194,10 +206,11 @@ public class Search {
 
             // Log progress percentage
             i++;
-            logger.replace().debug((int) ((float) i / (float) sortedMoves.size() * 100) + "%");
+            logger.replace()
+                    .debug((int) ((float) i / (float) fullMoveSortResult.size() * 100) + "%");
         }
 
-        return resultMove;
+        return new Tuple<>(resultMove, resultScore);
     }
 
     /**
@@ -207,12 +220,12 @@ public class Search {
      * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
-    private int calculateScore(Game game, int depth, int alpha, int beta, boolean buildTree)
-            throws OutOfTimeException {
+    private int calculateScore(Game game, Community community, int depth, int alpha, int beta,
+                               boolean buildTree) throws OutOfTimeException {
 
         checkTime();
 
-        if (depth == 0 || game.getPhase() != GamePhase.BUILD) {
+        if (depth == 0 || game.getPhase() != GamePhase.BUILD || !community.hasNextPlayer()) {
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
@@ -220,18 +233,21 @@ public class Search {
             return evaluator.evaluate(game, playerNumber);
         }
 
-        int currentPlayerNumber = game.getCurrentPlayerNumber();
-        boolean isMaximizer = currentPlayerNumber == playerNumber;
+        community.nextPlayer();
+
+        boolean isMaximizer = game.getCurrentPlayerNumber() == playerNumber;
 
         if (isMaximizer) {
+
             int result = Integer.MIN_VALUE;
 
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
-                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), true);
+            for (Move move : community.getRelevantMovesForCurrentPlayer()) {
 
-            for (var moveAndGame : sortedMoves) {
+                Tuple<Game, Community> executionResult = executeMove(game, move);
 
-                int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
+                int score =
+                        calculateScore(executionResult.first(), executionResult.second(), depth - 1,
+                                alpha, beta, true);
 
                 result = Math.max(result, score);
 
@@ -240,7 +256,7 @@ public class Search {
 
                 // Beta cutoff
                 if (beta <= alpha) {
-                    addCutoff(moveAndGame.first(), game.getMoveCounter());
+                    addCutoff(move, game.getMoveCounter());
                     break;
                 }
             }
@@ -249,20 +265,23 @@ public class Search {
 
         } else if (buildTree) {
 
-            List<Tuple<Move, Game>> sortedMoves = sortMoves(game,
-                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>()), false);
+            // Phi move
+            // TODO: Better heuristic for Phi-Move
+            Move phi = community.getRelevantMovesForCurrentPlayer().iterator().next();
+            Tuple<Game, Community> executionResult = executeMove(game, phi);
 
-            // Get phi move
-            // TODO: what if we have no moves?
-            Tuple<Move, Game> phi = sortedMoves.get(0); // Best move for minimizer
+            int score = calculateScore(executionResult.first(), executionResult.second(), depth - 1,
+                    alpha, beta, true);
 
-            // Evaluate phi move
-            int score = calculateScore(phi.second(), depth - 1, alpha, beta, true);
             int result = score;
+
             beta = Math.min(beta, result);
 
-            for (var moveAndGame : sortedMoves) {
-                score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, false);
+            for (var move : community.getRelevantMovesForCurrentPlayer()) {
+                executionResult = executeMove(game, phi);
+
+                score = calculateScore(executionResult.first(), executionResult.second(), depth - 1,
+                        alpha, beta, false);
 
                 result = Math.min(result, score);
 
@@ -271,7 +290,7 @@ public class Search {
 
                 // Alpha cutoff
                 if (beta <= alpha) {
-                    addCutoff(moveAndGame.first(), game.getMoveCounter());
+                    addCutoff(move, game.getMoveCounter());
                     break;
                 }
             }
@@ -279,17 +298,15 @@ public class Search {
             return result;
 
         } else {
-            // TODO: Better heuristic?
-            //       maybe the move which gets us the most stones
-            Move move =
-                    game.getRelevantMovesForCurrentPlayer().iterator().next(); // Random valid move
+            // TODO: Better heuristic? Maybe the move which gets us the most stones?
+            Move move = community.getRelevantMovesForCurrentPlayer().iterator().next();
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
-            Game clonedGame = game.clone();
-            clonedGame.executeMove(move);
+            Tuple<Game, Community> executionResult = executeMove(game, move);
             currentIterationNodesVisited++;
 
-            return calculateScore(clonedGame, depth - 1, alpha, beta, false);
+            return calculateScore(executionResult.first(), executionResult.second(), depth - 1,
+                    alpha, beta, false);
         }
     }
 
@@ -302,59 +319,46 @@ public class Search {
     */
 
     /**
-     * Sort all possible moves the current player has by 1. The number of cutoffs the same moves
-     * achieved in other branches on the same height of the tree (killer heuristic) 2. The score of
-     * the game after this move is executed.
-     * @param game        The initial game situation
-     * @param moveCutoffs The killer heuristic
+     * Sort all Moves the next valid Player in a given Community has by executing them and fully
+     * evaluating the resulted Game.
+     * @param game      The game.
+     * @param community The community which contains the moves that should be sorted.
+     * @return A sorted LinkedList with Triples, where each Triple contains:
+     * <ol>
+     *     <li>The Move</li>
+     *     <li>The Game after executing the Move</li>
+     *     <li>The Move's target Community after the Move execution, or null if the Game reached
+     *     the bomb phase</li>
+     * </ol>
      */
-    private List<Tuple<Move, Game>> sortMoves(Game game, Map<Move, Integer> moveCutoffs,
-                                              boolean descending) throws OutOfTimeException {
+    private List<Triple<Move, Game, Community>> fullMoveSort(Game game, Community community)
+            throws OutOfTimeException {
 
-        // A dataset where every entry consists of a Move, the Game after the Move execution, the
-        // score of the game and the number of cutoffs this move achieved in other branches
-        List<Quadruple<Move, Game, Integer, Integer>> result = new LinkedList<>();
+        List<Quadruple<Move, Game, Community, Integer>> result = new LinkedList<>();
 
         // Get data
-        for (Move move : game.getRelevantMovesForCurrentPlayer()) {
+        for (Move move : community.getRelevantMovesForCurrentPlayer()) {
             checkTime();
 
-            Game clonedGame = game.clone();
-            clonedGame.executeMove(move);
-            int score = evaluator.evaluate(clonedGame, playerNumber);
+            Tuple<Game, Community> executionResult = executeMove(game, move);
             currentIterationNodesVisited++;
 
-            int cutoffs = moveCutoffs.getOrDefault(move, 0);
-
-            result.add(new Quadruple<>(move, clonedGame, score, cutoffs));
+            result.add(new Quadruple<>(move, executionResult.first(), executionResult.second(),
+                    evaluator.evaluate(game, playerNumber)));
         }
 
         checkTime();
 
-        // Sort. third = score, fourth = cutoffs
-        result.sort((q1, q2) -> {
-            int compareCutoffs = Integer.compare(q1.fourth(), q2.fourth());
-            if (compareCutoffs != 0) {
-                return compareCutoffs;
-            } else {
-                return Integer.compare(q1.third(), q2.third());
-            }
-        });
+        // Sort by evaluation score
+        result.sort(Comparator.comparingInt(Quadruple::fourth));
 
-        checkTime();
-
-        // Reduce to Tuple
-        LinkedList<Tuple<Move, Game>> tuples = new LinkedList<>();
+        // Reduce to Triple
+        LinkedList<Triple<Move, Game, Community>> triples = new LinkedList<>();
         for (var quadruple : result) {
-            tuples.add(new Tuple<>(quadruple.first(), quadruple.second()));
+            triples.add(new Triple<>(quadruple.first(), quadruple.second(), quadruple.third()));
         }
 
-        // Reverse if necessary
-        if (descending) {
-            Collections.reverse(tuples);
-        }
-
-        return tuples;
+        return triples;
     }
 
     /**
@@ -375,6 +379,17 @@ public class Search {
     private void addCutoff(Move move, int depth) {
         moveCutoffs.putIfAbsent(depth, new HashMap<>());
         moveCutoffs.get(depth).put(move, moveCutoffs.get(depth).getOrDefault(move, 0) + 1);
+    }
+
+    /**
+     * Clone the Game, execute the Move and find the new Community.
+     * @return A Tuple consisting of the new Game and the new Community.
+     */
+    private static Tuple<Game, Community> executeMove(Game game, Move move) {
+        Game clonedGame = game.clone();
+        clonedGame.executeMove(move);
+        return new Tuple<>(clonedGame,
+                clonedGame.communities.findCommunityByCoordinates(move.getCoordinates()));
     }
 
     /*
