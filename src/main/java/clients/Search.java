@@ -225,7 +225,7 @@ public class Search {
 
         checkTime();
 
-        if (depth == 0 || game.getPhase() != GamePhase.BUILD || !community.hasNextPlayer()) {
+        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) || !community.hasNextPlayer()) {
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
@@ -388,8 +388,15 @@ public class Search {
     private static Tuple<Game, Community> executeMove(Game game, Move move) {
         Game clonedGame = game.clone();
         clonedGame.executeMove(move);
-        return new Tuple<>(clonedGame,
-                clonedGame.communities.findCommunityByCoordinates(move.getCoordinates()));
+
+        Community clonedCommunity = null;
+
+        if (clonedGame.communities != null) {
+            clonedCommunity =
+                    clonedGame.communities.findCommunityByCoordinates(move.getCoordinates());
+        }
+
+        return new Tuple<>(clonedGame, clonedCommunity);
     }
 
     /*
