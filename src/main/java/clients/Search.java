@@ -266,8 +266,9 @@ public class Search {
         } else if (buildTree) {
 
             // Phi move
-            // TODO: Better heuristic for Phi-Move
-            Move phi = community.getRelevantMovesForCurrentPlayer().iterator().next();
+            List<Move> moves = new ArrayList<>(community.getRelevantMovesForCurrentPlayer());
+            moves.sort(evaluator);
+            Move phi = moves.get(0);
             Tuple<Game, Community> executionResult = executeMove(game, phi);
 
             int score = calculateScore(executionResult.first(), executionResult.second(), depth - 1,

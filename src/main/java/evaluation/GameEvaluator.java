@@ -4,11 +4,14 @@ import board.Coordinates;
 import board.Tile;
 import game.Game;
 import game.MoveCalculator;
+import move.Move;
+
+import java.util.Comparator;
 
 /**
  * Evaluates the current game situation for one player
  */
-public class GameEvaluator {
+public class GameEvaluator implements Comparator<Move> {
 
     private final int[] evalPhaseThresholds = {0, 70, 82, 95};
     private final double[] mobilityFactorsPerEvalPhase = {1, 0.5, 0.25, 0};
@@ -142,6 +145,15 @@ public class GameEvaluator {
     private int getNumberOfTilesForPlayer(Game game, int player) {
         return game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
                 game.getPlayer(player).getPlayerValue()).size();
+    }
+
+    /**
+     * "Dirty" compare between 2 moves.
+     */
+    @Override
+    public int compare(Move move1, Move move2) {
+        // TODO: Implement!
+        return 0;
     }
 
     /*
