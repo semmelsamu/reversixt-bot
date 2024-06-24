@@ -5,6 +5,7 @@ import board.Tile;
 import game.Game;
 import game.MoveCalculator;
 import move.Move;
+import move.SpecialMoveInMinimaxTree;
 
 import java.util.Comparator;
 
@@ -17,7 +18,6 @@ public class GameEvaluator implements Comparator<Move> {
     private final double[] mobilityFactorsPerEvalPhase = {1, 0.5, 0.25, 0};
     private final double[] ratedTileFactorsPerEvalPhase = {1, 1.5, 1.25, 1};
     private final double[] rawTileFactorsPerEvalPhase = {0, 0, 0.5, 1};
-    private int[][] tileRatings;
 
     private BoardInfo boardInfo;
 
@@ -54,7 +54,6 @@ public class GameEvaluator implements Comparator<Move> {
      */
     private int evaluatePhase1(Game game, int player) {
         int evalPhase = getEvalPhase(game);
-        tileRatings = boardInfo.getTileRatings();
         double rating = 0;
         rating += ratedTileFactorsPerEvalPhase[evalPhase] *
                 sumUpAllRatingsForOccupiedTiles(game, player);
@@ -125,7 +124,7 @@ public class GameEvaluator implements Comparator<Move> {
         int sum = 0;
         for (Coordinates tile : game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
                 game.getPlayer(player).getPlayerValue())) {
-            sum += tileRatings[tile.y][tile.x];
+            sum += boardInfo.getTileRatings()[tile.y][tile.x];
         }
         return sum;
     }
@@ -147,13 +146,28 @@ public class GameEvaluator implements Comparator<Move> {
                 game.getPlayer(player).getPlayerValue()).size();
     }
 
+    private int getTileRatingForMove(Move move){
+        int y = move.getCoordinates().y;
+        int x = move.getCoordinates().x;
+        return boardInfo.getTileRatings()[y][x];
+    }
+
     /**
      * "Dirty" compare between 2 moves.
      */
     @Override
     public int compare(Move move1, Move move2) {
-        // TODO: Implement!
-        return 0;
+        if(move1 instanceof SpecialMoveInMinimaxTree){
+            if(move2 instanceof SpecialMoveInMinimaxTree){
+                return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
+            }
+            return 1;
+        }
+        if(move2 instanceof SpecialMoveInMinimaxTree){
+            return -1;
+        }
+
+        return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
     }
 
     /*
