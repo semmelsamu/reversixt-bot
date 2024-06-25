@@ -21,7 +21,6 @@ public class BoardFactory {
 
     /**
      * Creates a board from lines.
-     *
      * @return The board.
      */
     public static Board createFromLines(LinkedList<String> lines) {
@@ -81,6 +80,10 @@ public class BoardFactory {
         for (int i = 0; i < lines.size(); i++) {
 
             String currentLine = lines.get(i);
+
+            if (currentLine.isBlank()) {
+                continue;
+            }
 
             logger.debug(currentLine);
             String[] transitionParts = currentLine.split(" ");
