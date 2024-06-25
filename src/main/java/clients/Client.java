@@ -32,10 +32,9 @@ public class Client {
      */
     public Client(Game game, int playerNumber) {
         this.game = game;
-        logGame();
+        logger.log(logGame());
         this.playerNumber = playerNumber;
         logger.log("We are player " + playerNumber);
-
         logger.log("Calculating board info...");
         boardInfo = new BoardInfo(game);
     }
@@ -48,7 +47,7 @@ public class Client {
 
         game.executeMove(move);
 
-        logGame();
+        logger.debug(logGame());
 
     }
 
@@ -99,11 +98,13 @@ public class Client {
         logger.verbose(Search.getStats());
     }
 
-    public void logGame() {
-        logger.log(game.toString());
+    public String logGame() {
+        StringBuilder result = new StringBuilder();
+        result.append(game.toString());
         if (game.communities != null) {
-            logger.log(game.communities.toString());
+            result.append(game.communities);
         }
+        return result.toString();
     }
 
 }
