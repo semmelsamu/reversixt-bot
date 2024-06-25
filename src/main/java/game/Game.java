@@ -227,6 +227,7 @@ public class Game implements Cloneable {
             throw new MoveNotValidException("Tried to execute a move that is not valid: " + move);
         }
         MoveExecutor.executeMove(this, move);
+        // TODO: Update Reachability!
         moveCounter++;
         nextPlayer();
     }

@@ -210,6 +210,7 @@ public class Search {
         checkTime();
 
         if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) ||
+                // TODO: This should actually be community.isReachable!
                 !community.anyPlayerHasValidMoves()) {
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;

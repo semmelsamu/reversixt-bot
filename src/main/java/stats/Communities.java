@@ -11,6 +11,8 @@ import java.util.*;
 
 public class Communities implements Cloneable {
 
+    // TODO: Sort by most relevant Community?
+    // TODO: Total auslöschung not good in Community!
     private Set<Community> communities;
 
     Game game;
@@ -117,6 +119,8 @@ public class Communities implements Cloneable {
     }
 
     public void updateCommunities(Coordinates coordinates) {
+
+        // TODO: Maybe merge Communities already when they are close together? ~3 Tiles?
 
         List<Community> communitiesToBeUpdated = new LinkedList<>();
 
