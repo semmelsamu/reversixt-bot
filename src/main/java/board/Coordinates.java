@@ -1,7 +1,5 @@
 package board;
 
-import java.util.Objects;
-
 /**
  * <ul>
  *     <li>X is the horizontal axis</li>
@@ -71,7 +69,7 @@ public class Coordinates {
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y);
+        return 100 * x + y;
     }
 
     /*
