@@ -17,22 +17,38 @@ public class CoordinatesExpander {
             return coordinates;
         }
 
-        Set<Coordinates> expandedCoordinates = new HashSet<>();
+        Set<Coordinates> result = new HashSet<>(coordinates);
 
-        for (Coordinates c : coordinates) {
-            // Expand in every direction
-            for (Direction direction : Direction.values()) {
-                TileReader tileReader = new TileReader(game, c, direction);
-                if (tileReader.hasNext()) {
+        for (int i = 0; i < radius; i++) {
+
+            Set<Coordinates> expandedCoordinates = new HashSet<>();
+
+            for (Coordinates c : coordinates) {
+
+                // Expand in every direction
+                for (Direction direction : Direction.values()) {
+                    TileReader tileReader = new TileReader(game, c, direction);
+
+                    // This Direction has a dead end
+                    if (!tileReader.hasNext()) {
+                        continue;
+                    }
+
                     tileReader.next();
+
+                    // The expanded Tile is already present in the result
+                    if (result.contains(tileReader.getCoordinates())) {
+                        continue;
+                    }
+
                     expandedCoordinates.add(tileReader.getCoordinates());
                 }
             }
-        }
 
-        Set<Coordinates> result = new HashSet<>(coordinates);
-        result.addAll(expandedCoordinates);
-        result.addAll(expandCoordinates(game, expandedCoordinates, radius - 1));
+            result.addAll(expandedCoordinates);
+            coordinates = new HashSet<>(expandedCoordinates);
+
+        }
 
         return result;
     }
