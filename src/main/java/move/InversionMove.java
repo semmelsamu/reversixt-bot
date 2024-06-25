@@ -5,7 +5,7 @@ import board.Coordinates;
 /**
  * Invert the order of players
  */
-public class InversionMove extends SpecialMoveInMinimaxTree {
+public class InversionMove extends Move {
 
     public InversionMove(int player, Coordinates coordinates) {
         super(player, coordinates);

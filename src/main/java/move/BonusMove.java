@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * A move where after the player sets a stone, he will receive a bonus.
  */
-public class BonusMove extends SpecialMoveInMinimaxTree {
+public class BonusMove extends Move {
 
     /**
      * Either receive a bomb or an overwrite stone.
