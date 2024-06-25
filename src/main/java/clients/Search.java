@@ -64,11 +64,6 @@ public class Search {
     private int bombPhasesReached;
 
     /**
-     * Stores how many cutoffs a move on a certain depth has achieved.
-     */
-    private Map<Integer, Map<Move, Integer>> moveCutoffs;
-
-    /**
      * Initialize a new move search.
      * @param game         The game for which to search the best move.
      * @param playerNumber The player for which to search the best move.
@@ -107,7 +102,6 @@ public class Search {
                 throw new GamePhaseNotValidException("Not in build phase, so no tree building");
             }
 
-            moveCutoffs = new HashMap<>();
             bombPhasesReached = 0;
 
             // Iterative deepening search
@@ -245,7 +239,7 @@ public class Search {
 
                 // Beta cutoff
                 if (beta <= alpha) {
-                    addCutoff(move, game.getMoveCounter());
+                    evaluator.addCutoff(move, game.getMoveCounter());
                     break;
                 }
             }
@@ -256,6 +250,7 @@ public class Search {
 
             // Phi move
             List<Move> moves = new ArrayList<>(community.getRelevantMovesForCurrentPlayer());
+            evaluator.setDepth(game.getMoveCounter());
             moves.sort(evaluator);
             Move phi = moves.get(0);
             Tuple<Game, Community> executionResult = executeMove(game, phi);
@@ -280,7 +275,7 @@ public class Search {
 
                 // Alpha cutoff
                 if (beta <= alpha) {
-                    addCutoff(move, game.getMoveCounter());
+                    evaluator.addCutoff(move, game.getMoveCounter());
                     break;
                 }
             }
@@ -362,16 +357,6 @@ public class Search {
     }
 
     /**
-     * Add a cutoff to the statistics.
-     * @param move  Which move achieved the cutoff
-     * @param depth On which depth the cutoff was achieved
-     */
-    private void addCutoff(Move move, int depth) {
-        moveCutoffs.putIfAbsent(depth, new HashMap<>());
-        moveCutoffs.get(depth).put(move, moveCutoffs.get(depth).getOrDefault(move, 0) + 1);
-    }
-
-    /**
      * Clone the Game, execute the Move and find the new Community.
      * @return A Tuple consisting of the new Game and the new Community.
      */
@@ -435,14 +420,14 @@ public class Search {
         stats.append("Total time: ").append(totalTime).append(" ms\n");
         stats.append("Time per state: ").append(timePerGame).append(" ms\n");
         stats.append("Average branching factor: ").append(branchingFactor).append("\n");
-        stats.append("Cutoffs: ").append(moveCutoffs.values().stream()
+        /*stats.append("Cutoffs: ").append(moveCutoffs.values().stream()
                         .mapToInt(map -> map.values().stream().mapToInt(Integer::intValue).sum()).sum())
                 .append("\n");
         for (var cutoffs : moveCutoffs.entrySet()) {
             int count = cutoffs.getValue().values().stream().mapToInt(Integer::intValue).sum();
             stats.append("- ").append(count).append(" cutoffs on move ").append(cutoffs.getKey())
                     .append("\n");
-        }
+        }*/
         logger.verbose(stats.toString());
 
         stats = new StringBuilder("Estimation for depth " + newDepth + "\n");

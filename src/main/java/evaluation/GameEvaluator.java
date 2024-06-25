@@ -10,6 +10,8 @@ import move.InversionMove;
 import move.Move;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Evaluates the current game situation for one player
@@ -22,13 +24,27 @@ public class GameEvaluator implements Comparator<Move> {
     private final double[] rawTileFactorsPerEvalPhase = {0, 0, 0.5, 1};
 
     private BoardInfo boardInfo;
+    /**
+     * Used for comparing of values
+     */
+    int depth = 0;
+
+    /**
+     * Stores how many cutoffs a move on a certain depth has achieved.
+     */
+    private Map<Integer, Map<Move, Integer>> moveCutoffs;
 
     public GameEvaluator(BoardInfo boardInfo) {
         this.boardInfo = boardInfo;
+        moveCutoffs = new HashMap<>();
     }
 
     public void setBoardInfo(BoardInfo boardInfo) {
         this.boardInfo = boardInfo;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
     }
 
     /**
@@ -131,6 +147,17 @@ public class GameEvaluator implements Comparator<Move> {
         return sum;
     }
 
+    /**
+     * Add a cutoff to the statistics.
+     * @param move  Which move achieved the cutoff
+     * @param depth On which depth the cutoff was achieved
+     */
+    public void addCutoff(Move move, int depth) {
+        moveCutoffs.putIfAbsent(depth, new HashMap<>());
+        moveCutoffs.get(depth).put(move, moveCutoffs.get(depth).getOrDefault(move, 0) + 1);
+    }
+
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -165,7 +192,12 @@ public class GameEvaluator implements Comparator<Move> {
      */
     @Override
     public int compare(Move move1, Move move2) {
-
+        Map<Move, Integer> cutoffsOnDepth = moveCutoffs.getOrDefault(depth, new HashMap<>());
+        int compareCutoffs = Integer.compare(cutoffsOnDepth.getOrDefault(move1, 0),
+                cutoffsOnDepth.getOrDefault(move2, 0));
+        if (compareCutoffs != 0){
+            return compareCutoffs;
+        }
         if (!isSpecialMove(move1) && isSpecialMove(move2)) {
             return -1;
         } else if (isSpecialMove(move1) && !isSpecialMove(move2)) {
