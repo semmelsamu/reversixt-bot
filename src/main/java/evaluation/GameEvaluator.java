@@ -148,14 +148,15 @@ public class GameEvaluator implements Comparator<Move> {
                 game.getPlayer(player).getPlayerValue()).size();
     }
 
-    private int getTileRatingForMove(Move move){
+    private int getTileRatingForMove(Move move) {
         int y = move.getCoordinates().y;
         int x = move.getCoordinates().x;
         return boardInfo.getTileRatings()[y][x];
     }
 
     boolean isSpecialMove(Move move) {
-        return move instanceof BonusMove || move instanceof ChoiceMove || move instanceof InversionMove;
+        return move instanceof BonusMove || move instanceof ChoiceMove ||
+                move instanceof InversionMove;
     }
 
 
@@ -164,14 +165,11 @@ public class GameEvaluator implements Comparator<Move> {
      */
     @Override
     public int compare(Move move1, Move move2) {
-        if(isSpecialMove(move1)){
-            if(isSpecialMove(move2)){
-                return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
-            }
-            return 1;
-        }
-        if(isSpecialMove(move2)){
+
+        if (!isSpecialMove(move1) && isSpecialMove(move2)) {
             return -1;
+        } else if (isSpecialMove(move1) && !isSpecialMove(move2)) {
+            return 1;
         }
 
         return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
