@@ -1,7 +1,4 @@
-package stats;
-
-import game.Game;
-import game.Player;
+package game;
 
 public class TotalTilesOccupiedCounter implements Cloneable {
 

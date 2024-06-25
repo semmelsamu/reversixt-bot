@@ -1,8 +1,7 @@
-package stats;
+package game;
 
 import board.Coordinates;
 import board.Tile;
-import game.Game;
 
 import java.util.HashMap;
 import java.util.HashSet;

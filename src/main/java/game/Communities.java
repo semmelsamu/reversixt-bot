@@ -1,10 +1,8 @@
-package stats;
+package game;
 
 import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
-import game.Game;
-import game.Player;
 import util.Tuple;
 
 import java.util.*;

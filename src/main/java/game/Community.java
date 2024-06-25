@@ -1,10 +1,9 @@
-package stats;
+package game;
 
 import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
 import exceptions.MoveNotValidException;
-import game.Game;
 import game.logic.MoveCalculator;
 import move.Move;
 import util.Logger;

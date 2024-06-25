@@ -9,9 +9,6 @@ import game.logic.MoveCalculator;
 import game.logic.MoveExecutor;
 import move.Move;
 import move.OverwriteMove;
-import stats.Communities;
-import stats.CoordinatesGroupedByTile;
-import stats.TotalTilesOccupiedCounter;
 import util.Logger;
 import util.NullLogger;
 
