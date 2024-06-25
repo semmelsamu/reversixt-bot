@@ -1,6 +1,6 @@
 import game.Game;
 import game.GameFactory;
-import game.MoveCalculator;
+import game.logic.MoveCalculator;
 import move.Move;
 import org.junit.jupiter.api.Test;
 import util.File;

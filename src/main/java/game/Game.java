@@ -5,6 +5,8 @@ import board.Coordinates;
 import board.Tile;
 import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
+import game.logic.MoveCalculator;
+import game.logic.MoveExecutor;
 import move.Move;
 import move.OverwriteMove;
 import stats.Communities;

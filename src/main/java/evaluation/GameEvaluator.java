@@ -3,7 +3,7 @@ package evaluation;
 import board.Coordinates;
 import board.Tile;
 import game.Game;
-import game.MoveCalculator;
+import game.logic.MoveCalculator;
 import move.BonusMove;
 import move.ChoiceMove;
 import move.InversionMove;

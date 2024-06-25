@@ -5,7 +5,7 @@ import board.CoordinatesExpander;
 import board.Tile;
 import exceptions.MoveNotValidException;
 import game.Game;
-import game.MoveCalculator;
+import game.logic.MoveCalculator;
 import move.Move;
 import util.Logger;
 

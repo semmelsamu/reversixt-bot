@@ -3,7 +3,7 @@ package util;
 import board.Coordinates;
 import board.Tile;
 import game.Game;
-import game.MoveExecutor;
+import game.logic.MoveExecutor;
 import move.InversionMove;
 import move.Move;
 

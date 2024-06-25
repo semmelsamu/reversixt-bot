@@ -2,8 +2,8 @@ import board.Coordinates;
 import board.Tile;
 import game.Game;
 import game.GameFactory;
-import game.MoveCalculator;
-import game.MoveExecutor;
+import game.logic.MoveCalculator;
+import game.logic.MoveExecutor;
 import move.Move;
 import org.junit.jupiter.api.Test;
 
