@@ -4,8 +4,10 @@ import board.Coordinates;
 import board.Tile;
 import game.Game;
 import game.MoveCalculator;
+import move.BonusMove;
+import move.ChoiceMove;
+import move.InversionMove;
 import move.Move;
-import move.SpecialMoveInMinimaxTree;
 
 import java.util.Comparator;
 
@@ -152,18 +154,23 @@ public class GameEvaluator implements Comparator<Move> {
         return boardInfo.getTileRatings()[y][x];
     }
 
+    boolean isSpecialMove(Move move) {
+        return move instanceof BonusMove || move instanceof ChoiceMove || move instanceof InversionMove;
+    }
+
+
     /**
      * "Dirty" compare between 2 moves.
      */
     @Override
     public int compare(Move move1, Move move2) {
-        if(move1 instanceof SpecialMoveInMinimaxTree){
-            if(move2 instanceof SpecialMoveInMinimaxTree){
+        if(isSpecialMove(move1)){
+            if(isSpecialMove(move2)){
                 return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
             }
             return 1;
         }
-        if(move2 instanceof SpecialMoveInMinimaxTree){
+        if(isSpecialMove(move2)){
             return -1;
         }
 
