@@ -126,7 +126,7 @@ public class TileReader {
      */
     private TransitionPart getTransitionCounterpart(TransitionPart transitionPart) {
         // Is there a transition?
-        if (!game.getTransitions().containsKey(transitionPart.toShort())) {
+        if (game.getTransitions().get(transitionPart.toShort()) == null) {
             return null;
         }
 
