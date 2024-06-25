@@ -48,14 +48,6 @@ public class Client {
 
         game.executeMove(move);
 
-        // Check if reachableTiles has to be updated
-        if (boardInfo.getSimulationCount() < 2 &&
-                (double) game.totalTilesOccupiedCounter.getTotalTilesOccupied() /
-                        boardInfo.getReachableTiles() > 0.6) {
-            logger.log("Re-calculating board info...");
-            boardInfo.updateReachableTiles(game, 1000);
-        }
-
         logGame();
 
     }
@@ -69,6 +61,16 @@ public class Client {
 
         this.logger.log("Searching new move in " + timeLimit + "ms");
 
+        long startTime = System.currentTimeMillis();
+
+        // Check if reachableTiles has to be updated
+        if (boardInfo.getSimulationCount() < 2 &&
+                (double) game.totalTilesOccupiedCounter.getTotalTilesOccupied() /
+                        boardInfo.getReachableTiles() > 0.6) {
+            logger.log("Re-calculating board info...");
+            boardInfo.updateReachableTiles(game, timeLimit / 2);
+        }
+
         // Creating the evaluator with the current available data
         GameEvaluator evaluator = new GameEvaluator(boardInfo);
 
@@ -76,8 +78,10 @@ public class Client {
         // Using a Game clone to prevent the search messing with the synchronized Game
         Search search = new Search(game.clone(), playerNumber, evaluator);
 
+        long timePassed = System.currentTimeMillis() - startTime;
+
         // Searching
-        return search.search(timeLimit);
+        return search.search(timeLimit - (int) timePassed);
     }
 
     /**
