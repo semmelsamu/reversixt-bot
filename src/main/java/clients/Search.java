@@ -384,7 +384,8 @@ public class Search {
         if (clonedGame.communities != null) {
             clonedCommunity =
                     clonedGame.communities.findCommunityByCoordinates(move.getCoordinates());
-            if (clonedCommunity.getRelevantMovesForCurrentPlayer().isEmpty()) {
+            if (clonedCommunity.getRelevantMovesForCurrentPlayer().isEmpty() &&
+                    clonedCommunity.anyPlayerHasValidMoves()) {
                 clonedCommunity.nextPlayer();
             }
         }
