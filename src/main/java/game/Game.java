@@ -5,6 +5,8 @@ import board.Coordinates;
 import board.Tile;
 import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
+import move.Bonus;
+import move.BonusMove;
 import move.Move;
 import move.OverwriteMove;
 import stats.Communities;
@@ -245,10 +247,10 @@ public class Game implements Cloneable {
 
         // TODO: Make decision between bomb or overwrite bonus in evaluation (currently I don't
         //  know how)
-        /*movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
+        movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
                 .filter((move) -> !(move instanceof BonusMove bonusMove &&
                         bonusMove.getBonus() == Bonus.BOMB)).collect(Collectors.toSet());
-        */
+
         if (movesWithoutOverwrites.isEmpty()) {
             return validMovesForCurrentPlayer;
         } else {
