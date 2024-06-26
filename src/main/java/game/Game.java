@@ -8,7 +8,6 @@ import exceptions.MoveNotValidException;
 import game.logic.MoveCalculator;
 import game.logic.MoveExecutor;
 import move.Move;
-import move.OverwriteMove;
 import util.Logger;
 import util.NullLogger;
 
@@ -46,7 +45,7 @@ public class Game implements Cloneable {
 
     private GamePhase phase;
 
-    Set<Move> validMovesForCurrentPlayer;
+    Set<Move> validMoves;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -121,7 +120,13 @@ public class Game implements Cloneable {
 
     private void rotateCurrentPlayer() {
         currentPlayer = (currentPlayer % players.length) + 1;
-        validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
+        validMoves = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
+
+        if (communities != null && communities.simulating != null) {
+            validMoves = validMoves.stream()
+                    .filter(move -> communities.simulating.moveAffectsCommunity(move))
+                    .collect(Collectors.toSet());
+        }
     }
 
     void findValidPlayer() {
@@ -156,7 +161,7 @@ public class Game implements Cloneable {
         do {
             rotateCurrentPlayer();
 
-            if (oldPlayer == currentPlayer && validMovesForCurrentPlayer.isEmpty()) {
+            if (oldPlayer == currentPlayer && validMoves.isEmpty()) {
                 if (phase == GamePhase.BUILD) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
@@ -178,7 +183,7 @@ public class Game implements Cloneable {
                 throw new RuntimeException("Too many iterations");
             }
 
-        } while (validMovesForCurrentPlayer.isEmpty() || getPlayer(currentPlayer).isDisqualified());
+        } while (validMoves.isEmpty() || getPlayer(currentPlayer).isDisqualified());
 
         logger.debug("Current player is now " + currentPlayer);
     }
@@ -211,7 +216,7 @@ public class Game implements Cloneable {
     */
 
     public void executeMove(Move move) {
-        if (!validMovesForCurrentPlayer.contains(move)) {
+        if (!validMoves.contains(move)) {
             throw new MoveNotValidException("Tried to execute a move that is not valid: " + move);
         }
         MoveExecutor.executeMove(this, move);
@@ -225,28 +230,8 @@ public class Game implements Cloneable {
         nextPlayer();
     }
 
-    public Set<Move> getValidMovesForCurrentPlayer() {
-        return validMovesForCurrentPlayer;
-    }
-
-    // TODO: Refactor
-    // TODO: What if we only have one non-overwrite move which gets us in a really bad situation,
-    //       but we could use an overwrite move which would help us A LOT?
-    public Set<Move> getRelevantMovesForCurrentPlayer() {
-        Set<Move> movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
-                .filter((move) -> !(move instanceof OverwriteMove)).collect(Collectors.toSet());
-
-        // TODO: Make decision between bomb or overwrite bonus in evaluation (currently I don't
-        //  know how)
-        /*movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
-                .filter((move) -> !(move instanceof BonusMove bonusMove &&
-                        bonusMove.getBonus() == Bonus.BOMB)).collect(Collectors.toSet());
-        */
-        if (movesWithoutOverwrites.isEmpty()) {
-            return validMovesForCurrentPlayer;
-        } else {
-            return movesWithoutOverwrites;
-        }
+    public Set<Move> getValidMoves() {
+        return validMoves;
     }
 
     public int getMoveCounter() {
@@ -352,7 +337,10 @@ public class Game implements Cloneable {
             clone.totalTilesOccupiedCounter = this.totalTilesOccupiedCounter.clone();
             if (communities != null) {
                 clone.communities = this.communities.clone();
-                clone.communities.setGame(clone);
+                clone.communities.game = clone;
+                for (var community : clone.communities.communities) {
+                    community.game = clone;
+                }
             }
 
             return clone;

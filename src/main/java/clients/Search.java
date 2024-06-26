@@ -9,8 +9,6 @@ import game.Game;
 import game.GamePhase;
 import move.Move;
 import util.Logger;
-import util.Quadruple;
-import util.Triple;
 import util.Tuple;
 
 import java.util.*;
@@ -85,9 +83,7 @@ public class Search {
         this.endTime = startTime + timeLimit;
 
         // Fallback
-        Tuple<Move, Integer> result =
-                new Tuple<>(game.getRelevantMovesForCurrentPlayer().iterator().next(),
-                        Integer.MIN_VALUE);
+        Move result = game.getValidMoves().iterator().next();
 
         try {
 
@@ -107,38 +103,42 @@ public class Search {
             // Iterative deepening search
             int depthLimit = 1;
 
+            Set<Community> relevantCommunities =
+                    game.communities.getRelevantCommunities(playerNumber);
+
+            logger.log(relevantCommunities.size() + " relevant Communities");
+
             while (true) {
 
                 logger.log("Iterative deepening: Depth " + depthLimit);
 
                 resetStats();
 
-                Set<Tuple<Game, Community>> relevantCommunities =
-                        game.communities.getRelevantCommunities(playerNumber);
+                int score = Integer.MIN_VALUE;
 
-                logger.debug(relevantCommunities.size() + " relevant Communities");
+                for (Community community : relevantCommunities) {
 
-                for (var gameAndCommunity : relevantCommunities) {
+                    logger.debug("Calculating best move for Community #" + community.hashCode());
 
-                    logger.debug("Calculating best move for Community #" +
-                            gameAndCommunity.second().hashCode());
+                    Game clonedGame = game.clone();
+                    clonedGame.communities.simulate(clonedGame.communities.get(community));
 
-                    var communityResult = findBestMove(
-                            fullMoveSort(gameAndCommunity.first(), gameAndCommunity.second()),
-                            depthLimit);
+                    Tuple<Move, Integer> communityResult =
+                            findBestMove(clonedGame, sortMoves(game), depthLimit);
 
                     logger.debug("Best Move is " + communityResult.first() + " with a score of " +
                             communityResult.second());
 
-                    if (communityResult.second() > result.second()) {
-                        result = communityResult;
+                    if (communityResult.second() > score) {
+                        result = communityResult.first();
+                        score = communityResult.second();
                     }
 
                 }
 
                 stats_depths.add(depthLimit);
 
-                if (bombPhasesReached >= game.getValidMovesForCurrentPlayer().size()) {
+                if (bombPhasesReached >= game.getValidMoves().size()) {
                     throw new GamePhaseNotValidException("Tree reached bomb phase");
                 }
 
@@ -153,14 +153,12 @@ public class Search {
                     e.getStackTrace()[2].getMethodName();
             logger.warn(e.getMessage() + " " + stackTrace);
             stats_timeouts.add(stackTrace);
-
         }
         catch (NotEnoughTimeException | GamePhaseNotValidException e) {
             logger.log(e.getMessage());
         }
 
-        // Result = Move and Score. Return only the Move.
-        return result.first();
+        return result;
 
     }
 
@@ -170,8 +168,7 @@ public class Search {
      * @return The best move
      * @throws OutOfTimeException if we ran out of time
      */
-    private Tuple<Move, Integer> findBestMove(
-            List<Triple<Move, Game, Community>> fullMoveSortResult, int depth)
+    private Tuple<Move, Integer> findBestMove(Game game, List<Move> sortedMoves, int depth)
             throws OutOfTimeException {
 
         int resultScore = Integer.MIN_VALUE;
@@ -180,14 +177,15 @@ public class Search {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        for (var moveGameCommunityTriple : fullMoveSortResult) {
+        for (var move : sortedMoves) {
 
-            int score = calculateScore(moveGameCommunityTriple.second(),
-                    moveGameCommunityTriple.third(), depth - 1, alpha, beta, true);
+            Game clonedGame = game.clone();
+            clonedGame.executeMove(move);
+            int score = calculateScore(clonedGame, depth - 1, alpha, beta, true);
 
             if (score > resultScore) {
                 resultScore = score;
-                resultMove = moveGameCommunityTriple.first();
+                resultMove = move;
             }
 
             // Update alpha for the maximizer
@@ -204,15 +202,21 @@ public class Search {
      * @param beta  Highest value that is allowed by Min
      * @return Best move with the belonging score
      */
-    private int calculateScore(Game game, Community community, int depth, int alpha, int beta,
-                               boolean buildTree) throws OutOfTimeException {
+    private int calculateScore(Game game, int depth, int alpha, int beta, boolean buildTree)
+            throws OutOfTimeException {
 
         checkTime();
 
-        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) || community == null) {
+        Set<Move> relevantMoves = evaluator.filterRelevantMoves(game.getValidMoves());
+
+        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) || game.communities == null ||
+                relevantMoves.isEmpty() ||
+                relevantMoves.stream().anyMatch(evaluator::isSpecialMove)) {
+
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
+
             currentIterationNodesVisited++;
             return evaluator.evaluate(game, playerNumber);
         }
@@ -223,13 +227,11 @@ public class Search {
 
             int result = Integer.MIN_VALUE;
 
-            for (Move move : community.getRelevantMovesForCurrentPlayer()) {
+            for (Move move : relevantMoves) {
 
                 Game clonedGame = game.clone();
-                Community updatedCommunity = clonedGame.communities.executeMove(move);
-
-                int score =
-                        calculateScore(clonedGame, updatedCommunity, depth - 1, alpha, beta, true);
+                clonedGame.executeMove(move);
+                int score = calculateScore(clonedGame, depth - 1, alpha, beta, true);
 
                 result = Math.max(result, score);
 
@@ -248,25 +250,24 @@ public class Search {
         } else if (buildTree) {
 
             // Get Phi Move
-            List<Move> moves = new ArrayList<>(community.getRelevantMovesForCurrentPlayer());
+            List<Move> moves = new ArrayList<>(relevantMoves);
             evaluator.setDepth(game.getMoveCounter());
             moves.sort(evaluator);
             Move phi = moves.get(0);
 
             Game clonedGame = game.clone();
-            Community updatedCommunity = clonedGame.communities.executeMove(phi);
-
-            int score = calculateScore(clonedGame, updatedCommunity, depth - 1, alpha, beta, true);
+            clonedGame.executeMove(phi);
+            int score = calculateScore(clonedGame, depth - 1, alpha, beta, true);
 
             int result = score;
 
             beta = Math.min(beta, result);
 
-            for (var move : community.getRelevantMovesForCurrentPlayer()) {
-                clonedGame = game.clone();
-                updatedCommunity = clonedGame.communities.executeMove(move);
+            for (var move : relevantMoves) {
 
-                score = calculateScore(clonedGame, updatedCommunity, depth - 1, alpha, beta, false);
+                clonedGame = game.clone();
+                clonedGame.executeMove(move);
+                score = calculateScore(clonedGame, depth - 1, alpha, beta, false);
 
                 result = Math.min(result, score);
 
@@ -284,14 +285,14 @@ public class Search {
 
         } else {
             // TODO: Better heuristic? Maybe the move which gets us the most stones?
-            Move move = community.getRelevantMovesForCurrentPlayer().iterator().next();
+            Move move = relevantMoves.iterator().next();
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
-            Community updatedCommunity = clonedGame.communities.executeMove(move);
+            clonedGame.executeMove(move);
             currentIterationNodesVisited++;
 
-            return calculateScore(clonedGame, updatedCommunity, depth - 1, alpha, beta, false);
+            return calculateScore(clonedGame, depth - 1, alpha, beta, false);
         }
     }
 
@@ -304,47 +305,34 @@ public class Search {
     */
 
     /**
-     * Sort all Moves the next valid Player in a given Community has by executing them and fully
-     * evaluating the resulted Game.
-     * @param game      The game.
-     * @param community The community which contains the moves that should be sorted.
-     * @return A sorted LinkedList with Triples, where each Triple contains:
-     * <ol>
-     *     <li>The Move</li>
-     *     <li>The Game after executing the Move</li>
-     *     <li>The Move's target Community after the Move execution, or null if the Game reached
-     *     the bomb phase</li>
-     * </ol>
+     * @param game The game.
      */
-    private List<Triple<Move, Game, Community>> fullMoveSort(Game game, Community community)
-            throws OutOfTimeException {
+    private List<Move> sortMoves(Game game) throws OutOfTimeException {
 
-        List<Quadruple<Move, Game, Community, Integer>> result = new LinkedList<>();
+        List<Tuple<Move, Integer>> data = new LinkedList<>();
 
         // Get data
-        for (Move move : community.getRelevantMovesForCurrentPlayer()) {
+        for (Move move : evaluator.filterRelevantMoves(game.getValidMoves())) {
             checkTime();
 
             Game clonedGame = game.clone();
-            Community updatedCommunity = clonedGame.communities.executeMove(move);
-            currentIterationNodesVisited++;
+            clonedGame.executeMove(move);
 
-            result.add(new Quadruple<>(move, clonedGame, updatedCommunity,
-                    evaluator.evaluate(game, playerNumber)));
+            data.add(new Tuple<>(move, evaluator.evaluate(clonedGame, playerNumber)));
         }
 
         checkTime();
 
         // Sort by evaluation score
-        result.sort(Comparator.comparingInt(Quadruple::fourth));
+        data.sort(Comparator.comparingInt(Tuple::second));
 
-        // Reduce to Triple
-        LinkedList<Triple<Move, Game, Community>> triples = new LinkedList<>();
-        for (var quadruple : result) {
-            triples.add(new Triple<>(quadruple.first(), quadruple.second(), quadruple.third()));
+        // Reduce
+        List<Move> result = new LinkedList<>();
+        for (var tuple : data) {
+            result.add(tuple.first());
         }
 
-        return triples;
+        return result;
     }
 
     /**

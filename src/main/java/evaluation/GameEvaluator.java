@@ -4,14 +4,10 @@ import board.Coordinates;
 import board.Tile;
 import game.Game;
 import game.logic.MoveCalculator;
-import move.BonusMove;
-import move.ChoiceMove;
-import move.InversionMove;
-import move.Move;
+import move.*;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Evaluates the current game situation for one player
@@ -181,7 +177,7 @@ public class GameEvaluator implements Comparator<Move> {
         return boardInfo.getTileRatings()[y][x];
     }
 
-    boolean isSpecialMove(Move move) {
+    public boolean isSpecialMove(Move move) {
         return move instanceof BonusMove || move instanceof ChoiceMove ||
                 move instanceof InversionMove;
     }
@@ -205,6 +201,26 @@ public class GameEvaluator implements Comparator<Move> {
         }
 
         return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
+    }
+
+    public Set<Move> filterRelevantMoves(Set<Move> validMoves) {
+
+        Set<Move> result = new HashSet<>();
+
+        // TODO: What if we only have one non-overwrite move which gets us in a really bad
+        //  situation, but we could use an overwrite move which would help us A LOT?
+
+        // TODO: Make decision between bomb or overwrite bonus in evaluation
+
+        Set<Move> movesWithoutOverwrites =
+                validMoves.stream().filter((move) -> !(move instanceof OverwriteMove))
+                        .collect(Collectors.toSet());
+
+        if (movesWithoutOverwrites.isEmpty()) {
+            return validMoves;
+        } else {
+            return movesWithoutOverwrites;
+        }
     }
 
     /*

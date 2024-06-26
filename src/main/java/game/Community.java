@@ -3,7 +3,6 @@ package game;
 import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
-import exceptions.MoveNotValidException;
 import game.logic.MoveCalculator;
 import move.Move;
 import util.Logger;
@@ -12,7 +11,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Community implements Cloneable {
 
@@ -50,30 +48,18 @@ public class Community implements Cloneable {
         Arrays.fill(tileCounts, 0);
 
         // Calculate community coordinates
-        for (Coordinates coordinateToBeAdded : expandCoordinateToCommunity(coordinate)) {
+        for (Coordinates coordinateToBeAdded : expandCoordinateToCommunity(game, coordinate)) {
             addCoordinate(coordinateToBeAdded);
         }
 
         // Calculate reachability map
-        reachableCoordinates = new HashSet<>(coordinates);
-        // Expand the coordinates and add them to the reachable
-        // coordinates until no new ones get added
-        while (reachableCoordinates.addAll(
-                CoordinatesExpander.expandCoordinates(game, reachableCoordinates, 1)))
-            ;
+        reachableCoordinates = calculateReachabilityMap(game, coordinates.iterator().next());
     }
 
     public void addCoordinate(Coordinates coordinate) {
         if (coordinates.add(coordinate)) {
             // Only update if the coordinate was not already present
             tileCounts[game.getTile(coordinate).toPlayerIndex() + 1]++;
-        }
-    }
-
-    public void removeCoordinate(Coordinates coordinate) {
-        if (coordinates.remove(coordinate)) {
-            // Only update if the coordinate was actually removed
-            tileCounts[game.getTile(coordinate).toPlayerIndex() + 1]--;
         }
     }
 
@@ -130,10 +116,6 @@ public class Community implements Cloneable {
         reachableCoordinates.addAll(community.reachableCoordinates);
     }
 
-    public Set<Coordinates> getCoordinates() {
-        return coordinates;
-    }
-
     public int getTileCount(Tile tile) {
         if (tile.equals(Tile.EXPANSION)) {
             return tileCounts[0];
@@ -144,51 +126,10 @@ public class Community implements Cloneable {
         }
     }
 
-    public Set<Move> getRelevantMovesForCurrentPlayer() {
+    boolean moveAffectsCommunity(Move move) {
         Set<Coordinates> validCoordinates =
                 CoordinatesExpander.expandCoordinates(game, coordinates, 1);
-        return game.getRelevantMovesForCurrentPlayer().stream()
-                .filter(move -> validCoordinates.contains(move.getCoordinates()))
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * Find the next Player that has valid Moves in this Community. Does nothing if the current
-     * Player already has valid Moves in this Community.
-     * @return True if a valid player could be found, false if not.
-     */
-    public boolean findValidPlayer() {
-        int oldPlayer = game.getCurrentPlayerNumber();
-        var oldValidMoves = game.getValidMovesForCurrentPlayer();
-        if (!getRelevantMovesForCurrentPlayer().isEmpty()) {
-            return true;
-        }
-
-        try {
-            nextPlayer();
-            return true;
-        }
-        catch (Exception e) {
-            // Restore default
-            game.currentPlayer = oldPlayer;
-            game.validMovesForCurrentPlayer = oldValidMoves;
-            return false;
-        }
-    }
-
-    /**
-     * Replace the game's current Player with the next Player that has valid Moves in this
-     * Community.
-     */
-    public void nextPlayer() {
-        int oldPlayer = game.getCurrentPlayerNumber();
-        do {
-            game.nextPlayer();
-            if (game.getCurrentPlayerNumber() == oldPlayer &&
-                    getRelevantMovesForCurrentPlayer().isEmpty()) {
-                throw new MoveNotValidException("No player has valid moves");
-            }
-        } while (getRelevantMovesForCurrentPlayer().isEmpty());
+        return validCoordinates.contains(move.getCoordinates());
     }
 
     /*
@@ -202,7 +143,7 @@ public class Community implements Cloneable {
     /**
      * Calculate all coordinates of the community that contains the coordinate
      */
-    private Set<Coordinates> expandCoordinateToCommunity(Coordinates coordinate) {
+    private static Set<Coordinates> expandCoordinateToCommunity(Game game, Coordinates coordinate) {
         Set<Coordinates> result = new HashSet<>();
 
         Set<Coordinates> coordinatesToBeAdded = new HashSet<>();
@@ -219,8 +160,17 @@ public class Community implements Cloneable {
         return result;
     }
 
-    public void setGame(Game game) {
-        this.game = game;
+    private static Set<Coordinates> calculateReachabilityMap(Game game, Coordinates coordinates) {
+
+        Set<Coordinates> result = new HashSet<>();
+        result.add(coordinates);
+
+        // Expand the coordinates and add them to the reachable
+        // coordinates until no new ones get added
+        while (result.addAll(CoordinatesExpander.expandCoordinates(game, result, 1)))
+            ;
+
+        return result;
     }
 
     /*
