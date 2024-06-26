@@ -209,9 +209,7 @@ public class Search {
 
         checkTime();
 
-        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) ||
-                // TODO: This should actually be community.isReachable!
-                !community.anyPlayerHasValidMoves()) {
+        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) || community == null) {
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
             }
@@ -227,11 +225,11 @@ public class Search {
 
             for (Move move : community.getRelevantMovesForCurrentPlayer()) {
 
-                Tuple<Game, Community> executionResult = executeMove(game, move);
+                Game clonedGame = game.clone();
+                Community updatedCommunity = clonedGame.communities.executeMove(move);
 
                 int score =
-                        calculateScore(executionResult.first(), executionResult.second(), depth - 1,
-                                alpha, beta, true);
+                        calculateScore(clonedGame, updatedCommunity, depth - 1, alpha, beta, true);
 
                 result = Math.max(result, score);
 
@@ -249,25 +247,26 @@ public class Search {
 
         } else if (buildTree) {
 
-            // Phi move
+            // Get Phi Move
             List<Move> moves = new ArrayList<>(community.getRelevantMovesForCurrentPlayer());
             evaluator.setDepth(game.getMoveCounter());
             moves.sort(evaluator);
             Move phi = moves.get(0);
-            Tuple<Game, Community> executionResult = executeMove(game, phi);
 
-            int score = calculateScore(executionResult.first(), executionResult.second(), depth - 1,
-                    alpha, beta, true);
+            Game clonedGame = game.clone();
+            Community updatedCommunity = clonedGame.communities.executeMove(phi);
+
+            int score = calculateScore(clonedGame, updatedCommunity, depth - 1, alpha, beta, true);
 
             int result = score;
 
             beta = Math.min(beta, result);
 
             for (var move : community.getRelevantMovesForCurrentPlayer()) {
-                executionResult = executeMove(game, phi);
+                clonedGame = game.clone();
+                updatedCommunity = clonedGame.communities.executeMove(move);
 
-                score = calculateScore(executionResult.first(), executionResult.second(), depth - 1,
-                        alpha, beta, false);
+                score = calculateScore(clonedGame, updatedCommunity, depth - 1, alpha, beta, false);
 
                 result = Math.min(result, score);
 
@@ -288,11 +287,11 @@ public class Search {
             Move move = community.getRelevantMovesForCurrentPlayer().iterator().next();
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
-            Tuple<Game, Community> executionResult = executeMove(game, move);
+            Game clonedGame = game.clone();
+            Community updatedCommunity = clonedGame.communities.executeMove(move);
             currentIterationNodesVisited++;
 
-            return calculateScore(executionResult.first(), executionResult.second(), depth - 1,
-                    alpha, beta, false);
+            return calculateScore(clonedGame, updatedCommunity, depth - 1, alpha, beta, false);
         }
     }
 
@@ -326,10 +325,11 @@ public class Search {
         for (Move move : community.getRelevantMovesForCurrentPlayer()) {
             checkTime();
 
-            Tuple<Game, Community> executionResult = executeMove(game, move);
+            Game clonedGame = game.clone();
+            Community updatedCommunity = clonedGame.communities.executeMove(move);
             currentIterationNodesVisited++;
 
-            result.add(new Quadruple<>(move, executionResult.first(), executionResult.second(),
+            result.add(new Quadruple<>(move, clonedGame, updatedCommunity,
                     evaluator.evaluate(game, playerNumber)));
         }
 
@@ -355,28 +355,6 @@ public class Search {
         if (System.currentTimeMillis() > endTime) {
             throw new OutOfTimeException("Out of time");
         }
-    }
-
-    /**
-     * Clone the Game, execute the Move and find the new Community.
-     * @return A Tuple consisting of the new Game and the new Community.
-     */
-    private static Tuple<Game, Community> executeMove(Game game, Move move) {
-        Game clonedGame = game.clone();
-        clonedGame.executeMove(move);
-
-        Community clonedCommunity = null;
-
-        if (clonedGame.communities != null) {
-            clonedCommunity =
-                    clonedGame.communities.findCommunityByCoordinates(move.getCoordinates());
-            if (clonedCommunity.getRelevantMovesForCurrentPlayer().isEmpty() &&
-                    clonedCommunity.anyPlayerHasValidMoves()) {
-                clonedCommunity.nextPlayer();
-            }
-        }
-
-        return new Tuple<>(clonedGame, clonedCommunity);
     }
 
     /*
@@ -422,7 +400,8 @@ public class Search {
         stats.append("Time per state: ").append(timePerGame).append(" ms\n");
         stats.append("Average branching factor: ").append(branchingFactor).append("\n");
         /*stats.append("Cutoffs: ").append(moveCutoffs.values().stream()
-                        .mapToInt(map -> map.values().stream().mapToInt(Integer::intValue).sum()).sum())
+                        .mapToInt(map -> map.values().stream().mapToInt(Integer::intValue).sum())
+                        .sum())
                 .append("\n");
         for (var cutoffs : moveCutoffs.entrySet()) {
             int count = cutoffs.getValue().values().stream().mapToInt(Integer::intValue).sum();

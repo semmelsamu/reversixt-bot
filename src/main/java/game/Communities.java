@@ -3,6 +3,8 @@ package game;
 import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
+import move.Move;
+import util.Logger;
 import util.Tuple;
 
 import java.util.*;
@@ -53,6 +55,30 @@ public class Communities implements Cloneable {
         }
     }
 
+    /**
+     * Execute a Move on the Game, calculate the next Player in the Community and if it exists,
+     * return that Community.
+     * @return The updated
+     */
+    public Community executeMove(Move move) {
+
+        game.executeMove(move);
+
+        Community updatedCommunity = null;
+
+        if (game.communities != null) {
+            updatedCommunity = game.communities.find(move.getCoordinates());
+            try {
+                updatedCommunity.nextPlayer();
+            }
+            catch (Exception e) {
+                updatedCommunity = null;
+            }
+        }
+
+        return updatedCommunity;
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -72,20 +98,21 @@ public class Communities implements Cloneable {
         communityLoop:
         for (var community : communities) {
 
+            Logger.get().debug("Checking if Community #" + community.hashCode() + " is relevant");
+
             // Reachability calculation as specified in the report
             if (!community.isReachable(player)) {
                 continue;
             }
 
             // If there are no valid moves in the Community, it sure cannot be simulated
-            if (!community.anyPlayerHasValidMoves()) {
+            if (!community.findValidPlayer()) {
                 continue;
             }
 
             // The following checks are destructive for the game, so a copy has to be made.
             game = game.clone();
-            community = game.communities.findCommunityByCoordinates(
-                    community.getCoordinates().iterator().next());
+            community = game.communities.find(community.getCoordinates().iterator().next());
 
             if (community.getRelevantMovesForCurrentPlayer().isEmpty()) {
                 community.nextPlayer();
@@ -107,7 +134,7 @@ public class Communities implements Cloneable {
         return result;
     }
 
-    public Community findCommunityByCoordinates(Coordinates coordinates) {
+    public Community find(Coordinates coordinates) {
         for (Community community : communities) {
             if (community.coordinates.contains(coordinates)) {
                 return community;

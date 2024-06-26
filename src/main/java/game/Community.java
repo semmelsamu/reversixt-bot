@@ -153,33 +153,39 @@ public class Community implements Cloneable {
     }
 
     /**
-     * Check if the Game has valid moves in the Community.
+     * Find the next Player that has valid Moves in this Community. Does nothing if the current
+     * Player already has valid Moves in this Community.
      * @return True if a valid player could be found, false if not.
      */
-    public boolean anyPlayerHasValidMoves() {
+    public boolean findValidPlayer() {
         int oldPlayer = game.getCurrentPlayerNumber();
-        while (getRelevantMovesForCurrentPlayer().isEmpty()) {
-            game.nextPlayer();
-            if (game.getCurrentPlayerNumber() == oldPlayer) {
-                return false;
-            }
+        var oldValidMoves = game.getValidMovesForCurrentPlayer();
+        if (!getRelevantMovesForCurrentPlayer().isEmpty()) {
+            return true;
         }
-        // Restore old player
-        while (game.getCurrentPlayerNumber() != oldPlayer) {
-            game.nextPlayer();
+
+        try {
+            nextPlayer();
+            return true;
         }
-        return true;
+        catch (Exception e) {
+            // Restore default
+            game.currentPlayer = oldPlayer;
+            game.validMovesForCurrentPlayer = oldValidMoves;
+            return false;
+        }
     }
 
     /**
-     * Replace the game's current Player with the next Player that has valid moves in this
-     * Community. Does nothing if the current Player has valid moves in this Community.
+     * Replace the game's current Player with the next Player that has valid Moves in this
+     * Community.
      */
     public void nextPlayer() {
         int oldPlayer = game.getCurrentPlayerNumber();
         do {
             game.nextPlayer();
-            if (game.getCurrentPlayerNumber() == oldPlayer) {
+            if (game.getCurrentPlayerNumber() == oldPlayer &&
+                    getRelevantMovesForCurrentPlayer().isEmpty()) {
                 throw new MoveNotValidException("No player has valid moves");
             }
         } while (getRelevantMovesForCurrentPlayer().isEmpty());

@@ -40,13 +40,13 @@ public class Game implements Cloneable {
 
     public final GameConstants constants;
 
-    private int currentPlayer;
+    int currentPlayer;
 
     private int moveCounter;
 
     private GamePhase phase;
 
-    private Set<Move> validMovesForCurrentPlayer;
+    Set<Move> validMovesForCurrentPlayer;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -215,6 +215,11 @@ public class Game implements Cloneable {
             throw new MoveNotValidException("Tried to execute a move that is not valid: " + move);
         }
         MoveExecutor.executeMove(this, move);
+
+        if (communities != null) {
+            communities.updateCommunities(move.getCoordinates());
+        }
+
         // TODO: Update Reachability!
         moveCounter++;
         nextPlayer();
@@ -271,9 +276,6 @@ public class Game implements Cloneable {
     public void setTile(Coordinates position, Tile value) {
         coordinatesGroupedByTile.updateCoordinates(position, board.getTile(position), value);
         board.setTile(position, value);
-        if (communities != null) {
-            communities.updateCommunities(position);
-        }
     }
 
     public Map<Short, Short> getTransitions() {
