@@ -32,18 +32,14 @@ public class Communities implements Cloneable {
 
         communities = new HashSet<>();
 
+        coordinatesLoop:
         for (Coordinates coordinate : allOccupiedCoordinates) {
 
             // Check if Coordinate is already present in a Community
-            boolean coordinateIsPresentInCommunity = false;
             for (Community community : communities) {
                 if (community.getCoordinates().contains(coordinate)) {
-                    coordinateIsPresentInCommunity = true;
-                    break;
+                    continue coordinatesLoop;
                 }
-            }
-            if (coordinateIsPresentInCommunity) {
-                continue;
             }
 
             // Coordinate is not yet in a community, so a new one has to be created
