@@ -19,7 +19,8 @@ public class GameEvaluator implements Comparator<Move> {
     private final double[] ratedTileFactorsPerEvalPhase = {1, 1.5, 1.25, 1};
     private final double[] rawTileFactorsPerEvalPhase = {0, 0, 0.5, 1};
 
-    private BoardInfo boardInfo;
+    private final BoardInfo boardInfo;
+
     /**
      * Used for comparing of values
      */
@@ -30,17 +31,13 @@ public class GameEvaluator implements Comparator<Move> {
      */
     private Map<Integer, Map<Move, Integer>> moveCutoffs;
 
+    // Values of bonus stones
+    private final int OVERWRITESTONE_VAL = 50;
+    private final int BOMB_VAL = 10;
+
     public GameEvaluator(BoardInfo boardInfo) {
         this.boardInfo = boardInfo;
         moveCutoffs = new HashMap<>();
-    }
-
-    public void setBoardInfo(BoardInfo boardInfo) {
-        this.boardInfo = boardInfo;
-    }
-
-    public void setDepth(int depth) {
-        this.depth = depth;
     }
 
     /**
@@ -75,8 +72,8 @@ public class GameEvaluator implements Comparator<Move> {
         rating += rawTileFactorsPerEvalPhase[evalPhase] *
                 game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
                         game.getPlayer(player).getPlayerValue()).size();
-        rating += evaluateOverwriteStones(game, player, 50);
-        rating += evaluateBombs(game, player, 10);
+        rating += evaluateOverwriteStones(game, player);
+        rating += evaluateBombs(game, player);
         return (int) rating;
     }
 
@@ -117,21 +114,25 @@ public class GameEvaluator implements Comparator<Move> {
         return evalPhaseThresholds.length - 1;
     }
 
-    private int evaluateOverwriteStones(Game game, int player, int valueOfOneStone) {
-        return valueOfOneStone * game.getPlayer(player).getOverwriteStones();
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |    Evaluation of criteria
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    private int evaluateOverwriteStones(Game game, int player) {
+        return OVERWRITESTONE_VAL * game.getPlayer(player).getOverwriteStones();
     }
 
-    private int evaluateBombs(Game game, int player, int valueOfOneStone) {
-        return valueOfOneStone * game.getPlayer(player).getBombs();
+    private int evaluateBombs(Game game, int player) {
+        return BOMB_VAL * game.getPlayer(player).getBombs();
     }
 
     private double evaluateMobility(Game game, int player) {
         int x = getNumberOfValidMoves(game, player);
         return 2 * logarithm(1.5, x + 0.5) + 0.25 * x - 3;
-    }
-
-    private int getNumberOfValidMoves(Game game, int player) {
-        return MoveCalculator.getValidMovesForPlayer(game, player).size();
     }
 
     private int sumUpAllRatingsForOccupiedTiles(Game game, int player) {
@@ -143,6 +144,14 @@ public class GameEvaluator implements Comparator<Move> {
         return sum;
     }
 
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Tree Evaluation
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
     /**
      * Add a cutoff to the statistics.
      * @param move  Which move achieved the cutoff
@@ -152,36 +161,6 @@ public class GameEvaluator implements Comparator<Move> {
         moveCutoffs.putIfAbsent(depth, new HashMap<>());
         moveCutoffs.get(depth).put(move, moveCutoffs.get(depth).getOrDefault(move, 0) + 1);
     }
-
-
-    /*
-    |-----------------------------------------------------------------------------------------------
-    |
-    |   Utility functions
-    |
-    |-----------------------------------------------------------------------------------------------
-    */
-
-    private double logarithm(double base, double x) {
-        return Math.log(x) / Math.log(base);
-    }
-
-    private int getNumberOfTilesForPlayer(Game game, int player) {
-        return game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
-                game.getPlayer(player).getPlayerValue()).size();
-    }
-
-    private int getTileRatingForMove(Move move) {
-        int y = move.getCoordinates().y;
-        int x = move.getCoordinates().x;
-        return boardInfo.getTileRatings()[y][x];
-    }
-
-    public boolean isSpecialMove(Move move) {
-        return move instanceof BonusMove || move instanceof ChoiceMove ||
-                move instanceof InversionMove;
-    }
-
 
     /**
      * "Dirty" compare between 2 moves.
@@ -203,6 +182,44 @@ public class GameEvaluator implements Comparator<Move> {
         return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
     }
 
+    // TODO: Move evaluateStats() from Search here
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Utility
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    private double logarithm(double base, double x) {
+        return Math.log(x) / Math.log(base);
+    }
+
+    private int getNumberOfValidMoves(Game game, int player) {
+        return MoveCalculator.getValidMovesForPlayer(game, player).size();
+    }
+
+    private int getNumberOfTilesForPlayer(Game game, int player) {
+        return game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
+                game.getPlayer(player).getPlayerValue()).size();
+    }
+
+    private int getTileRatingForMove(Move move) {
+        int y = move.getCoordinates().y;
+        int x = move.getCoordinates().x;
+        return boardInfo.getTileRatings()[y][x];
+    }
+
+    public boolean isSpecialMove(Move move) {
+        return move instanceof BonusMove || move instanceof ChoiceMove ||
+                move instanceof InversionMove;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
     public Set<Move> filterRelevantMoves(Set<Move> validMoves) {
 
         Set<Move> result = new HashSet<>();
@@ -222,65 +239,4 @@ public class GameEvaluator implements Comparator<Move> {
             return movesWithoutOverwrites;
         }
     }
-
-    /*
-    private void registerCriteria() {
-        ratings.add(new CornerValuesCriterion(game));
-        ratings.add(new AmountOverwriteStonesCriterion(game));
-        ratings.add(new AmountBombsCriterion(game));
-        ratings.add(new AmountValidMovesCriterion(game));
-        ratings.add(new PrioritiseChoiceBonusMoveCriterion(game));
-        ratings.add(new AmountTileCriterion(game));
-        ratings.add(new TileFillLevelCriterion(game));
-
-        // needs to be last one
-        ratings.add(new InversionTileCriterion(game));
-    }
-    */
-    /**
-     * Returns the list of {@link MapTileRating} by {@link RatingType}
-     * //TODO: may be unnecessary
-     *
-     * @param ratingType different types of ratings
-     * @return list or null if not type found
-     */
-    /*
-    public List<MapTileRating> getTileRatingsByRatingType(RatingType ratingType) {
-        for (AbstractRating rating : ratings) {
-            if (rating.getRatingType() == ratingType) {
-                return rating.getMapTileRatings();
-            }
-        }
-        return null;
-    }
-
-     */
-    /*
-    public int getPlayerRating() {
-        return playerRating;
-    }
-
-    public void removeInversionTileCriterion() {
-        ratings.removeIf(abstractRating -> abstractRating instanceof InversionTileCriterion);
-    }
-
-     */
-
-    /**
-     * Prints the player ratings by type
-     *//*
-    public void printRatings() {
-        for (AbstractRating rating : ratings) {
-            if (rating.getMapTileRatings().isEmpty()) {
-                logger.log(rating.getRatingType().name() + ": " +
-                        rating.getPlayerRatingByCriterion() + " with a weight of " +
-                        rating.getWeight());
-            } else {
-                logger.log(rating.getRatingType().name() + ": " + rating.getMapTileRatings() +
-                        " = " + rating.getPlayerRatingByCriterion() + " with a weight of " +
-                        rating.getWeight());
-            }
-        }
-    }
-     */
 }
