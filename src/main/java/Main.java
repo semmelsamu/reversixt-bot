@@ -48,7 +48,7 @@ public class Main {
         argumentParser.setParameter("n", new ArgumentParser.Parameter("Move sorting", true));
         argumentParser.setParameter("q", new ArgumentParser.Parameter("Quiet Mode", false));
         argumentParser.setParameter("h", new ArgumentParser.Parameter("Help", false));
-        argumentParser.setParameter("l", new ArgumentParser.Parameter("Logger priority", 0));
+        argumentParser.setParameter("l", new ArgumentParser.Parameter("Logger priority", 1));
         return argumentParser;
     }
 
