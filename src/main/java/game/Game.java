@@ -108,35 +108,7 @@ public class Game implements Cloneable {
         phase = GamePhase.BUILD;
 
         moveCounter = 1;
-
-        int i = 0;
-
-        currentPlayer = 0;
-        do {
-            rotateCurrentPlayer();
-
-            // Last player also has no valid moves
-            if (currentPlayer == players.length && validMovesForCurrentPlayer.isEmpty()) {
-
-                // No valid moves in build phase
-                if (phase == GamePhase.BUILD) {
-                    logger.log("No player has valid moves in build phase, entering bomb phase");
-                    phase = GamePhase.BOMB;
-                    // Set player again to first player
-                    rotateCurrentPlayer();
-                }
-
-                // Also no valid moves in bomb phase. weird.
-                else {
-                    logger.warn("Map is not playable as there are no valid moves in any phase");
-                    break;
-                }
-
-                if (i++ > 100) {
-                    throw new RuntimeException("Too many iterations");
-                }
-            }
-        } while (validMovesForCurrentPlayer.isEmpty());
+        findValidPlayer();
     }
 
     /*
@@ -150,6 +122,27 @@ public class Game implements Cloneable {
     private void rotateCurrentPlayer() {
         currentPlayer = (currentPlayer % players.length) + 1;
         validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
+    }
+
+    void findValidPlayer() {
+
+        if (phase == GamePhase.END) {
+            return;
+        }
+
+        if (currentPlayer < 1 || currentPlayer > players.length) {
+            nextPlayer();
+            return;
+        }
+
+        if (MoveCalculator.getValidMovesForPlayer(this, currentPlayer).isEmpty()) {
+            nextPlayer();
+            return;
+        }
+
+        if (getPlayer(currentPlayer).isDisqualified()) {
+            nextPlayer();
+        }
     }
 
     public void nextPlayer() {
@@ -185,20 +178,16 @@ public class Game implements Cloneable {
                 throw new RuntimeException("Too many iterations");
             }
 
-        } while (validMovesForCurrentPlayer.isEmpty() || getCurrentPlayer().isDisqualified());
+        } while (validMovesForCurrentPlayer.isEmpty() || getPlayer(currentPlayer).isDisqualified());
 
         logger.debug("Current player is now " + currentPlayer);
     }
 
     public void disqualifyPlayer(int player) {
         getPlayer(player).disqualify();
-        if (getCurrentPlayer().isDisqualified()) {
+        if (getPlayer(currentPlayer).isDisqualified()) {
             nextPlayer();
         }
-    }
-
-    public Player getCurrentPlayer() {
-        return getPlayer(currentPlayer);
     }
 
     public int getCurrentPlayerNumber() {
