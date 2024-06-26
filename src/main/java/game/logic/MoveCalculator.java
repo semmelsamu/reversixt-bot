@@ -1,10 +1,12 @@
-package game;
+package game.logic;
 
 import board.Coordinates;
 import board.Direction;
 import board.Tile;
 import board.TileReader;
 import exceptions.GamePhaseNotValidException;
+import game.Game;
+import game.Player;
 import move.*;
 
 import java.util.HashSet;

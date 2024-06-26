@@ -1,7 +1,9 @@
-package game;
+package game.logic;
 
 import board.*;
 import exceptions.BonusNotSpecifiedException;
+import game.Game;
+import game.Player;
 import move.*;
 
 import java.util.HashSet;

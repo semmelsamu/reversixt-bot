@@ -5,13 +5,9 @@ import board.Coordinates;
 import board.Tile;
 import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
-import move.Bonus;
-import move.BonusMove;
+import game.logic.MoveCalculator;
+import game.logic.MoveExecutor;
 import move.Move;
-import move.OverwriteMove;
-import stats.Communities;
-import stats.CoordinatesGroupedByTile;
-import stats.TotalTilesOccupiedCounter;
 import util.Logger;
 import util.NullLogger;
 
@@ -43,13 +39,13 @@ public class Game implements Cloneable {
 
     public final GameConstants constants;
 
-    private int currentPlayer;
+    int currentPlayer;
 
     private int moveCounter;
 
     private GamePhase phase;
 
-    private Set<Move> validMovesForCurrentPlayer;
+    Set<Move> validMoves;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -111,35 +107,7 @@ public class Game implements Cloneable {
         phase = GamePhase.BUILD;
 
         moveCounter = 1;
-
-        int i = 0;
-
-        currentPlayer = 0;
-        do {
-            rotateCurrentPlayer();
-
-            // Last player also has no valid moves
-            if (currentPlayer == players.length && validMovesForCurrentPlayer.isEmpty()) {
-
-                // No valid moves in build phase
-                if (phase == GamePhase.BUILD) {
-                    logger.log("No player has valid moves in build phase, entering bomb phase");
-                    phase = GamePhase.BOMB;
-                    // Set player again to first player
-                    rotateCurrentPlayer();
-                }
-
-                // Also no valid moves in bomb phase. weird.
-                else {
-                    logger.warn("Map is not playable as there are no valid moves in any phase");
-                    break;
-                }
-
-                if (i++ > 100) {
-                    throw new RuntimeException("Too many iterations");
-                }
-            }
-        } while (validMovesForCurrentPlayer.isEmpty());
+        findValidPlayer();
     }
 
     /*
@@ -152,7 +120,34 @@ public class Game implements Cloneable {
 
     private void rotateCurrentPlayer() {
         currentPlayer = (currentPlayer % players.length) + 1;
-        validMovesForCurrentPlayer = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
+        validMoves = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
+
+        if (communities != null && communities.simulating != null) {
+            validMoves = validMoves.stream()
+                    .filter(move -> communities.simulating.moveAffectsCommunity(move))
+                    .collect(Collectors.toSet());
+        }
+    }
+
+    void findValidPlayer() {
+
+        if (phase == GamePhase.END) {
+            return;
+        }
+
+        if (currentPlayer < 1 || currentPlayer > players.length) {
+            nextPlayer();
+            return;
+        }
+
+        if (MoveCalculator.getValidMovesForPlayer(this, currentPlayer).isEmpty()) {
+            nextPlayer();
+            return;
+        }
+
+        if (getPlayer(currentPlayer).isDisqualified()) {
+            nextPlayer();
+        }
     }
 
     public void nextPlayer() {
@@ -166,7 +161,7 @@ public class Game implements Cloneable {
         do {
             rotateCurrentPlayer();
 
-            if (oldPlayer == currentPlayer && validMovesForCurrentPlayer.isEmpty()) {
+            if (oldPlayer == currentPlayer && validMoves.isEmpty()) {
                 if (phase == GamePhase.BUILD) {
                     logger.log(
                             "No more player has any moves in the coloring phase, entering bomb " +
@@ -188,20 +183,16 @@ public class Game implements Cloneable {
                 throw new RuntimeException("Too many iterations");
             }
 
-        } while (validMovesForCurrentPlayer.isEmpty() || getCurrentPlayer().isDisqualified());
+        } while (validMoves.isEmpty() || getPlayer(currentPlayer).isDisqualified());
 
         logger.debug("Current player is now " + currentPlayer);
     }
 
     public void disqualifyPlayer(int player) {
         getPlayer(player).disqualify();
-        if (getCurrentPlayer().isDisqualified()) {
+        if (getPlayer(currentPlayer).isDisqualified()) {
             nextPlayer();
         }
-    }
-
-    public Player getCurrentPlayer() {
-        return getPlayer(currentPlayer);
     }
 
     public int getCurrentPlayerNumber() {
@@ -225,37 +216,22 @@ public class Game implements Cloneable {
     */
 
     public void executeMove(Move move) {
-        if (!validMovesForCurrentPlayer.contains(move)) {
+        if (!validMoves.contains(move)) {
             throw new MoveNotValidException("Tried to execute a move that is not valid: " + move);
         }
         MoveExecutor.executeMove(this, move);
+
+        if (communities != null) {
+            communities.updateCommunities(move.getCoordinates());
+        }
+
         // TODO: Update Reachability!
         moveCounter++;
         nextPlayer();
     }
 
-    public Set<Move> getValidMovesForCurrentPlayer() {
-        return validMovesForCurrentPlayer;
-    }
-
-    // TODO: Refactor
-    // TODO: What if we only have one non-overwrite move which gets us in a really bad situation,
-    //       but we could use an overwrite move which would help us A LOT?
-    public Set<Move> getRelevantMovesForCurrentPlayer() {
-        Set<Move> movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
-                .filter((move) -> !(move instanceof OverwriteMove)).collect(Collectors.toSet());
-
-        // TODO: Make decision between bomb or overwrite bonus in evaluation (currently I don't
-        //  know how)
-        movesWithoutOverwrites = validMovesForCurrentPlayer.stream()
-                .filter((move) -> !(move instanceof BonusMove bonusMove &&
-                        bonusMove.getBonus() == Bonus.BOMB)).collect(Collectors.toSet());
-
-        if (movesWithoutOverwrites.isEmpty()) {
-            return validMovesForCurrentPlayer;
-        } else {
-            return movesWithoutOverwrites;
-        }
+    public Set<Move> getValidMoves() {
+        return validMoves;
     }
 
     public int getMoveCounter() {
@@ -285,9 +261,6 @@ public class Game implements Cloneable {
     public void setTile(Coordinates position, Tile value) {
         coordinatesGroupedByTile.updateCoordinates(position, board.getTile(position), value);
         board.setTile(position, value);
-        if (communities != null) {
-            communities.updateCommunities(position);
-        }
     }
 
     public Map<Short, Short> getTransitions() {
@@ -364,7 +337,10 @@ public class Game implements Cloneable {
             clone.totalTilesOccupiedCounter = this.totalTilesOccupiedCounter.clone();
             if (communities != null) {
                 clone.communities = this.communities.clone();
-                clone.communities.setGame(clone);
+                clone.communities.game = clone;
+                for (var community : clone.communities.communities) {
+                    community.game = clone;
+                }
             }
 
             return clone;
