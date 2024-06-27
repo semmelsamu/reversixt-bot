@@ -68,7 +68,6 @@ public class Community implements Cloneable {
      */
     public boolean isReachable(int player) {
 
-        /*
         if (game.getPlayer(player).getOverwriteStones() > 0 && getTileCount(Tile.EXPANSION) > 0) {
             return true;
         }
@@ -79,8 +78,8 @@ public class Community implements Cloneable {
         }
 
         return false;
-        */
 
+        /*
         // This is the old code with logic from the article.
 
         // "A Community is considered reachable when..."
@@ -108,7 +107,7 @@ public class Community implements Cloneable {
         }
         // ... and the Player has a move in the community
         return !MoveCalculator.getValidMovesForPlayer(game, player, coordinates).isEmpty();
-
+        */
     }
 
     /**
