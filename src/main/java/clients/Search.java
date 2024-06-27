@@ -93,11 +93,6 @@ public class Search {
             // estimate a time for the next depth
             resetStats();
 
-            // It only makes sense to build a tree if we are in the first phase
-            if (!game.getPhase().equals(GamePhase.BUILD)) {
-                throw new GamePhaseNotValidException("Not in build phase, so no tree building");
-            }
-
             bombPhasesReached = 0;
 
             // Iterative deepening search
@@ -108,7 +103,7 @@ public class Search {
 
             logger.log(relevantCommunities.size() + " relevant Communities");
 
-            while (true) {
+            do {
 
                 logger.log("Iterative deepening: Depth " + depthLimit);
 
@@ -145,7 +140,10 @@ public class Search {
                 evaluateStats(depthLimit);
 
                 depthLimit++;
-            }
+
+            } while (game.getPhase().equals(GamePhase.BUILD));
+
+            logger.log("Not going deeper as we are not in build phase");
 
         }
         catch (OutOfTimeException e) {
@@ -207,11 +205,10 @@ public class Search {
 
         checkTime();
 
-        Set<Move> relevantMoves = evaluator.filterRelevantMoves(game.getValidMoves());
+        List<Move> moves = evaluator.prepareMoves(game);
 
         if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) || game.communities == null ||
-                relevantMoves.isEmpty() ||
-                relevantMoves.stream().anyMatch(evaluator::isSpecialMove)) {
+                moves.isEmpty() || moves.stream().anyMatch(evaluator::isSpecialMove)) {
 
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
@@ -227,7 +224,7 @@ public class Search {
 
             int result = Integer.MIN_VALUE;
 
-            for (Move move : relevantMoves) {
+            for (Move move : moves) {
 
                 Game clonedGame = game.clone();
                 clonedGame.executeMove(move);
@@ -250,9 +247,6 @@ public class Search {
         } else if (buildTree) {
 
             // Get Phi Move
-            List<Move> moves = new ArrayList<>(relevantMoves);
-            evaluator.setDepth(game.getMoveCounter());
-            moves.sort(evaluator);
             Move phi = moves.get(0);
 
             Game clonedGame = game.clone();
@@ -263,7 +257,10 @@ public class Search {
 
             beta = Math.min(beta, result);
 
-            for (var move : relevantMoves) {
+            // Minimizer -> Reverse
+            Collections.reverse(moves);
+
+            for (var move : moves) {
 
                 clonedGame = game.clone();
                 clonedGame.executeMove(move);
@@ -285,7 +282,7 @@ public class Search {
 
         } else {
             // TODO: Better heuristic? Maybe the move which gets us the most stones?
-            Move move = relevantMoves.iterator().next();
+            Move move = moves.iterator().next();
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
@@ -312,7 +309,7 @@ public class Search {
         List<Tuple<Move, Integer>> data = new LinkedList<>();
 
         // Get data
-        for (Move move : evaluator.filterRelevantMoves(game.getValidMoves())) {
+        for (Move move : evaluator.prepareMoves(game)) {
             checkTime();
 
             Game clonedGame = game.clone();

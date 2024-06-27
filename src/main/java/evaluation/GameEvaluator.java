@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * Evaluates the current game situation for one player
  */
-public class GameEvaluator implements Comparator<Move> {
+public class GameEvaluator {
 
     private final int[] evalPhaseThresholds = {0, 70, 82, 95};
     private final double[] mobilityFactorsPerEvalPhase = {1, 0.5, 0.25, 0};
@@ -130,7 +130,7 @@ public class GameEvaluator implements Comparator<Move> {
     }
 
     private double evaluateMobility(Game game, int player) {
-        int x = filterRelevantMoves(game.getValidMoves()).size();
+        int x = prepareMoves(game).size();
         return 2 * logarithm(1.5, x + 0.5) + 0.25 * x - 3;
     }
 
@@ -159,26 +159,6 @@ public class GameEvaluator implements Comparator<Move> {
     public void addCutoff(Move move, int depth) {
         moveCutoffs.putIfAbsent(depth, new HashMap<>());
         moveCutoffs.get(depth).put(move, moveCutoffs.get(depth).getOrDefault(move, 0) + 1);
-    }
-
-    /**
-     * "Dirty" compare between 2 moves.
-     */
-    @Override
-    public int compare(Move move1, Move move2) {
-        Map<Move, Integer> cutoffsOnDepth = moveCutoffs.getOrDefault(depth, new HashMap<>());
-        int compareCutoffs = Integer.compare(cutoffsOnDepth.getOrDefault(move1, 0),
-                cutoffsOnDepth.getOrDefault(move2, 0));
-        if (compareCutoffs != 0) {
-            return compareCutoffs;
-        }
-        if (!isSpecialMove(move1) && isSpecialMove(move2)) {
-            return -1;
-        } else if (isSpecialMove(move1) && !isSpecialMove(move2)) {
-            return 1;
-        }
-
-        return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
     }
 
     // TODO: Move evaluateStats() from Search here
@@ -211,13 +191,9 @@ public class GameEvaluator implements Comparator<Move> {
                 move instanceof InversionMove;
     }
 
-    public void setDepth(int depth) {
-        this.depth = depth;
-    }
+    public List<Move> prepareMoves(Game game) {
 
-    public Set<Move> filterRelevantMoves(Set<Move> validMoves) {
-
-        Set<Move> result = new HashSet<>();
+        List<Move> result = new LinkedList<>();
 
         // TODO: What if we only have one non-overwrite move which gets us in a really bad
         //  situation, but we could use an overwrite move which would help us A LOT?
@@ -225,13 +201,33 @@ public class GameEvaluator implements Comparator<Move> {
         // TODO: Make decision between bomb or overwrite bonus in evaluation
 
         Set<Move> movesWithoutOverwrites =
-                validMoves.stream().filter((move) -> !(move instanceof OverwriteMove))
+                game.getValidMoves().stream().filter((move) -> !(move instanceof OverwriteMove))
                         .collect(Collectors.toSet());
 
         if (movesWithoutOverwrites.isEmpty()) {
-            return validMoves;
+            result.addAll(game.getValidMoves());
         } else {
-            return movesWithoutOverwrites;
+            result.addAll(movesWithoutOverwrites);
         }
+
+        // Dirty sort
+        result.sort((move1, move2) -> {
+            Map<Move, Integer> cutoffsOnDepth =
+                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>());
+            int compareCutoffs = Integer.compare(cutoffsOnDepth.getOrDefault(move1, 0),
+                    cutoffsOnDepth.getOrDefault(move2, 0));
+            if (compareCutoffs != 0) {
+                return compareCutoffs;
+            }
+            if (!isSpecialMove(move1) && isSpecialMove(move2)) {
+                return -1;
+            } else if (isSpecialMove(move1) && !isSpecialMove(move2)) {
+                return 1;
+            }
+
+            return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
+        });
+
+        return result;
     }
 }
