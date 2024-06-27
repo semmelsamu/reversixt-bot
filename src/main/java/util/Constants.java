@@ -8,4 +8,9 @@ public class Constants {
      */
     public static int TIME_BUFFER = 1000;
 
+    /**
+     * The radius in which neighbouring Communitys will merge.
+     */
+    public static int COMMUNITY_MERGE_RADIUS = 3;
+
 }

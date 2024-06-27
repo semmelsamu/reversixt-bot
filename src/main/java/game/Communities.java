@@ -3,6 +3,7 @@ package game;
 import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
+import util.Constants;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -87,14 +88,12 @@ public class Communities implements Cloneable {
 
     public void updateCommunities(Coordinates coordinates) {
 
-        // TODO: Maybe merge Communities already when they are close together? ~3 Tiles?
-
         List<Community> communitiesToBeUpdated = new LinkedList<>();
 
         for (var community : communities) {
             // Check if Coordinates border the community
-            if (CoordinatesExpander.expandCoordinates(game, community.coordinates, 1)
-                    .contains(coordinates)) {
+            if (CoordinatesExpander.expandCoordinates(game, community.coordinates,
+                    Constants.COMMUNITY_MERGE_RADIUS).contains(coordinates)) {
                 communitiesToBeUpdated.add(community);
             }
         }
