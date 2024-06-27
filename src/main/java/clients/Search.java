@@ -64,41 +64,27 @@ public class Search {
             // Iterative deepening search
             int depthLimit = 1;
 
+            boolean communitiesEnabled = game.communities != null;
             Set<Community> relevantCommunities = new HashSet<>();
 
-            if (game.communities != null) {
-                if (!game.getPhase().equals(GamePhase.BUILD)) {
-                    logger.log("Disabling Communities as we are not in build phase");
-                    game.communities = null;
+            if (communitiesEnabled) {
+                if (!game.getPhase().equals(GamePhase.BUILD) ||
+                        game.communities.getCommunities().size() < 2 ||
+                        evaluator.prepareMoves(game).stream().anyMatch(evaluator::isSpecialMove)) {
+                    communitiesEnabled = false;
+                } else {
+                    relevantCommunities = game.communities.getRelevantCommunities(playerNumber);
+                    if (relevantCommunities.isEmpty()) {
+                        communitiesEnabled = false;
+                    }
                 }
             }
 
-            if (game.communities != null) {
-                if (game.communities.getCommunities().size() < 2) {
-                    logger.log("Disabling Communities as there is only one");
-                    game.communities = null;
-                }
-            }
-
-            if (game.communities != null) {
-                if (evaluator.prepareMoves(game).stream().anyMatch(evaluator::isSpecialMove)) {
-                    logger.log("Disabling Communities as we have special moves");
-                    game.communities = null;
-                }
-            }
-
-            if (game.communities != null) {
-                relevantCommunities = game.communities.getRelevantCommunities(playerNumber);
+            if (communitiesEnabled) {
                 logger.log("Searching " + relevantCommunities.size() + " relevant Communities");
-            }
-
-            if (relevantCommunities.isEmpty()) {
-                logger.log("Disabling Communities as there are no relevant Communities");
-                game.communities = null;
-            }
-
-            if (game.communities == null) {
+            } else {
                 logger.log("Searching whole game");
+                game.communities = null;
             }
 
             do {
@@ -107,7 +93,7 @@ public class Search {
 
                 stats.reset();
 
-                if (game.communities != null) {
+                if (communitiesEnabled) {
                     result = findBestMoveInCommunity(relevantCommunities, depthLimit);
                 } else {
                     result = findBestMove(game, sortMoves(game), depthLimit).first();
