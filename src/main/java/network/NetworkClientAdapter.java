@@ -7,6 +7,7 @@ import game.Game;
 import game.GameFactory;
 import game.GamePhase;
 import move.*;
+import util.Constants;
 import util.Logger;
 import util.Triple;
 
@@ -18,12 +19,6 @@ public class NetworkClientAdapter {
     private final Logger logger = new Logger(this.getClass().getName());
 
     private Client client;
-
-    /**
-     * The time in milliseconds by which we want to respond earlier to avoid disqualification due to
-     * network latency.
-     */
-    private static final int TIME_BUFFER = 1000;
 
     private Game game;
     private int playerNumber;
@@ -58,7 +53,7 @@ public class NetworkClientAdapter {
 
         // For performance’s sake we ignore depth limit and always use a time limit
         // If no time limit is given we default to 2 seconds as we are probably debugging
-        int limit = timeLimit > 0 ? timeLimit - TIME_BUFFER : 2000;
+        int limit = timeLimit > 0 ? timeLimit - Constants.TIME_BUFFER : 2000;
 
         Move result = client.search(limit);
 
