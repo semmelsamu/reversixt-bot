@@ -91,8 +91,8 @@ public class MoveCalculatorExecutorTest {
 
                 Game game = GameFactory.createFromFile(testExpectation.getKey());
 
-                var calculatedMoves =
-                        MoveCalculator.getValidMovesForPlayer(game, validMove.getKey().getPlayerNumber());
+                var calculatedMoves = MoveCalculator.getValidMovesForPlayer(game,
+                        validMove.getKey().getPlayerNumber(), null);
 
                 assertTrue(calculatedMoves.contains(validMove.getKey()));
 

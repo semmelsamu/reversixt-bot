@@ -17,7 +17,7 @@ public class MoveExecutionExceptionTest {
         for (String map : File.getAllMaps()) {
             Game game = GameFactory.createFromFile(map);
 
-            for (Move move : (MoveCalculator.getValidMovesForPlayer(game, 1))) {
+            for (Move move : (MoveCalculator.getValidMovesForPlayer(game, 1, null))) {
                 Game testCase = GameFactory.createFromFile(map);
 
                 assertDoesNotThrow(
