@@ -79,11 +79,6 @@ public class SearchStats {
 
     void checkAbort(int depth) throws NotEnoughTimeException {
 
-        //if (bombPhasesReached >= game.getValidMoves().size()) {
-        // TODO: We often reach this point even if the bomb phase is far away
-        //throw new GamePhaseNotValidException("Tree reached bomb phase");
-        //}
-
         double totalTime = System.currentTimeMillis() - currentIterationStartTime;
         double timePerGame = totalTime / currentIterationNodesVisited;
 
@@ -100,15 +95,7 @@ public class SearchStats {
         stats.append("Total time: ").append(totalTime).append(" ms\n");
         stats.append("Time per state: ").append(timePerGame).append(" ms\n");
         stats.append("Average branching factor: ").append(branchingFactor).append("\n");
-        /*stats.append("Cutoffs: ").append(moveCutoffs.values().stream()
-                        .mapToInt(map -> map.values().stream().mapToInt(Integer::intValue).sum())
-                        .sum())
-                .append("\n");
-        for (var cutoffs : moveCutoffs.entrySet()) {
-            int count = cutoffs.getValue().values().stream().mapToInt(Integer::intValue).sum();
-            stats.append("- ").append(count).append(" cutoffs on move ").append(cutoffs.getKey())
-                    .append("\n");
-        }*/
+
         logger.verbose(stats.toString());
 
         stats = new StringBuilder("Estimation for depth " + newDepth + "\n");
