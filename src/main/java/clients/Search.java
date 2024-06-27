@@ -98,10 +98,16 @@ public class Search {
             // Iterative deepening search
             int depthLimit = 1;
 
-            Set<Community> relevantCommunities =
-                    game.communities.getRelevantCommunities(playerNumber);
+            Set<Community> relevantCommunities = new HashSet<>();
 
-            logger.log(relevantCommunities.size() + " relevant Communities");
+            if (game.communities != null) {
+                relevantCommunities = game.communities.getRelevantCommunities(playerNumber);
+                logger.log("Searching " + relevantCommunities.size() + " relevant Communities");
+            }
+
+            if (game.communities == null) {
+                logger.log("Searching whole game");
+            }
 
             do {
 
@@ -109,26 +115,10 @@ public class Search {
 
                 resetStats();
 
-                int score = Integer.MIN_VALUE;
-
-                for (Community community : relevantCommunities) {
-
-                    logger.debug("Calculating best move for Community #" + community.hashCode());
-
-                    Game clonedGame = game.clone();
-                    clonedGame.communities.simulate(clonedGame.communities.get(community));
-
-                    Tuple<Move, Integer> communityResult =
-                            findBestMove(clonedGame, sortMoves(game), depthLimit);
-
-                    logger.debug("Best Move is " + communityResult.first() + " with a score of " +
-                            communityResult.second());
-
-                    if (communityResult.second() > score) {
-                        result = communityResult.first();
-                        score = communityResult.second();
-                    }
-
+                if (game.communities != null) {
+                    result = findBestMoveInCommunity(relevantCommunities, depthLimit);
+                } else {
+                    result = findBestMove(game, sortMoves(game), depthLimit).first();
                 }
 
                 stats_depths.add(depthLimit);
@@ -158,6 +148,35 @@ public class Search {
 
         return result;
 
+    }
+
+    private Move findBestMoveInCommunity(Set<Community> relevantCommunities, int depthLimit)
+            throws OutOfTimeException {
+
+        Move result = null;
+        int score = Integer.MIN_VALUE;
+
+        for (Community community : relevantCommunities) {
+
+            logger.debug("Calculating best move for Community #" + community.hashCode());
+
+            Game clonedGame = game.clone();
+            clonedGame.communities.simulate(clonedGame.communities.get(community));
+
+            Tuple<Move, Integer> communityResult =
+                    findBestMove(clonedGame, sortMoves(game), depthLimit);
+
+            logger.debug("Best Move is " + communityResult.first() + " with a score of " +
+                    communityResult.second());
+
+            if (communityResult.second() > score) {
+                result = communityResult.first();
+                score = communityResult.second();
+            }
+
+        }
+
+        return result;
     }
 
     /**
