@@ -39,6 +39,7 @@ public class SearchStats {
     /**
      * Counts how often we reached the bomb phase in the tree. Used for exiting the iterative
      * deepening search.
+     * TODO: Add condition in checkAbort if we reached too many bomb phases
      */
     private int bombPhasesReached;
 
