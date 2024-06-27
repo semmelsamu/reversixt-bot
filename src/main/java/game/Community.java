@@ -91,13 +91,7 @@ public class Community implements Cloneable {
             return false;
         }
         // ... and the Player has a move in the community
-        for (var move : MoveCalculator.getValidMovesForPlayer(game, player)) {
-            if (reachableCoordinates.contains(move.getCoordinates())) {
-                return true;
-            }
-        }
-
-        return false;
+        return !MoveCalculator.getValidMovesForPlayer(game, player, coordinates).isEmpty();
     }
 
     /**

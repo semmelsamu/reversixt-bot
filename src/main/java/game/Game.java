@@ -13,7 +13,6 @@ import util.NullLogger;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Game implements Cloneable {
 
@@ -120,12 +119,12 @@ public class Game implements Cloneable {
 
     private void rotateCurrentPlayer() {
         currentPlayer = (currentPlayer % players.length) + 1;
-        validMoves = MoveCalculator.getValidMovesForPlayer(this, currentPlayer);
 
         if (communities != null && communities.simulating != null) {
-            validMoves = validMoves.stream()
-                    .filter(move -> communities.simulating.moveAffectsCommunity(move))
-                    .collect(Collectors.toSet());
+            validMoves = MoveCalculator.getValidMovesForPlayer(this, currentPlayer,
+                    communities.simulating.coordinates);
+        } else {
+            validMoves = MoveCalculator.getValidMovesForPlayer(this, currentPlayer, null);
         }
     }
 
@@ -140,7 +139,7 @@ public class Game implements Cloneable {
             return;
         }
 
-        if (MoveCalculator.getValidMovesForPlayer(this, currentPlayer).isEmpty()) {
+        if (validMoves.isEmpty()) {
             nextPlayer();
             return;
         }

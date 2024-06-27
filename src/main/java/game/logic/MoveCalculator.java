@@ -16,14 +16,15 @@ public final class MoveCalculator {
 
     /**
      * @param playerNumber Number of player that moves are calculated for
-     * @return All valid moves for this player
+     * @return Valid Moves for this Player on the specified Coordinates
      */
-    public static Set<Move> getValidMovesForPlayer(Game game, int playerNumber) {
+    public static Set<Move> getValidMovesForPlayer(Game game, int playerNumber,
+                                                   Set<Coordinates> coordinates) {
 
         Set<Move> result = new HashSet<>();
 
         switch (game.getPhase()) {
-            case BUILD -> result.addAll(calculateAllColoringMoves(game, playerNumber));
+            case BUILD -> result.addAll(calculateAllColoringMoves(game, playerNumber, coordinates));
             case BOMB -> result.addAll(getAllBombMoves(game, playerNumber));
             default -> throw new GamePhaseNotValidException(
                     "No valid game phase to calculate moves for");
@@ -32,14 +33,24 @@ public final class MoveCalculator {
         return result;
     }
 
-    private static Set<Move> calculateAllColoringMoves(Game game, int playerNumber) {
+    private static Set<Move> calculateAllColoringMoves(Game game, int playerNumber,
+                                                       Set<Coordinates> coordinates) {
 
         Player player = game.getPlayer(playerNumber);
 
         HashSet<Move> moves = new HashSet<>();
 
-        for (Coordinates occupiedTile : game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
-                player.getPlayerValue())) {
+        Set<Coordinates> coordinatesToCheckForValidMoves = new HashSet<>();
+
+        coordinatesToCheckForValidMoves =
+                game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(player.getPlayerValue());
+
+        if (coordinates != null) {
+            coordinatesToCheckForValidMoves.removeIf(
+                    coordinate -> coordinates.contains(coordinates));
+        }
+
+        for (Coordinates occupiedTile : coordinatesToCheckForValidMoves) {
             if (game.getTile(occupiedTile) != player.getPlayerValue()) {
                 throw new AssertionError("Wrong coordinates in Player" + player + "'s List stones");
             }

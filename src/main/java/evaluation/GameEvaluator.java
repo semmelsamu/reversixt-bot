@@ -170,7 +170,7 @@ public class GameEvaluator implements Comparator<Move> {
         Map<Move, Integer> cutoffsOnDepth = moveCutoffs.getOrDefault(depth, new HashMap<>());
         int compareCutoffs = Integer.compare(cutoffsOnDepth.getOrDefault(move1, 0),
                 cutoffsOnDepth.getOrDefault(move2, 0));
-        if (compareCutoffs != 0){
+        if (compareCutoffs != 0) {
             return compareCutoffs;
         }
         if (!isSpecialMove(move1) && isSpecialMove(move2)) {
@@ -197,7 +197,9 @@ public class GameEvaluator implements Comparator<Move> {
     }
 
     private int getNumberOfValidMoves(Game game, int player) {
-        return MoveCalculator.getValidMovesForPlayer(game, player).size();
+        // TODO: Performance! Do we really need to calculate the moves or is it the current
+        //  player in any case? Then we could use the cached game.getValidMoves()!
+        return MoveCalculator.getValidMovesForPlayer(game, player, null).size();
     }
 
     private int getNumberOfTilesForPlayer(Game game, int player) {
