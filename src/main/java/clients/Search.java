@@ -119,6 +119,11 @@ public class Search {
                 logger.log("Searching " + relevantCommunities.size() + " relevant Communities");
             }
 
+            if (relevantCommunities.isEmpty()) {
+                logger.log("Disabling Communities as there are no relevant Communities");
+                game.communities = null;
+            }
+
             if (game.communities == null) {
                 logger.log("Searching whole game");
             }
