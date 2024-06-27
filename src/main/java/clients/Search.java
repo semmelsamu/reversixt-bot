@@ -108,6 +108,13 @@ public class Search {
             }
 
             if (game.communities != null) {
+                if (evaluator.prepareMoves(game).stream().anyMatch(evaluator::isSpecialMove)) {
+                    logger.log("Disabling Communities as we have special moves");
+                    game.communities = null;
+                }
+            }
+
+            if (game.communities != null) {
                 relevantCommunities = game.communities.getRelevantCommunities(playerNumber);
                 logger.log("Searching " + relevantCommunities.size() + " relevant Communities");
             }
