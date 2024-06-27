@@ -19,12 +19,12 @@ public class SearchStats {
     /**
      * The timestamp in milliseconds at which we got a move request.
      */
-    private long startTime;
+    private final long startTime;
 
     /**
      * The very latest time by which we should send a move.
      */
-    private long endTime;
+    private final long endTime;
 
     /**
      * Stores for each timeout that occurred its stack trace.
