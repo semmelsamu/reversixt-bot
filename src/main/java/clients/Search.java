@@ -101,6 +101,13 @@ public class Search {
             Set<Community> relevantCommunities = new HashSet<>();
 
             if (game.communities != null) {
+                if (!game.getPhase().equals(GamePhase.BUILD)) {
+                    logger.log("Disabling Communities as we are not in build phase");
+                    game.communities = null;
+                }
+            }
+
+            if (game.communities != null) {
                 if (game.communities.getCommunities().size() < 2) {
                     logger.log("Disabling Communities as there is only one");
                     game.communities = null;
