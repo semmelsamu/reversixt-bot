@@ -61,9 +61,6 @@ public class Search {
 
             stats.incrementDepthsSearched(0);
 
-            // Iterative deepening search
-            int depthLimit = 1;
-
             boolean communitiesEnabled = game.communities != null;
             Set<Community> relevantCommunities = new HashSet<>();
 
@@ -86,6 +83,9 @@ public class Search {
                 logger.log("Searching whole game");
                 game.communities = null;
             }
+
+            // Iterative deepening search
+            int depthLimit = 1;
 
             do {
 
