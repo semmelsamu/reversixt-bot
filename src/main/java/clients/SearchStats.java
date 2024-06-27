@@ -1,0 +1,164 @@
+package clients;
+
+import exceptions.NotEnoughTimeException;
+import exceptions.OutOfTimeException;
+import util.Logger;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static util.Tree.calculateBranchingFactor;
+import static util.Tree.calculateNodeCountOfTree;
+
+public class SearchStats {
+
+    Logger logger = new Logger(this.getClass().getName());
+
+    /**
+     * The timestamp in milliseconds at which we got a move request.
+     */
+    private long startTime;
+
+    /**
+     * The very latest time by which we should send a move.
+     */
+    private long endTime;
+
+    /**
+     * Stores for each timeout that occurred its stack trace.
+     */
+    private static final List<String> stats_timeouts = new LinkedList<>();
+
+    /**
+     * Stores for each tree layer that was successfully searched its depth.
+     */
+    private static final List<Integer> stats_depths = new LinkedList<>();
+
+    /**
+     * Counts how often we reached the bomb phase in the tree. Used for exiting the iterative
+     * deepening search.
+     */
+    private int bombPhasesReached;
+
+    /**
+     * Stores the start timestamp of the latest iteration in the iterative deepening search.
+     */
+    private long currentIterationStartTime;
+
+    /**
+     * Stores the number of nodes visited (moves executed and games evaluated) of the current
+     * iteration in the iterative deepening search.
+     */
+    private int currentIterationNodesVisited;
+
+    public SearchStats(int timeLimit) {
+        this.startTime = System.currentTimeMillis();
+        this.endTime = startTime + timeLimit;
+    }
+
+    /**
+     * Checks if we are over the time limit
+     * @throws OutOfTimeException if we ran out of time
+     */
+    void checkTime() throws OutOfTimeException {
+        if (System.currentTimeMillis() > endTime) {
+            stats_timeouts.add(
+                    "at " + Thread.currentThread().getStackTrace()[1].getMethodName() + " at " +
+                            Thread.currentThread().getStackTrace()[2].getMethodName());
+            throw new OutOfTimeException("Out of time");
+        }
+    }
+
+    void reset() {
+        currentIterationStartTime = System.currentTimeMillis();
+        currentIterationNodesVisited = 1;
+        bombPhasesReached = 0;
+    }
+
+    void checkAbort(int depth) throws NotEnoughTimeException {
+
+        //if (bombPhasesReached >= game.getValidMoves().size()) {
+        // TODO: We often reach this point even if the bomb phase is far away
+        //throw new GamePhaseNotValidException("Tree reached bomb phase");
+        //}
+
+        double totalTime = System.currentTimeMillis() - currentIterationStartTime;
+        double timePerGame = totalTime / currentIterationNodesVisited;
+
+        int branchingFactor =
+                (int) Math.ceil(calculateBranchingFactor(currentIterationNodesVisited, depth));
+
+        int newDepth = depth + 1;
+        long timePassed = System.currentTimeMillis() - this.startTime;
+        long timeLeft = this.endTime - System.currentTimeMillis();
+        double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
+
+        StringBuilder stats = new StringBuilder("Stats for depth " + depth + "\n");
+        stats.append("Visited states: ").append(currentIterationNodesVisited).append("\n");
+        stats.append("Total time: ").append(totalTime).append(" ms\n");
+        stats.append("Time per state: ").append(timePerGame).append(" ms\n");
+        stats.append("Average branching factor: ").append(branchingFactor).append("\n");
+        /*stats.append("Cutoffs: ").append(moveCutoffs.values().stream()
+                        .mapToInt(map -> map.values().stream().mapToInt(Integer::intValue).sum())
+                        .sum())
+                .append("\n");
+        for (var cutoffs : moveCutoffs.entrySet()) {
+            int count = cutoffs.getValue().values().stream().mapToInt(Integer::intValue).sum();
+            stats.append("- ").append(count).append(" cutoffs on move ").append(cutoffs.getKey())
+                    .append("\n");
+        }*/
+        logger.verbose(stats.toString());
+
+        stats = new StringBuilder("Estimation for depth " + newDepth + "\n");
+        stats.append("Time passed: ").append(timePassed).append(" ms\n");
+        stats.append("Time left: ").append(timeLeft).append(" ms\n");
+        stats.append("Time estimated: ").append(timeEstimated).append(" ms\n");
+        logger.verbose(stats.toString());
+
+        if (timeLeft < timeEstimated) {
+            throw new NotEnoughTimeException(
+                    "Estimated more time for the next depth than what's left");
+        }
+
+    }
+
+    void incrementDepthsSearched(int depth) {
+        stats_depths.add(depth);
+    }
+
+    void incrementBombPhasesReached() {
+        bombPhasesReached++;
+    }
+
+    void incrementNodesVisited() {
+        currentIterationNodesVisited++;
+    }
+
+    public static String summarize() {
+        return "Timeouts: " + countElements(stats_timeouts) + "\nDepths searched: " +
+                countElements(stats_depths);
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Utility
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    private static <T> String countElements(List<T> list) {
+        Map<T, Integer> stats = new HashMap<>();
+        for (T item : list) {
+            stats.put(item, stats.getOrDefault(item, 0) + 1);
+        }
+        StringBuilder result = new StringBuilder().append(list.size());
+        for (Map.Entry<T, Integer> entry : stats.entrySet()) {
+            result.append("\n- ").append(entry.getKey()).append(": ").append(entry.getValue());
+        }
+        return result.toString();
+    }
+
+}

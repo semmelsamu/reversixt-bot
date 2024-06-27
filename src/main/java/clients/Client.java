@@ -95,7 +95,7 @@ public class Client {
      * Log a bunch of concluding stats.
      */
     public void logStats() {
-        logger.verbose(Search.getStats());
+        logger.verbose(SearchStats.summarize());
     }
 
     public String logGame() {
