@@ -233,8 +233,8 @@ public class Search {
 
         List<Move> moves = evaluator.prepareMoves(game);
 
-        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) || game.communities == null ||
-                moves.isEmpty() || moves.stream().anyMatch(evaluator::isSpecialMove)) {
+        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) ||
+                (game.communities != null && moves.stream().anyMatch(evaluator::isSpecialMove))) {
 
             if (game.getPhase() != GamePhase.BUILD) {
                 bombPhasesReached++;
