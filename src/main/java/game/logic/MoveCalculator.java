@@ -45,7 +45,7 @@ public final class MoveCalculator {
 
         if (coordinates != null) {
             coordinatesToCheckForValidMoves.removeIf(
-                    coordinate -> coordinates.contains(coordinates));
+                    coordinate -> !coordinates.contains(coordinate));
         }
 
         for (Coordinates occupiedTile : coordinatesToCheckForValidMoves) {
