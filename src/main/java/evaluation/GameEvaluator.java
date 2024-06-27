@@ -3,7 +3,6 @@ package evaluation;
 import board.Coordinates;
 import board.Tile;
 import game.Game;
-import game.logic.MoveCalculator;
 import move.*;
 
 import java.util.*;
@@ -131,7 +130,7 @@ public class GameEvaluator implements Comparator<Move> {
     }
 
     private double evaluateMobility(Game game, int player) {
-        int x = getNumberOfValidMoves(game, player);
+        int x = filterRelevantMoves(game.getValidMoves()).size();
         return 2 * logarithm(1.5, x + 0.5) + 0.25 * x - 3;
     }
 
@@ -194,12 +193,6 @@ public class GameEvaluator implements Comparator<Move> {
 
     private double logarithm(double base, double x) {
         return Math.log(x) / Math.log(base);
-    }
-
-    private int getNumberOfValidMoves(Game game, int player) {
-        // TODO: Performance! Do we really need to calculate the moves or is it the current
-        //  player in any case? Then we could use the cached game.getValidMoves()!
-        return MoveCalculator.getValidMovesForPlayer(game, player, null).size();
     }
 
     private int getNumberOfTilesForPlayer(Game game, int player) {
