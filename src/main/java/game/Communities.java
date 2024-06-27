@@ -58,6 +58,10 @@ public class Communities implements Cloneable {
     |-----------------------------------------------------------------------------------------------
     */
 
+    public Set<Community> getCommunities() {
+        return communities;
+    }
+
     public Set<Community> getRelevantCommunities(int playerNumber) {
         return communities.stream().filter(community -> community.isReachable(playerNumber))
                 .collect(Collectors.toSet());

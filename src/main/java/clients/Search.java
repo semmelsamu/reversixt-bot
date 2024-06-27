@@ -101,6 +101,13 @@ public class Search {
             Set<Community> relevantCommunities = new HashSet<>();
 
             if (game.communities != null) {
+                if (game.communities.getCommunities().size() < 2) {
+                    logger.log("Disabling Communities as there is only one");
+                    game.communities = null;
+                }
+            }
+
+            if (game.communities != null) {
                 relevantCommunities = game.communities.getRelevantCommunities(playerNumber);
                 logger.log("Searching " + relevantCommunities.size() + " relevant Communities");
             }
