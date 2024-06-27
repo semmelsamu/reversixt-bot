@@ -40,9 +40,7 @@ public final class MoveCalculator {
 
         HashSet<Move> moves = new HashSet<>();
 
-        Set<Coordinates> coordinatesToCheckForValidMoves = new HashSet<>();
-
-        coordinatesToCheckForValidMoves =
+        Set<Coordinates> coordinatesToCheckForValidMoves =
                 game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(player.getPlayerValue());
 
         if (coordinates != null) {
