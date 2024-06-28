@@ -7,6 +7,8 @@ import exceptions.OutOfTimeException;
 import game.Community;
 import game.Game;
 import game.GamePhase;
+import move.ChoiceMove;
+import move.InversionMove;
 import move.Move;
 import util.Logger;
 import util.Tuple;
@@ -67,7 +69,9 @@ public class Search {
             if (communitiesEnabled) {
                 if (!game.getPhase().equals(GamePhase.BUILD) ||
                         game.communities.getCommunities().size() < 2 ||
-                        evaluator.prepareMoves(game).stream().anyMatch(evaluator::isSpecialMove)) {
+                        evaluator.prepareMoves(game).stream().anyMatch(
+                                move -> move instanceof InversionMove ||
+                                        move instanceof ChoiceMove)) {
                     communitiesEnabled = false;
                 } else {
                     relevantCommunities = game.communities.getRelevantCommunities(playerNumber);
