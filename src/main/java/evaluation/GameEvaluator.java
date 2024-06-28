@@ -196,22 +196,6 @@ public class GameEvaluator {
     }
 
     public static Set<Move> getRelevantMoves(Game game){
-        Set<Move> result = new HashSet<>();
-        Set<Move> movesWithoutOverwrites =
-                game.getValidMoves().stream().filter((move) -> !(move instanceof OverwriteMove))
-                        .collect(Collectors.toSet());
-
-        if (movesWithoutOverwrites.isEmpty()) {
-            result.addAll(game.getValidMoves());
-        } else {
-            result.addAll(movesWithoutOverwrites);
-        }
-        return result;
-    }
-
-    public List<Move> prepareMoves(Game game) {
-
-        List<Move> result = new LinkedList<>();
 
         // TODO: What if we only have one non-overwrite move which gets us in a really bad
         //  situation, but we could use an overwrite move which would help us A LOT?
@@ -223,10 +207,15 @@ public class GameEvaluator {
                         .collect(Collectors.toSet());
 
         if (movesWithoutOverwrites.isEmpty()) {
-            result.addAll(game.getValidMoves());
+            return game.getValidMoves();
         } else {
-            result.addAll(movesWithoutOverwrites);
+            return movesWithoutOverwrites;
         }
+    }
+
+    public List<Move> prepareMoves(Game game) {
+
+        List<Move> result = new LinkedList<>(getRelevantMoves(game));
 
         // Dirty sort
         result.sort((move1, move2) -> {
