@@ -29,17 +29,20 @@ public class BoardInfo {
      */
     private short reachableTiles;
 
-    /**
-     * Counts the number of times a reachable tiles simulation has been executed
-     */
-    private int simulationCount;
+    private boolean wasWholeGameSimulated;
+
+    private boolean noSignificantDifferenceToValueBefore;
+
+    private short sizeOfUpdateInterval;
+
+    private short lastUpdate;
 
     private final Boundaries noOverwriteTheMoveBefore = new Boundaries(0, 0);
 
     public BoardInfo(Game initialGame) {
         tileRatings = calculateTileRatings(initialGame);
         potentialReachableTiles = calculatePotentialReachableTiles(initialGame);
-        reachableTiles = 0;
+        reachableTiles = potentialReachableTiles;
     }
 
     private int[][] calculateTileRatings(Game game) {
@@ -67,8 +70,7 @@ public class BoardInfo {
      * Simulates a whole game out the number of reachable tiles approximately
      */
     public void updateReachableTiles(Game game, int timelimit) {
-        simulationCount++;
-
+        short newReachableTiles = 0;
         long time = System.currentTimeMillis();
         final int TIMECAP = Math.min(1000, timelimit);
         Game purposeGame = game.clone();
@@ -78,8 +80,8 @@ public class BoardInfo {
 
         while (System.currentTimeMillis() - time < TIMECAP &&
                 purposeGame.getPhase() == GamePhase.BUILD) {
-            Set<Move> validMovesForCurrentPlayer = GameEvaluator.getRelevantMoves(purposeGame);
-            List<Move> ListOfRelevantMoves = new ArrayList<>(validMovesForCurrentPlayer);
+            Set<Move> relevantMovesForCurrentPlayer = GameEvaluator.getRelevantMoves(purposeGame);
+            List<Move> ListOfRelevantMoves = new ArrayList<>(relevantMovesForCurrentPlayer);
             if (ListOfRelevantMoves.get(0) instanceof OverwriteMove) {
                 int playerNumber = purposeGame.getCurrentPlayerNumber();
 
@@ -95,7 +97,7 @@ public class BoardInfo {
                 boundaries = noOverwriteTheMoveBefore;
             }
 
-            int randomIndex = (int) (Math.random() * validMovesForCurrentPlayer.size());
+            int randomIndex = (int) (Math.random() * relevantMovesForCurrentPlayer.size());
             Move randomMove = ListOfRelevantMoves.get(randomIndex);
             purposeGame.executeMove(randomMove);
         }
@@ -103,11 +105,43 @@ public class BoardInfo {
         for (int y = 0; y < game.getHeight(); y++) {
             for (int x = 0; x < game.getWidth(); x++) {
                 if (purposeGame.getTile(new Coordinates(x, y)).isPlayer()) {
-                    reachableTiles++;
+                    newReachableTiles++;
                 }
             }
         }
+
+        if (wasWholeGameSimulated && !noSignificantDifferenceToValueBefore) {
+            reachableTiles = (short) ((reachableTiles + newReachableTiles) / 2.0 + 0.5);
+        } else {
+            reachableTiles = newReachableTiles;
+        }
+
+        if (newReachableTiles > 0.95 * reachableTiles) {
+            wasWholeGameSimulated = true;
+            noSignificantDifferenceToValueBefore = true;
+        }
+        if (System.currentTimeMillis() - time < TIMECAP) {
+            wasWholeGameSimulated = true;
+            sizeOfUpdateInterval = (short) (reachableTiles * 0.3);
+        }
+
+        lastUpdate = game.totalTilesOccupiedCounter.getTotalTilesOccupied();
+
         Logger.get().log("Reachable tiles was updated to " + reachableTiles);
+    }
+
+    public boolean hasReachableTilesToBeUpdated(Game game) {
+        if (wasWholeGameSimulated && !noSignificantDifferenceToValueBefore) {
+            if (game.totalTilesOccupiedCounter.getTotalTilesOccupied() - lastUpdate >=
+                    sizeOfUpdateInterval) {
+                return true;
+            }
+        }
+        if (!wasWholeGameSimulated &&
+                game.totalTilesOccupiedCounter.getTotalTilesOccupied() >= 0.6 * reachableTiles) {
+            return true;
+        }
+        return false;
     }
 
     private Boundaries updateBoundaries(Boundaries boundaries, int playerNumber) {
@@ -169,9 +203,5 @@ public class BoardInfo {
 
     public short getPotentialReachableTiles() {
         return potentialReachableTiles;
-    }
-
-    public int getSimulationCount() {
-        return simulationCount;
     }
 }

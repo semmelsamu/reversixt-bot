@@ -63,9 +63,7 @@ public class Client {
         long startTime = System.currentTimeMillis();
 
         // Check if reachableTiles has to be updated
-        if (boardInfo.getSimulationCount() < 2 &&
-                (double) game.totalTilesOccupiedCounter.getTotalTilesOccupied() /
-                        boardInfo.getReachableTiles() > 0.6) {
+        if (boardInfo.hasReachableTilesToBeUpdated(game)) {
             logger.log("Re-calculating board info...");
             boardInfo.updateReachableTiles(game, timeLimit / 2);
         }
