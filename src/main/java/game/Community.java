@@ -28,7 +28,7 @@ public class Community implements Cloneable {
      */
     int[] tileCounts;
 
-    Set<Coordinates> reachableCoordinates;
+    // Set<Coordinates> reachableCoordinates;
 
     Game game;
 
@@ -53,7 +53,7 @@ public class Community implements Cloneable {
         }
 
         // Calculate reachability map
-        reachableCoordinates = calculateReachabilityMap(game, coordinates.iterator().next());
+        // reachableCoordinates = calculateReachabilityMap(game, coordinates.iterator().next());
     }
 
     public void addCoordinate(Coordinates coordinate) {
@@ -122,8 +122,8 @@ public class Community implements Cloneable {
         }
 
         // Merge the reachability map
-        reachableCoordinates = new HashSet<>(reachableCoordinates);
-        reachableCoordinates.addAll(community.reachableCoordinates);
+        // reachableCoordinates = new HashSet<>(reachableCoordinates);
+        // reachableCoordinates.addAll(community.reachableCoordinates);
     }
 
     public int getTileCount(Tile tile) {
@@ -243,8 +243,8 @@ public class Community implements Cloneable {
                     result.append(". ");
                 } else if (coordinates.contains(currentPosition)) {
                     result.append("# ");
-                } else if (reachableCoordinates.contains(currentPosition)) {
-                    result.append("+ ");
+                    // } else if (reachableCoordinates.contains(currentPosition)) {
+                    //     result.append("+ ");
                 } else {
                     result.append("- ");
                 }
