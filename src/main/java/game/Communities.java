@@ -87,19 +87,32 @@ public class Communities implements Cloneable {
 
     public void updateCommunities(Coordinates coordinates) {
 
+        // The Community the other Communities get merged into.
+        Community resultCommunity = null;
+
         List<Community> communitiesToBeUpdated = new LinkedList<>();
 
         for (var community : communities) {
+
             // Check if Coordinates border the community
             if (CoordinatesExpander.expandCoordinates(game, community.coordinates,
                     Constants.COMMUNITY_MERGE_RADIUS).contains(coordinates)) {
+
                 communitiesToBeUpdated.add(community);
+
+                // The resultCommunity should be the largest one, as then only the smallest ones
+                // get merged -> Performance
+                if (resultCommunity == null ||
+                        resultCommunity.coordinates.size() > community.coordinates.size()) {
+                    resultCommunity = community;
+                }
+
             }
         }
 
-        // Get the Community the others get merged into
-        // TODO: Better heuristic? Maybe the largest one?
-        Community resultCommunity = communitiesToBeUpdated.remove(0);
+        if (communitiesToBeUpdated.isEmpty()) {
+            return;
+        }
 
         // Add the new Coordinate to the Community
         resultCommunity.addCoordinate(coordinates);
