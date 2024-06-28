@@ -8,6 +8,7 @@ import game.Game;
 import game.GamePhase;
 import move.Move;
 import move.OverwriteMove;
+import util.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,6 +107,7 @@ public class BoardInfo {
                 }
             }
         }
+        Logger.get().log("Reachable tiles was updated to " + reachableTiles);
     }
 
     private Boundaries updateBoundaries(Boundaries boundaries, int playerNumber) {
