@@ -16,6 +16,8 @@ public final class MoveCalculator {
 
     /**
      * @param playerNumber Number of player that moves are calculated for
+     * @param coordinates  Coordinates of community that moves should be calculated for. If moves
+     *                     should be calculated for the whole board coordinates must be null
      * @return Valid Moves for this Player on the specified Coordinates
      */
     public static Set<Move> getValidMovesForPlayer(Game game, int playerNumber,
@@ -176,11 +178,10 @@ public final class MoveCalculator {
     }
 
     /**
-     * Check if firstNeighbour from own tile allows possible moves
-     * moves the pointer of tileReader on firstNeighbour by calling next()
-     *
-     * @param tileReader  Tile reader pointing on own tile
-     *                    -> Points on first neighbour after method call
+     * Check if firstNeighbour from own tile allows possible moves moves the pointer of tileReader
+     * on firstNeighbour by calling next()
+     * @param tileReader  Tile reader pointing on own tile -> Points on first neighbour after method
+     *                    call
      * @param playerValue Tile of player that moves are calculated for
      * @return True if first neighbour allows moves, false if not
      */
