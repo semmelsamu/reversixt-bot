@@ -74,7 +74,7 @@ public class Search {
                                         move instanceof ChoiceMove)) {
                     communitiesEnabled = false;
                 } else {
-                    relevantCommunities = game.communities.getRelevantCommunities(playerNumber);
+                    relevantCommunities = game.communities.getRelevantCommunities();
                     if (relevantCommunities.isEmpty()) {
                         communitiesEnabled = false;
                     }

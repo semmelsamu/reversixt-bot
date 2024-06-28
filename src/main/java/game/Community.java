@@ -66,13 +66,14 @@ public class Community implements Cloneable {
     /**
      * Calculate if this community is reachable for a Player. // TODO: Better heuristic!
      */
-    public boolean isReachable(int player) {
+    public boolean isReachable() {
 
-        if (game.getPlayer(player).getOverwriteStones() > 0 && getTileCount(Tile.EXPANSION) > 0) {
+        if (game.getPlayer(game.currentPlayer).getOverwriteStones() > 0 &&
+                getTileCount(Tile.EXPANSION) > 0) {
             return true;
         }
 
-        if (!MoveCalculator.getValidMovesForPlayer(game, player,
+        if (!MoveCalculator.getValidMovesForPlayer(game, game.currentPlayer,
                 CoordinatesExpander.expandCoordinates(game, coordinates, 1)).isEmpty()) {
             return true;
         }
