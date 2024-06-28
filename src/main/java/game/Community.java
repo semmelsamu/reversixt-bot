@@ -3,7 +3,7 @@ package game;
 import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
-import game.logic.MoveCalculator;
+import evaluation.GameEvaluator;
 import move.Move;
 import util.Logger;
 
@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Community implements Cloneable {
 
@@ -63,22 +64,21 @@ public class Community implements Cloneable {
         }
     }
 
-    /**
-     * Calculate if this community is reachable for a Player. // TODO: Better heuristic!
-     */
-    public boolean isReachable() {
+    public boolean isRelevant() {
 
         if (game.getPlayer(game.currentPlayer).getOverwriteStones() > 0 &&
                 getTileCount(Tile.EXPANSION) > 0) {
             return true;
         }
 
-        if (!MoveCalculator.getValidMovesForPlayer(game, game.currentPlayer,
-                CoordinatesExpander.expandCoordinates(game, coordinates, 1)).isEmpty()) {
-            return true;
-        }
+        Set<Coordinates> moveCoordinates =
+                GameEvaluator.getRelevantMoves(game).stream().map(Move::getCoordinates)
+                        .collect(Collectors.toSet());
 
-        return false;
+        // Remove all Coordinates that do not border the Community
+        moveCoordinates.retainAll(CoordinatesExpander.expandCoordinates(game, coordinates, 1));
+
+        return !moveCoordinates.isEmpty();
 
         /*
         // This is the old code with logic from the article.

@@ -64,8 +64,7 @@ public class Communities implements Cloneable {
     }
 
     public Set<Community> getRelevantCommunities() {
-        return communities.stream().filter(community -> community.isReachable())
-                .collect(Collectors.toSet());
+        return communities.stream().filter(Community::isRelevant).collect(Collectors.toSet());
     }
 
     public Community get(Coordinates coordinates) {
