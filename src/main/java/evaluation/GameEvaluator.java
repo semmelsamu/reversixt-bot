@@ -21,11 +21,6 @@ public class GameEvaluator {
     private final BoardInfo boardInfo;
 
     /**
-     * Used for comparing of values
-     */
-    int depth = 0;
-
-    /**
      * Stores how many cutoffs a move on a certain depth has achieved.
      */
     private Map<Integer, Map<Move, Integer>> moveCutoffs;
