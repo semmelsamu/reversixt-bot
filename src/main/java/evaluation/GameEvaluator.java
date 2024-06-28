@@ -195,6 +195,20 @@ public class GameEvaluator {
                 move instanceof InversionMove;
     }
 
+    public static Set<Move> getRelevantMoves(Game game){
+        Set<Move> result = new HashSet<>();
+        Set<Move> movesWithoutOverwrites =
+                game.getValidMoves().stream().filter((move) -> !(move instanceof OverwriteMove))
+                        .collect(Collectors.toSet());
+
+        if (movesWithoutOverwrites.isEmpty()) {
+            result.addAll(game.getValidMoves());
+        } else {
+            result.addAll(movesWithoutOverwrites);
+        }
+        return result;
+    }
+
     public List<Move> prepareMoves(Game game) {
 
         List<Move> result = new LinkedList<>();

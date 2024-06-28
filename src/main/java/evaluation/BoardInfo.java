@@ -78,7 +78,7 @@ public class BoardInfo {
 
         while (System.currentTimeMillis() - time < TIMECAP &&
                 purposeGame.getPhase() == GamePhase.BUILD) {
-            Set<Move> validMovesForCurrentPlayer = purposeGame.getValidMoves();
+            Set<Move> validMovesForCurrentPlayer = GameEvaluator.getRelevantMoves(purposeGame);
             List<Move> ListOfRelevantMoves = new ArrayList<>(validMovesForCurrentPlayer);
             if (ListOfRelevantMoves.get(0) instanceof OverwriteMove) {
                 int playerNumber = purposeGame.getCurrentPlayerNumber();
