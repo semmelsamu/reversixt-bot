@@ -63,6 +63,8 @@ public class Search {
 
             stats.incrementDepthsSearched(0);
 
+            result = evaluator.prepareMoves(game).get(0);
+
             boolean communitiesEnabled = game.communities != null;
             Set<Community> relevantCommunities = new HashSet<>();
 
