@@ -69,7 +69,7 @@ public class GameEvaluator {
                         game.getPlayer(player).getPlayerValue()).size();
         rating += evaluateOverwriteStones(game, player);
         rating += evaluateBombs(game, player);
-        rating += evaluateDeadCommunity(game, player);
+        // rating += evaluateDeadCommunity(game, player);
         return (int) rating;
     }
 
