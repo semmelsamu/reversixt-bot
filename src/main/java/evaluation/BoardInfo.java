@@ -33,6 +33,8 @@ public class BoardInfo {
 
     private boolean noSignificantDifferenceToValueBefore;
 
+    private boolean wereReachableTilesCalculated;
+
     private short sizeOfUpdateInterval;
 
     private short lastUpdate;
@@ -110,19 +112,25 @@ public class BoardInfo {
             }
         }
 
+        int lastReachableTiles = reachableTiles;
         if (wasWholeGameSimulated && !noSignificantDifferenceToValueBefore) {
-            reachableTiles = (short) ((reachableTiles + newReachableTiles) / 2.0 + 0.5);
+            reachableTiles = (short) avgOf(reachableTiles, newReachableTiles);
         } else {
             reachableTiles = newReachableTiles;
         }
 
-        if (newReachableTiles > 0.95 * reachableTiles) {
+        if (reachableTiles > 0.95 * lastReachableTiles &&
+                reachableTiles < 1.05 * lastReachableTiles) {
             wasWholeGameSimulated = true;
             noSignificantDifferenceToValueBefore = true;
         }
-        if (System.currentTimeMillis() - time < TIMECAP) {
+        long currentTime = System.currentTimeMillis() - time;
+        if (currentTime < TIMECAP) {
             wasWholeGameSimulated = true;
             sizeOfUpdateInterval = (short) (reachableTiles * 0.3);
+        }
+        if(!wasWholeGameSimulated && game.totalTilesOccupiedCounter.getTotalTilesOccupied() >= reachableTiles){
+            reachableTiles = (short) avgOf(reachableTiles, potentialReachableTiles);
         }
 
         lastUpdate = game.totalTilesOccupiedCounter.getTotalTilesOccupied();
@@ -131,6 +139,10 @@ public class BoardInfo {
     }
 
     public boolean hasReachableTilesToBeUpdated(Game game) {
+        if (!wereReachableTilesCalculated) {
+            wereReachableTilesCalculated = true;
+            return true;
+        }
         if (wasWholeGameSimulated && !noSignificantDifferenceToValueBefore) {
             if (game.totalTilesOccupiedCounter.getTotalTilesOccupied() - lastUpdate >=
                     sizeOfUpdateInterval) {
@@ -203,5 +215,17 @@ public class BoardInfo {
 
     public short getPotentialReachableTiles() {
         return potentialReachableTiles;
+    }
+
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Utility
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    public int avgOf(int a, int b){
+        return (int) ((a + b) / 2.0 + 0.5);
     }
 }
