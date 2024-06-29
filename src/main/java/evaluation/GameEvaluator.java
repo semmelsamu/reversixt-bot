@@ -153,13 +153,13 @@ public class GameEvaluator {
      * Tiles from this Community, aka it is dead.
      */
     private int evaluateDeadCommunity(Game game) {
-        if (game.communities == null || game.communities.getSimulatingCommunity() == null) {
+        if (game.communities == null || game.communities.getSimulating() == null) {
             return 0;
         }
 
         int playersInCommunity = 0;
         for (var player : game.getPlayers()) {
-            if (game.communities.getSimulatingCommunity().getTileCount(player.getPlayerValue()) >
+            if (game.communities.getSimulating().getTileCount(player.getPlayerValue()) >
                     0) {
                 playersInCommunity++;
             }

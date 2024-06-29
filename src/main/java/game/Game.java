@@ -222,7 +222,7 @@ public class Game implements Cloneable {
 
         if (communities != null) {
             communities.update(move.getCoordinates());
-            if (communities.getCommunities().size() < 2) {
+            if (communities.get().size() < 2) {
                 communities = null;
             }
         }

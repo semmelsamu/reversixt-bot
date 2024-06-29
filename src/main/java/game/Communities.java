@@ -61,14 +61,24 @@ public class Communities implements Cloneable {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public Set<Community> getCommunities() {
+    /**
+     * Get all Communities
+     */
+    public Set<Community> get() {
         return communities;
     }
 
-    public Set<Community> getRelevantCommunities() {
+    /**
+     * Get all Communities that are relevant. Uses Community::isRelevant to determine if a Community
+     * is relevant.
+     */
+    public Set<Community> getRelevant() {
         return communities.stream().filter(Community::isRelevant).collect(Collectors.toSet());
     }
 
+    /**
+     * Get the Community on which the Coordinates are located.
+     */
     public Community get(Coordinates coordinates) {
         for (Community community : communities) {
             if (community.coordinates.contains(coordinates)) {
@@ -78,16 +88,27 @@ public class Communities implements Cloneable {
         return null;
     }
 
+    /**
+     * @param community A Community
+     * @return The same Community from the attached Game
+     */
     public Community get(Community community) {
         return get(community.coordinates.iterator().next());
     }
 
+    /**
+     * Set the simulating Community and find a valid Player, i.e. a Player that has valid Moves in
+     * this Community.
+     */
     public void simulate(Community community) {
         simulating = community;
         game.findValidPlayer();
     }
 
-    public Community getSimulatingCommunity() {
+    /**
+     * Return the Community that is currently being simulated or null if no Community is simulated.
+     */
+    public Community getSimulating() {
         return simulating;
     }
 
@@ -134,6 +155,10 @@ public class Communities implements Cloneable {
         return resultCommunity;
     }
 
+    /**
+     * Check if Communities have to add the Coordinate because the Tile on the Coordinates changed,
+     * and merge Communities that got close to each other.
+     */
     public void update(Coordinates coordinates) {
 
         // The Community the other Communities get merged into.
