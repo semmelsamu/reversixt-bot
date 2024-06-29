@@ -189,6 +189,7 @@ public class GameEvaluator {
             if (potentialCoordinates == 0) {
                 Logger.get().warn("Evaluating Community with 0 potential Coordinates");
                 Logger.get().warn(community.toString());
+                return -1000;
             }
 
             double wastedPotential = 1 - (double) actualCoordinates / potentialCoordinates;
