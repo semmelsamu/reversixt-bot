@@ -5,7 +5,9 @@ import board.CoordinatesExpander;
 import board.Tile;
 import util.Constants;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Communities implements Cloneable {
@@ -89,12 +91,55 @@ public class Communities implements Cloneable {
         return simulating;
     }
 
-    public void updateCommunities(Coordinates coordinates) {
+    /**
+     * Merge two Communities.
+     */
+    public Community merge(Community community1, Community community2) {
+
+        // The mergeCommunity will merge into the resultCommunity
+        Community resultCommunity, mergeCommunity;
+
+        // Merging the smaller Community into the bigger one -> faster
+        if (community1.coordinates.size() > community2.coordinates.size()) {
+            resultCommunity = community1;
+            mergeCommunity = community2;
+        } else {
+            resultCommunity = community2;
+            mergeCommunity = community1;
+        }
+
+        // Merge the coordinates
+        for (Coordinates coordinate : mergeCommunity.coordinates) {
+            // TileCounts get merged internally
+            resultCommunity.addCoordinate(coordinate);
+        }
+
+        // Merge the reachability map
+        // reachableCoordinates = new HashSet<>(reachableCoordinates);
+        // reachableCoordinates.addAll(community.reachableCoordinates);
+
+        // Remove mergeCommunity as it is now contained in the resultCommunity. We can't use
+        // communities.remove(mergeCommunity) because of some Java edge-case, this doesn't work.
+        // Instead, we need to do it with an iterator. Ugly but works. These 8 lines of code cost
+        // me 6 hours, I hope that they are appreciated.
+        Iterator<Community> iterator = communities.iterator();
+        while (iterator.hasNext()) {
+            Community community = iterator.next();
+            if (community.equals(mergeCommunity)) {
+                iterator.remove();
+                break;
+            }
+        }
+
+        return resultCommunity;
+    }
+
+    public void update(Coordinates coordinates) {
 
         // The Community the other Communities get merged into.
         Community resultCommunity = null;
 
-        List<Community> communitiesToBeUpdated = new LinkedList<>();
+        Set<Community> mergeCommunities = new HashSet<>();
 
         for (var community : communities) {
 
@@ -102,7 +147,7 @@ public class Communities implements Cloneable {
             if (CoordinatesExpander.expandCoordinates(game, community.coordinates,
                     Constants.COMMUNITY_MERGE_RADIUS).contains(coordinates)) {
 
-                communitiesToBeUpdated.add(community);
+                mergeCommunities.add(community);
 
                 // The resultCommunity should be the largest one, as then only the smallest ones
                 // get merged -> Performance
@@ -114,34 +159,18 @@ public class Communities implements Cloneable {
             }
         }
 
-        if (communitiesToBeUpdated.isEmpty()) {
+        if (mergeCommunities.isEmpty()) {
             return;
         }
 
-        communitiesToBeUpdated.remove(resultCommunity);
+        mergeCommunities.remove(resultCommunity);
 
-        // Add the new Coordinate to the Community
         resultCommunity.addCoordinate(coordinates);
 
-        // Merge with the other Communities
-        for (var communityToBeMerged : communitiesToBeUpdated) {
-
-            // Merge community
-            resultCommunity.mergeCommunity(communityToBeMerged);
-
-            // Remove merged community as it is now contained in the resultCommunity.
-            // We can't use communities.remove(communityToBeMerged) because of some Java edge-case,
-            // this doesn't remove it. Instead, we need to do it with an iterator. Ugly but works.
-            // These 8 lines of code cost me 6 hours, I hope that they are appreciated.
-            Iterator<Community> iterator = communities.iterator();
-            while (iterator.hasNext()) {
-                Community community = iterator.next();
-                if (community.equals(communityToBeMerged)) {
-                    iterator.remove();
-                    break;
-                }
-            }
+        for (Community mergeCommunity : mergeCommunities) {
+            resultCommunity = merge(resultCommunity, mergeCommunity);
         }
+
     }
 
     /*

@@ -221,7 +221,7 @@ public class Game implements Cloneable {
         MoveExecutor.executeMove(this, move);
 
         if (communities != null) {
-            communities.updateCommunities(move.getCoordinates());
+            communities.update(move.getCoordinates());
             if (communities.getCommunities().size() < 2) {
                 communities = null;
             }

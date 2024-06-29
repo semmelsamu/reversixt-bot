@@ -106,22 +106,6 @@ public class Community implements Cloneable {
         */
     }
 
-    /**
-     * Merge a Community into this Community.
-     * @param community The other Community.
-     */
-    public void mergeCommunity(Community community) {
-        // Merge the coordinates
-        for (Coordinates coordinate : community.coordinates) {
-            // TileCounts get merged internally
-            addCoordinate(coordinate);
-        }
-
-        // Merge the reachability map
-        // reachableCoordinates = new HashSet<>(reachableCoordinates);
-        // reachableCoordinates.addAll(community.reachableCoordinates);
-    }
-
     public int getTileCount(Tile tile) {
         if (tile.equals(Tile.EXPANSION)) {
             return tileCounts[0];
@@ -236,13 +220,13 @@ public class Community implements Cloneable {
                 Coordinates currentPosition = new Coordinates(x, y);
 
                 if (game.getTile(currentPosition).equals(Tile.WALL)) {
-                    result.append(". ");
+                    result.append("- ");
                 } else if (coordinates.contains(currentPosition)) {
                     result.append("# ");
                     // } else if (reachableCoordinates.contains(currentPosition)) {
                     //     result.append("+ ");
                 } else {
-                    result.append("- ");
+                    result.append("  ");
                 }
 
             }
