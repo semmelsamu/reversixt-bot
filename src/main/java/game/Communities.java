@@ -114,6 +114,8 @@ public class Communities implements Cloneable {
             return;
         }
 
+        communitiesToBeUpdated.remove(resultCommunity);
+
         // Add the new Coordinate to the Community
         resultCommunity.addCoordinate(coordinates);
 

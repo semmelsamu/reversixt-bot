@@ -97,12 +97,7 @@ public class Client {
     }
 
     public String logGame() {
-        StringBuilder result = new StringBuilder();
-        result.append(game.toString());
-        if (game.communities != null) {
-            result.append(game.communities);
-        }
-        return result.toString();
+        return game.toString();
     }
 
 }
