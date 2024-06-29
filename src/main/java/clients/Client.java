@@ -26,17 +26,25 @@ public class Client {
     private final BoardInfo boardInfo;
 
     /**
+     * Contains a Matrix that values corners
+     */
+    // private final Weights weights;
+
+    /**
      * Initialize the client.
      * @param game         The game that the client should run on.
      * @param playerNumber The number of the player this client should control.
      */
     public Client(Game game, int playerNumber) {
+
         this.game = game;
         logger.log(logGame());
         this.playerNumber = playerNumber;
+
         logger.log("We are player " + playerNumber);
-        logger.log("Calculating board info...");
+
         boardInfo = new BoardInfo(game);
+        // weights = new Weights(game);
     }
 
     /**
@@ -44,11 +52,8 @@ public class Client {
      * @param move The move in question.
      */
     public void executeMove(Move move) {
-
         game.executeMove(move);
-
         logger.debug(logGame());
-
     }
 
     /**
