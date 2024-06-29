@@ -29,7 +29,7 @@ public class Community implements Cloneable {
      */
     int[] tileCounts;
 
-    // Set<Coordinates> reachableCoordinates;
+    Set<Coordinates> reachableCoordinates;
 
     Game game;
 
@@ -54,7 +54,7 @@ public class Community implements Cloneable {
         }
 
         // Calculate reachability map
-        // reachableCoordinates = calculateReachabilityMap(game, coordinates.iterator().next());
+        reachableCoordinates = calculateReachabilityMap(game, coordinates.iterator().next());
     }
 
     public void addCoordinate(Coordinates coordinate) {
@@ -120,6 +120,10 @@ public class Community implements Cloneable {
         Set<Coordinates> validCoordinates =
                 CoordinatesExpander.expandCoordinates(game, coordinates, 1);
         return validCoordinates.contains(move.getCoordinates());
+    }
+
+    public Set<Coordinates> getReachableCoordinates() {
+        return reachableCoordinates;
     }
 
     /*

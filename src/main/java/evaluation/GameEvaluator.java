@@ -69,7 +69,7 @@ public class GameEvaluator {
                         game.getPlayer(player).getPlayerValue()).size();
         rating += evaluateOverwriteStones(game, player);
         rating += evaluateBombs(game, player);
-        rating += evaluateDeadCommunity(game);
+        rating += evaluateDeadCommunity(game, player);
         return (int) rating;
     }
 
@@ -152,21 +152,22 @@ public class GameEvaluator {
      * present. This is bad as then we cannot expand this Community further and thus not occupy more
      * Tiles from this Community, aka it is dead.
      */
-    private int evaluateDeadCommunity(Game game) {
+    private int evaluateDeadCommunity(Game game, int player) {
         if (game.communities == null || game.communities.getSimulating() == null) {
             return 0;
         }
 
         int playersInCommunity = 0;
-        for (var player : game.getPlayers()) {
-            if (game.communities.getSimulating().getTileCount(player.getPlayerValue()) >
-                    0) {
+        for (var currentPlayer : game.getPlayers()) {
+            if (game.communities.getSimulating().getTileCount(currentPlayer.getPlayerValue()) > 0) {
                 playersInCommunity++;
             }
         }
 
         if (playersInCommunity < 2) {
-            return -100;
+            return (-1) * game.communities.getSimulating().getReachableCoordinates().size() /
+                    game.communities.getSimulating()
+                            .getTileCount(game.getPlayer(player).getPlayerValue());
         }
 
         return 0;

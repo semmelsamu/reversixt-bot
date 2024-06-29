@@ -136,8 +136,7 @@ public class Communities implements Cloneable {
         }
 
         // Merge the reachability map
-        // reachableCoordinates = new HashSet<>(reachableCoordinates);
-        // reachableCoordinates.addAll(community.reachableCoordinates);
+        resultCommunity.reachableCoordinates.addAll(mergeCommunity.reachableCoordinates);
 
         // Remove mergeCommunity as it is now contained in the resultCommunity. We can't use
         // communities.remove(mergeCommunity) because of some Java edge-case, this doesn't work.
