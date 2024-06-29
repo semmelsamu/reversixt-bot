@@ -179,26 +179,27 @@ public class GameEvaluator {
             }
         }
 
-        if (playersInCommunity < 2) {
-            // Community is dead!
-
-            int actualCoordinates = community.getTileCount(game.getPlayer(player).getPlayerValue());
-            int potentialCoordinates = community.getReachableCoordinates().size();
-
-            // Should never happen
-            if (potentialCoordinates == 0) {
-                Logger.get().warn("Evaluating Community with 0 potential Coordinates");
-                Logger.get().warn(community.toString());
-                return -1000;
-            }
-
-            double wastedPotential = 1 - (double) actualCoordinates / potentialCoordinates;
-
-            // Punish for potential wasted
-            return -1 * (int) (wastedPotential * 100);
+        if (playersInCommunity > 1) {
+            // Everything OK.
+            return 0;
         }
 
-        return 0;
+        // Community is dead!
+
+        int actualCoordinates = community.getTileCount(game.getPlayer(player).getPlayerValue());
+        int potentialCoordinates = community.getReachableCoordinates().size();
+
+        // Should never happen
+        if (potentialCoordinates == 0) {
+            Logger.get().warn("Evaluating Community with 0 potential Coordinates");
+            Logger.get().warn(community.toString());
+            return -1000;
+        }
+
+        double wastedPotential = 1 - (double) actualCoordinates / potentialCoordinates;
+
+        // Punish for potential wasted
+        return -1 * (int) (wastedPotential * 100);
     }
 
     /*
