@@ -1,5 +1,8 @@
 package clients;
 
+import board.Coordinates;
+import board.CoordinatesExpander;
+import board.Tile;
 import evaluation.GameEvaluator;
 import exceptions.GamePhaseNotValidException;
 import exceptions.NotEnoughTimeException;
@@ -88,13 +91,6 @@ public class Search {
                 }
             }
 
-            if (communitiesEnabled) {
-                logger.log("Searching " + relevantCommunities.size() + " relevant Communities");
-            } else {
-                logger.log("Searching whole game");
-                game.communities = null;
-            }
-
             // Iterative deepening search
             int depthLimit = 1;
 
@@ -103,6 +99,35 @@ public class Search {
                 logger.log("Iterative deepening: Depth " + depthLimit);
 
                 stats.reset();
+
+                Set<Coordinates> potentialReachableCoordinates = new HashSet<>();
+
+                if (communitiesEnabled) {
+                    for (Community community : game.communities.get()) {
+                        potentialReachableCoordinates.addAll(community.getCoordinates());
+                    }
+                }
+
+                potentialReachableCoordinates =
+                        CoordinatesExpander.expandCoordinates(game, potentialReachableCoordinates,
+                                depthLimit);
+
+                for (Coordinates coordinates : potentialReachableCoordinates) {
+                    if (game.getTile(coordinates).equals(Tile.INVERSION) ||
+                            game.getTile(coordinates).equals(Tile.CHOICE)) {
+                        communitiesEnabled = false;
+                        logger.log("Disabling Communities because of potential Inversion/Choice " +
+                                "Moves");
+                        break;
+                    }
+                }
+
+                if (communitiesEnabled) {
+                    logger.log("Searching " + relevantCommunities.size() + " relevant Communities");
+                } else {
+                    logger.log("Searching whole game");
+                    game.communities = null;
+                }
 
                 if (communitiesEnabled) {
                     result = findBestMoveInCommunity(relevantCommunities, depthLimit);

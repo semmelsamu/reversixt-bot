@@ -126,6 +126,10 @@ public class Community implements Cloneable {
         return reachableCoordinates;
     }
 
+    public Set<Coordinates> getCoordinates() {
+        return coordinates;
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
