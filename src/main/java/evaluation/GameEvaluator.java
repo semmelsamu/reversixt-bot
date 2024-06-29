@@ -69,7 +69,7 @@ public class GameEvaluator {
                         game.getPlayer(player).getPlayerValue()).size();
         rating += evaluateOverwriteStones(game, player);
         rating += evaluateBombs(game, player);
-        // rating += evaluateDeadCommunity(game, player);
+        rating += evaluateDeadCommunity(game, player);
         return (int) rating;
     }
 
@@ -164,10 +164,18 @@ public class GameEvaluator {
             }
         }
 
+        var potentialCoordinates =
+                game.communities.getSimulating().getReachableCoordinates().size();
+        var actualCoordinates = game.communities.getSimulating()
+                .getTileCount(game.getPlayer(player).getPlayerValue());
+
+        // TODO: This is a Hotfix!
+        if (actualCoordinates == 0) {
+            return 0;
+        }
+
         if (playersInCommunity < 2) {
-            return (-1) * game.communities.getSimulating().getReachableCoordinates().size() /
-                    game.communities.getSimulating()
-                            .getTileCount(game.getPlayer(player).getPlayerValue());
+            return (-1) * potentialCoordinates / actualCoordinates;
         }
 
         return 0;
