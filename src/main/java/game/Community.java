@@ -66,11 +66,6 @@ public class Community implements Cloneable {
 
     public boolean isRelevant() {
 
-        if (game.getPlayer(game.currentPlayer).getOverwriteStones() > 0 &&
-                getTileCount(Tile.EXPANSION) > 0) {
-            return true;
-        }
-
         Set<Coordinates> moveCoordinates =
                 GameEvaluator.getRelevantMoves(game).stream().map(Move::getCoordinates)
                         .collect(Collectors.toSet());
