@@ -1,7 +1,6 @@
 package evaluation;
 
 import board.Coordinates;
-import board.CoordinatesExpander;
 import board.Tile;
 import game.Game;
 import game.logic.MoveCalculator;
@@ -70,7 +69,7 @@ public class GameEvaluator {
                         game.getPlayer(player).getPlayerValue()).size();
         rating += evaluateOverwriteStones(game, player);
         rating += evaluateBombs(game, player);
-        rating += evaluateCommunities(game, player);
+        rating += evaluateDeadCommunity(game);
         return (int) rating;
     }
 
@@ -148,17 +147,29 @@ public class GameEvaluator {
         return sum;
     }
 
-    private int evaluateCommunities(Game game, int player) {
-        if (game.communities == null) {
+    /**
+     * If exists, values the currently simulated Community bad when there is only one Player
+     * present. This is bad as then we cannot expand this Community further and thus not occupy more
+     * Tiles from this Community, aka it is dead.
+     */
+    private int evaluateDeadCommunity(Game game) {
+        if (game.communities == null || game.communities.getSimulatingCommunity() == null) {
             return 0;
         }
-        int capturedCommunities = (int) game.communities.getCommunities().stream()
-                .filter(c -> c.getTileCount(Tile.values()[player]) > 0 &&
-                        MoveCalculator.getValidMovesForPlayer(game, player,
-                                        CoordinatesExpander.expandCoordinates(game, c.coordinates
-                                                , 1))
-                                .isEmpty()).count();
-        return -20 * capturedCommunities;
+
+        int playersInCommunity = 0;
+        for (var player : game.getPlayers()) {
+            if (game.communities.getSimulatingCommunity().getTileCount(player.getPlayerValue()) >
+                    0) {
+                playersInCommunity++;
+            }
+        }
+
+        if (playersInCommunity < 2) {
+            return -100;
+        }
+
+        return 0;
     }
 
     /*

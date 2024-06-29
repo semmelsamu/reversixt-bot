@@ -85,6 +85,10 @@ public class Communities implements Cloneable {
         game.findValidPlayer();
     }
 
+    public Community getSimulatingCommunity() {
+        return simulating;
+    }
+
     public void updateCommunities(Coordinates coordinates) {
 
         // The Community the other Communities get merged into.
