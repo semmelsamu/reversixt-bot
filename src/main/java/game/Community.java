@@ -228,13 +228,13 @@ public class Community implements Cloneable {
                 Coordinates currentPosition = new Coordinates(x, y);
 
                 if (game.getTile(currentPosition).equals(Tile.WALL)) {
-                    result.append("- ");
+                    result.append(". ");
                 } else if (coordinates.contains(currentPosition)) {
                     result.append("# ");
-                    // } else if (reachableCoordinates.contains(currentPosition)) {
-                    //     result.append("+ ");
+                } else if (reachableCoordinates.contains(currentPosition)) {
+                    result.append("+ ");
                 } else {
-                    result.append("  ");
+                    result.append("- ");
                 }
 
             }
