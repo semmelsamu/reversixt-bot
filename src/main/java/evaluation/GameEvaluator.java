@@ -5,6 +5,7 @@ import board.Tile;
 import game.Game;
 import game.logic.MoveCalculator;
 import move.*;
+import util.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -171,6 +172,7 @@ public class GameEvaluator {
 
         // TODO: This is a Hotfix!
         if (actualCoordinates == 0) {
+            Logger.get().warn(game.communities.getSimulating().toString());
             return 0;
         }
 
