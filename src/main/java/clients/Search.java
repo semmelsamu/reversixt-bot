@@ -67,11 +67,15 @@ public class Search {
             Set<Community> relevantCommunities = new HashSet<>();
 
             if (communitiesEnabled) {
-                if (!game.getPhase().equals(GamePhase.BUILD) ||
-                        game.communities.getCommunities().size() < 2 ||
-                        GameEvaluator.getRelevantMoves(game).stream().anyMatch(
-                                move -> move instanceof InversionMove ||
-                                        move instanceof ChoiceMove)) {
+                if (!game.getPhase().equals(GamePhase.BUILD)) {
+                    logger.log("Not in build phase");
+                    communitiesEnabled = false;
+                } else if (game.communities.getCommunities().size() < 2) {
+                    logger.log("Not enough communities");
+                    communitiesEnabled = false;
+                } else if (GameEvaluator.getRelevantMoves(game).stream().anyMatch(
+                        move -> move instanceof InversionMove || move instanceof ChoiceMove)) {
+                    logger.log("Identified special moves");
                     communitiesEnabled = false;
                 } else {
                     relevantCommunities = game.communities.getRelevantCommunities();
