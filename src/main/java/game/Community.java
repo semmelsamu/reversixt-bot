@@ -20,7 +20,7 @@ public class Community implements Cloneable {
     /**
      * The Coordinates this Community includes.
      */
-    Set<Coordinates> coordinates;
+    public Set<Coordinates> coordinates;
 
     /**
      * Stores the number of tiles each player in this community occupies. The first entry [0] is

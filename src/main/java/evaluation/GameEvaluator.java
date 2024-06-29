@@ -1,6 +1,7 @@
 package evaluation;
 
 import board.Coordinates;
+import board.CoordinatesExpander;
 import board.Tile;
 import game.Game;
 import game.logic.MoveCalculator;
@@ -69,6 +70,7 @@ public class GameEvaluator {
                         game.getPlayer(player).getPlayerValue()).size();
         rating += evaluateOverwriteStones(game, player);
         rating += evaluateBombs(game, player);
+        rating += evaluateCommunities(game, player);
         return (int) rating;
     }
 
@@ -134,8 +136,7 @@ public class GameEvaluator {
 
         // calculate value of function that has a logarithmic gradient (and a little linear one)
         // -> difference between 0 and 5 moves is huge, between 40 and 45 little
-        return 2 * logarithm(1.5, movesWithoutOverwrites + 0.5)
-                + 0.25 * movesWithoutOverwrites - 3;
+        return 2 * logarithm(1.5, movesWithoutOverwrites + 0.5) + 0.25 * movesWithoutOverwrites - 3;
     }
 
     private int sumUpAllRatingsForOccupiedTiles(Game game, int player) {
@@ -145,6 +146,19 @@ public class GameEvaluator {
             sum += boardInfo.getTileRatings()[tile.y][tile.x];
         }
         return sum;
+    }
+
+    private int evaluateCommunities(Game game, int player) {
+        if (game.communities == null) {
+            return 0;
+        }
+        int capturedCommunities = (int) game.communities.getCommunities().stream()
+                .filter(c -> c.getTileCount(Tile.values()[player]) > 0 &&
+                        MoveCalculator.getValidMovesForPlayer(game, player,
+                                        CoordinatesExpander.expandCoordinates(game, c.coordinates
+                                                , 1))
+                                .isEmpty()).count();
+        return -20 * capturedCommunities;
     }
 
     /*
@@ -195,7 +209,7 @@ public class GameEvaluator {
                 move instanceof InversionMove;
     }
 
-    public static Set<Move> getRelevantMoves(Game game){
+    public static Set<Move> getRelevantMoves(Game game) {
 
         // TODO: What if we only have one non-overwrite move which gets us in a really bad
         //  situation, but we could use an overwrite move which would help us A LOT?
