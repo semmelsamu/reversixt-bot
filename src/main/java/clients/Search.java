@@ -69,13 +69,14 @@ public class Search {
             if (communitiesEnabled) {
                 if (!game.getPhase().equals(GamePhase.BUILD) ||
                         game.communities.getCommunities().size() < 2 ||
-                        evaluator.prepareMoves(game).stream().anyMatch(
+                        GameEvaluator.getRelevantMoves(game).stream().anyMatch(
                                 move -> move instanceof InversionMove ||
                                         move instanceof ChoiceMove)) {
                     communitiesEnabled = false;
                 } else {
                     relevantCommunities = game.communities.getRelevantCommunities();
                     if (relevantCommunities.isEmpty()) {
+                        logger.warn("Got move request, but didn't find a relevant community");
                         communitiesEnabled = false;
                     }
                 }
