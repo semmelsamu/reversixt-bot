@@ -2,6 +2,7 @@ package evaluation;
 
 import board.Coordinates;
 import board.Tile;
+import game.Community;
 import game.Game;
 import game.logic.MoveCalculator;
 import move.*;
@@ -148,6 +149,15 @@ public class GameEvaluator {
         return sum;
     }
 
+    public static void main(String[] args) {
+        int x = 2;
+        int y = 3;
+
+        double z = 1 - (double) x / y;
+
+        System.out.println(z);
+    }
+
     /**
      * If exists, values the currently simulated Community bad when there is only one Player
      * present. This is bad as then we cannot expand this Community further and thus not occupy more
@@ -158,26 +168,33 @@ public class GameEvaluator {
             return 0;
         }
 
+        // Fetch Community because we need it often
+        Community community = game.communities.getSimulating();
+
+        // Count Players in this Community
         int playersInCommunity = 0;
         for (var currentPlayer : game.getPlayers()) {
-            if (game.communities.getSimulating().getTileCount(currentPlayer.getPlayerValue()) > 0) {
+            if (community.getTileCount(currentPlayer.getPlayerValue()) > 0) {
                 playersInCommunity++;
             }
         }
 
-        var potentialCoordinates =
-                game.communities.getSimulating().getReachableCoordinates().size();
-        var actualCoordinates = game.communities.getSimulating()
-                .getTileCount(game.getPlayer(player).getPlayerValue());
-
-        // TODO: This is a Hotfix!
-        if (actualCoordinates == 0) {
-            Logger.get().warn(game.communities.getSimulating().toString());
-            return 0;
-        }
-
         if (playersInCommunity < 2) {
-            return (-1) * potentialCoordinates / actualCoordinates;
+            // Community is dead!
+
+            int actualCoordinates = community.getTileCount(game.getPlayer(player).getPlayerValue());
+            int potentialCoordinates = community.getReachableCoordinates().size();
+
+            // Should never happen
+            if (potentialCoordinates == 0) {
+                Logger.get().warn("Evaluating Community with 0 potential Coordinates");
+                Logger.get().warn(community.toString());
+            }
+
+            double wastedPotential = 1 - (double) actualCoordinates / potentialCoordinates;
+
+            // Punish for potential wasted
+            return -1 * (int) (wastedPotential * 100);
         }
 
         return 0;
