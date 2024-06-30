@@ -6,6 +6,7 @@ import game.Community;
 import game.Game;
 import game.logic.MoveCalculator;
 import move.*;
+import util.Constants;
 import util.Logger;
 
 import java.util.*;
@@ -151,9 +152,10 @@ public class GameEvaluator {
     }
 
     /**
-     * If exists, values the currently simulated Community bad when there is only one Player
-     * present. This is bad as then we cannot expand this Community further and thus not occupy more
-     * Tiles from this Community, aka it is dead.
+     * Evaluates the current state of the simulated community in the game. If there is only one
+     * player present in the community, it is considered "dead" because it cannot expand further,
+     * thus limiting the ability to occupy more tiles. This function calculates and returns a
+     * penalty value based on the wasted potential of the community.
      */
     private int evaluateDeadCommunity(Game game, int player) {
         if (game.communities == null || game.communities.getSimulating() == null) {
@@ -191,7 +193,7 @@ public class GameEvaluator {
         double wastedPotential = 1 - (double) actualCoordinates / potentialCoordinates;
 
         // Punish for potential wasted
-        return -1 * (int) (wastedPotential * 100);
+        return -1 * (int) (wastedPotential * Constants.DEAD_COMMUNITY_PUNISHMENT_FACTOR);
     }
 
     /*
