@@ -12,8 +12,8 @@ import move.InversionMove;
 import move.Move;
 import util.Logger;
 import util.NullLogger;
+import util.TransitionMap;
 
-import java.util.Map;
 import java.util.Set;
 
 public class Game implements Cloneable {
@@ -270,7 +270,7 @@ public class Game implements Cloneable {
         board.setTile(position, value);
     }
 
-    public Map<Short, Short> getTransitions() {
+    public TransitionMap getTransitions() {
         return board.getTransitions();
     }
 

@@ -45,7 +45,6 @@ public class Main {
         argumentParser.setParameter("i", new ArgumentParser.Parameter("IP", "127.0.0.1"));
         argumentParser.setParameter("p", new ArgumentParser.Parameter("Port", 7777));
         argumentParser.setParameter("c", new ArgumentParser.Parameter("Colors", false));
-        argumentParser.setParameter("n", new ArgumentParser.Parameter("Move sorting", true));
         argumentParser.setParameter("q", new ArgumentParser.Parameter("Quiet Mode", false));
         argumentParser.setParameter("h", new ArgumentParser.Parameter("Help", false));
         argumentParser.setParameter("l", new ArgumentParser.Parameter("Logger priority", 1));
