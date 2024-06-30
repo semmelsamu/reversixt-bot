@@ -23,6 +23,8 @@ public class GameEvaluator {
 
     private final BoardInfo boardInfo;
 
+    public boolean evaluateCommunities;
+
     /**
      * Stores how many cutoffs a move on a certain depth has achieved.
      */
@@ -41,6 +43,11 @@ public class GameEvaluator {
      * @return Evaluation for the current game situation
      */
     public int evaluate(Game game, int player) {
+
+        if (evaluateCommunities && game.communities == null) {
+            Logger.get().error("Communities were on at top but are off at bottom");
+        }
+
         switch (game.getPhase()) {
             case BUILD -> {
                 return evaluatePhase1(game, player);

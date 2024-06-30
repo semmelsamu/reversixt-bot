@@ -129,6 +129,8 @@ public class Search {
                     game.communities = null;
                 }
 
+                evaluator.evaluateCommunities = communitiesEnabled;
+
                 if (communitiesEnabled) {
                     result = findBestMoveInCommunity(relevantCommunities, depthLimit);
                 } else {
