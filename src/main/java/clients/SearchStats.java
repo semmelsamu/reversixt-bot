@@ -91,6 +91,7 @@ public class SearchStats {
         long timeLeft = this.endTime - System.currentTimeMillis();
         double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
 
+        /*
         StringBuilder stats = new StringBuilder("Stats for depth " + depth + "\n");
         stats.append("Visited states: ").append(currentIterationNodesVisited).append("\n");
         stats.append("Total time: ").append(totalTime).append(" ms\n");
@@ -104,6 +105,10 @@ public class SearchStats {
         stats.append("Time left: ").append(timeLeft).append(" ms\n");
         stats.append("Time estimated: ").append(timeEstimated).append(" ms\n");
         logger.verbose(stats.toString());
+        */
+
+        logger.log("Time passed for last depth: " + timePassed);
+        logger.log("Time estimated for next depth: " + Math.round(timeEstimated));
 
         if (timeLeft < timeEstimated) {
             throw new NotEnoughTimeException(
