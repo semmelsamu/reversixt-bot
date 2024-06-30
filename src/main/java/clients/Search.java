@@ -229,12 +229,14 @@ public class Search {
         List<Move> moves = evaluator.prepareMoves(game);
 
         if (this.game.communities != null && game.communities == null) {
-            logger.warn("Communities are enabled in tree root but disabled in leave");
+            logger.warn("Disabling Communities: Detected branch that disabled Communities");
+            this.game.communities = null;
         }
 
         if (game.communities != null && moves.stream()
                 .anyMatch(move -> move instanceof InversionMove || move instanceof ChoiceMove)) {
-            logger.warn("Communities are on but Inversion/Choice moves appeared in tree");
+            logger.warn("Disabling Communities: Inversion/Choice moves appeared in tree");
+            this.game.communities = null;
         }
 
         if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD)) {
