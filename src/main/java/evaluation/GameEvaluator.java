@@ -131,13 +131,21 @@ public class GameEvaluator {
     }
 
     private double evaluateMobility(Game game, int player) {
+        Set<Move> moves;
+
+        // Check if Moves are already cached
+        if (game.getCurrentPlayerNumber() == player && game.communities != null) {
+            moves = game.getValidMoves();
+        } else {
+            moves = MoveCalculator.getValidMovesForPlayer(game, player, null);
+        }
+
         // Only non overwrite moves are considered for evaluation, as number of overwrite moves
         // is not very significant
         int movesWithoutOverwrites =
-                (int) MoveCalculator.getValidMovesForPlayer(game, player, null).stream()
-                        .filter((move) -> !(move instanceof OverwriteMove)).count();
+                (int) moves.stream().filter((move) -> !(move instanceof OverwriteMove)).count();
 
-        // calculate value of function that has a logarithmic gradient (and a little linear one)
+        // Calculate value of function that has a logarithmic gradient (and a little linear one)
         // -> difference between 0 and 5 moves is huge, between 40 and 45 little
         return 2 * logarithm(1.5, movesWithoutOverwrites + 0.5) + 0.25 * movesWithoutOverwrites - 3;
     }
