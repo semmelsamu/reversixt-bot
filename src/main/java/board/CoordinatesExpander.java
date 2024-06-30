@@ -43,6 +43,11 @@ public class CoordinatesExpander {
 
                     expandedCoordinates.add(tileReader.getCoordinates());
                 }
+
+                // No more Coordinates can be added
+                if (expandedCoordinates.isEmpty()) {
+                    break;
+                }
             }
 
             result.addAll(expandedCoordinates);

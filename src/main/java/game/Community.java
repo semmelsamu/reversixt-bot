@@ -163,9 +163,9 @@ public class Community implements Cloneable {
         Set<Coordinates> result = new HashSet<>();
         result.add(coordinates);
 
-        // Expand the coordinates and add them to the reachable
-        // coordinates until no new ones get added
-        while (result.addAll(CoordinatesExpander.expandCoordinates(game, result, 1)))
+        // Expand the coordinates and add them to the reachable coordinates until no new ones get
+        // added. Using radius 10 because then the CoordinatesExpander is faster internally
+        while (result.addAll(CoordinatesExpander.expandCoordinates(game, result, 50)))
             ;
 
         return result;
