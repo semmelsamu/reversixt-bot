@@ -94,14 +94,14 @@ public class TileReader {
 
     /**
      * Move the reader one in the current direction.
+     *
      * @throws RuntimeException if there is no next tile
      */
     public void next() {
 
         Coordinates newCoordinates = coordinates.inDirection(direction);
 
-        if (game.coordinatesLayInBoard(newCoordinates) &&
-                game.getTile(newCoordinates) != Tile.WALL) {
+        if (game.coordinatesLayInBoard(newCoordinates) && game.getTile(newCoordinates) != Tile.WALL) {
             // Regular neighbour
             coordinates = newCoordinates;
         } else {
@@ -126,12 +126,13 @@ public class TileReader {
      */
     private TransitionPart getTransitionCounterpart(TransitionPart transitionPart) {
         // Is there a transition?
-        short transitionCounterpartShort = game.getTransitions().get(transitionPart.toShort());
-        if (transitionCounterpartShort == -1) {
+        // Not using contains because get has better run time
+        if (game.getTransitions().get(transitionPart.toShort()) == null) {
             return null;
         }
 
-        TransitionPart transitionCounterpart = TransitionPart.fromShort(transitionCounterpartShort);
+        TransitionPart transitionCounterpart =
+                TransitionPart.fromShort(game.getTransitions().get(transitionPart.toShort()));
 
         // Is the transition blocked?
         if (game.getTile(transitionCounterpart.coordinates()).equals(Tile.WALL)) {

@@ -2,8 +2,8 @@ package board;
 
 import exceptions.CoordinatesOutOfBoundsException;
 import util.Logger;
-import util.TransitionMap;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -51,7 +51,7 @@ public class Board implements Cloneable {
      * A short provides enough space, as: We have 8 directions (less than 2^4=16) and a board's size
      * will never exceed 50x50 (less than 2^6=64)
      */
-    private TransitionMap transitions;
+    private Map<Short, Short> transitions;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ public class Board implements Cloneable {
             }
         }
 
-        this.transitions = new TransitionMap();
+        this.transitions = new HashMap<>();
 
         for (var transition : transitions.entrySet()) {
             this.transitions.put(transition.getKey().toShort(), transition.getValue().toShort());
@@ -125,7 +125,7 @@ public class Board implements Cloneable {
         }
     }
 
-    public TransitionMap getTransitions() {
+    public Map<Short, Short> getTransitions() {
         return transitions;
     }
 
@@ -192,7 +192,8 @@ public class Board implements Cloneable {
         try {
             Board clone = (Board) super.clone();
             clone.board = this.board.clone();
-            clone.transitions = transitions;
+            clone.transitions = new HashMap<>();
+            clone.transitions.putAll(transitions);
             return clone;
         }
         catch (CloneNotSupportedException e) {
