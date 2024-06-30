@@ -64,31 +64,38 @@ public class Search {
 
         try {
 
+            result = evaluator.prepareMoves(game).get(0);
             stats.incrementDepthsSearched(0);
 
-            result = evaluator.prepareMoves(game).get(0);
-
-            boolean communitiesEnabled = game.communities != null;
             Set<Community> relevantCommunities = new HashSet<>();
 
-            if (communitiesEnabled) {
+            if (game.communities != null) {
                 if (!game.getPhase().equals(GamePhase.BUILD)) {
-                    logger.log("Not in build phase");
-                    communitiesEnabled = false;
+                    logger.log("Disabling Communities: Not in build phase");
+                    game.communities = null;
                 } else if (game.communities.get().size() < 2) {
-                    logger.log("Not enough communities");
-                    communitiesEnabled = false;
+                    logger.log("Disabling Communities: Not enough communities");
+                    game.communities = null;
                 } else if (GameEvaluator.getRelevantMoves(game).stream().anyMatch(
                         move -> move instanceof InversionMove || move instanceof ChoiceMove)) {
-                    logger.log("Identified special moves");
-                    communitiesEnabled = false;
+                    logger.log("Disabling Communities: Identified special moves");
+                    game.communities = null;
                 } else {
                     relevantCommunities = game.communities.getRelevant();
                     if (relevantCommunities.isEmpty()) {
-                        logger.warn("Got move request, but didn't find a relevant community");
-                        communitiesEnabled = false;
+                        logger.warn("Disabling Communities: Didn't find a relevant community");
+                        game.communities = null;
                     }
                 }
+            } else {
+                logger.log("Disabling Communities: No Communities");
+            }
+
+            if (game.communities != null) {
+                logger.log("Searching " + relevantCommunities.size() + " relevant Communities");
+            } else {
+                logger.log("Searching whole game");
+                game.communities = null;
             }
 
             // Iterative deepening search
@@ -100,38 +107,24 @@ public class Search {
 
                 stats.reset();
 
-                Set<Coordinates> potentialReachableCoordinates = new HashSet<>();
-
-                if (communitiesEnabled) {
+                if (game.communities != null) {
+                    Set<Coordinates> potentialReachableCoordinates = new HashSet<>();
                     for (Community community : game.communities.get()) {
                         potentialReachableCoordinates.addAll(community.getCoordinates());
                     }
-                }
-
-                potentialReachableCoordinates =
-                        CoordinatesExpander.expandCoordinates(game, potentialReachableCoordinates,
-                                depthLimit);
-
-                for (Coordinates coordinates : potentialReachableCoordinates) {
-                    if (game.getTile(coordinates).equals(Tile.INVERSION) ||
-                            game.getTile(coordinates).equals(Tile.CHOICE)) {
-                        communitiesEnabled = false;
-                        logger.log("Disabling Communities because of potential Inversion/Choice " +
-                                "Moves");
-                        break;
+                    potentialReachableCoordinates = CoordinatesExpander.expandCoordinates(game,
+                            potentialReachableCoordinates, depthLimit);
+                    for (Coordinates coordinates : potentialReachableCoordinates) {
+                        if (game.getTile(coordinates).equals(Tile.INVERSION) ||
+                                game.getTile(coordinates).equals(Tile.CHOICE)) {
+                            logger.log("Disabling Communities: Potential Inversion/Choice Moves");
+                            game.communities = null;
+                            break;
+                        }
                     }
                 }
 
-                if (communitiesEnabled) {
-                    logger.log("Searching " + relevantCommunities.size() + " relevant Communities");
-                } else {
-                    logger.log("Searching whole game");
-                    game.communities = null;
-                }
-
-                evaluator.evaluateCommunities = communitiesEnabled;
-
-                if (communitiesEnabled) {
+                if (game.communities != null) {
                     result = findBestMoveInCommunity(relevantCommunities, depthLimit);
                 } else {
                     result = findBestMove(game, sortMoves(game), depthLimit).first();
@@ -235,10 +228,18 @@ public class Search {
 
         List<Move> moves = evaluator.prepareMoves(game);
 
-        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD) ||
-                (game.communities != null && moves.stream().anyMatch(evaluator::isSpecialMove))) {
+        if (this.game.communities != null && game.communities == null) {
+            logger.warn("Communities are enabled in tree root but disabled in leave");
+        }
 
-            if (game.getPhase() != GamePhase.BUILD) {
+        if (game.communities != null && moves.stream()
+                .anyMatch(move -> move instanceof InversionMove || move instanceof ChoiceMove)) {
+            logger.warn("Communities are on but Inversion/Choice moves appeared in tree");
+        }
+
+        if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD)) {
+
+            if (!game.getPhase().equals(GamePhase.BUILD)) {
                 stats.incrementBombPhasesReached();
             }
 
