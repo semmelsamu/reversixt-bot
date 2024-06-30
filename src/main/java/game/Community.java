@@ -35,10 +35,11 @@ public class Community implements Cloneable {
 
     /**
      * Initialize a new Community.
-     * @param game       The game this Community is part of.
-     * @param coordinate A Coordinate in the community.
+     * @param game        The game this Community is part of.
+     * @param coordinate  A Coordinate in the community.
+     * @param communities Other Communities already initialized. Used for reachability map caching.
      */
-    public Community(Game game, Coordinates coordinate) {
+    public Community(Game game, Coordinates coordinate, Set<Community> communities) {
 
         this.game = game;
 
@@ -53,8 +54,20 @@ public class Community implements Cloneable {
             addCoordinate(coordinateToBeAdded);
         }
 
-        // Calculate reachability map
-        reachableCoordinates = calculateReachabilityMap(game, coordinates.iterator().next());
+        reachableCoordinates = null;
+
+        // Other Communities may have the same reachability map. Then we don't have to calculate
+        // a new one ourselves but use the reference from the other Community.
+        for (Community community : communities) {
+            if (community.getReachableCoordinates().contains(coordinate)) {
+                reachableCoordinates = community.getReachableCoordinates();
+                break;
+            }
+        }
+
+        if (reachableCoordinates == null) {
+            reachableCoordinates = calculateReachabilityMap(game, coordinates.iterator().next());
+        }
     }
 
     public void addCoordinate(Coordinates coordinate) {
