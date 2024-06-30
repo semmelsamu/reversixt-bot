@@ -149,15 +149,6 @@ public class GameEvaluator {
         return sum;
     }
 
-    public static void main(String[] args) {
-        int x = 2;
-        int y = 3;
-
-        double z = 1 - (double) x / y;
-
-        System.out.println(z);
-    }
-
     /**
      * If exists, values the currently simulated Community bad when there is only one Player
      * present. This is bad as then we cannot expand this Community further and thus not occupy more
