@@ -158,6 +158,8 @@ public class Search {
         Move result = null;
         int score = Integer.MIN_VALUE;
 
+        Game game = this.game.clone();
+
         for (Community community : relevantCommunities) {
 
             logger.debug("Calculating best move for Community #" + community.hashCode());
