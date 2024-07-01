@@ -263,8 +263,8 @@ public class GameEvaluator {
     }
 
     /**
-     * Return all relevant Moves, sorted by relevance descending. This means, Moves that are most
-     * relevant are at the beginning of the list.
+     * Return all relevant Moves, sorted by relevance ascending. This means, Moves that are most
+     * relevant for the Max-Player are at the end of the list.
      */
     public List<Move> prepareMoves(Game game) {
 
@@ -291,8 +291,6 @@ public class GameEvaluator {
 
             return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
         });
-
-        // Collections.reverse(result);
 
         return result;
     }

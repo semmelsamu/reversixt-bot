@@ -64,7 +64,8 @@ public class Search {
 
         try {
 
-            result = evaluator.prepareMoves(game).get(0);
+            List<Move> preparedMoves = evaluator.prepareMoves(game);
+            result = preparedMoves.get(preparedMoves.size() - 1);
             stats.incrementDepthsSearched(0);
 
             Set<Community> relevantCommunities = new HashSet<>();
@@ -257,6 +258,9 @@ public class Search {
 
             int result = Integer.MIN_VALUE;
 
+            // Maximizer -> Reverse so that good moves are at the beginning
+            Collections.reverse(moves);
+
             for (Move move : moves) {
 
                 Game clonedGame = game.clone();
@@ -290,8 +294,6 @@ public class Search {
 
             beta = Math.min(beta, result);
 
-            // Minimizer -> Reverse
-            Collections.reverse(moves);
 
             for (var move : moves) {
 
@@ -341,7 +343,7 @@ public class Search {
         List<Tuple<Move, Integer>> data = new LinkedList<>();
 
         // Get data
-        for (Move move : evaluator.prepareMoves(game)) {
+        for (Move move : GameEvaluator.getRelevantMoves(game)) {
             stats.checkTime();
 
             Game clonedGame = game.clone();
