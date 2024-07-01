@@ -192,7 +192,6 @@ public class Board implements Cloneable {
         try {
             Board clone = (Board) super.clone();
             clone.board = this.board.clone();
-            clone.transitions = transitions;
             return clone;
         }
         catch (CloneNotSupportedException e) {
