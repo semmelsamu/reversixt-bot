@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 
 public class Communities implements Cloneable {
 
-    // TODO: Sort by most relevant Community?
-    // TODO: Total auslöschung not good in Community!
     Set<Community> communities;
 
     Community simulating;
@@ -48,8 +46,6 @@ public class Communities implements Cloneable {
             // Coordinate is not yet in a community, so a new one has to be created
             communities.add(new Community(game, coordinate, communities));
 
-            // TODO: Initial reachability maps can potentially be equal on different communities.
-            //  Then we may only need to store it in one community and the others can reference it.
         }
     }
 

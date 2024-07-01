@@ -314,8 +314,7 @@ public class Search {
             return result;
 
         } else {
-            // TODO: Better heuristic? Maybe the move which gets us the most stones?
-            Move move = moves.iterator().next();
+            Move move = moves.get(0);
 
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();

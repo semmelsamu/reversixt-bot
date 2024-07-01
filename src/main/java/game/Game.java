@@ -103,7 +103,7 @@ public class Game implements Cloneable {
         // Caching
         coordinatesGroupedByTile = new CoordinatesGroupedByTile(this);
         totalTilesOccupiedCounter = new TotalTilesOccupiedCounter(this);
-        // communities = new Communities(this);
+        communities = new Communities(this);
 
         phase = GamePhase.BUILD;
 
@@ -232,7 +232,6 @@ public class Game implements Cloneable {
             communities.update(move.getCoordinates());
         }
 
-        // TODO: Update Reachability!
         moveCounter++;
         nextPlayer();
     }
