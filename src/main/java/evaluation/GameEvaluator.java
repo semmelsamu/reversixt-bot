@@ -267,6 +267,7 @@ public class GameEvaluator {
         List<Move> result = new LinkedList<>(getRelevantMoves(game));
 
         // Dirty sort
+        // TODO: Sort by amount of tiles colored?
         result.sort((move1, move2) -> {
             Map<Move, Integer> cutoffsOnDepth =
                     moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>());
