@@ -292,7 +292,7 @@ public class GameEvaluator {
             return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
         });
 
-        Collections.reverse(result);
+        // Collections.reverse(result);
 
         return result;
     }
