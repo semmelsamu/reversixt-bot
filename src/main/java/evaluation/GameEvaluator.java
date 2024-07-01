@@ -7,7 +7,6 @@ import game.Game;
 import game.logic.MoveCalculator;
 import move.*;
 import util.Constants;
-import util.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -191,17 +190,10 @@ public class GameEvaluator {
         int actualCoordinates = community.getTileCount(game.getPlayer(player).getPlayerValue());
         int potentialCoordinates = community.getReachableCoordinates().size();
 
-        // Should never happen
-        if (potentialCoordinates == 0) {
-            Logger.get().warn("Evaluating Community with 0 potential Coordinates");
-            Logger.get().warn(community.toString());
-            return -1000;
-        }
-
-        double wastedPotential = 1 - (double) actualCoordinates / potentialCoordinates;
+        int missedCoordinates = potentialCoordinates - actualCoordinates;
 
         // Punish for potential wasted
-        return -1 * (int) (wastedPotential * Constants.DEAD_COMMUNITY_PUNISHMENT_FACTOR);
+        return -1 * missedCoordinates * Constants.DEAD_COMMUNITY_PUNISHMENT_FACTOR;
     }
 
     /*

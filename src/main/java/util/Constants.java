@@ -17,6 +17,6 @@ public class Constants {
      * The factor used to calculate the penalty for a "dead" Community. This constant is multiplied
      * by the wasted potential of the Community to determine the final penalty value.
      */
-    public static int DEAD_COMMUNITY_PUNISHMENT_FACTOR = 100;
+    public static int DEAD_COMMUNITY_PUNISHMENT_FACTOR = 1;
 
 }
