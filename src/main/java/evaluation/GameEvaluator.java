@@ -262,6 +262,10 @@ public class GameEvaluator {
         }
     }
 
+    /**
+     * Return all relevant Moves, sorted by relevance descending. This means, Moves that are most
+     * relevant are at the beginning of the list.
+     */
     public List<Move> prepareMoves(Game game) {
 
         List<Move> result = new LinkedList<>(getRelevantMoves(game));
@@ -269,13 +273,16 @@ public class GameEvaluator {
         // Dirty sort
         // TODO: Sort by amount of tiles colored?
         result.sort((move1, move2) -> {
+
             Map<Move, Integer> cutoffsOnDepth =
                     moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>());
+
             int compareCutoffs = Integer.compare(cutoffsOnDepth.getOrDefault(move1, 0),
                     cutoffsOnDepth.getOrDefault(move2, 0));
             if (compareCutoffs != 0) {
                 return compareCutoffs;
             }
+
             if (!isSpecialMove(move1) && isSpecialMove(move2)) {
                 return -1;
             } else if (isSpecialMove(move1) && !isSpecialMove(move2)) {
@@ -284,6 +291,8 @@ public class GameEvaluator {
 
             return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
         });
+
+        Collections.reverse(result);
 
         return result;
     }
