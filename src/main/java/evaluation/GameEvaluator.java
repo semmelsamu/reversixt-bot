@@ -28,9 +28,14 @@ public class GameEvaluator {
      */
     private Map<Integer, Map<Move, Integer>> moveCutoffs;
 
-    // Values of bonus stones
-    private final int OVERWRITESTONE_VAL = 50;
-    private final int BOMB_VAL = 10;
+    /**
+     * Value of an overwrite stone for a player
+     */
+    private static final int OVERWRITE_STONE_VALUE = 50;
+    /**
+     * Value of a bomb for a player
+     */
+    private static final int BOMB_VALUE = 10;
 
     public GameEvaluator(BoardInfo boardInfo) {
         this.boardInfo = boardInfo;
@@ -122,11 +127,11 @@ public class GameEvaluator {
     */
 
     private int evaluateOverwriteStones(Game game, int player) {
-        return OVERWRITESTONE_VAL * game.getPlayer(player).getOverwriteStones();
+        return OVERWRITE_STONE_VALUE * game.getPlayer(player).getOverwriteStones();
     }
 
     private int evaluateBombs(Game game, int player) {
-        return BOMB_VAL * game.getPlayer(player).getBombs();
+        return BOMB_VALUE * game.getPlayer(player).getBombs();
     }
 
     private double evaluateMobility(Game game, int player) {
