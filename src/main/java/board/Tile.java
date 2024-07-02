@@ -62,6 +62,13 @@ public enum Tile {
         throw new IllegalArgumentException("Unknown character: " + c);
     }
 
+    public static Tile fromInt(int i) {
+        if (i < 0 || i > 8) {
+            throw new IllegalArgumentException("fromInt can only handle values between 0 and 8");
+        }
+        return Tile.fromChar((char) (i + '0'));
+    }
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
