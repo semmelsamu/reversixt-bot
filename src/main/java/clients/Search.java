@@ -99,6 +99,8 @@ public class Search {
             //                game.communities = null;
             //            }
 
+            stats.checkFirstDepth(preparedMoves.size());
+
             // Iterative deepening search
             int depthLimit = 1;
 
@@ -218,6 +220,10 @@ public class Search {
 
             // Update alpha for the maximizer
             alpha = Math.max(alpha, score);
+
+            if (depth == 1) {
+                stats.firstDepthNodeCount++;
+            }
         }
 
         return new Tuple<>(resultMove, resultScore);
@@ -256,7 +262,7 @@ public class Search {
                 stats.incrementBombPhasesReached();
             }
 
-            stats.incrementNodesVisited();
+            stats.incrementNodeCount();
             return evaluator.evaluate(game, playerNumber);
         }
 
@@ -329,7 +335,7 @@ public class Search {
             // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            stats.incrementNodesVisited();
+            stats.incrementNodeCount();
 
             return calculateScore(clonedGame, depth - 1, alpha, beta, false);
         }

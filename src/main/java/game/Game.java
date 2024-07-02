@@ -154,7 +154,7 @@ public class Game implements Cloneable {
             throw new GamePhaseNotValidException("Cannot calculate next player in end phase");
         }
 
-        int oldPlayer = currentPlayer;
+        int oldPlayer = currentPlayer > 0 ? currentPlayer : 1;
         int i = 0;
 
         do {
