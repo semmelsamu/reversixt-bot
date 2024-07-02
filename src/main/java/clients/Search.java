@@ -11,8 +11,6 @@ import util.Logger;
 import util.Tuple;
 
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Search {
@@ -61,21 +59,25 @@ public class Search {
 
         try {
 
-            List<Move> sortedMoves = sortMoves(game);
+            // Better approximation
+            List<Move> sortedMoves = evaluator.sortMoves(game);
+            // Max-Player -> Reverse
+            Collections.reverse(sortedMoves);
             result = sortedMoves.get(0);
+
             stats.incrementDepthsSearched(0);
 
             stats.checkFirstDepth(sortedMoves.size());
 
             // Iterative deepening search
             int depthLimit = 1;
-
             do {
-
                 logger.log("Iterative deepening: Depth " + depthLimit);
 
                 stats.reset();
-                result = findBestMove(game, sortMoves(game), depthLimit).first();
+
+                // Perform actual search
+                result = findBestMove(game, sortedMoves, depthLimit).first();
 
                 stats.incrementDepthsSearched(depthLimit);
 
@@ -148,7 +150,7 @@ public class Search {
 
         stats.checkTime();
 
-        List<Move> moves = evaluator.prepareMoves(game);
+        List<Move> moves = evaluator.sortMovesQuick(game);
 
         if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD)) {
 
@@ -226,53 +228,11 @@ public class Search {
         } else {
             Move move = moves.get(0);
 
-            // TODO: Instead of cloning every layer, loop over one cloned game until maximizer?
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
             stats.incrementNodeCount();
 
             return calculateScore(clonedGame, depth - 1, alpha, beta, false);
         }
-    }
-
-    /*
-    |-----------------------------------------------------------------------------------------------
-    |
-    |   Utility
-    |
-    |-----------------------------------------------------------------------------------------------
-    */
-
-    /**
-     * @param game The game.
-     */
-    private List<Move> sortMoves(Game game) throws OutOfTimeException {
-
-        List<Tuple<Move, Integer>> data = new LinkedList<>();
-
-        // Get data
-        for (Move move : GameEvaluator.getRelevantMoves(game)) {
-            stats.checkTime();
-
-            Game clonedGame = game.clone();
-            clonedGame.executeMove(move);
-
-            data.add(new Tuple<>(move, evaluator.evaluate(clonedGame, playerNumber)));
-        }
-
-        stats.checkTime();
-
-        // Sort by evaluation score
-        data.sort(Comparator.comparingInt(Tuple::second));
-
-        // Reduce
-        List<Move> result = new LinkedList<>();
-        for (var tuple : data) {
-            result.add(tuple.first());
-        }
-
-        Collections.reverse(result);
-
-        return result;
     }
 }

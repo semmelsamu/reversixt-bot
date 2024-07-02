@@ -2,9 +2,11 @@ package evaluation;
 
 import board.Coordinates;
 import board.Tile;
+import exceptions.OutOfTimeException;
 import game.Game;
 import game.logic.MoveCalculator;
 import move.*;
+import util.Tuple;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,12 +26,13 @@ public class GameEvaluator {
     /**
      * Stores how many cutoffs a move on a certain depth has achieved.
      */
-    private Map<Integer, Map<Move, Integer>> moveCutoffs;
+    private final Map<Integer, Map<Move, Integer>> moveCutoffs;
 
     /**
      * Value of an overwrite stone for a player
      */
     private static final int OVERWRITE_STONE_VALUE = 50;
+
     /**
      * Value of a bomb for a player
      */
@@ -41,7 +44,7 @@ public class GameEvaluator {
     }
 
     /**
-     * @return Evaluation for the current game situation
+     * Evaluate the current Game situation and calculate a score. Higher is better.
      */
     public int evaluate(Game game, int player) {
 
@@ -123,7 +126,9 @@ public class GameEvaluator {
                 rateTileDifferences(tileDifferencesOfCompetitorsBehind);
     }
 
-    // Evaluation of an end game returns max int, if game is won. Otherwise same as phase 2
+    /**
+     * Evaluation of an end game returns max int, if game is won. Otherwise same as phase 2
+     */
     private int evaluateEnd(Game game, int player) {
         int numberOfOwnTiles = 0;
         int maxNumberOfEnemyTiles = java.lang.Integer.MIN_VALUE;
@@ -217,7 +222,85 @@ public class GameEvaluator {
         moveCutoffs.get(depth).put(move, moveCutoffs.get(depth).getOrDefault(move, 0) + 1);
     }
 
-    // TODO: Move evaluateStats() from Search here
+    /*
+    |-----------------------------------------------------------------------------------------------
+    |
+    |   Move sorting
+    |
+    |-----------------------------------------------------------------------------------------------
+    */
+
+    public static Set<Move> getRelevantMoves(Game game) {
+
+        // TODO: What if we only have one non-overwrite move which gets us in a really bad
+        //  situation, but we could use an overwrite move which would help us A LOT?
+
+        // TODO: Make decision between bomb or overwrite bonus in evaluation
+
+        Set<Move> movesWithoutOverwrites =
+                game.getValidMoves().stream().filter((move) -> !(move instanceof OverwriteMove))
+                        .collect(Collectors.toSet());
+
+        if (movesWithoutOverwrites.isEmpty()) {
+            return game.getValidMoves();
+        } else {
+            return movesWithoutOverwrites;
+        }
+    }
+
+    public List<Move> sortMovesQuick(Game game) {
+
+        List<Move> result = new LinkedList<>(getRelevantMoves(game));
+
+        // Dirty sort
+        result.sort((move1, move2) -> {
+
+            Map<Move, Integer> cutoffsOnDepth =
+                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>());
+
+            int compareCutoffs = java.lang.Integer.compare(cutoffsOnDepth.getOrDefault(move1, 0),
+                    cutoffsOnDepth.getOrDefault(move2, 0));
+            if (compareCutoffs != 0) {
+                return compareCutoffs;
+            }
+
+            if (!isSpecialMove(move1) && isSpecialMove(move2)) {
+                return -1;
+            } else if (isSpecialMove(move1) && !isSpecialMove(move2)) {
+                return 1;
+            }
+
+            return java.lang.Integer.compare(getTileRatingForMove(move1),
+                    getTileRatingForMove(move2));
+        });
+
+        return result;
+    }
+
+    public List<Move> sortMoves(Game game) throws OutOfTimeException {
+
+        List<Tuple<Move, Integer>> data = new LinkedList<>();
+
+        // Get data
+        for (Move move : GameEvaluator.getRelevantMoves(game)) {
+
+            Game clonedGame = game.clone();
+            clonedGame.executeMove(move);
+
+            data.add(new Tuple<>(move, evaluate(clonedGame, game.getCurrentPlayerNumber())));
+        }
+
+        // Sort by evaluation score
+        data.sort(Comparator.comparingInt(Tuple::second));
+
+        // Reduce
+        List<Move> result = new LinkedList<>();
+        for (var tuple : data) {
+            result.add(tuple.first());
+        }
+
+        return result;
+    }
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -256,7 +339,7 @@ public class GameEvaluator {
         return -1;
     }
 
-    private int getRankingBonus(Game game, int index){
+    private int getRankingBonus(Game game, int index) {
         return -(index + 1 - game.constants.initialPlayers()) * 1000;
     }
 
@@ -266,57 +349,5 @@ public class GameEvaluator {
             result += Math.pow(0.95, difference) * 480;
         }
         return (int) result;
-    }
-
-    public static Set<Move> getRelevantMoves(Game game) {
-
-        // TODO: What if we only have one non-overwrite move which gets us in a really bad
-        //  situation, but we could use an overwrite move which would help us A LOT?
-
-        // TODO: Make decision between bomb or overwrite bonus in evaluation
-
-        Set<Move> movesWithoutOverwrites =
-                game.getValidMoves().stream().filter((move) -> !(move instanceof OverwriteMove))
-                        .collect(Collectors.toSet());
-
-        if (movesWithoutOverwrites.isEmpty()) {
-            return game.getValidMoves();
-        } else {
-            return movesWithoutOverwrites;
-        }
-    }
-
-    /**
-     * Return all relevant Moves, sorted by relevance ascending. This means, Moves that are most
-     * relevant for the Max-Player are at the end of the list.
-     */
-    public List<Move> prepareMoves(Game game) {
-
-        List<Move> result = new LinkedList<>(getRelevantMoves(game));
-
-        // Dirty sort
-        // TODO: Sort by amount of tiles colored?
-        result.sort((move1, move2) -> {
-
-            Map<Move, Integer> cutoffsOnDepth =
-                    moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>());
-
-            int compareCutoffs = java.lang.Integer.compare(cutoffsOnDepth.getOrDefault(move1, 0),
-                    cutoffsOnDepth.getOrDefault(move2, 0));
-            if (compareCutoffs != 0) {
-                return compareCutoffs;
-            }
-
-            if (!isSpecialMove(move1) && isSpecialMove(move2)) {
-                return -1;
-            } else if (isSpecialMove(move1) && !isSpecialMove(move2)) {
-                return 1;
-            }
-
-            return java.lang.Integer.compare(getTileRatingForMove(move1),
-                    getTileRatingForMove(move2));
-        });
-
-        return result;
     }
 }
