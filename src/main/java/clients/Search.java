@@ -32,7 +32,10 @@ public class Search {
      */
     private final GameEvaluator evaluator;
 
-    private SearchStats stats;
+    /**
+     * The timer used to determine how much time is left and check for timeouts
+     */
+    private SearchTimer timer;
 
     /**
      * Initialize a new move search.
@@ -52,7 +55,7 @@ public class Search {
      */
     public Move search(int timeLimit) {
 
-        stats = new SearchStats(timeLimit);
+        timer = new SearchTimer(timeLimit);
 
         // Fallback
         Move result = game.getValidMoves().iterator().next();
@@ -65,23 +68,23 @@ public class Search {
             Collections.reverse(sortedMoves);
             result = sortedMoves.get(0);
 
-            stats.incrementDepthsSearched(0);
+            SearchStats.incrementDepthsSearched(0);
 
-            stats.checkFirstDepth(sortedMoves.size());
+            timer.checkFirstDepth(sortedMoves.size());
 
             // Iterative deepening search
             int depthLimit = 1;
             do {
                 logger.log("Iterative deepening: Depth " + depthLimit);
 
-                stats.reset();
+                timer.reset();
 
                 // Perform actual search
                 result = findBestMove(game, sortedMoves, depthLimit).first();
 
-                stats.incrementDepthsSearched(depthLimit);
+                SearchStats.incrementDepthsSearched(depthLimit);
 
-                stats.checkAbort(depthLimit);
+                timer.checkAbort(depthLimit);
 
                 depthLimit++;
 
@@ -131,7 +134,7 @@ public class Search {
             alpha = Math.max(alpha, score);
 
             if (depth == 1) {
-                stats.firstDepthNodeCount++;
+                timer.firstDepthNodeCount++;
             }
         }
 
@@ -148,17 +151,17 @@ public class Search {
     private int calculateScore(Game game, int depth, int alpha, int beta, boolean buildTree)
             throws OutOfTimeException {
 
-        stats.checkTime();
+        timer.checkTime();
 
         List<Move> moves = evaluator.sortMovesQuick(game);
 
         if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD)) {
 
             if (!game.getPhase().equals(GamePhase.BUILD)) {
-                stats.incrementBombPhasesReached();
+                timer.incrementBombPhasesReached();
             }
 
-            stats.incrementNodeCount();
+            timer.incrementNodeCount();
             return evaluator.evaluate(game, playerNumber);
         }
 
@@ -230,7 +233,7 @@ public class Search {
 
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
-            stats.incrementNodeCount();
+            timer.incrementNodeCount();
 
             return calculateScore(clonedGame, depth - 1, alpha, beta, false);
         }
