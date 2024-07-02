@@ -65,6 +65,8 @@ public class Search {
             List<Move> sortedMoves = evaluator.sortMovesQuick(game);
             result = sortedMoves.get(sortedMoves.size() - 1);
 
+            SearchStats.incrementDepthsSearched(0);
+
             timer.checkTime();
 
             // Better approximation
@@ -73,7 +75,11 @@ public class Search {
             Collections.reverse(sortedMovesAndGame);
             result = sortedMovesAndGame.get(0).first();
 
-            SearchStats.incrementDepthsSearched(0);
+            SearchStats.incrementDepthsSearched(1);
+
+            if (depth < 2) {
+                return result;
+            }
 
             timer.checkTime();
             timer.checkFirstDepth(sortedMovesAndGame.size());
