@@ -47,8 +47,8 @@ public class SearchTimer {
     |-----------------------------------------------------------------------------------------------
     */
 
-    public SearchTimer(int timeLimit) {
-        mainTimer = new Timer(timeLimit);
+    public SearchTimer(Timer timer) {
+        mainTimer = timer;
     }
 
     void reset() {

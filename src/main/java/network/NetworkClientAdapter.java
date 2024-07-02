@@ -9,6 +9,7 @@ import game.GamePhase;
 import move.*;
 import util.Constants;
 import util.Logger;
+import util.Timer;
 import util.Triple;
 
 /**
@@ -51,11 +52,18 @@ public class NetworkClientAdapter {
 
     public Triple<Short, Short, Byte> sendMoveAnswer(int timeLimit, byte depthLimit) {
 
-        // For performance’s sake we ignore depth limit and always use a time limit
-        // If no time limit is given we default to 2 seconds as we are probably debugging
-        int limit = timeLimit > 0 ? timeLimit - Constants.TIME_BUFFER : 2000;
+        Timer timer;
+        int depth;
 
-        Move result = client.search(limit);
+        if (timeLimit > 0) {
+            timer = new Timer(timeLimit - Constants.TIME_BUFFER);
+            depth = Integer.MAX_VALUE;
+        } else {
+            timer = new Timer(Long.MAX_VALUE);
+            depth = depthLimit;
+        }
+
+        Move result = client.search(timer, depth);
 
         logger.log("Sending " + result.getClass().getSimpleName() + result.getCoordinates());
 

@@ -5,6 +5,7 @@ import evaluation.GameEvaluator;
 import game.Game;
 import move.Move;
 import util.Logger;
+import util.Timer;
 
 public class Client {
 
@@ -58,34 +59,26 @@ public class Client {
 
     /**
      * Search for the best move in the given time window.
-     * @param timeLimit The time limit in milliseconds
      * @return The best move found in the given time window.
      */
-    public Move search(int timeLimit) {
+    public Move search(Timer timer, int depthLimit) {
 
         SearchStats.moveRequests++;
 
-        this.logger.log("Searching new move in " + timeLimit + "ms");
-
-        long startTime = System.currentTimeMillis();
+        this.logger.log("Searching new move in " + timer.limit + "ms");
 
         // Check if reachableTiles has to be updated
-        if (boardInfo.hasReachableTilesToBeUpdated(game)) {
-            logger.log("Re-calculating board info...");
-            boardInfo.updateReachableTiles(game, timeLimit / 2);
-        }
+        //if (boardInfo.hasReachableTilesToBeUpdated(game)) {
+        //    logger.log("Re-calculating board info...");
+        //    boardInfo.updateReachableTiles(game, (int) (timer.limit / 2));
+        //}
 
         // Creating the evaluator with the current available data
         GameEvaluator evaluator = new GameEvaluator(boardInfo);
 
         // Initializing the search.
         // Using a Game clone to prevent the search messing with the synchronized Game
-        Search search = new Search(game.clone(), playerNumber, evaluator);
-
-        long timePassed = System.currentTimeMillis() - startTime;
-
-        // Searching
-        return search.search(timeLimit - (int) timePassed);
+        return (new Search(game.clone(), timer, playerNumber, evaluator)).search(depthLimit);
     }
 
     /**

@@ -8,6 +8,7 @@ import game.Game;
 import game.GamePhase;
 import move.Move;
 import util.Logger;
+import util.Timer;
 import util.Tuple;
 
 import java.util.Collections;
@@ -35,27 +36,25 @@ public class Search {
     /**
      * The timer used to determine how much time is left and check for timeouts
      */
-    private SearchTimer timer;
+    private final SearchTimer timer;
 
     /**
      * Initialize a new move search.
      * @param game         The game for which to search the best move.
      * @param playerNumber The player for which to search the best move.
      */
-    public Search(Game game, int playerNumber, GameEvaluator evaluator) {
+    public Search(Game game, Timer timer, int playerNumber, GameEvaluator evaluator) {
         this.game = game;
+        this.timer = new SearchTimer(timer);
         this.playerNumber = playerNumber;
         this.evaluator = evaluator;
     }
 
     /**
      * Start the search.
-     * @param timeLimit The maximum time after which a move has to be returned in milliseconds.
      * @return A valid move.
      */
-    public Move search(int timeLimit) {
-
-        timer = new SearchTimer(timeLimit);
+    public Move search(int depth) {
 
         // Fallback - Random move
         Move result = game.getValidMoves().iterator().next();
@@ -95,9 +94,9 @@ public class Search {
 
                 depthLimit++;
 
-            } while (game.getPhase().equals(GamePhase.BUILD));
+            } while (game.getPhase().equals(GamePhase.BUILD) && depthLimit < depth);
 
-            logger.log("Not going deeper as we are not in build phase");
+            logger.log("Exiting iterative deepening");
 
         }
         catch (OutOfTimeException e) {

@@ -3,7 +3,7 @@ package util;
 public class Timer {
 
     long startTime;
-    long limit;
+    public long limit;
 
     public Timer(long limit) {
         startTime = currentTime();
