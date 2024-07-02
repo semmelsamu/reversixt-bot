@@ -107,6 +107,13 @@ public class SearchStats {
         logger.verbose(stats.toString());
         */
 
+        // Hotfix - this should never happen
+        if (timeEstimated < timePassed * 2) {
+            // Inflate estimated time at least a little bit
+            timeEstimated += timePassed;
+            timeEstimated *= branchingFactor;
+        }
+
         logger.log("Time passed for last depth: " + timePassed);
         logger.log("Time estimated for next depth: " + Math.round(timeEstimated));
 
