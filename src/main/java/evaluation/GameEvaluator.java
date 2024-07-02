@@ -81,16 +81,55 @@ public class GameEvaluator {
         return (int) rating;
     }
 
-    // Evaluation in bomb phase just counts the occupied tiles
+    /**
+     * Evaluation in bomb phase considers the ranking of the player and how large the differences
+     * between the number of tiles of him or her and his or her closest competitors (enemies 2
+     * rankings ahead and behind if existing) are
+     */
     private int evaluatePhase2(Game game, int player) {
-        Tile playerTile = game.getPlayer(player).getPlayerValue();
-        return game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(playerTile).size();
+        Map<Integer, Integer> numberOfTilesForEachPlayer = new HashMap<>();
+        for (int i = 1; i <= game.constants.initialPlayers(); i++) {
+            numberOfTilesForEachPlayer.put(i,
+                    game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(Tile.fromInt(i))
+                            .size());
+        }
+
+        // Sort players by number of tiles descending
+        List<Map.Entry<Integer, Integer>> numberOfTilesList =
+                new ArrayList<>(numberOfTilesForEachPlayer.entrySet());
+        numberOfTilesList.sort(
+                (entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()));
+
+        int ourIndex = findIndexByKey(numberOfTilesList, player);
+        int ourTiles = numberOfTilesList.get(ourIndex).getValue();
+
+        List<Integer> tileDifferencesOfCompetitorsAhead = new ArrayList<>();
+        List<Integer> tileDifferencesOfCompetitorsBehind = new ArrayList<>();
+
+        for (int i = 1; i <= 2; i++) {
+            int indexOfTeamAhead = ourIndex - i;
+            int indexOfTeamBehind = ourIndex + i;
+
+            if(indexOfTeamAhead >= 0){
+                tileDifferencesOfCompetitorsAhead.add(
+                        numberOfTilesList.get(indexOfTeamAhead).getValue() - ourTiles);
+            }
+
+            if(indexOfTeamBehind < numberOfTilesList.size()){
+                tileDifferencesOfCompetitorsBehind.add(
+                        ourTiles - numberOfTilesList.get(indexOfTeamBehind).getValue());
+            }
+        }
+
+        return getRankingBonus(game, ourIndex) +
+                rateTileDifferences(tileDifferencesOfCompetitorsAhead) -
+                rateTileDifferences(tileDifferencesOfCompetitorsBehind);
     }
 
     // Evaluation of an end game returns max int, if game is won. Otherwise same as phase 2
     private int evaluateEnd(Game game, int player) {
         int numberOfOwnTiles = 0;
-        int maxNumberOfEnemyTiles = Integer.MIN_VALUE;
+        int maxNumberOfEnemyTiles = java.lang.Integer.MIN_VALUE;
         for (int i = 1; i <= game.constants.initialPlayers(); i++) {
             if (i == player) {
                 numberOfOwnTiles = getNumberOfTilesForPlayer(game, player);
@@ -99,7 +138,7 @@ public class GameEvaluator {
         }
         // If game is won, return max int
         if (numberOfOwnTiles >= maxNumberOfEnemyTiles) {
-            return Integer.MAX_VALUE;
+            return java.lang.Integer.MAX_VALUE;
         }
         // If not return number of own tiles like in phase 2
         else {
@@ -249,6 +288,27 @@ public class GameEvaluator {
                 move instanceof InversionMove;
     }
 
+    public <K, V> int findIndexByKey(List<Map.Entry<K, V>> entryList, K keyToFind) {
+        for (int i = 0; i < entryList.size(); i++) {
+            if (entryList.get(i).getKey().equals(keyToFind)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int getRankingBonus(Game game, int index){
+        return -(index + 1 - game.constants.initialPlayers()) * 1000;
+    }
+
+    private int rateTileDifferences(List<Integer> tileDifferences) {
+        double result = 0;
+        for (int difference : tileDifferences) {
+            result += Math.pow(0.95, difference) * 480;
+        }
+        return (int) result;
+    }
+
     public static Set<Move> getRelevantMoves(Game game) {
 
         // TODO: What if we only have one non-overwrite move which gets us in a really bad
@@ -282,7 +342,7 @@ public class GameEvaluator {
             Map<Move, Integer> cutoffsOnDepth =
                     moveCutoffs.getOrDefault(game.getMoveCounter(), new HashMap<>());
 
-            int compareCutoffs = Integer.compare(cutoffsOnDepth.getOrDefault(move1, 0),
+            int compareCutoffs = java.lang.Integer.compare(cutoffsOnDepth.getOrDefault(move1, 0),
                     cutoffsOnDepth.getOrDefault(move2, 0));
             if (compareCutoffs != 0) {
                 return compareCutoffs;
@@ -294,7 +354,8 @@ public class GameEvaluator {
                 return 1;
             }
 
-            return Integer.compare(getTileRatingForMove(move1), getTileRatingForMove(move2));
+            return java.lang.Integer.compare(getTileRatingForMove(move1),
+                    getTileRatingForMove(move2));
         });
 
         return result;
