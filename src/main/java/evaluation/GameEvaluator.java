@@ -2,11 +2,9 @@ package evaluation;
 
 import board.Coordinates;
 import board.Tile;
-import game.Community;
 import game.Game;
 import game.logic.MoveCalculator;
 import move.*;
-import util.Constants;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -77,7 +75,6 @@ public class GameEvaluator {
                         game.getPlayer(player).getPlayerValue()).size();
         rating += evaluateOverwriteStones(game, player);
         rating += evaluateBombs(game, player);
-        rating += evaluateDeadCommunity(game, player);
         return (int) rating;
     }
 
@@ -138,7 +135,7 @@ public class GameEvaluator {
         Set<Move> moves;
 
         // Check if Moves are already cached
-        if (game.getCurrentPlayerNumber() == player && game.communities != null) {
+        if (game.getCurrentPlayerNumber() == player) {
             moves = game.getValidMoves();
         } else {
             moves = MoveCalculator.getValidMovesForPlayer(game, player, null);
@@ -161,44 +158,6 @@ public class GameEvaluator {
             sum += boardInfo.getTileRatings()[tile.y][tile.x];
         }
         return sum;
-    }
-
-    /**
-     * Evaluates the current state of the simulated community in the game. If there is only one
-     * player present in the community, it is considered "dead" because it cannot expand further,
-     * thus limiting the ability to occupy more tiles. This function calculates and returns a
-     * penalty value based on the wasted potential of the community.
-     */
-    private int evaluateDeadCommunity(Game game, int player) {
-        if (game.communities == null || game.communities.getSimulating() == null) {
-            return 0;
-        }
-
-        // Fetch Community because we need it often
-        Community community = game.communities.getSimulating();
-
-        // Count Players in this Community
-        int playersInCommunity = 0;
-        for (var currentPlayer : game.getPlayers()) {
-            if (community.getTileCount(currentPlayer.getPlayerValue()) > 0) {
-                playersInCommunity++;
-            }
-        }
-
-        if (playersInCommunity > 1) {
-            // Everything OK.
-            return 0;
-        }
-
-        // Community is dead!
-
-        int actualCoordinates = community.getTileCount(game.getPlayer(player).getPlayerValue());
-        int potentialCoordinates = community.getReachableCoordinates().size();
-
-        int missedCoordinates = potentialCoordinates - actualCoordinates;
-
-        // Punish for potential wasted
-        return -1 * missedCoordinates * Constants.DEAD_COMMUNITY_PUNISHMENT_FACTOR;
     }
 
     /*
