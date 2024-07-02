@@ -67,14 +67,14 @@ public class Search {
             result = sortedMoves.get(sortedMoves.size() - 1);
 
             // Better approximation
-            sortedMoves = evaluator.sortMoves(game);
+            List<Tuple<Move, Game>> sortedMovesAndGame = evaluator.sortMoves(game);
             // Max-Player -> Reverse
-            Collections.reverse(sortedMoves);
-            result = sortedMoves.get(0);
+            Collections.reverse(sortedMovesAndGame);
+            result = sortedMovesAndGame.get(0).first();
 
             SearchStats.incrementDepthsSearched(0);
 
-            timer.checkFirstDepth(sortedMoves.size());
+            timer.checkFirstDepth(sortedMovesAndGame.size());
 
             // Iterative deepening search
             int depthLimit = 2;
@@ -84,7 +84,7 @@ public class Search {
                 timer.reset();
 
                 // Perform actual search
-                result = findBestMove(game, sortedMoves, depthLimit).first();
+                result = findBestMove(game, sortedMovesAndGame, depthLimit);
 
                 SearchStats.incrementDepthsSearched(depthLimit);
 
@@ -114,7 +114,7 @@ public class Search {
      * @return The best move
      * @throws OutOfTimeException if we ran out of time
      */
-    private Tuple<Move, Integer> findBestMove(Game game, List<Move> sortedMoves, int depth)
+    private Move findBestMove(Game game, List<Tuple<Move, Game>> sortedMovesAndGame, int depth)
             throws OutOfTimeException {
 
         int resultScore = Integer.MIN_VALUE;
@@ -123,15 +123,13 @@ public class Search {
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        for (var move : sortedMoves) {
+        for (var moveAndGame : sortedMovesAndGame) {
 
-            Game clonedGame = game.clone();
-            clonedGame.executeMove(move);
-            int score = calculateScore(clonedGame, depth - 1, alpha, beta, true);
+            int score = calculateScore(moveAndGame.second(), depth - 1, alpha, beta, true);
 
             if (score > resultScore) {
                 resultScore = score;
-                resultMove = move;
+                resultMove = moveAndGame.first();
             }
 
             // Update alpha for the maximizer
@@ -142,7 +140,7 @@ public class Search {
             }
         }
 
-        return new Tuple<>(resultMove, resultScore);
+        return resultMove;
     }
 
     /**

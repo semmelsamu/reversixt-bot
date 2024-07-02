@@ -7,6 +7,7 @@ import board.TileReader;
 import game.Game;
 import game.logic.MoveCalculator;
 import move.*;
+import util.Triple;
 import util.Tuple;
 
 import java.util.*;
@@ -315,9 +316,9 @@ public class GameEvaluator {
      * Slowest and most accurate Move sorting. Sorts by the full Game evaluation score. Should be
      * used at the beginning of the iterative deepening search.
      */
-    public List<Move> sortMoves(Game game) {
+    public List<Tuple<Move, Game>> sortMoves(Game game) {
 
-        List<Tuple<Move, Integer>> data = new LinkedList<>();
+        List<Triple<Move, Game, Integer>> data = new LinkedList<>();
 
         // Get data
         for (Move move : GameEvaluator.getRelevantMoves(game)) {
@@ -325,16 +326,17 @@ public class GameEvaluator {
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
 
-            data.add(new Tuple<>(move, evaluate(clonedGame, game.getCurrentPlayerNumber())));
+            data.add(new Triple<>(move, clonedGame,
+                    evaluate(clonedGame, game.getCurrentPlayerNumber())));
         }
 
         // Sort by evaluation score
-        data.sort(Comparator.comparingInt(Tuple::second));
+        data.sort(Comparator.comparingInt(Triple::third));
 
         // Reduce
-        List<Move> result = new LinkedList<>();
-        for (var tuple : data) {
-            result.add(tuple.first());
+        List<Tuple<Move, Game>> result = new LinkedList<>();
+        for (var triple : data) {
+            result.add(new Tuple<>(triple.first(), triple.second()));
         }
 
         return result;
