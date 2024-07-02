@@ -61,8 +61,8 @@ public class Search {
 
         try {
 
-            List<Move> preparedMoves = evaluator.prepareMoves(game);
-            result = preparedMoves.get(preparedMoves.size() - 1);
+            List<Move> sortedMoves = sortMoves(game);
+            result = sortedMoves.get(0);
             stats.incrementDepthsSearched(0);
 
             //            Set<Community> relevantCommunities = new HashSet<>();
@@ -99,7 +99,7 @@ public class Search {
             //                game.communities = null;
             //            }
 
-            stats.checkFirstDepth(preparedMoves.size());
+            stats.checkFirstDepth(sortedMoves.size());
 
             // Iterative deepening search
             int depthLimit = 1;
@@ -376,6 +376,8 @@ public class Search {
         for (var tuple : data) {
             result.add(tuple.first());
         }
+
+        Collections.reverse(result);
 
         return result;
     }
