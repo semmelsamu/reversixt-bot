@@ -7,8 +7,6 @@ import exceptions.GamePhaseNotValidException;
 import exceptions.MoveNotValidException;
 import game.logic.MoveCalculator;
 import game.logic.MoveExecutor;
-import move.ChoiceMove;
-import move.InversionMove;
 import move.Move;
 import util.Logger;
 import util.NullLogger;
@@ -221,16 +219,16 @@ public class Game implements Cloneable {
             throw new MoveNotValidException("Tried to execute a move that is not valid: " + move);
         }
 
-        if (move instanceof InversionMove || move instanceof ChoiceMove) {
-            logger.log("Disabling Communities: Inversion/Choice Move");
-            communities = null;
-        }
+        //        if (move instanceof InversionMove || move instanceof ChoiceMove) {
+        //            logger.log("Disabling Communities: Inversion/Choice Move");
+        //            communities = null;
+        //        }
 
         MoveExecutor.executeMove(this, move);
 
-        if (communities != null) {
-            communities.update(move.getCoordinates());
-        }
+        //        if (communities != null) {
+        //            communities.update(move.getCoordinates());
+        //        }
 
         moveCounter++;
         nextPlayer();
