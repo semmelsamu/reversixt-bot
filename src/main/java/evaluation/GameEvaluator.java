@@ -1,8 +1,9 @@
 package evaluation;
 
 import board.Coordinates;
+import board.Direction;
 import board.Tile;
-import exceptions.OutOfTimeException;
+import board.TileReader;
 import game.Game;
 import game.logic.MoveCalculator;
 import move.*;
@@ -110,12 +111,12 @@ public class GameEvaluator {
             int indexOfTeamAhead = ourIndex - i;
             int indexOfTeamBehind = ourIndex + i;
 
-            if(indexOfTeamAhead >= 0){
+            if (indexOfTeamAhead >= 0) {
                 tileDifferencesOfCompetitorsAhead.add(
                         numberOfTilesList.get(indexOfTeamAhead).getValue() - ourTiles);
             }
 
-            if(indexOfTeamBehind < numberOfTilesList.size()){
+            if (indexOfTeamBehind < numberOfTilesList.size()) {
                 tileDifferencesOfCompetitorsBehind.add(
                         ourTiles - numberOfTilesList.get(indexOfTeamBehind).getValue());
             }
@@ -248,11 +249,14 @@ public class GameEvaluator {
         }
     }
 
-    public List<Move> sortMovesQuick(Game game) {
+    /**
+     * Quickest and roughest Move sorting. Sorts by special Moves, Cutoffs and Tile ratings. Should
+     * be used in the Search Tree.
+     */
+    public List<Move> sortMovesQuicker(Game game) {
 
         List<Move> result = new LinkedList<>(getRelevantMoves(game));
 
-        // Dirty sort
         result.sort((move1, move2) -> {
 
             Map<Move, Integer> cutoffsOnDepth =
@@ -277,7 +281,41 @@ public class GameEvaluator {
         return result;
     }
 
-    public List<Move> sortMoves(Game game) throws OutOfTimeException {
+    /**
+     * Quick and rough Move sorting. Sorts by Tile ratings and number of potential colored Tiles.
+     * Should be used in Phi Move and in the beginning.
+     */
+    public List<Move> sortMovesQuick(Game game) {
+
+        List<Tuple<Move, Integer>> data = new LinkedList<>();
+
+        // Gather data
+        for (Move move : getRelevantMoves(game)) {
+            int tileRating = getTileRatingForMove(move);
+            int tilesColored = getTilesColored(game, move);
+            // Score should value both equal. Not using the product because then one rating being
+            // zero leads to the whole score being zero.
+            int score = tileRating * tilesColored + tileRating + tilesColored;
+            data.add(new Tuple<>(move, score));
+        }
+
+        // Sort by score
+        data.sort(Comparator.comparingInt(Tuple::second));
+
+        // Reduce
+        List<Move> result = new LinkedList<>();
+        for (var tuple : data) {
+            result.add(tuple.first());
+        }
+
+        return result;
+    }
+
+    /**
+     * Slowest and most accurate Move sorting. Sorts by the full Game evaluation score. Should be
+     * used at the beginning of the iterative deepening search.
+     */
+    public List<Move> sortMoves(Game game) {
 
         List<Tuple<Move, Integer>> data = new LinkedList<>();
 
@@ -349,5 +387,23 @@ public class GameEvaluator {
             result += Math.pow(0.95, difference) * 480;
         }
         return (int) result;
+    }
+
+    public int getTilesColored(Game game, Move move) {
+        Set<Coordinates> tilesColored = new HashSet<>();
+        for (Direction direction : Direction.values()) {
+            TileReader tileReader = new TileReader(game, move.getCoordinates(), direction);
+            while (tileReader.hasNext()) {
+                tileReader.next();
+                if (game.getTile(tileReader.getCoordinates()) ==
+                        game.getPlayer(game.getCurrentPlayerNumber()).getPlayerValue()) {
+                    break;
+                }
+                if (!tilesColored.add(tileReader.getCoordinates())) {
+                    break;
+                }
+            }
+        }
+        return tilesColored.size();
     }
 }

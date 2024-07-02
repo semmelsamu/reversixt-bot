@@ -57,13 +57,17 @@ public class Search {
 
         timer = new SearchTimer(timeLimit);
 
-        // Fallback
+        // Fallback - Random move
         Move result = game.getValidMoves().iterator().next();
 
         try {
 
+            // Fast approximation
+            List<Move> sortedMoves = evaluator.sortMovesQuick(game);
+            result = sortedMoves.get(sortedMoves.size() - 1);
+
             // Better approximation
-            List<Move> sortedMoves = evaluator.sortMoves(game);
+            sortedMoves = evaluator.sortMoves(game);
             // Max-Player -> Reverse
             Collections.reverse(sortedMoves);
             result = sortedMoves.get(0);
@@ -73,7 +77,7 @@ public class Search {
             timer.checkFirstDepth(sortedMoves.size());
 
             // Iterative deepening search
-            int depthLimit = 1;
+            int depthLimit = 2;
             do {
                 logger.log("Iterative deepening: Depth " + depthLimit);
 
@@ -153,7 +157,7 @@ public class Search {
 
         timer.checkTime();
 
-        List<Move> moves = evaluator.sortMovesQuick(game);
+        List<Move> moves = evaluator.sortMovesQuicker(game);
 
         if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD)) {
 
