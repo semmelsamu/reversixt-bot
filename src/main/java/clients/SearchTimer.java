@@ -37,9 +37,7 @@ public class SearchTimer {
      */
     private int currentNodeCount;
 
-    int firstDepthNodeCount;
-
-    static int timePerMove = 0;
+    public static int timePerMove = 0;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -57,7 +55,6 @@ public class SearchTimer {
         currentTimer = new Timer();
         currentNodeCount = 1;
         bombPhasesReached = 0;
-        firstDepthNodeCount = 0;
     }
 
     /*
@@ -69,8 +66,6 @@ public class SearchTimer {
     */
 
     void checkAbort(int depth) throws NotEnoughTimeException {
-
-        calculateTimePerMove();
 
         double timePerGame = (double) mainTimer.timePassed() / currentNodeCount;
 
@@ -107,19 +102,10 @@ public class SearchTimer {
      * Checks if we are over the time limit
      * @throws OutOfTimeException if we ran out of time
      */
-    void checkTime() throws OutOfTimeException {
+    public void checkTime() throws OutOfTimeException {
         if (mainTimer.isUp()) {
-            calculateTimePerMove();
             throw new OutOfTimeException("Out of time");
         }
-    }
-
-    void calculateTimePerMove() {
-        if (firstDepthNodeCount == 0) {
-            timePerMove = Integer.MAX_VALUE;
-            return;
-        }
-        timePerMove = (int) (currentTimer.timePassed() / firstDepthNodeCount);
     }
 
     /*

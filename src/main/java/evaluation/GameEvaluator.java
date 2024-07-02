@@ -4,9 +4,12 @@ import board.Coordinates;
 import board.Direction;
 import board.Tile;
 import board.TileReader;
+import clients.SearchTimer;
+import exceptions.OutOfTimeException;
 import game.Game;
 import game.logic.MoveCalculator;
 import move.*;
+import util.Timer;
 import util.Triple;
 import util.Tuple;
 
@@ -316,18 +319,28 @@ public class GameEvaluator {
      * Slowest and most accurate Move sorting. Sorts by the full Game evaluation score. Should be
      * used at the beginning of the iterative deepening search.
      */
-    public List<Tuple<Move, Game>> sortMoves(Game game) {
+    public List<Tuple<Move, Game>> sortMoves(Game game, SearchTimer timer)
+            throws OutOfTimeException {
 
         List<Triple<Move, Game, Integer>> data = new LinkedList<>();
 
+        SearchTimer.timePerMove = Integer.MAX_VALUE;
+        Timer clock = new Timer();
+        int i = 0;
+
         // Get data
         for (Move move : GameEvaluator.getRelevantMoves(game)) {
+
+            timer.checkTime();
 
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
 
             data.add(new Triple<>(move, clonedGame,
                     evaluate(clonedGame, game.getCurrentPlayerNumber())));
+
+            i++;
+            SearchTimer.timePerMove = (int) (clock.timePassed() / i);
         }
 
         // Sort by evaluation score

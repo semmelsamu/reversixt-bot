@@ -66,14 +66,17 @@ public class Search {
             List<Move> sortedMoves = evaluator.sortMovesQuick(game);
             result = sortedMoves.get(sortedMoves.size() - 1);
 
+            timer.checkTime();
+
             // Better approximation
-            List<Tuple<Move, Game>> sortedMovesAndGame = evaluator.sortMoves(game);
+            List<Tuple<Move, Game>> sortedMovesAndGame = evaluator.sortMoves(game, timer);
             // Max-Player -> Reverse
             Collections.reverse(sortedMovesAndGame);
             result = sortedMovesAndGame.get(0).first();
 
             SearchStats.incrementDepthsSearched(0);
 
+            timer.checkTime();
             timer.checkFirstDepth(sortedMovesAndGame.size());
 
             // Iterative deepening search
@@ -134,10 +137,6 @@ public class Search {
 
             // Update alpha for the maximizer
             alpha = Math.max(alpha, score);
-
-            if (depth == 1) {
-                timer.firstDepthNodeCount++;
-            }
         }
 
         return resultMove;
