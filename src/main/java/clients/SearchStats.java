@@ -3,6 +3,7 @@ package clients;
 import exceptions.NotEnoughTimeException;
 import exceptions.OutOfTimeException;
 import util.Logger;
+import util.Timer;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -16,15 +17,11 @@ public class SearchStats {
 
     Logger logger = new Logger(this.getClass().getName());
 
-    /**
-     * The timestamp in milliseconds at which we got a move request.
-     */
-    private final long startTime;
+    private final Timer timer;
 
-    /**
-     * The very latest time by which we should send a move.
-     */
-    private final long endTime;
+    static int currentIterationMovesOnFirstDepth;
+
+    static double timePerMoveOnFirstDepth = -1;
 
     /**
      * Stores for each timeout that occurred its stack trace.
@@ -55,8 +52,7 @@ public class SearchStats {
     private int currentIterationNodesVisited;
 
     public SearchStats(int timeLimit) {
-        this.startTime = System.currentTimeMillis();
-        this.endTime = startTime + timeLimit;
+        timer = new Timer(timeLimit);
     }
 
     /**
@@ -64,7 +60,7 @@ public class SearchStats {
      * @throws OutOfTimeException if we ran out of time
      */
     void checkTime() throws OutOfTimeException {
-        if (System.currentTimeMillis() > endTime) {
+        if (timer.isUp()) {
             stats_timeouts.add(
                     "at " + Thread.currentThread().getStackTrace()[1].getMethodName() + " at " +
                             Thread.currentThread().getStackTrace()[2].getMethodName());
@@ -87,8 +83,6 @@ public class SearchStats {
                 (int) Math.ceil(calculateBranchingFactor(currentIterationNodesVisited, depth));
 
         int newDepth = depth + 1;
-        long timePassed = System.currentTimeMillis() - this.startTime;
-        long timeLeft = this.endTime - System.currentTimeMillis();
         double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
 
         /*
@@ -108,16 +102,16 @@ public class SearchStats {
         */
 
         // Hotfix - this should never happen
-        if (timeEstimated < timePassed * 2) {
+        if (timeEstimated < timer.timePassed() * 2) {
             // Inflate estimated time at least a little bit
-            timeEstimated += timePassed;
+            timeEstimated += timer.timePassed();
             timeEstimated *= branchingFactor;
         }
 
-        logger.log("Time passed for last depth: " + timePassed);
+        logger.log("Time passed for last depth: " + timer.timePassed());
         logger.log("Time estimated for next depth: " + Math.round(timeEstimated));
 
-        if (timeLeft < timeEstimated) {
+        if (timer.timeLeft() < timeEstimated) {
             throw new NotEnoughTimeException(
                     "Estimated more time for the next depth than what's left");
         }
