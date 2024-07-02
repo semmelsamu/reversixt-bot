@@ -64,11 +64,6 @@ public class Game implements Cloneable {
      */
     public TotalTilesOccupiedCounter totalTilesOccupiedCounter;
 
-    /**
-     * Caches the communities on the board.
-     */
-    public Communities communities;
-
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -101,7 +96,6 @@ public class Game implements Cloneable {
         // Caching
         coordinatesGroupedByTile = new CoordinatesGroupedByTile(this);
         totalTilesOccupiedCounter = new TotalTilesOccupiedCounter(this);
-        // communities = new Communities(this);
 
         phase = GamePhase.BUILD;
 
@@ -119,13 +113,7 @@ public class Game implements Cloneable {
 
     private void rotateCurrentPlayer() {
         currentPlayer = (currentPlayer % players.length) + 1;
-
-        if (communities != null && communities.simulating != null) {
-            validMoves = MoveCalculator.getValidMovesForPlayer(this, currentPlayer,
-                    communities.simulating.coordinates);
-        } else {
-            validMoves = MoveCalculator.getValidMovesForPlayer(this, currentPlayer, null);
-        }
+        validMoves = MoveCalculator.getValidMovesForPlayer(this, currentPlayer, null);
     }
 
     void findValidPlayer() {
@@ -166,7 +154,6 @@ public class Game implements Cloneable {
                             "No more player has any moves in the coloring phase, entering bomb " +
                                     "phase");
                     phase = GamePhase.BOMB;
-                    communities = null;
                     rotateCurrentPlayer();
                     oldPlayer = currentPlayer;
                 } else if (phase == GamePhase.BOMB) {
@@ -219,16 +206,7 @@ public class Game implements Cloneable {
             throw new MoveNotValidException("Tried to execute a move that is not valid: " + move);
         }
 
-        //        if (move instanceof InversionMove || move instanceof ChoiceMove) {
-        //            logger.log("Disabling Communities: Inversion/Choice Move");
-        //            communities = null;
-        //        }
-
         MoveExecutor.executeMove(this, move);
-
-        //        if (communities != null) {
-        //            communities.update(move.getCoordinates());
-        //        }
 
         moveCounter++;
         nextPlayer();
@@ -339,13 +317,6 @@ public class Game implements Cloneable {
             // Caches
             clone.coordinatesGroupedByTile = this.coordinatesGroupedByTile.clone();
             clone.totalTilesOccupiedCounter = this.totalTilesOccupiedCounter.clone();
-            if (communities != null) {
-                clone.communities = this.communities.clone();
-                clone.communities.game = clone;
-                for (var community : clone.communities.communities) {
-                    community.game = clone;
-                }
-            }
 
             return clone;
 
