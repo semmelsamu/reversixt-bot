@@ -63,6 +63,8 @@ public class Client {
      */
     public Move search(int timeLimit) {
 
+        SearchStats.moveRequests++;
+
         this.logger.log("Searching new move in " + timeLimit + "ms");
 
         long startTime = System.currentTimeMillis();

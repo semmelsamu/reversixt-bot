@@ -5,6 +5,8 @@ import java.util.Map;
 
 public class SearchStats {
 
+    static int moveRequests = 0;
+
     /**
      * Stores for each timeout that occurred its stack trace.
      */
@@ -20,7 +22,17 @@ public class SearchStats {
     }
 
     public static String summarize() {
-        return "Timeouts: " + timeouts + "\nDepths searched: " + depths;
+        return "Move requests: " + moveRequests + "\nTimeouts: " + timeouts +
+                "\nDepths searched:\n" + mapToString(depths);
+    }
+
+    public static <K, V> String mapToString(Map<K, V> map) {
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            result.append("- ").append(entry.getKey().toString()).append(": ")
+                    .append(entry.getValue().toString()).append("\n");
+        }
+        return result.toString().trim();
     }
 
 }
