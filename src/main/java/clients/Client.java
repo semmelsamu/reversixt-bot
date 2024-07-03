@@ -68,10 +68,10 @@ public class Client {
         this.logger.log("Searching new move in " + timer.limit + "ms");
 
         // Check if reachableTiles has to be updated
-        //if (boardInfo.hasReachableTilesToBeUpdated(game)) {
-        //    logger.log("Re-calculating board info...");
-        //    boardInfo.updateReachableTiles(game, (int) (timer.limit / 2));
-        //}
+        if (boardInfo.hasReachableTilesToBeUpdated(game)) {
+            logger.log("Re-calculating board info...");
+            boardInfo.updateReachableTiles(game, (int) (timer.limit / 2));
+        }
 
         // Creating the evaluator with the current available data
         GameEvaluator evaluator = new GameEvaluator(boardInfo);
