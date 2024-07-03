@@ -77,16 +77,12 @@ public class Search {
 
             SearchStats.incrementDepthsSearched(1);
 
-            if (depth < 2) {
-                return result;
-            }
-
             timer.checkTime();
             timer.checkFirstDepth(sortedMovesAndGame.size());
 
             // Iterative deepening search
             int depthLimit = 2;
-            do {
+            while (game.getPhase().equals(GamePhase.BUILD) && depthLimit <= depth) {
                 logger.log("Iterative deepening: Depth " + depthLimit);
 
                 timer.reset();
@@ -100,7 +96,7 @@ public class Search {
 
                 depthLimit++;
 
-            } while (game.getPhase().equals(GamePhase.BUILD) && depthLimit < depth);
+            }
 
             logger.log("Exiting iterative deepening");
 
