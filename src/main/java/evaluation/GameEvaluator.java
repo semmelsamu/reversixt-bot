@@ -123,6 +123,17 @@ public class GameEvaluator {
     }
 
     /**
+     * Evaluates the Game (which is in the Bomb Phase) and returns the best available BombMove along
+     * with his score.
+     */
+    public Tuple<Move, Integer> evaluateBombMoves(Game game) {
+
+        // TODO: Implement!
+
+        return new Tuple<>(null, Integer.MIN_VALUE);
+    }
+
+    /**
      * Only the ranking is evaluated, as it is the final rating. Return max int if game is won
      */
     private int evaluateEnd(Game game, int player) {
