@@ -126,9 +126,21 @@ public class GameEvaluator {
      * Evaluates the Game (which is in the Bomb Phase) and returns the best available BombMove along
      * with his score.
      */
-    public Tuple<Move, Integer> evaluateBombMoves(Game game) {
+    public Tuple<Move, Integer> evaluateBombMoves(Game game, SearchTimer timer)
+            throws OutOfTimeException {
 
-        // TODO: Implement!
+        Timer clock = new Timer();
+        int i = 0;
+
+        for (Move move : game.getValidMoves()) {
+
+            // TODO: Implement!
+
+
+            i++;
+            SearchTimer.timePerMove = (int) (clock.timePassed() / i);
+            timer.checkTime();
+        }
 
         return new Tuple<>(null, Integer.MIN_VALUE);
     }
@@ -320,14 +332,11 @@ public class GameEvaluator {
 
         List<Triple<Move, Game, Integer>> data = new LinkedList<>();
 
-        SearchTimer.timePerMove = Integer.MAX_VALUE;
         Timer clock = new Timer();
         int i = 0;
 
         // Get data
         for (Move move : GameEvaluator.getRelevantMoves(game)) {
-
-            timer.checkTime();
 
             Game clonedGame = game.clone();
             clonedGame.executeMove(move);
@@ -338,6 +347,8 @@ public class GameEvaluator {
             i++;
             SearchTimer.timePerMove = (int) (clock.timePassed() / i);
             SearchTimer.incrementNodeCount();
+
+            timer.checkTime();
         }
 
         // Sort by evaluation score
