@@ -68,6 +68,8 @@ public class Search {
             SearchStats.incrementDepthsSearched(0);
 
             timer.checkTime();
+            timer.checkFirstDepth(sortedMoves.size());
+            timer.reset();
 
             // Better approximation
             List<Tuple<Move, Game>> sortedMovesAndGame = evaluator.sortMoves(game, timer);
@@ -78,7 +80,7 @@ public class Search {
             SearchStats.incrementDepthsSearched(1);
 
             timer.checkTime();
-            timer.checkFirstDepth(sortedMovesAndGame.size());
+            timer.checkAbort(1);
 
             // Iterative deepening search
             int depthLimit = 2;
