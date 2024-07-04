@@ -134,7 +134,7 @@ public class GameEvaluator {
         if (ourRanking == 1) {
             return Integer.MAX_VALUE;
         } else {
-            return -(ourRanking - game.constants.initialPlayers());
+            return game.constants.initialPlayers() - ourRanking;
         }
     }
 
