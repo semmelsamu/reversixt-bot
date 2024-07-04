@@ -35,7 +35,7 @@ public class SearchTimer {
      * Stores the number of nodes visited (moves executed and games evaluated) of the current
      * iteration in the iterative deepening search.
      */
-    private int currentNodeCount;
+    private static int currentNodeCount;
 
     public static int timePerMove = 0;
 
@@ -86,7 +86,8 @@ public class SearchTimer {
 
         if (mainTimer.timeLeft() < timeEstimated) {
             throw new NotEnoughTimeException(
-                    "Estimated more time for the next depth than what's left");
+                    "Not enough time for next depth: " + Math.round(timeEstimated) + " > " +
+                            mainTimer.timeLeft());
         }
 
     }
@@ -94,7 +95,9 @@ public class SearchTimer {
     void checkFirstDepth(int moves) throws NotEnoughTimeException {
         int timeEstimated = timePerMove * moves + 500;
         if ((long) timeEstimated > mainTimer.timeLeft()) {
-            throw new NotEnoughTimeException("Not enough time for first depth: " + timeEstimated);
+            throw new NotEnoughTimeException(
+                    "Not enough time for first depth: " + timeEstimated + " > " +
+                            mainTimer.timeLeft());
         }
     }
 
@@ -120,7 +123,7 @@ public class SearchTimer {
         bombPhasesReached++;
     }
 
-    void incrementNodeCount() {
+    public static void incrementNodeCount() {
         currentNodeCount++;
     }
 
