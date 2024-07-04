@@ -168,8 +168,8 @@ public class Search {
 
         if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD)) {
 
-            if (!game.getPhase().equals(GamePhase.BUILD)) {
-                timer.incrementBombPhasesReached();
+            if (game.getPhase().equals(GamePhase.BOMB)) {
+                return evaluator.evaluateBombMoves(game, timer).second();
             }
 
             timer.incrementNodeCount();
