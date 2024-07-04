@@ -1,10 +1,8 @@
 package evaluation;
 
-import board.Coordinates;
-import board.Direction;
-import board.Tile;
-import board.TileReader;
+import board.*;
 import clients.SearchTimer;
+import exceptions.MoveNotValidException;
 import exceptions.OutOfTimeException;
 import game.Game;
 import game.logic.MoveCalculator;
@@ -129,22 +127,18 @@ public class GameEvaluator {
     public Tuple<Move, Integer> evaluateBombMoves(Game game, int player, SearchTimer timer)
             throws OutOfTimeException {
 
-        List<Tuple<Integer, Integer>> numberOfTilesBeforeMove =
-                getTilesForEachPlayerSortedDescending(game);
-        int ourIndex = findIndexByKey(numberOfTilesBeforeMove, player);
-        int ourTiles = numberOfTilesBeforeMove.get(ourIndex).second();
+        Move bestMove = null;
+        int bestScore = Integer.MIN_VALUE;
 
-        List<Integer> tileDifferencesOfCompetitorsAhead = new ArrayList<>();
-        List<Integer> tileDifferencesOfCompetitorsBehind = new ArrayList<>();
+        int initialPlayers = game.constants.initialPlayers();
+        List<Integer> numberOfTilesBeforeMove = getTilesForEachPlayer(game);
+        int ourIndex = player - 1;
+        int ourTilesBeforeMove = numberOfTilesBeforeMove.get(ourIndex);
 
-        for (int i = ourIndex - 1; i >= 0; i--) {
-            tileDifferencesOfCompetitorsAhead.add(numberOfTilesBeforeMove.get(i).first(),
-                    numberOfTilesBeforeMove.get(i).second() - ourTiles);
-        }
+        int[] tileDifferencesBeforeMove = new int[initialPlayers];
 
-        for (int i = ourIndex + 1; i < game.constants.initialPlayers(); i++) {
-            tileDifferencesOfCompetitorsBehind.add(numberOfTilesBeforeMove.get(i).first(),
-                    ourTiles - numberOfTilesBeforeMove.get(i).second());
+        for (int i = 0; i < initialPlayers - 1; i++) {
+            tileDifferencesBeforeMove[i] = numberOfTilesBeforeMove.get(i) - ourTilesBeforeMove;
         }
 
         Timer clock = new Timer();
@@ -152,15 +146,47 @@ public class GameEvaluator {
 
         for (Move move : game.getValidMoves()) {
 
-            // TODO: Implement!
+            Set<Coordinates> bombedTiles = getTilesBombed(game, move);
+            int[] tileDifferencesAfterMove =
+                    Arrays.copyOf(tileDifferencesBeforeMove, initialPlayers);
 
+            int[] bombedTilesPerPlayer = new int[initialPlayers];
+
+            for (Coordinates tile : bombedTiles) {
+                int playerIndex = game.getTile(tile).toPlayerIndex();
+                bombedTilesPerPlayer[playerIndex]++;
+            }
+
+            for (int j = 0; j < initialPlayers; j++) {
+                tileDifferencesAfterMove[j] -= bombedTilesPerPlayer[j];
+                tileDifferencesAfterMove[j] += bombedTilesPerPlayer[ourIndex];
+            }
+
+            int score = 0;
+
+            for (int j = 0; j < initialPlayers; j++) {
+                if(j != ourIndex){
+                    if (numberOfTilesBeforeMove.get(j) > ourTilesBeforeMove) {
+                        score += rateTileDifference(tileDifferencesAfterMove[j]) -
+                                rateTileDifference(tileDifferencesBeforeMove[j]);
+                    } else {
+                        score += rateTileDifference(-tileDifferencesBeforeMove[j]) -
+                                rateTileDifference(-tileDifferencesAfterMove[j]);
+                    }
+                }
+            }
+
+            if(score > bestScore){
+                bestScore = score;
+                bestMove = move;
+            }
 
             i++;
             SearchTimer.timePerMove = (int) (clock.timePassed() / i);
             timer.checkTime();
         }
 
-        return new Tuple<>(null, Integer.MIN_VALUE);
+        return new Tuple<>(bestMove, bestScore);
     }
 
     /**
@@ -404,6 +430,18 @@ public class GameEvaluator {
                 move instanceof InversionMove;
     }
 
+    private List<Integer> getTilesForEachPlayer(Game game) {
+        List<Integer> tileCountsPerPlayer = new LinkedList<>();
+
+        for (int player = 1; player <= game.constants.initialPlayers(); player++) {
+            tileCountsPerPlayer.add(
+                    game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(Tile.fromInt(player))
+                            .size());
+        }
+
+        return tileCountsPerPlayer;
+    }
+
     private List<Tuple<Integer, Integer>> getTilesForEachPlayerSortedDescending(Game game) {
         List<Tuple<Integer, Integer>> tileCountsPerPlayer = new LinkedList<>();
 
@@ -433,6 +471,10 @@ public class GameEvaluator {
         return -(ranking - game.constants.initialPlayers()) * 1000;
     }
 
+    private int rateTileDifference(int tileDifference) {
+        return (int) (Math.pow(0.95, tileDifference) * 1000000);
+    }
+
     private int rateTileDifferences(List<Integer> tileDifferences) {
         double result = 0;
         for (int difference : tileDifferences) {
@@ -457,5 +499,16 @@ public class GameEvaluator {
             }
         }
         return tilesColored.size();
+    }
+
+    private Set<Coordinates> getTilesBombed(Game game, Move move) {
+        if (!(move instanceof BombMove)) {
+            throw new MoveNotValidException("Non bomb move in bomb phase");
+        }
+        int bombRadius = game.constants.bombRadius();
+        Set<Coordinates> coordinates = new HashSet<>();
+        coordinates.add(move.getCoordinates());
+
+        return CoordinatesExpander.expandCoordinates(game, coordinates, bombRadius);
     }
 }
