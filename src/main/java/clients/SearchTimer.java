@@ -39,6 +39,8 @@ public class SearchTimer {
 
     public static int timePerMove = 0;
 
+    public static int timePerBombMove = 0;
+
     /*
     |-----------------------------------------------------------------------------------------------
     |
@@ -97,6 +99,15 @@ public class SearchTimer {
         if ((long) timeEstimated > mainTimer.timeLeft()) {
             throw new NotEnoughTimeException(
                     "Not enough time for first depth: " + timeEstimated + " > " +
+                            mainTimer.timeLeft());
+        }
+    }
+
+    void checkFirstBombDepth(int moves) throws NotEnoughTimeException {
+        int timeEstimated = timePerBombMove * moves + 500;
+        if ((long) timeEstimated > mainTimer.timeLeft()) {
+            throw new NotEnoughTimeException(
+                    "Not enough time for first bomb depth: " + timeEstimated + " > " +
                             mainTimer.timeLeft());
         }
     }
