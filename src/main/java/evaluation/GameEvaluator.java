@@ -92,11 +92,12 @@ public class GameEvaluator {
      * rankings ahead and behind if existing) are
      */
     private int evaluateBombPhase(Game game, int player) {
-        List<Map.Entry<Integer, Integer>> numberOfTilesList = getTilesForEachPlayerSortedDescending(game);
+        List<Tuple<Integer, Integer>> numberOfTilesList =
+                getTilesForEachPlayerSortedDescending(game);
 
         int ourIndex = findIndexByKey(numberOfTilesList, player);
         int ourRanking = ourIndex + 1;
-        int ourTiles = numberOfTilesList.get(ourIndex).getValue();
+        int ourTiles = numberOfTilesList.get(ourIndex).second();
 
         List<Integer> tileDifferencesOfCompetitorsAhead = new ArrayList<>();
         List<Integer> tileDifferencesOfCompetitorsBehind = new ArrayList<>();
@@ -107,12 +108,12 @@ public class GameEvaluator {
 
             if (indexOfTeamAhead >= 0) {
                 tileDifferencesOfCompetitorsAhead.add(
-                        numberOfTilesList.get(indexOfTeamAhead).getValue() - ourTiles);
+                        numberOfTilesList.get(indexOfTeamAhead).second() - ourTiles);
             }
 
             if (indexOfTeamBehind < numberOfTilesList.size()) {
                 tileDifferencesOfCompetitorsBehind.add(
-                        ourTiles - numberOfTilesList.get(indexOfTeamBehind).getValue());
+                        ourTiles - numberOfTilesList.get(indexOfTeamBehind).second());
             }
         }
 
@@ -125,14 +126,14 @@ public class GameEvaluator {
      * Only the ranking is evaluated, as it is the final rating. Return max int if game is won
      */
     private int evaluateEnd(Game game, int player) {
-        List<Map.Entry<Integer, Integer>> numberOfTilesList = getTilesForEachPlayerSortedDescending(game);
+        List<Tuple<Integer, Integer>> numberOfTilesList =
+                getTilesForEachPlayerSortedDescending(game);
 
         int ourRanking = findIndexByKey(numberOfTilesList, player) + 1;
 
-        if(ourRanking == 1){
+        if (ourRanking == 1) {
             return Integer.MAX_VALUE;
-        }
-        else {
+        } else {
             return -(ourRanking - game.constants.initialPlayers());
         }
     }
@@ -351,11 +352,6 @@ public class GameEvaluator {
         return Math.log(x) / Math.log(base);
     }
 
-    private int getNumberOfTilesForPlayer(Game game, int player) {
-        return game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(
-                game.getPlayer(player).getPlayerValue()).size();
-    }
-
     private int getTileRatingForMove(Move move) {
         int y = move.getCoordinates().y;
         int x = move.getCoordinates().x;
@@ -367,28 +363,25 @@ public class GameEvaluator {
                 move instanceof InversionMove;
     }
 
-    private List<Map.Entry<Integer, Integer>> getTilesForEachPlayerSortedDescending(Game game){
-        Map<Integer, Integer> numberOfTilesForEachPlayer = new HashMap<>();
-        for (int i = 1; i <= game.constants.initialPlayers(); i++) {
-            numberOfTilesForEachPlayer.put(i,
-                    game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(Tile.fromInt(i))
-                            .size());
+    private List<Tuple<Integer, Integer>> getTilesForEachPlayerSortedDescending(Game game) {
+        List<Tuple<Integer, Integer>> tileCountsPerPlayer = new LinkedList<>();
+
+        for (int player = 1; player <= game.constants.initialPlayers(); player++) {
+            tileCountsPerPlayer.add(new Tuple<>(player,
+                    game.coordinatesGroupedByTile.getAllCoordinatesWhereTileIs(Tile.fromInt(player))
+                            .size()));
         }
 
-        // Create a list of map entries to be able to sort
-        List<Map.Entry<Integer, Integer>> numberOfTilesList =
-                new ArrayList<>(numberOfTilesForEachPlayer.entrySet());
-
         // Sort players by number of tiles descending
-        numberOfTilesList.sort(
-                (entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()));
+        tileCountsPerPlayer.sort(
+                (entry1, entry2) -> Integer.compare(entry2.second(), entry1.second()));
 
-        return numberOfTilesList;
+        return tileCountsPerPlayer;
     }
 
-    public <K, V> int findIndexByKey(List<Map.Entry<K, V>> entryList, K keyToFind) {
+    public <K, V> int findIndexByKey(List<Tuple<K, V>> entryList, K keyToFind) {
         for (int i = 0; i < entryList.size(); i++) {
-            if (entryList.get(i).getKey().equals(keyToFind)) {
+            if (entryList.get(i).first().equals(keyToFind)) {
                 return i;
             }
         }
