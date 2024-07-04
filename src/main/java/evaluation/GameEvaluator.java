@@ -126,8 +126,26 @@ public class GameEvaluator {
      * Evaluates the Game (which is in the Bomb Phase) and returns the best available BombMove along
      * with his score.
      */
-    public Tuple<Move, Integer> evaluateBombMoves(Game game, SearchTimer timer)
+    public Tuple<Move, Integer> evaluateBombMoves(Game game, int player, SearchTimer timer)
             throws OutOfTimeException {
+
+        List<Tuple<Integer, Integer>> numberOfTilesBeforeMove =
+                getTilesForEachPlayerSortedDescending(game);
+        int ourIndex = findIndexByKey(numberOfTilesBeforeMove, player);
+        int ourTiles = numberOfTilesBeforeMove.get(ourIndex).second();
+
+        List<Integer> tileDifferencesOfCompetitorsAhead = new ArrayList<>();
+        List<Integer> tileDifferencesOfCompetitorsBehind = new ArrayList<>();
+
+        for (int i = ourIndex - 1; i >= 0; i--) {
+            tileDifferencesOfCompetitorsAhead.add(numberOfTilesBeforeMove.get(i).first(),
+                    numberOfTilesBeforeMove.get(i).second() - ourTiles);
+        }
+
+        for (int i = ourIndex + 1; i < game.constants.initialPlayers(); i++) {
+            tileDifferencesOfCompetitorsBehind.add(numberOfTilesBeforeMove.get(i).first(),
+                    ourTiles - numberOfTilesBeforeMove.get(i).second());
+        }
 
         Timer clock = new Timer();
         int i = 0;

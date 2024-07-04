@@ -65,7 +65,7 @@ public class Search {
             if (game.getPhase().equals(GamePhase.BOMB)) {
                 timer.checkFirstBombDepth(game.getValidMoves().size());
                 timer.checkTime();
-                return evaluator.evaluateBombMoves(game, timer).first();
+                return evaluator.evaluateBombMoves(game, playerNumber, timer).first();
             }
 
             // Fast approximation
@@ -169,7 +169,7 @@ public class Search {
         if (depth == 0 || !game.getPhase().equals(GamePhase.BUILD)) {
 
             if (game.getPhase().equals(GamePhase.BOMB)) {
-                return evaluator.evaluateBombMoves(game, timer).second();
+                return evaluator.evaluateBombMoves(game, playerNumber, timer).second();
             }
 
             timer.incrementNodeCount();
