@@ -61,6 +61,13 @@ public class Search {
 
         try {
 
+            // Bomb phase search logic
+            if (game.getPhase().equals(GamePhase.BOMB)) {
+                timer.checkFirstBombDepth(game.getValidMoves().size());
+                timer.checkTime();
+                return evaluator.evaluateBombMoves(game, timer).first();
+            }
+
             // Fast approximation
             List<Move> sortedMoves = evaluator.sortMovesQuick(game);
             result = sortedMoves.get(sortedMoves.size() - 1);
