@@ -182,7 +182,7 @@ public class GameEvaluator {
             }
 
             i++;
-            SearchTimer.timePerMove = (int) (clock.timePassed() / i);
+            SearchTimer.timePerBombMove = (int) (clock.timePassed() / i);
             timer.checkTime();
         }
 
