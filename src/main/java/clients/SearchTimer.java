@@ -76,14 +76,18 @@ public class SearchTimer {
         int newDepth = depth + 1;
         double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
 
+        logger.log("Time passed for last depth: " + mainTimer.timePassed());
+
         // Hotfix - this should never happen
         if (timeEstimated < mainTimer.timePassed() * 2) {
+            logger.log("Time estimated by hotfix");
+
             // Inflate estimated time at least a little bit
             timeEstimated += mainTimer.timePassed();
             timeEstimated *= branchingFactor;
+
         }
 
-        logger.log("Time passed for last depth: " + mainTimer.timePassed());
         logger.log("Time estimated for next depth: " + Math.round(timeEstimated));
 
         if (mainTimer.timeLeft() < timeEstimated) {
