@@ -154,7 +154,9 @@ public class GameEvaluator {
 
             for (Coordinates tile : bombedTiles) {
                 int playerIndex = game.getTile(tile).toPlayerIndex();
-                bombedTilesPerPlayer[playerIndex]++;
+                if(playerIndex != -1){
+                    bombedTilesPerPlayer[playerIndex]++;
+                }
             }
 
             for (int j = 0; j < initialPlayers; j++) {
