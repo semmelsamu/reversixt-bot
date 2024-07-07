@@ -27,6 +27,9 @@ public class BoardInfo {
     /**
      * Number of occupied tiles after one example game (heuristic!)
      */
+
+    private Game simulationGame = null;
+
     private short reachableTiles;
 
     private boolean wasWholeGameSimulated;
@@ -75,7 +78,14 @@ public class BoardInfo {
         short newReachableTiles = 0;
         long time = System.currentTimeMillis();
         final int TIMECAP = Math.min(1000, timelimit);
-        Game purposeGame = game.clone();
+        Game purposeGame;
+        // Check if simulation should be continued
+        if(simulationGame != null){
+            purposeGame = simulationGame;
+        }
+        else{
+            purposeGame = game.clone();
+        }
 
         // Is used to check if only overwrite moves were played for a whole round
         Boundaries boundaries = noOverwriteTheMoveBefore;
@@ -84,8 +94,10 @@ public class BoardInfo {
                 purposeGame.getPhase() == GamePhase.BUILD) {
             Set<Move> relevantMovesForCurrentPlayer = GameEvaluator.getRelevantMoves(purposeGame);
             List<Move> ListOfRelevantMoves = new ArrayList<>(relevantMovesForCurrentPlayer);
+
             if (ListOfRelevantMoves.get(0) instanceof OverwriteMove) {
                 int playerNumber = purposeGame.getCurrentPlayerNumber();
+                Logger.get().warn("OM detected");
 
                 // Check if only overwrite moves were played for a whole round
                 if (!boundaries.equals(noOverwriteTheMoveBefore) &&
@@ -112,35 +124,47 @@ public class BoardInfo {
             }
         }
 
-        int lastReachableTiles = reachableTiles;
-        if (wasWholeGameSimulated && !noSignificantDifferenceToValueBefore) {
+        // Check if simulation went far enough
+        if (System.currentTimeMillis() - time >= TIMECAP &&
+                3 * game.totalTilesOccupiedCounter.getTotalTilesOccupied() >=  newReachableTiles){
+            simulationGame = purposeGame;
+            Logger.get().log("Reachable tiles are updated...");
+            return;
+        }
+        else{
+            simulationGame = null;
+        }
+
+        int previousReachableTiles = reachableTiles;
+
+        // Check if the next to last game was simulated to the end
+        if (wasWholeGameSimulated) {
             reachableTiles = (short) avgOf(reachableTiles, newReachableTiles);
         } else {
             reachableTiles = newReachableTiles;
         }
 
-        if (reachableTiles > 0.95 * lastReachableTiles &&
-                reachableTiles < 1.05 * lastReachableTiles) {
-            wasWholeGameSimulated = true;
+        // Check if the last two simulations had a similar result
+        if (reachableTiles > 0.95 * previousReachableTiles &&
+                reachableTiles < 1.05 * previousReachableTiles) {
             noSignificantDifferenceToValueBefore = true;
         }
         long currentTime = System.currentTimeMillis() - time;
+
+        // Check if the game was simulated to the end
         if (currentTime < TIMECAP) {
             wasWholeGameSimulated = true;
             sizeOfUpdateInterval = (short) (reachableTiles * 0.3);
         }
-        if(!wasWholeGameSimulated && game.totalTilesOccupiedCounter.getTotalTilesOccupied() >= reachableTiles){
-            reachableTiles = (short) avgOf(reachableTiles, potentialReachableTiles);
-        }
 
+        wereReachableTilesCalculated = true;
         lastUpdate = game.totalTilesOccupiedCounter.getTotalTilesOccupied();
 
-        Logger.get().log("Reachable tiles was updated to " + reachableTiles);
+        Logger.get().log("Reachable tiles were updated to " + reachableTiles);
     }
 
     public boolean hasReachableTilesToBeUpdated(Game game) {
         if (!wereReachableTilesCalculated) {
-            wereReachableTilesCalculated = true;
             return true;
         }
         if (wasWholeGameSimulated && !noSignificantDifferenceToValueBefore) {
