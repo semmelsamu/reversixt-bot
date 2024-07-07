@@ -164,15 +164,21 @@ public class BoardInfo {
     }
 
     public boolean hasReachableTilesToBeUpdated(Game game) {
+
         if (!wereReachableTilesCalculated) {
             return true;
         }
+
+        // Check if calculated reachable tiles varied
         if (wasWholeGameSimulated && !noSignificantDifferenceToValueBefore) {
+            // Reachable tiles are updated after each update interval
             if (game.totalTilesOccupiedCounter.getTotalTilesOccupied() - lastUpdate >=
                     sizeOfUpdateInterval) {
                 return true;
             }
         }
+
+        // Check if the progress of the current game requires an update of reachable tiles
         if (!wasWholeGameSimulated &&
                 game.totalTilesOccupiedCounter.getTotalTilesOccupied() >= 0.6 * reachableTiles) {
             return true;
