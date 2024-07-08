@@ -69,21 +69,21 @@ public class SearchTimer {
 
     void checkAbort(int depth) throws NotEnoughTimeException {
 
-        double timePerGame = (double) mainTimer.timePassed() / currentNodeCount;
+        double timePerGame = (double) currentTimer.timePassed() / currentNodeCount;
 
         int branchingFactor = (int) Math.ceil(calculateBranchingFactor(currentNodeCount, depth));
 
         int newDepth = depth + 1;
         double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
 
-        logger.log("Time passed for last depth: " + mainTimer.timePassed());
+        logger.log("Time passed for last depth: " + currentTimer.timePassed());
 
         // Hotfix - this should never happen
-        if (timeEstimated < mainTimer.timePassed() * 2) {
+        if (timeEstimated < currentTimer.timePassed() * 2) {
             logger.log("Time estimated by hotfix");
 
             // Inflate estimated time at least a little bit
-            timeEstimated += mainTimer.timePassed();
+            timeEstimated += currentTimer.timePassed();
             timeEstimated *= branchingFactor;
 
         }
