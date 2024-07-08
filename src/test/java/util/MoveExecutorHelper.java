@@ -1,7 +1,6 @@
 package util;
 
 import board.Coordinates;
-import board.Tile;
 import game.Game;
 import game.logic.MoveExecutor;
 import move.InversionMove;
@@ -17,9 +16,4 @@ public class MoveExecutorHelper {
     public static void executeExistingMovePlayer1(Game game, Move move) {
         MoveExecutor.executeMove(game, move);
     }
-
-    public static Tile getTile(Game game, int x, int y){
-        return game.getTile(new Coordinates(x, y));
-    }
-
 }

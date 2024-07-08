@@ -4,7 +4,7 @@ import game.Game;
 import game.GameFactory;
 import game.logic.MoveCalculator;
 import game.logic.MoveExecutor;
-import move.Move;
+import move.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -25,11 +25,9 @@ public class MoveCalculatorExecutorTest {
         // @formatter:off
 
         // Expected values for boeseMap01
-        /*
-        TODO:
         testExpectations.put("maps/boeseMaps/boeseMap01.map", Map.of(
                 // This is a valid move for this map
-                new Move(Tile.PLAYER1, new Coordinates(7, 1)),
+                new NormalMove(Tile.PLAYER1.toPlayerIndex(), new Coordinates(7, 1)),
                 Map.of(
                         // After executing the move above,
                         // On this position there should now be this tile:
@@ -39,14 +37,14 @@ public class MoveCalculatorExecutorTest {
         ));
 
         testExpectations.put("maps/boeseMaps/boeseMap09.map", Map.of(
-                new ChoiceMove(Tile.PLAYER1, new Coordinates(4, 4), Tile.PLAYER1),
+                new ChoiceMove(Tile.PLAYER1.toPlayerIndex(), new Coordinates(4, 4), Tile.PLAYER1.toPlayerIndex()),
                 Map.of(
                         new Coordinates(1, 1), Tile.PLAYER1,
                         new Coordinates(2, 2), Tile.PLAYER1,
                         new Coordinates(3, 3), Tile.PLAYER1,
                         new Coordinates(4, 4), Tile.PLAYER1
                 ),
-                new ChoiceMove(Tile.PLAYER1, new Coordinates(4, 4), Tile.PLAYER2),
+                new ChoiceMove(Tile.PLAYER1.toPlayerIndex(), new Coordinates(4, 4), Tile.PLAYER2.toPlayerIndex()),
                 Map.of(
                         new Coordinates(1, 1), Tile.PLAYER2,
                         new Coordinates(2, 2), Tile.PLAYER2,
@@ -56,14 +54,14 @@ public class MoveCalculatorExecutorTest {
         ));
 
         testExpectations.put("maps/boeseMaps/boeseMap10.map", Map.of(
-                new InversionMove(Tile.PLAYER1, new Coordinates(4, 4)),
+                new InversionMove(Tile.PLAYER1.toPlayerIndex(), new Coordinates(4, 4)),
                 Map.of(
                         new Coordinates(1, 1), Tile.PLAYER2,
                         new Coordinates(2, 2), Tile.PLAYER2,
                         new Coordinates(3, 3), Tile.PLAYER2,
                         new Coordinates(4, 4), Tile.PLAYER2
                 ),
-                new InversionMove(Tile.PLAYER2, new Coordinates(4, 4)),
+                new InversionMove(Tile.PLAYER2.toPlayerIndex(), new Coordinates(4, 4)),
                 Map.of(
                         new Coordinates(2, 2), Tile.PLAYER3,
                         new Coordinates(3, 3), Tile.PLAYER3,
@@ -72,19 +70,18 @@ public class MoveCalculatorExecutorTest {
         ));
 
         testExpectations.put("maps/example.map", Map.of(
-                new OverwriteMove(Tile.PLAYER1, new Coordinates(7, 10)),
+                new OverwriteMove(Tile.PLAYER1.toPlayerIndex(), new Coordinates(7, 10)),
                 Map.of(
                         new Coordinates(7, 10), Tile.PLAYER1
                 )
         ));
-        */
         // @formatter:on
 
     }
 
     @Test
     public void testAll() {
-
+        new MoveCalculatorExecutorTest();
         for (var testExpectation : testExpectations.entrySet()) {
 
             for (var validMove : testExpectation.getValue().entrySet()) {

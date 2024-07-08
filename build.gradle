@@ -16,8 +16,8 @@ sourceSets {
         java {
             srcDirs = ['src/intTest/java']
         }
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.main.output + configurations.runtimeClasspath
+        runtimeClasspath += sourceSets.main.output + configurations.runtimeClasspath
     }
 }
 
@@ -40,10 +40,6 @@ tasks.named('processTestResources') {
 configurations {
     intTestImplementation.extendsFrom implementation
     intTestRuntimeOnly.extendsFrom runtimeOnly
-}
-
-run {
-    standardInput = System.in
 }
 
 repositories {
