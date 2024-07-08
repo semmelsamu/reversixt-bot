@@ -1,6 +1,5 @@
 package fightclub;
 
-import clients.IterativeDeepeningAlphaBetaSearchClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,9 +21,8 @@ public class map3NetworkTest {
 
 
     @Test
-    public void time_2_test() throws InterruptedException, IOException{
-        NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
-                1, 1);
+    public void time_2_test() throws InterruptedException, IOException {
+        NetworkClientHelper.createNetworkClients(1, 1);
     }
 
     @AfterEach

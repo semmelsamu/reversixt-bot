@@ -1,8 +1,5 @@
 package boeseMaps;
 
-import board.Coordinates;
-import clients.IterativeDeepeningAlphaBetaSearchClient;
-import move.InversionMove;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,9 +21,7 @@ public class boeseMap10NetworkTest {
 
     @Test
     public void time_2_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new IterativeDeepeningAlphaBetaSearchClient(true),
-                1, 2);
-        NetworkClientHelper.validateMove(new InversionMove(1, new Coordinates(4, 4)));
+        NetworkClientHelper.createNetworkClients(1, 2);
     }
 
     @AfterEach

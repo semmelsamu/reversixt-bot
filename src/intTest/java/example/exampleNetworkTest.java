@@ -1,7 +1,5 @@
 package example;
 
-import clients.BestReplySearchKillerHeuristicClient;
-import clients.CommunitiesClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +21,7 @@ public class exampleNetworkTest {
 
     @Test
     public void time_2_test() throws InterruptedException, IOException {
-        NetworkClientHelper.createNetworkClients(new CommunitiesClient(), 1, 2);
+        NetworkClientHelper.createNetworkClients(1, 2);
     }
 
     @AfterEach

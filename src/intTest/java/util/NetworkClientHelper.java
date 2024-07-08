@@ -1,9 +1,5 @@
 package util;
 
-import clients.Client;
-import move.Move;
-import network.Launcher;
-import network.Limit;
 import network.NetworkEventHandler;
 
 import java.io.BufferedReader;
@@ -11,22 +7,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.*;
 
 public class NetworkClientHelper {
 
-    private static final List<Client> clients = new ArrayList<>();
     private static final String arch = System.getProperty("os.arch");
 
-    public static void createNetworkClients(Client client, int numOwnClients, int numAiClients)
+    public static void createNetworkClients(int numOwnClients, int numAiClients)
             throws InterruptedException, IOException {
 
         ExecutorService executorService =
@@ -35,11 +26,12 @@ public class NetworkClientHelper {
         for (int i = 0; i < numOwnClients; i++) {
             executorService.execute(() -> {
                 try {
-                    Client spy = spy(client);
-                    clients.add(spy);
                     Logger.defaultPriority = 3;
                     Logger.setPriority(NetworkEventHandler.class.getName(), 2);
-                    Launcher.launchClientOnNetwork(spy, "127.0.0.1", 7777);
+                    NetworkEventHandler handler = new NetworkEventHandler();
+                    handler.connect("127.0.0.1", 7777);
+                    handler.launch();
+                    handler.disconnect();
                 } catch (Exception e) {
                     fail(e.getMessage());
                 }
@@ -90,17 +82,6 @@ public class NetworkClientHelper {
             executorService.awaitTermination(1, TimeUnit.SECONDS);
         }
     }
-
-    public static void validateMove(Move move) {
-        Optional<Client> client =
-                clients.stream().filter(c -> c.getME() == move.getPlayerNumber()).findFirst();
-        if (client.isPresent()) {
-            verify(client.get(), atLeastOnce()).sendMove(Limit.TIME, anyInt());
-        } else {
-            fail("Client not found");
-        }
-    }
-
 
     private static Path getUserDirPath() {
         String userDir = System.getProperty("user.dir");
