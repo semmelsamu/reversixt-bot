@@ -23,16 +23,16 @@ public final class MoveCalculator {
     public static Set<Move> getValidMovesForPlayer(Game game, int playerNumber,
                                                    Set<Coordinates> coordinates) {
 
-        Set<Move> result = new HashSet<>();
-
         switch (game.getPhase()) {
-            case BUILD -> result.addAll(calculateAllColoringMoves(game, playerNumber, coordinates));
-            case BOMB -> result.addAll(getAllBombMoves(game, playerNumber));
+            case BUILD -> {
+                return calculateAllColoringMoves(game, playerNumber, coordinates);
+            }
+            case BOMB -> {
+                return getAllBombMoves(game, playerNumber);
+            }
             default -> throw new GamePhaseNotValidException(
                     "No valid game phase to calculate moves for");
         }
-
-        return result;
     }
 
     private static Set<Move> calculateAllColoringMoves(Game game, int playerNumber,
