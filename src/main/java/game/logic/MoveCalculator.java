@@ -62,7 +62,6 @@ public final class MoveCalculator {
                     moves.addAll(movesForPieceInDirection);
                 }
             }
-            //moves.addAll(getValidMovesForPiece(occupiedTile, playerValue));
         }
 
         if (player.getOverwriteStones() > 0) {
@@ -109,8 +108,10 @@ public final class MoveCalculator {
                                                               int playerNumber) {
         Player player = game.getPlayer(playerNumber);
         Set<Move> movesPerDirection = new HashSet<>();
+
         // Coordinates of tile moves are searched for
         Coordinates ownTileCoordinates = tileReader.getCoordinates();
+
         if (!isFirstNeighbourValid(tileReader, player.getPlayerValue())) {
             return null;
         }
@@ -141,7 +142,7 @@ public final class MoveCalculator {
             }
 
             // Overwrite Logic
-            // Check if player has overwrite stones an if the current tile can be overwritten
+            // Check if player has overwrite stones and if the current tile can be overwritten
             if (player.getOverwriteStones() > 0 && currentTile.isPlayer()) {
                 // Check if current Tile is the neighbour from the tile moves are searched for
                 if (!(currentCoordinates.equals(firstNeighbourTileCoordinates))) {
@@ -178,7 +179,7 @@ public final class MoveCalculator {
     }
 
     /**
-     * Check if firstNeighbour from own tile allows possible moves moves the pointer of tileReader
+     * Check if first neighbour from own tile allows possible moves the pointer of tileReader
      * on firstNeighbour by calling next()
      * @param tileReader  Tile reader pointing on own tile -> Points on first neighbour after method
      *                    call
