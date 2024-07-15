@@ -65,12 +65,12 @@ public class Client {
 
         SearchStats.moveRequests++;
 
-        this.logger.log("Searching new move in " + timer.limit + "ms");
+        this.logger.log("Searching new move in " + timer.getLimitInMs() + "ms");
 
         // Check if reachableTiles has to be updated
         if (boardInfo.hasReachableTilesToBeUpdated(game)) {
             logger.log("Re-calculating board info...");
-            boardInfo.updateReachableTiles(game, (int) (timer.limit / 2));
+            boardInfo.updateReachableTiles(game, (int) (timer.getLimitInMs() / 2));
         }
 
         // Creating the evaluator with the current available data

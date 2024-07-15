@@ -22,6 +22,8 @@ public class SearchTimer {
 
     private final Timer mainTimer;
 
+    private static final long BUFFER_TIME_ESTIMATION = 500_000_000;
+
     private Timer currentTimer;
 
     /**
@@ -37,9 +39,9 @@ public class SearchTimer {
      */
     private static int currentNodeCount;
 
-    public static int timePerMove = 0;
+    public static long timePerMove = 0;
 
-    public static int timePerBombMove = 0;
+    public static long timePerBombMove = 0;
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -76,7 +78,7 @@ public class SearchTimer {
         int newDepth = depth + 1;
         double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
 
-        logger.log("Time passed for last depth: " + currentTimer.timePassed());
+        logger.log("Time passed for last depth: " + currentTimer.timePassedInMs());
 
         // Hotfix - this should never happen
         if (timeEstimated < currentTimer.timePassed() * 2) {
@@ -88,31 +90,32 @@ public class SearchTimer {
 
         }
 
-        logger.log("Time estimated for next depth: " + Math.round(timeEstimated));
+        logger.log("Time estimated for next depth: " +
+                Timer.fromNanoToMilli(Math.round(timeEstimated)));
 
         if (mainTimer.timeLeft() < timeEstimated) {
-            throw new NotEnoughTimeException(
-                    "Not enough time for next depth: " + Math.round(timeEstimated) + " > " +
-                            mainTimer.timeLeft());
+            throw new NotEnoughTimeException("Not enough time for next depth: " +
+                    Timer.fromNanoToMilli(Math.round(timeEstimated)) + " > " +
+                    mainTimer.timeLeftInMs());
         }
 
     }
 
     void checkFirstDepth(int moves) throws NotEnoughTimeException {
-        int timeEstimated = timePerMove * moves + 500;
-        if ((long) timeEstimated > mainTimer.timeLeft()) {
-            throw new NotEnoughTimeException(
-                    "Not enough time for first depth: " + timeEstimated + " > " +
-                            mainTimer.timeLeft());
+        long timeEstimated = timePerMove * moves + BUFFER_TIME_ESTIMATION;
+        if (timeEstimated > mainTimer.timeLeft()) {
+            throw new NotEnoughTimeException("Not enough time for first depth: " +
+                    Timer.fromNanoToMilli(Math.round(timeEstimated)) + " > " +
+                    mainTimer.timeLeftInMs());
         }
     }
 
     void checkFirstBombDepth(int moves) throws NotEnoughTimeException {
-        int timeEstimated = timePerBombMove * moves + 500;
-        if ((long) timeEstimated > mainTimer.timeLeft()) {
-            throw new NotEnoughTimeException(
-                    "Not enough time for first bomb depth: " + timeEstimated + " > " +
-                            mainTimer.timeLeft());
+        long timeEstimated = timePerBombMove * moves + BUFFER_TIME_ESTIMATION;
+        if (timeEstimated > mainTimer.timeLeft()) {
+            throw new NotEnoughTimeException("Not enough time for first bomb depth: " +
+                    Timer.fromNanoToMilli(Math.round(timeEstimated)) + " > " +
+                    mainTimer.timeLeftInMs());
         }
     }
 

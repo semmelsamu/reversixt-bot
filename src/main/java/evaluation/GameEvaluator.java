@@ -142,7 +142,7 @@ public class GameEvaluator {
         }
 
         Timer clock = new Timer();
-        int i = 0;
+        int bombMovesEvaluated = 0;
 
         for (Move move : game.getValidMoves()) {
 
@@ -183,8 +183,9 @@ public class GameEvaluator {
                 bestMove = move;
             }
 
-            i++;
-            SearchTimer.timePerBombMove = (int) (clock.timePassed() / i);
+            bombMovesEvaluated++;
+            long timePassed = clock.timePassed();
+            SearchTimer.timePerBombMove = timePassed / bombMovesEvaluated;
             timer.checkTime();
         }
 
@@ -391,7 +392,7 @@ public class GameEvaluator {
                     evaluate(clonedGame, game.getCurrentPlayerNumber())));
 
             i++;
-            SearchTimer.timePerMove = (int) (clock.timePassed() / i);
+            SearchTimer.timePerMove = clock.timePassed() / i;
             SearchTimer.incrementNodeCount();
 
             timer.checkTime();

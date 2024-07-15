@@ -77,7 +77,7 @@ public class BoardInfo {
     public void updateReachableTiles(Game game, int timelimit) {
         short newReachableTiles = 0;
         long time = System.currentTimeMillis();
-        final int TIMECAP = Math.min(1000, timelimit);
+        final int TIMECAP_MS = Math.min(1000, timelimit);
         Game purposeGame;
         // Check if simulation should be continued
         if(simulationGame != null){
@@ -90,7 +90,7 @@ public class BoardInfo {
         // Is used to check if only overwrite moves were played for a whole round
         Boundaries boundaries = noOverwriteTheMoveBefore;
 
-        while (System.currentTimeMillis() - time < TIMECAP &&
+        while (System.currentTimeMillis() - time < TIMECAP_MS &&
                 purposeGame.getPhase() == GamePhase.BUILD) {
             Set<Move> relevantMovesForCurrentPlayer = GameEvaluator.getRelevantMoves(purposeGame);
             List<Move> ListOfRelevantMoves = new ArrayList<>(relevantMovesForCurrentPlayer);
@@ -125,7 +125,7 @@ public class BoardInfo {
         }
 
         // Check if simulation went far enough
-        if (System.currentTimeMillis() - time >= TIMECAP &&
+        if (System.currentTimeMillis() - time >= TIMECAP_MS &&
                 3 * game.totalTilesOccupiedCounter.getTotalTilesOccupied() >=  newReachableTiles){
             simulationGame = purposeGame;
             Logger.get().log("Reachable tiles are updated...");
@@ -152,7 +152,7 @@ public class BoardInfo {
         long currentTime = System.currentTimeMillis() - time;
 
         // Check if the game was simulated to the end
-        if (currentTime < TIMECAP) {
+        if (currentTime < TIMECAP_MS) {
             wasWholeGameSimulated = true;
             sizeOfUpdateInterval = (short) (reachableTiles * 0.3);
         }
