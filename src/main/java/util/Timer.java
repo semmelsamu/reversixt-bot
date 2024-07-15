@@ -7,12 +7,12 @@ public class Timer {
     /**
      * Time timer is started in nanoseconds
      */
-    private long startTime;
+    private final long startTime;
 
     /**
      * Timelimit in nanoseconds
      */
-    private long limit;
+    private final long limit;
 
     public Timer(long limitMs) {
         startTime = currentTime();
