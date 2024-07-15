@@ -1,4 +1,4 @@
-package fightclub;
+package maps.fightclub;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +8,7 @@ import util.NetworkServerHelper;
 
 import java.io.IOException;
 
-public class map1NetworkTest {
+public class comp2020_02_2pNetworkTest {
 
     private NetworkServerHelper server;
 
@@ -16,7 +16,7 @@ public class map1NetworkTest {
     public void setUp()
             throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
         server = new NetworkServerHelper();
-        server.startServer("maps/fightclub/map1.map", 2);
+        server.startServer("maps/fightclub/comp2020_02_2p.map", 2);
     }
 
 

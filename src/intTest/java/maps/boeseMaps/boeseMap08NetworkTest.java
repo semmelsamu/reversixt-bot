@@ -1,4 +1,4 @@
-package boeseMaps;
+package maps.boeseMaps;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

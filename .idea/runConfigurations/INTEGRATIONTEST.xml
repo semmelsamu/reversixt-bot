@@ -1,14 +1,14 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="INTEGRATIONTEST" type="JUnit" factoryName="JUnit">
-    <module name="revxt-ss24-g04.intTest" />
+    <module name="Projects.revxt-ss24-g04.intTest" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="example.*" />
+        <option name="PATTERN" value="maps.example.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
-    <option name="PACKAGE_NAME" value="example" />
-    <option name="MAIN_CLASS_NAME" value="example.exampleNetworkTest" />
+    <option name="PACKAGE_NAME" value="maps.example" />
+    <option name="MAIN_CLASS_NAME" value="maps.example.exampleNetworkTest" />
     <option name="METHOD_NAME" value="time_2_test" />
     <option name="TEST_OBJECT" value="method" />
     <method v="2">

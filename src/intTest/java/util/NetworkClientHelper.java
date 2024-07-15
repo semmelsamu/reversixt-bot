@@ -13,10 +13,19 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+/**
+ * Helper class which creates either our own clients or the trivial_ai clients on a specific number
+ * as a process
+ */
 public class NetworkClientHelper {
 
     private static final String arch = System.getProperty("os.arch");
 
+    /**
+     * Creates the network clients as process. Either trivial_ai clients or our own clients.
+     * @param numOwnClients Our own clients
+     * @param numAiClients  trivial_ai clients
+     */
     public static void createNetworkClients(int numOwnClients, int numAiClients)
             throws InterruptedException, IOException {
 
@@ -32,19 +41,20 @@ public class NetworkClientHelper {
                     handler.connect("127.0.0.1", 7777);
                     handler.launch();
                     handler.disconnect();
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     fail(e.getMessage());
                 }
 
             });
         }
 
-
         Path currentDirectory = getUserDirPath();
-        for(int i = 0; i < numAiClients; i++) {
+        for (int i = 0; i < numAiClients; i++) {
 
             ProcessBuilder processBuilder;
             if (arch != null && arch.contains("aarch64")) {
+                // Create trivial_ai on arm architecture
                 Path serverBinaryPath =
                         currentDirectory.resolve("binaries/arm/ai_trivial").toAbsolutePath();
                 processBuilder = new ProcessBuilder(serverBinaryPath.toString());
@@ -67,11 +77,13 @@ public class NetworkClientHelper {
                             // Optional: the print can be replaced with println(line)
                             System.out.print("");
                         }
-                    } catch (IOException e) {
+                    }
+                    catch (IOException e) {
                         e.printStackTrace();
                     }
                 }).start();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }

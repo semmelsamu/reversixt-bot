@@ -1,4 +1,4 @@
-package boeseMaps;
+package maps.fightclub;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +8,7 @@ import util.NetworkServerHelper;
 
 import java.io.IOException;
 
-public class boeseMap04NetworkTest {
+public class map6NetworkTest {
 
     private NetworkServerHelper server;
 
@@ -16,8 +16,9 @@ public class boeseMap04NetworkTest {
     public void setUp()
             throws NoSuchFieldException, IllegalAccessException, IOException, InterruptedException {
         server = new NetworkServerHelper();
-        server.startServer("maps/boeseMaps/boeseMap04.map", 2);
+        server.startServer("maps/fightclub/map6.map", 2);
     }
+
 
     @Test
     public void time_2_test() throws InterruptedException, IOException {
@@ -27,6 +28,5 @@ public class boeseMap04NetworkTest {
     @AfterEach
     public void tearDown() throws NoSuchFieldException, IllegalAccessException {
         server.stopServer();
-
     }
 }

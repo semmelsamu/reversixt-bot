@@ -14,11 +14,20 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+/**
+ * Helper class which creates the whole server as a process
+ */
 public class NetworkServerHelper {
 
     private static Process serverProcess;
     private static final String arch = System.getProperty("os.arch");
 
+    /**
+     * Creates the server as a process. Either on Windows as WSL service or as normal process on
+     * arm. The server output is also printed in the console.
+     * @param map       The map it is played on.
+     * @param timeLimit The time limit on the server where a move ist allowed.
+     */
     public void startServer(String map, int timeLimit) throws InterruptedException, IOException {
         Semaphore semaphore = new Semaphore(0);
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
@@ -68,7 +77,8 @@ public class NetworkServerHelper {
                     }
 
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
                 semaphore.release();
             }
@@ -78,6 +88,9 @@ public class NetworkServerHelper {
         executorService.shutdown();
     }
 
+    /**
+     * Start the process on windows or arm
+     */
     private void startProcess(String map, int timeLimit) throws IOException {
         String userDir = System.getProperty("user.dir");
         if (userDir.contains("src")) {
@@ -115,15 +128,19 @@ public class NetworkServerHelper {
         return unixStylePath;
     }
 
+    /**
+     * Stops the server process. It's also a safety function to really kill wsl to avoid multiple
+     * ports.
+     */
     public void stopServer() {
-        // Stop the server process
         Assertions.assertNotNull(serverProcess, "serverProcess is null");
         serverProcess.destroy();
 
         if (arch != null && !arch.contains("aarch64")) {
             try {
                 stopWSLApplication();
-            } catch (IOException | InterruptedException e) {
+            }
+            catch (IOException | InterruptedException e) {
                 // Handle exceptions if needed
                 e.printStackTrace();
             }
@@ -133,7 +150,8 @@ public class NetworkServerHelper {
         try {
             serverProcess.waitFor(5,
                     TimeUnit.SECONDS); // Wait for 5 seconds for the server process to terminate
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             // Handle the interruption if needed
             Thread.currentThread().interrupt();
         }

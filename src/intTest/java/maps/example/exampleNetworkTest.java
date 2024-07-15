@@ -1,4 +1,4 @@
-package example;
+package maps.example;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
