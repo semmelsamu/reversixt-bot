@@ -327,6 +327,13 @@ public class GameEvaluator {
                 return compareCutoffs;
             }
 
+            if(!isOverwriteBonusMove(move1) && isOverwriteBonusMove(move2)){
+                return -1;
+            }
+            if(isOverwriteBonusMove(move1) && !isOverwriteBonusMove(move2)){
+                return 1;
+            }
+
             if (!isSpecialMove(move1) && isSpecialMove(move2)) {
                 return -1;
             } else if (isSpecialMove(move1) && !isSpecialMove(move2)) {
@@ -355,6 +362,9 @@ public class GameEvaluator {
             // Score should value both equal. Not using the product because then one rating being
             // zero leads to the whole score being zero.
             int score = tileRating * tilesColored + tileRating + tilesColored;
+            if(isOverwriteBonusMove(move)){
+                score += 100;
+            }
             data.add(new Tuple<>(move, score));
         }
 
@@ -431,6 +441,10 @@ public class GameEvaluator {
     public boolean isSpecialMove(Move move) {
         return move instanceof BonusMove || move instanceof ChoiceMove ||
                 move instanceof InversionMove;
+    }
+
+    public static boolean isOverwriteBonusMove(Move move){
+        return move instanceof BonusMove bonusMove && bonusMove.getBonus() == Bonus.OVERWRITE_STONE;
     }
 
     private List<Integer> getTilesForEachPlayer(Game game) {
