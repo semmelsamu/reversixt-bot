@@ -1,28 +1,13 @@
 package util;
 
-
-
 public class Timer {
 
-    /**
-     * Time timer is started in nanoseconds
-     */
-    private final long startTime;
+    long startTime;
+    public long limit;
 
-    /**
-     * Timelimit in nanoseconds
-     */
-    private final long limit;
-
-    public Timer(long limitMs) {
+    public Timer(long limit) {
         startTime = currentTime();
-        if (limitMs == Long.MAX_VALUE){
-            this.limit = limitMs;
-        }
-        else{
-            // convert to nanoseconds
-            this.limit = limitMs * 1000000;
-        }
+        this.limit = limit;
     }
 
     public Timer() {
@@ -30,11 +15,7 @@ public class Timer {
     }
 
     public static long currentTime() {
-        return System.nanoTime();
-    }
-
-    public long timePassedInMs(){
-        return fromNanoToMilli(timePassed());
+        return System.currentTimeMillis();
     }
 
     public long timePassed() {
@@ -45,19 +26,8 @@ public class Timer {
         return startTime + limit - currentTime();
     }
 
-    public long timeLeftInMs(){
-        return fromNanoToMilli(timeLeft());
-    }
-
     public boolean isUp() {
         return timeLeft() <= 0;
     }
 
-    public long getLimitInMs(){
-        return fromNanoToMilli(limit);
-    }
-
-    public static long fromNanoToMilli(long time){
-        return time / 1_000_000;
-    }
 }
