@@ -1,6 +1,5 @@
 import network.NetworkEventHandler;
 import util.ArgumentParser;
-import util.Logger;
 
 public class Main {
 
@@ -16,24 +15,8 @@ public class Main {
             return;
         }
 
-        if ((Boolean) parsedArguments.get("q")) {
-            // Quiet mode
-            Logger.defaultPriority = 10;
-        } else {
-            // Initialize logger
-            Logger.useColors = (Boolean) parsedArguments.get("c");
-            Logger.defaultPriority = (int) parsedArguments.get("l");
-        }
-
-        Logger.get().log("Hello there.");
-
-        welcome();
-
-        Logger.get().log("Arguments: \"" + String.join(" ", args) + "\"");
-
         launch((String) parsedArguments.get("i"), (int) parsedArguments.get("p"));
 
-        Logger.get().log("The Force will be with you. Always.");
     }
 
     /**
@@ -52,17 +35,6 @@ public class Main {
     }
 
     /**
-     * Log the welcome message.
-     */
-    private static void welcome() {
-        Logger.get().log("""
-                This is Reversi++ Client
-                Developed as part of the FWPM "ZOCK" in the summer semester 2024 at OTH Regensburg
-                By Samuel Kroiss, Ludwig Schmidt, and Maximilian Strauss
-                Use -h for help""");
-    }
-
-    /**
      * Connect to the server and run the client.
      *
      * @param ip   The IP address to connect the client to.
@@ -76,7 +48,7 @@ public class Main {
             handler.disconnect();
         }
         catch (Exception e) {
-            Logger.get().error(e);
+            throw new RuntimeException(e);
         }
     }
 }

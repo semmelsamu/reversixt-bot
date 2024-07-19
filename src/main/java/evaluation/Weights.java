@@ -4,7 +4,6 @@ import board.Coordinates;
 import board.CoordinatesExpander;
 import board.Tile;
 import game.Game;
-import util.Logger;
 
 import java.util.Set;
 
@@ -46,8 +45,6 @@ public class Weights {
                 }
             }
         }
-
-        Logger.get().log(toString());
 
     }
 

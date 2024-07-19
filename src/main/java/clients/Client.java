@@ -4,12 +4,9 @@ import evaluation.BoardInfo;
 import evaluation.GameEvaluator;
 import game.Game;
 import move.Move;
-import util.Logger;
 import util.Timer;
 
 public class Client {
-
-    private final Logger logger = new Logger(this.getClass().getName());
 
     /**
      * The local copy of the game that runs in sync with the server.
@@ -39,10 +36,7 @@ public class Client {
     public Client(Game game, int playerNumber) {
 
         this.game = game;
-        logger.log(logGame());
         this.playerNumber = playerNumber;
-
-        logger.log("We are player " + playerNumber);
 
         boardInfo = new BoardInfo(game);
         // weights = new Weights(game);
@@ -54,7 +48,6 @@ public class Client {
      */
     public void executeMove(Move move) {
         game.executeMove(move);
-        logger.debug(logGame());
     }
 
     /**
@@ -65,11 +58,8 @@ public class Client {
 
         SearchStats.moveRequests++;
 
-        this.logger.log("Searching new move in " + timer.getLimitInMs() + "ms");
-
         // Check if reachableTiles has to be updated
         if (boardInfo.hasReachableTilesToBeUpdated(game)) {
-            logger.log("Re-calculating board info...");
             boardInfo.updateReachableTiles(game, (int) (timer.getLimitInMs() / 2));
         }
 
@@ -87,13 +77,6 @@ public class Client {
      */
     public void disqualify(int playerNumber) {
         game.disqualifyPlayer(playerNumber);
-    }
-
-    /**
-     * Log a bunch of concluding stats.
-     */
-    public void logStats() {
-        logger.verbose(SearchStats.summarize());
     }
 
     public String logGame() {

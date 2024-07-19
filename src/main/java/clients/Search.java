@@ -1,13 +1,10 @@
 package clients;
 
 import evaluation.GameEvaluator;
-import exceptions.GamePhaseNotValidException;
-import exceptions.NotEnoughTimeException;
 import exceptions.OutOfTimeException;
 import game.Game;
 import game.GamePhase;
 import move.Move;
-import util.Logger;
 import util.Timer;
 import util.Tuple;
 
@@ -15,8 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class Search {
-
-    Logger logger = new Logger(this.getClass().getName());
 
     /**
      * The game for which to search a new move for.
@@ -92,8 +87,6 @@ public class Search {
             // Iterative deepening search
             int depthLimit = 2;
             while (game.getPhase().equals(GamePhase.BUILD) && depthLimit <= depth) {
-                logger.log("Iterative deepening: Depth " + depthLimit);
-
                 timer.reset();
 
                 // Perform actual search
@@ -107,14 +100,9 @@ public class Search {
 
             }
 
-            logger.log("Exiting iterative deepening");
-
         }
-        catch (OutOfTimeException e) {
-            logger.warn(e.getMessage());
-        }
-        catch (NotEnoughTimeException | GamePhaseNotValidException e) {
-            logger.log(e.getMessage());
+        catch (Exception e) {
+            // Abort search
         }
 
         return result;

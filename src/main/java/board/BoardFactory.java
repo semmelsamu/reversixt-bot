@@ -1,15 +1,11 @@
 package board;
 
-import util.Logger;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class BoardFactory {
-
-    static Logger logger = new Logger(BoardFactory.class.getName());
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -25,13 +21,10 @@ public class BoardFactory {
      */
     public static Board createFromLines(LinkedList<String> lines) {
 
-        logger.verbose("Creating board from lines");
-
         // Parsing dimensions
         String[] dimensions = lines.remove(0).split(" ");
         int height = Integer.parseInt(dimensions[0]);
         int width = Integer.parseInt(dimensions[1]);
-        logger.debug("Dimensions: Height " + height + "; Width " + width);
 
         // Parsing
         char[][] rawTiles = parseMap(lines, height, width);
@@ -55,13 +48,10 @@ public class BoardFactory {
 
     private static char[][] parseMap(List<String> lines, int height, int width) {
 
-        logger.verbose("Parsing map");
-
         char[][] map = new char[height][width];
 
         for (int y = 0; y < height; y++) {
             String currentLine = lines.remove(0);
-            logger.debug(currentLine);
             String[] currentRows = currentLine.split((" "));
             for (int x = 0; x < width; x++) {
                 map[y][x] = currentRows[x].charAt(0);
@@ -73,8 +63,6 @@ public class BoardFactory {
 
     private static int[][] parseTransitions(LinkedList<String> lines) {
 
-        logger.verbose("Parsing transitions");
-
         int[][] transitions = new int[lines.size()][6];
 
         for (int i = 0; i < lines.size(); i++) {
@@ -85,7 +73,6 @@ public class BoardFactory {
                 continue;
             }
 
-            logger.debug(currentLine);
             String[] transitionParts = currentLine.split(" ");
             transitions[i] = new int[]{
                     Integer.parseInt(transitionParts[0]), Integer.parseInt(transitionParts[1]),

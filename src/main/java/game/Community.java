@@ -5,7 +5,6 @@ import board.CoordinatesExpander;
 import board.Tile;
 import evaluation.GameEvaluator;
 import move.Move;
-import util.Logger;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,8 +13,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Community implements Cloneable {
-
-    Logger logger = new Logger(this.getClass().getName());
 
     /**
      * The Coordinates this Community includes.

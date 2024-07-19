@@ -8,15 +8,11 @@ import exceptions.MoveNotValidException;
 import game.logic.MoveCalculator;
 import game.logic.MoveExecutor;
 import move.Move;
-import util.Logger;
-import util.NullLogger;
 
 import java.util.Map;
 import java.util.Set;
 
 public class Game implements Cloneable {
-
-    Logger logger = new Logger(this.getClass().getName());
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -77,8 +73,6 @@ public class Game implements Cloneable {
      */
     public Game(int initialPlayers, int initialOverwriteStones, int initialBombs, int bombRadius,
                 Board board) {
-
-        logger.verbose("Creating game");
 
         // Set board
         this.board = board;
@@ -150,14 +144,10 @@ public class Game implements Cloneable {
 
             if (oldPlayer == currentPlayer && validMoves.isEmpty()) {
                 if (phase == GamePhase.BUILD) {
-                    logger.log(
-                            "No more player has any moves in the coloring phase, entering bomb " +
-                                    "phase");
                     phase = GamePhase.BOMB;
                     rotateCurrentPlayer();
                     oldPlayer = currentPlayer;
                 } else if (phase == GamePhase.BOMB) {
-                    logger.log("No more player has any bomb moves, entering end");
                     phase = GamePhase.END;
                     // Set player to no player because the game ended
                     currentPlayer = 0;
@@ -170,8 +160,6 @@ public class Game implements Cloneable {
             }
 
         } while (validMoves.isEmpty() || getPlayer(currentPlayer).isDisqualified());
-
-        logger.debug("Current player is now " + currentPlayer);
     }
 
     public void disqualifyPlayer(int player) {
@@ -308,10 +296,6 @@ public class Game implements Cloneable {
             clone.players = new Player[this.players.length];
             for (int i = 0; i < this.players.length; i++) {
                 clone.players[i] = this.players[i].clone();
-            }
-
-            if (!(clone.logger instanceof NullLogger)) {
-                clone.logger = new NullLogger("");
             }
 
             // Caches
