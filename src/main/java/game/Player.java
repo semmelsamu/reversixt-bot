@@ -1,8 +1,11 @@
 package game;
 
 import board.Tile;
+import util.Logger;
 
 public class Player implements Cloneable {
+
+    private Logger logger = new Logger(this.getClass().getName());
 
     /*
     |--------------------------------------------------------------------------

@@ -8,6 +8,7 @@ import game.Game;
 import game.GamePhase;
 import move.Move;
 import move.OverwriteMove;
+import util.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,6 +97,7 @@ public class BoardInfo {
 
             if (ListOfRelevantMoves.get(0) instanceof OverwriteMove) {
                 int playerNumber = purposeGame.getCurrentPlayerNumber();
+                Logger.get().warn("OM detected");
 
                 // Check if only overwrite moves were played for a whole round
                 if (!boundaries.equals(noOverwriteTheMoveBefore) &&
@@ -126,6 +128,7 @@ public class BoardInfo {
         if (System.currentTimeMillis() - time >= TIMECAP_MS &&
                 3 * game.totalTilesOccupiedCounter.getTotalTilesOccupied() >=  newReachableTiles){
             simulationGame = purposeGame;
+            Logger.get().log("Reachable tiles are updated...");
             return;
         }
         else{
@@ -157,6 +160,7 @@ public class BoardInfo {
         wereReachableTilesCalculated = true;
         lastUpdate = game.totalTilesOccupiedCounter.getTotalTilesOccupied();
 
+        Logger.get().log("Reachable tiles were updated to " + reachableTiles);
     }
 
     public boolean hasReachableTilesToBeUpdated(Game game) {

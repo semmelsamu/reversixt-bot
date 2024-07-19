@@ -2,6 +2,7 @@ package network;
 
 import exceptions.ClientDisqualifiedException;
 import exceptions.NetworkException;
+import util.Logger;
 import util.Triple;
 
 import java.io.DataInputStream;
@@ -13,6 +14,8 @@ import java.net.Socket;
  * Manages the communication between a client and a server via a network socket.
  */
 public class NetworkEventHandler {
+
+    Logger logger = new Logger(this.getClass().getName());
 
     private Socket socket;
     private DataOutputStream out;
@@ -28,9 +31,14 @@ public class NetworkEventHandler {
      * @param port The port number on the server to which the client will connect.
      */
     public void connect(String ip, int port) throws IOException {
+
+        logger.log("Attempting to connect to server " + ip + " on port " + port);
+
         socket = new Socket(ip, port);
         out = new DataOutputStream(socket.getOutputStream());
         in = new DataInputStream(socket.getInputStream());
+        logger.log("Connected");
+
     }
 
     /**
@@ -46,10 +54,16 @@ public class NetworkEventHandler {
     }
 
     public void disconnect() throws IOException {
+
+        logger.log("Disconnecting from server");
+
         socket.close();
+        logger.log("Disconnected");
+
     }
 
     private void sendGroupNumber() throws IOException {
+        logger.verbose("Sending group number to server");
         out.writeByte(1); // Message type
         out.writeInt(1); // Message length
         out.writeByte(client.sendGroupNumber());
@@ -60,6 +74,8 @@ public class NetworkEventHandler {
         boolean isRunning = true;
 
         while (isRunning) {
+
+            logger.debug("Waiting for server");
 
             int messageType = in.readByte();
             int length = in.readInt();
@@ -73,6 +89,7 @@ public class NetworkEventHandler {
                 case 2: // Server sends map
                     byte[] map = new byte[length];
                     in.readFully(map);
+                    logger.log("Receiving map");
                     client.receiveMap(new String(map));
                     break;
 
@@ -80,6 +97,8 @@ public class NetworkEventHandler {
                 case 3: // Server assigns player number
 
                     playerNumber = in.readByte();
+
+                    logger.log("Received player number " + playerNumber);
                     client.receivePlayerNumber(playerNumber);
                     break;
 
@@ -88,6 +107,8 @@ public class NetworkEventHandler {
 
                     int timeLimit = in.readInt();
                     byte depthLimit = in.readByte();
+
+                    logger.log("Server requests move (time/depth) " + timeLimit + " " + depthLimit);
 
                     // Get move answer
                     Triple<Short, Short, Byte> answer =
@@ -113,6 +134,9 @@ public class NetworkEventHandler {
                     byte type = in.readByte();
                     byte player = in.readByte();
 
+                    logger.log("Received move (" + x + "/" + y + ") type=" + type + " player=" +
+                            player);
+
                     // Pass to client
                     client.receiveMove(x, y, type, player);
 
@@ -123,6 +147,7 @@ public class NetworkEventHandler {
 
                     byte disqualifiedPlayer = in.readByte();
 
+                    logger.log("Received disqualification of player " + disqualifiedPlayer);
                     client.receiveDisqualification(disqualifiedPlayer);
 
                     if (disqualifiedPlayer == playerNumber) {
@@ -134,14 +159,15 @@ public class NetworkEventHandler {
 
                 case 8: // End of phase 1
 
-                    // Once upon a time here was logging code. Now it isn't as we optimize for
-                    // performance. Nice.
-
+                    logger.log("Received end of phase 1");
+                    client.receiveEndingPhase1();
                     break;
 
 
                 case 9: // End of phase 2 - the end.
 
+                    logger.log("Received end of phase 2 - the end.");
+                    client.receiveEndingPhase2();
                     isRunning = false;
                     break;
 

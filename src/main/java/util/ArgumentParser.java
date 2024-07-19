@@ -95,13 +95,12 @@ public class ArgumentParser {
 
     @Override
     public String toString() {
-        StringBuilder result =
-                new StringBuilder("\n").append(StringUtil.fillString("Arguments:", 29))
-                        .append("Default Values:\n\n");
+        StringBuilder result = new StringBuilder("\n").append(Logger.fillString("Arguments:", 29))
+                .append("Default Values:\n\n");
 
         for (var parameter : parameters.entrySet()) {
-            result.append(StringUtil.fillString("-" + parameter.getKey(), 5)).append("  ");
-            result.append(StringUtil.fillString(parameter.getValue().name, 20)).append("  ");
+            result.append(Logger.fillString("-" + parameter.getKey(), 5)).append("  ");
+            result.append(Logger.fillString(parameter.getValue().name, 20)).append("  ");
             result.append(parameter.getValue().defaultValue).append("\n");
         }
 

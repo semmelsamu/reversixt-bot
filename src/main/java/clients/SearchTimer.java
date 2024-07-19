@@ -2,12 +2,15 @@ package clients;
 
 import exceptions.NotEnoughTimeException;
 import exceptions.OutOfTimeException;
+import util.Logger;
 import util.Timer;
 
 import static util.Tree.calculateBranchingFactor;
 import static util.Tree.calculateNodeCountOfTree;
 
 public class SearchTimer {
+
+    Logger logger = new Logger(this.getClass().getName());
 
     /*
     |-----------------------------------------------------------------------------------------------
@@ -75,13 +78,20 @@ public class SearchTimer {
         int newDepth = depth + 1;
         double timeEstimated = calculateNodeCountOfTree(branchingFactor, newDepth) * timePerGame;
 
+        logger.log("Time passed for last depth: " + currentTimer.timePassedInMs());
+
         // Hotfix - this should never happen
         if (timeEstimated < currentTimer.timePassed() * 2) {
+            logger.log("Time estimated by hotfix");
+
             // Inflate estimated time at least a little bit
             timeEstimated += currentTimer.timePassed();
             timeEstimated *= branchingFactor;
 
         }
+
+        logger.log("Time estimated for next depth: " +
+                Timer.fromNanoToMilli(Math.round(timeEstimated)));
 
         if (mainTimer.timeLeft() < timeEstimated) {
             throw new NotEnoughTimeException("Not enough time for next depth: " +

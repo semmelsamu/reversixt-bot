@@ -8,6 +8,7 @@ import game.GameFactory;
 import game.GamePhase;
 import move.*;
 import util.Constants;
+import util.Logger;
 import util.Timer;
 import util.Triple;
 
@@ -16,7 +17,7 @@ import util.Triple;
  */
 public class NetworkClientAdapter {
 
-    //    private final Logger logger = new Logger(this.getClass().getName());
+    private final Logger logger = new Logger(this.getClass().getName());
 
     private Client client;
 
@@ -64,6 +65,8 @@ public class NetworkClientAdapter {
 
         Move result = client.search(timer, depth);
 
+        logger.log("Sending " + result.getClass().getSimpleName() + result.getCoordinates());
+
         short x = (short) result.getCoordinates().x;
         short y = (short) result.getCoordinates().y;
 
@@ -109,12 +112,33 @@ public class NetworkClientAdapter {
             client.executeMove(move);
         }
         catch (Exception e) {
-            // Not aborting. Maybe we'll get lucky and manage to sneak through.
+            // Only log but let it run. Maybe we'll get lucky and manage to sneak through.
+            logger.error(e);
+            client.logStats();
+            logger.warn("Not aborting because maybe we'll still be able to move on. 0 points are " +
+                    "still better than a disqualification.");
         }
     }
 
     public void receiveDisqualification(byte playerNumber) {
         client.disqualify(playerNumber);
+        if (this.playerNumber == playerNumber) {
+            logger.error("Client got disqualified");
+        }
+        client.logStats();
     }
 
+    public void receiveEndingPhase1() {
+        if (!game.getPhase().equals(GamePhase.BOMB)) {
+            logger.warn("Server and client game phase are out of sync");
+        }
+        client.logStats();
+    }
+
+    public void receiveEndingPhase2() {
+        if (!game.getPhase().equals(GamePhase.END)) {
+            logger.warn("Server and client game phase are out of sync");
+        }
+        client.logStats();
+    }
 }
