@@ -55,8 +55,10 @@ public class NetworkClientAdapter {
         Timer timer;
         int depth;
 
+        int variableTimeBuffer = (timeLimit - Constants.TIME_MOVE_ANSWER) / 10;
+
         if (timeLimit > 0) {
-            timer = new Timer(timeLimit - Constants.TIME_BUFFER);
+            timer = new Timer(timeLimit - Constants.TIME_BUFFER - variableTimeBuffer);
             depth = Integer.MAX_VALUE;
         } else {
             timer = new Timer(Long.MAX_VALUE);
